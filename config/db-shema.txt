@@ -1,0 +1,220 @@
+-- 1. School (single row)
+CREATE TABLE school (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(200) NOT NULL,
+  address TEXT,
+  email VARCHAR(200),
+  phone VARCHAR(50),
+  whatsapp VARCHAR(50),
+  facebook VARCHAR(200),
+  twitter VARCHAR(200),
+  instagram VARCHAR(200),
+  logo_path VARCHAR(500),      -- PNG path or URL
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 2. category (student categories)
+CREATE TABLE category (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,   -- e.g., 'Day - Junior', 'Boarding - Senior'
+  description TEXT
+);
+
+-- 3. class (school classes)
+CREATE TABLE class (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,  -- e.g., 'JSS 1', 'Grade 3'
+  category_id INT,
+  description TEXT,
+  FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE SET NULL
+);
+
+-- 4. subject
+CREATE TABLE subject (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(150) NOT NULL,
+  code VARCHAR(50),
+  description TEXT
+);
+
+-- 5. staff
+CREATE TABLE staff (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  email VARCHAR(200),
+  phone VARCHAR(50),
+  role VARCHAR(100),        -- e.g., 'Teacher', 'Principal', 'Accountant'
+  qualifications TEXT,
+  subjects TEXT,            -- optional comma-separated list OR use staff_subject join table
+  photo_path VARCHAR(500),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- staff_subject (many-to-many)
+CREATE TABLE staff_subject (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  staff_id INT NOT NULL,
+  subject_id INT NOT NULL,
+  FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE,
+  FOREIGN KEY (subject_id) REFERENCES subject(id) ON DELETE CASCADE
+);
+
+-- class_subject (which subjects are taught in which classes)
+CREATE TABLE class_subject (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  class_id INT NOT NULL,
+  subject_id INT NOT NULL,
+  FOREIGN KEY (class_id) REFERENCES class(id) ON DELETE CASCADE,
+  FOREIGN KEY (subject_id) REFERENCES subject(id) ON DELETE CASCADE
+);
+
+-- 6. students
+CREATE TABLE student (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  admission_number VARCHAR(100) UNIQUE,  -- admission numbering format applied here
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  date_of_birth DATE,
+  gender VARCHAR(20),
+  category_id INT,
+  class_id INT,
+  admission_date DATE,
+  photo_path VARCHAR(500),
+  address TEXT,
+  guardian_name VARCHAR(200),
+  guardian_phone VARCHAR(50),
+  guardian_email VARCHAR(200),
+  status VARCHAR(50) DEFAULT 'active', -- active, graduated, withdrawn
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (category_id) REFERENCES category(id),
+  FOREIGN KEY (class_id) REFERENCES class(id)
+);
+
+-- 7. admission (store admission form copy and letter)
+CREATE TABLE admission (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  student_id INT,
+  form_data JSON,          -- raw admission form data for flexibility
+  form_pdf_path VARCHAR(500),
+  letter_pdf_path VARCHAR(500),
+  numbering_format VARCHAR(100), -- store used format for this admission
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE
+);
+
+-- 8. fee_items (fee structure)
+CREATE TABLE fee_item (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(150) NOT NULL,     -- e.g., 'Tuition', 'Exam Fee'
+  description TEXT,
+  amount DECIMAL(12,2) NOT NULL,
+  applicable_to_category_id INT,  -- NULL => all
+  applicable_to_class_id INT,     -- NULL => all
+  term ENUM('First','Second','Third') NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (applicable_to_category_id) REFERENCES category(id),
+  FOREIGN KEY (applicable_to_class_id) REFERENCES class(id)
+);
+
+-- 9. payment_receipts
+CREATE TABLE payment_receipt (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  receipt_number VARCHAR(100) UNIQUE,
+  student_id INT,
+  fee_item_id INT,
+  amount_paid DECIMAL(12,2),
+  payment_date DATETIME,
+  payment_method VARCHAR(100), -- Cash, Bank Transfer, POS, Online
+  payer_name VARCHAR(200),
+  receipt_pdf_path VARCHAR(500),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES student(id),
+  FOREIGN KEY (fee_item_id) REFERENCES fee_item(id)
+);
+
+-- 10. exam_timetable
+CREATE TABLE exam_timetable (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(200),
+  class_id INT,
+  subject_id INT,
+  exam_date DATE,
+  start_time TIME,
+  end_time TIME,
+  location VARCHAR(200),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (class_id) REFERENCES class(id),
+  FOREIGN KEY (subject_id) REFERENCES subject(id)
+);
+
+-- 11. lesson_timetable (teacher & student timetables)
+CREATE TABLE lesson_timetable (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  class_id INT,
+  subject_id INT,
+  staff_id INT,
+  day_of_week ENUM('Mon','Tue','Wed','Thu','Fri','Sat','Sun'),
+  start_time TIME,
+  end_time TIME,
+  location VARCHAR(200),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (class_id) REFERENCES class(id),
+  FOREIGN KEY (subject_id) REFERENCES subject(id),
+  FOREIGN KEY (staff_id) REFERENCES staff(id)
+);
+
+-- 12. result_card (per student per exam/term)
+CREATE TABLE result_card (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  student_id INT,
+  term ENUM('First','Second','Third'),
+  session VARCHAR(50),
+  result_data JSON,    -- structured results {subject: {score, grade, remark}}
+  printed_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES student(id)
+);
+
+-- 13. grade_sheet (aggregate)
+CREATE TABLE grade_sheet (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  class_id INT,
+  term ENUM('First','Second','Third'),
+  session VARCHAR(50),
+  sheet_data JSON,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (class_id) REFERENCES class(id)
+);
+
+-- 14. uniform (descriptions & photos)
+CREATE TABLE uniform (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  category_id INT,
+  description TEXT,
+  image_path VARCHAR(500),
+  FOREIGN KEY (category_id) REFERENCES category(id)
+);
+
+-- 15. media (school photos, event pictures, staff/student photos)
+CREATE TABLE media (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  type ENUM('school','event','structure','student','staff','other') DEFAULT 'other',
+  title VARCHAR(200),
+  description TEXT,
+  file_path VARCHAR(500),
+  uploaded_by INT,  -- staff id
+  uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (uploaded_by) REFERENCES staff(id)
+);
+
+-- 16. messages (Director welcome, admission procedure, other descriptive pages)
+CREATE TABLE messages (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  slug VARCHAR(150) UNIQUE,   -- 'director-welcome', 'admission-procedure'
+  title VARCHAR(200),
+  content TEXT,               -- html or markdown
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
