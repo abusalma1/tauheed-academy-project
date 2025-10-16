@@ -1,31 +1,40 @@
 <?php
 
+$rootUrl = "/tauheed-academy-project";
+
 $routes = [
     'home' => [
-        'url' => '/tauheed-academy-project/index.php'
+        'url' => "$rootUrl/index.php"
     ],
     'about' => [
-        'url' => '/tauheed-academy-project/pages/about.php'
+        'url' => "$rootUrl/pages/about.php"
     ],
     'academics' => [
-        'url' => '/tauheed-academy-project/pages/academics.php'
+        'url' => "$rootUrl/pages/academics.php"
     ],
     'admission' => [
-        'url' => '/tauheed-academy-project/pages/admissions.php'
+        'url' => "$rootUrl/pages/admissions.php"
     ],
     'fees' => [
-        'url' => '/tauheed-academy-project/pages/fees.php'
+        'url' => "$rootUrl/pages/fees.php"
     ],
     'gallery' => [
-        'url' => '/tauheed-academy-project/pages/gallery.php'
+        'url' => "$rootUrl/pages/gallery.php"
     ],
     'staff' => [
-        'url' => '/tauheed-academy-project/pages/staff.php'
+        'url' => "$rootUrl/pages/staff.php"
     ],
     'timetable' => [
-        'url' => '/tauheed-academy-project/pages/timetable.php'
+        'url' => "$rootUrl/pages/timetable.php"
     ],
     'uniform' => [
-        'url' => '/tauheed-academy-project/pages/uniform.php'
+        'url' => "$rootUrl/pages/uniform.php"
     ],
+    'login' => [
+        'url' => " $rootUrl/auth/login.php"
+    ],
+    'register' => [
+        'url' => " $rootUrl/auth/register.php"
+    ]
+
 ];
