@@ -1,40 +1,40 @@
 <?php
-
-$rootUrl = "/tauheed-academy-project";
+include(__DIR__ . '/../config/db-connect.php');
+$baseUrl = BASE_URL;
 
 $routes = [
     'home' => [
-        'url' => "$rootUrl/index.php"
+        'url' => "$baseUrl/index.php"
     ],
     'about' => [
-        'url' => "$rootUrl/pages/about.php"
+        'url' => "$baseUrl/pages/about.php"
     ],
     'academics' => [
-        'url' => "$rootUrl/pages/academics.php"
+        'url' => "$baseUrl/pages/academics.php"
     ],
     'admission' => [
-        'url' => "$rootUrl/pages/admissions.php"
+        'url' => "$baseUrl/pages/admissions.php"
     ],
     'fees' => [
-        'url' => "$rootUrl/pages/fees.php"
+        'url' => "$baseUrl/pages/fees.php"
     ],
     'gallery' => [
-        'url' => "$rootUrl/pages/gallery.php"
+        'url' => "$baseUrl/pages/gallery.php"
     ],
     'staff' => [
-        'url' => "$rootUrl/pages/staff.php"
+        'url' => "$baseUrl/pages/staff.php"
     ],
     'timetable' => [
-        'url' => "$rootUrl/pages/timetable.php"
+        'url' => "$baseUrl/pages/timetable.php"
     ],
     'uniform' => [
-        'url' => "$rootUrl/pages/uniform.php"
+        'url' => "$baseUrl/pages/uniform.php"
     ],
     'login' => [
-        'url' => " $rootUrl/auth/login.php"
+        'url' => " $baseUrl/auth/login.php"
     ],
     'register' => [
-        'url' => " $rootUrl/auth/register.php"
+        'url' => " $baseUrl/auth/register.php"
     ]
 
 ];

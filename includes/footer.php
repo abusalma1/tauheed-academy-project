@@ -56,15 +56,8 @@
     </div>
 </footer>
 
-<!-- Mobile Menu Script -->
-<script>
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
+<script src="<?= BASE_URL ?>/static/js/main.js"></script>
 
-    mobileMenuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
-</script>
 </body>
 
 </html>

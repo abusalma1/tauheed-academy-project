@@ -1,6 +1,5 @@
 <?php
 session_start();
-include(__DIR__ .  '/../config/db-connect.php');
 include(__DIR__ .  '/../routes/routes.php');
 
 ?>
