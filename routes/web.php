@@ -35,6 +35,9 @@ $routes = [
     ],
     'register' => [
         'url' => " $baseUrl/auth/register.php"
+    ],
+    'logout' => [
+        'url' => " $baseUrl/auth/logout.php"
     ]
 
 ];
