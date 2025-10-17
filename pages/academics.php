@@ -20,7 +20,7 @@ include(__DIR__ .  '/../includes/header.php');
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Subjects by Class Category</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                Pre-Primary
+                <!-- Pre-Primary -->
                 <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
                     <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-baby text-2xl"></i>
@@ -35,7 +35,7 @@ include(__DIR__ .  '/../includes/header.php');
                     </ul>
                 </div>
 
-                Lower Primary
+                <!-- Lower Primary -->
                 <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
                     <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-child text-2xl"></i>
@@ -52,7 +52,7 @@ include(__DIR__ .  '/../includes/header.php');
                     </ul>
                 </div>
 
-                Upper Primary
+                <!-- Upper Primary -->
                 <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
                     <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-user-graduate text-2xl"></i>
@@ -70,7 +70,7 @@ include(__DIR__ .  '/../includes/header.php');
                     </ul>
                 </div>
 
-                Junior Secondary
+                <!-- Junior Secondary -->
                 <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
                     <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-book-reader text-2xl"></i>
@@ -89,7 +89,7 @@ include(__DIR__ .  '/../includes/header.php');
                     </ul>
                 </div>
 
-                Senior Secondary
+                <!-- Senior Secondary -->
                 <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
                     <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-graduation-cap text-2xl"></i>
@@ -108,7 +108,7 @@ include(__DIR__ .  '/../includes/header.php');
                     </ul>
                 </div>
 
-                Electives
+                <!-- Electives -->
                 <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
                     <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-star text-2xl"></i>
@@ -133,7 +133,7 @@ include(__DIR__ .  '/../includes/header.php');
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Sample Student Results</h2>
 
-            Result Card
+            <!-- Result Card -->
             <div class="max-w-4xl mx-auto mb-12">
                 <h3 class="text-2xl font-bold text-center text-gray-900 mb-6">Student Result Card</h3>
                 <div class="bg-white rounded-lg shadow-xl border-2 border-gray-200 overflow-hidden">
