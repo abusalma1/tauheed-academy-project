@@ -242,14 +242,6 @@
 
      <!-- Scripts -->
      <script>
-         // Mobile Menu Toggle
-         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-         const mobileMenu = document.getElementById('mobile-menu');
-
-         mobileMenuBtn.addEventListener('click', () => {
-             mobileMenu.classList.toggle('hidden');
-         });
-
          // Password Toggle
          const togglePassword = document.getElementById('toggle-password');
          const passwordInput = document.getElementById('password');

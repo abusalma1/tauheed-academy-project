@@ -10,7 +10,7 @@ if (isset($_POST['submit'])) {
     $password = trim($_POST['password']);
 
     if (!empty($email) && !empty($password)) {
-        $statement = $connection->prepare("SELECT * from users where email = ?");
+        $statement = $connection->prepare("SELECT * from student where email = ?");
         $statement->bind_param("s", $email);
         $statement->execute();
         $result = $statement->get_result();
@@ -24,7 +24,7 @@ if (isset($_POST['submit'])) {
 
                 header('Location: ../index.php');
             } else {
-                $error = "Incorrect Email Or password";
+                $error = "Incorrect email Or password";
             }
         } else {
             $error = "Account Does Not Exist";
@@ -33,6 +33,8 @@ if (isset($_POST['submit'])) {
         $error = 'All Fields Are Required!';
     }
 }
+
+
 
 ?>
 
@@ -54,7 +56,15 @@ if (isset($_POST['submit'])) {
                 </div>
 
                 <!-- Login Form -->
-                <form id="login-form" class="space-y-6">
+                <form class="space-y-6" method="post" action="">
+                    <!-- Error Message -->
+                    <?php if (!empty($error)): ?>
+                        <div class="mt-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-700 text-sm font-medium flex items-center gap-2">
+                            <i class="fas fa-exclamation-circle text-red-600"></i>
+                            <?= htmlspecialchars($error) ?>
+                        </div>
+                    <?php endif; ?>
+
                     <!-- Email/Username -->
                     <div>
                         <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -105,9 +115,11 @@ if (isset($_POST['submit'])) {
                     <!-- Submit Button -->
                     <button
                         type="submit"
+                        name="submit"
                         class="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition shadow-lg hover:shadow-xl">
                         <i class="fas fa-sign-in-alt mr-2"></i>Sign In
                     </button>
+
                 </form>
 
                 <!-- Divider -->
@@ -145,34 +157,21 @@ if (isset($_POST['submit'])) {
 
     <!-- Scripts -->
     <script>
-        // Mobile Menu Toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
         // Password Toggle
         const togglePassword = document.getElementById('toggle-password');
         const passwordInput = document.getElementById('password');
         const eyeIcon = document.getElementById('eye-icon');
 
-        togglePassword.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            eyeIcon.classList.toggle('fa-eye');
-            eyeIcon.classList.toggle('fa-eye-slash');
-        });
-
-        // Form Submission
-        const loginForm = document.getElementById('login-form');
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Add your login logic here
-            alert('Login functionality will be implemented with backend integration');
-        });
+        if (togglePassword) {
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+        }
     </script>
+
 </body>
 
 </html>
