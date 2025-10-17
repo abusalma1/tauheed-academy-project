@@ -1,9 +1,76 @@
-<?php 
-include("../includes/header.php");
+<?php
+include(__DIR__ . "/../includes/header.php");
+
+
+// Step 1: Try to get an existing school record
+$statement = $connection->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
+$statement->execute();
+$result = $statement->get_result();
+$school = $result->fetch_assoc();
+
+// Step 2: If no record exists, create one with a default name
+if (!$school) {
+    $default_name = 'Tauheed Academy';
+    $insert_stmt = $connection->prepare('INSERT INTO schools (name, created_at, updated_at) VALUES (?, NOW(), NOW())');
+    $insert_stmt->bind_param('s', $default_name);
+    $insert_stmt->execute();
+
+    // Fetch again to get the inserted record
+    $statement = $connection->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
+    $statement->execute();
+    $result = $statement->get_result();
+    $school = $result->fetch_assoc();
+}
+
+if (isset($_POST['submit'])) {
+    $id = $school['id']; // existing record id
+
+    $name = htmlspecialchars($_POST['name']);
+    $address = htmlspecialchars($_POST['address']);
+    $email = htmlspecialchars($_POST['email']);
+    $phone = htmlspecialchars($_POST['phone']);
+    $whatsapp_number = htmlspecialchars($_POST['whatsapp_number']);
+    $facebook = htmlspecialchars($_POST['facebook']);
+    $instagram = htmlspecialchars($_POST['instagram']);
+    $twitter = htmlspecialchars($_POST['twitter']);
+
+    $statement = $connection->prepare("
+        UPDATE schools 
+        SET name = ?, address = ?, email = ?, phone = ?, whatsapp_number = ?, facebook = ?, instagram = ?, twitter = ?, updated_at = NOW() 
+        WHERE id = ?
+    ");
+
+    $statement->bind_param(
+        'ssssssssi',
+        $name,
+        $address,
+        $email,
+        $phone,
+        $whatsapp_number,
+        $facebook,
+        $instagram,
+        $twitter,
+        $id
+    );
+
+    if ($statement->execute()) {
+        echo "<script>
+    window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
+</script>";
+
+        // refresh the data
+        $result = $connection->query("SELECT * FROM schools WHERE id = $id");
+        $school = $result->fetch_assoc();
+    } else {
+        echo "<script>alert('Failed to update school info: " . $statement->error . "');</script>";
+    }
+}
+
 ?>
+
 <body class="bg-gray-50">
     <!-- Navigation -->
-<?php include(__DIR__.'/../includes/nav.php') ?>
+    <?php include(__DIR__ . '/../includes/nav.php') ?>
 
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-16">
@@ -24,7 +91,13 @@ include("../includes/header.php");
                 </div>
 
                 <!-- Form -->
-                <form id="schoolInfoForm" class="space-y-8">
+                <form id="schoolInfoForm" class="space-y-8" method="post" enctype="multipart/form-data">
+                    <!-- Success Message -->
+                    <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                        <i class="fas fa-check-circle"></i>
+                        <span>School information updated successfully!</span>
+                    </div>
+                    <input type="text" value="<?= htmlspecialchars($school['id']) ?>" hidden>
                     <!-- Basic Information Section -->
                     <div class="border-b pb-8">
                         <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -34,10 +107,10 @@ include("../includes/header.php");
 
                         <!-- School Name -->
                         <div class="mb-6">
-                            <label for="schoolName" class="block text-gray-700 font-semibold mb-2">
+                            <label for="name" class="block text-gray-700 font-semibold mb-2">
                                 School Name <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="schoolName" name="schoolName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter school name" required>
+                            <input type="text" id="name" name="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter school name" value="<?= htmlspecialchars($school['name'] ?? '') ?>">
                         </div>
 
                         <!-- Address -->
@@ -45,7 +118,7 @@ include("../includes/header.php");
                             <label for="address" class="block text-gray-700 font-semibold mb-2">
                                 Address <span class="text-red-500">*</span>
                             </label>
-                            <textarea id="address" name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter complete school address" required></textarea>
+                            <textarea id="address" name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter complete school address"><?= htmlspecialchars($school['address'] ?? '') ?></textarea>
                         </div>
 
                         <!-- Email -->
@@ -53,24 +126,24 @@ include("../includes/header.php");
                             <label for="email" class="block text-gray-700 font-semibold mb-2">
                                 Email Address <span class="text-red-500">*</span>
                             </label>
-                            <input type="email" id="email" name="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter school email" required>
+                            <input type="email" id="email" name="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter school email" value="<?= htmlspecialchars($school['email'] ?? '') ?>">
                         </div>
 
                         <!-- Phone Number -->
                         <div class="grid md:grid-cols-2 gap-6 mb-6">
                             <div>
-                                <label for="phoneNumber" class="block text-gray-700 font-semibold mb-2">
+                                <label for="phone" class="block text-gray-700 font-semibold mb-2">
                                     Phone Number <span class="text-red-500">*</span>
                                 </label>
-                                <input type="tel" id="phoneNumber" name="phoneNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="+234 800 123 4567" required>
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="+234 800 123 4567" value="<?= htmlspecialchars($school['phone'] ?? '') ?>">
                             </div>
 
                             <!-- WhatsApp Number -->
                             <div>
-                                <label for="whatsappNumber" class="block text-gray-700 font-semibold mb-2">
+                                <label for="whatsapp_number" class="block text-gray-700 font-semibold mb-2">
                                     WhatsApp Number <span class="text-red-500">*</span>
                                 </label>
-                                <input type="tel" id="whatsappNumber" name="whatsappNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="+234 800 123 4567" required>
+                                <input type="tel" id="whatsapp_number" name="whatsapp_number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="+234 800 123 4567" value="<?= htmlspecialchars($school['whatsapp_number'] ?? '') ?>">
                             </div>
                         </div>
                     </div>
@@ -84,26 +157,26 @@ include("../includes/header.php");
 
                         <!-- Facebook -->
                         <div class="mb-6">
-                            <label for="facebookLink" class="block text-gray-700 font-semibold mb-2">
+                            <label for="facebook" class="block text-gray-700 font-semibold mb-2">
                                 <i class="fab fa-facebook text-blue-600 mr-2"></i>Facebook Link
                             </label>
-                            <input type="url" id="facebookLink" name="facebookLink" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://facebook.com/excellenceacademy">
+                            <input type="url" id="facebook" name="facebook" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://facebook.com/schoolname" value="<?= htmlspecialchars($school['facebook'] ?? '') ?>">
                         </div>
 
                         <!-- Twitter -->
                         <div class="mb-6">
-                            <label for="twitterLink" class="block text-gray-700 font-semibold mb-2">
+                            <label for="twitter" class="block text-gray-700 font-semibold mb-2">
                                 <i class="fab fa-twitter text-blue-400 mr-2"></i>Twitter Link
                             </label>
-                            <input type="url" id="twitterLink" name="twitterLink" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://twitter.com/excellenceacademy">
+                            <input type="url" id="twitter" name="twitter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://twitter.com/schoolname" value="<?= htmlspecialchars($school['twitter'] ?? '') ?>">
                         </div>
 
                         <!-- Instagram -->
                         <div class="mb-6">
-                            <label for="instagramLink" class="block text-gray-700 font-semibold mb-2">
+                            <label for="instagram" class="block text-gray-700 font-semibold mb-2">
                                 <i class="fab fa-instagram text-pink-600 mr-2"></i>Instagram Link
                             </label>
-                            <input type="url" id="instagramLink" name="instagramLink" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://instagram.com/excellenceacademy">
+                            <input type="url" id="instagram" name="instagram" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://instagram.com/schoolname" value="<?= htmlspecialchars($school['instagram'] ?? '') ?>">
                         </div>
                     </div>
 
@@ -145,7 +218,7 @@ include("../includes/header.php");
                             <label for="aboutMessage" class="block text-gray-700 font-semibold mb-2">
                                 About Message <span class="text-red-500">*</span>
                             </label>
-                            <textarea id="aboutMessage" name="aboutMessage" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter a brief description about your school..." required></textarea>
+                            <textarea id="aboutMessage" name="aboutMessage" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter a brief description about your school..."></textarea>
                             <p class="text-gray-600 text-sm mt-2">Character count: <span id="aboutCharCount">0</span>/500</p>
                         </div>
                     </div>
@@ -161,7 +234,7 @@ include("../includes/header.php");
                             <label for="admissionProcedure" class="block text-gray-700 font-semibold mb-2">
                                 Admission Procedure <span class="text-red-500">*</span>
                             </label>
-                            <textarea id="admissionProcedure" name="admissionProcedure" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Describe the step-by-step admission process..." required></textarea>
+                            <textarea id="admissionProcedure" name="admissionProcedure" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Describe the step-by-step admission process..."></textarea>
                             <p class="text-gray-600 text-sm mt-2">Character count: <span id="procedureCharCount">0</span>/500</p>
                         </div>
                     </div>
@@ -177,14 +250,14 @@ include("../includes/header.php");
                             <label for="admissionNumberFormat" class="block text-gray-700 font-semibold mb-2">
                                 Admission Number Format <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="admissionNumberFormat" name="admissionNumberFormat" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., EA/2025/001 or ADM-2025-001" required>
+                            <input type="text" id="admissionNumberFormat" name="admissionNumberFormat" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., EA/2025/001 or ADM-2025-001">
                             <p class="text-gray-600 text-sm mt-2">Example format for admission numbers (e.g., EA/2025/001)</p>
                         </div>
                     </div>
 
                     <!-- Form Actions -->
                     <div class="flex gap-4 pt-8 border-t">
-                        <button type="submit" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                        <button type="submit" name="submit" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
                             <i class="fas fa-save"></i>
                             Save Changes
                         </button>
@@ -195,156 +268,28 @@ include("../includes/header.php");
                     </div>
                 </form>
 
-                <!-- Success Message -->
-                <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                    <i class="fas fa-check-circle"></i>
-                    <span>School information updated successfully!</span>
-                </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders through academic excellence and character development.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="about.html" class="text-gray-400 hover:text-white transition">About Us</a></li>
-                        <li><a href="admissions.html" class="text-gray-400 hover:text-white transition">Admissions</a></li>
-                        <li><a href="academics.html" class="text-gray-400 hover:text-white transition">Academics</a></li>
-                        <li><a href="gallery.html" class="text-gray-400 hover:text-white transition">Gallery</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                        <li><i class="fab fa-whatsapp mr-2"></i>+234 800 123 4567</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include(__DIR__  . '/../includes/footer.php') ?>
 
+    <script src="<?= BASE_URL ?>/static/j/main.js"></script>
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        function showSuccessMessage() {
+            const message = document.getElementById('successMessage');
+            if (message) {
+                message.classList.remove('hidden'); // show the message
+                message.classList.add('flex'); // ensure it displays properly
 
-        // Logo preview
-        const logoFile = document.getElementById('logoFile');
-        const logoPreview = document.getElementById('logoPreview');
-        logoFile.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    logoPreview.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
+                // Hide it after 5 seconds
+                setTimeout(() => {
+                    message.classList.add('hidden');
+                    message.classList.remove('flex');
+                }, 5000);
             }
-        });
-
-        // Character count for About Message
-        const aboutMessage = document.getElementById('aboutMessage');
-        const aboutCharCount = document.getElementById('aboutCharCount');
-        aboutMessage.addEventListener('input', () => {
-            aboutCharCount.textContent = aboutMessage.value.length;
-        });
-
-        // Character count for Admission Procedure
-        const admissionProcedure = document.getElementById('admissionProcedure');
-        const procedureCharCount = document.getElementById('procedureCharCount');
-        admissionProcedure.addEventListener('input', () => {
-            procedureCharCount.textContent = admissionProcedure.value.length;
-        });
-
-        // Form submission
-        const schoolInfoForm = document.getElementById('schoolInfoForm');
-        const successMessage = document.getElementById('successMessage');
-        schoolInfoForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // Collect form data
-            const formData = {
-                schoolName: document.getElementById('schoolName').value,
-                address: document.getElementById('address').value,
-                email: document.getElementById('email').value,
-                phoneNumber: document.getElementById('phoneNumber').value,
-                whatsappNumber: document.getElementById('whatsappNumber').value,
-                facebookLink: document.getElementById('facebookLink').value,
-                twitterLink: document.getElementById('twitterLink').value,
-                instagramLink: document.getElementById('instagramLink').value,
-                aboutMessage: document.getElementById('aboutMessage').value,
-                admissionProcedure: document.getElementById('admissionProcedure').value,
-                admissionNumberFormat: document.getElementById('admissionNumberFormat').value
-            };
-
-            // Save to localStorage
-            localStorage.setItem('schoolInfo', JSON.stringify(formData));
-            
-            // Show success message
-            successMessage.classList.remove('hidden');
-            setTimeout(() => {
-                successMessage.classList.add('hidden');
-            }, 3000);
-
-            console.log('[v0] School information saved:', formData);
-        });
-
-        // Load saved data on page load
-        window.addEventListener('load', () => {
-            const savedData = localStorage.getItem('schoolInfo');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                document.getElementById('schoolName').value = data.schoolName || '';
-                document.getElementById('address').value = data.address || '';
-                document.getElementById('email').value = data.email || '';
-                document.getElementById('phoneNumber').value = data.phoneNumber || '';
-                document.getElementById('whatsappNumber').value = data.whatsappNumber || '';
-                document.getElementById('facebookLink').value = data.facebookLink || '';
-                document.getElementById('twitterLink').value = data.twitterLink || '';
-                document.getElementById('instagramLink').value = data.instagramLink || '';
-                document.getElementById('aboutMessage').value = data.aboutMessage || '';
-                document.getElementById('admissionProcedure').value = data.admissionProcedure || '';
-                document.getElementById('admissionNumberFormat').value = data.admissionNumberFormat || '';
-                
-                // Update character counts
-                aboutCharCount.textContent = data.aboutMessage?.length || 0;
-                procedureCharCount.textContent = data.admissionProcedure?.length || 0;
-            }
-        });
+        }
     </script>
 </body>
+
 </html>

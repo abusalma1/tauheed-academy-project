@@ -2,14 +2,27 @@
 @session_start();
 $title = "Login";
 include(__DIR__ . "/./includes/non-auth-header.php");
-
-
 $error = '';
 if (isset($_POST['submit'])) {
     $email =  trim($_POST['email']);
     $password = trim($_POST['password']);
+    $user_type = trim($_POST['user_type']);
 
-    if (!empty($email) && !empty($password)) {
+    // echo "$email - $password - $user_type";
+
+    if (!empty($email) && !empty($password) && !empty($user_type)) {
+
+        if ($user_type === 'student') {
+            $statement = $connection->prepare("SELECT * from students where email = ?");
+        } else if ($user_type === 'teacher') {
+            $statement = $connection->prepare("SELECT * from teachers where email = ?");
+        } else if ($user_type === 'guardian') {
+            $statement = $connection->prepare("SELECT * from guardian where email = ?");
+        } else if ($user_type === 'admin') {
+            $statement = $connection->prepare("SELECT * from admin where email = ?");
+        }
+
+
         $statement = $connection->prepare("SELECT * from students where email = ?");
         $statement->bind_param("s", $email);
         $statement->execute();
@@ -19,8 +32,11 @@ if (isset($_POST['submit'])) {
             $user = $result->fetch_assoc();
 
             if (password_verify($password, $user["password"])) {
-                $_SESSION["user_id"] = $user["id"];
-                $_SESSION["user_email"] = $user["email"];
+                $_SESSION["user_session"] = [
+                    'id' => $user['id'],
+                    'email' => $user['email'],
+                    'user_type' => $user_type
+                ];
 
                 header('Location: ../index.php');
             } else {
@@ -43,8 +59,7 @@ if (isset($_POST['submit'])) {
 
     <!-- Login Section -->
     <section class="py-16 bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen flex items-center">
-        <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <!-- Login Card -->
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full"> <!-- Login Card -->
             <div class="bg-white rounded-2xl shadow-2xl p-8">
                 <!-- Header -->
                 <div class="text-center mb-8">
@@ -64,7 +79,42 @@ if (isset($_POST['submit'])) {
                             <?= htmlspecialchars($error) ?>
                         </div>
                     <?php endif; ?>
-
+                    <!-- User Type Selection -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            <i class="fas fa-users mr-2 text-blue-900"></i>I am a:
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="relative">
+                                <input type="radio" name="user_type" value="student" class="peer sr-only" required>
+                                <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
+                                    <i class="fas fa-user-graduate text-2xl text-blue-900 mb-2"></i>
+                                    <p class="font-semibold text-sm">Student</p>
+                                </div>
+                            </label>
+                            <label class="relative">
+                                <input type="radio" name="user_type" value="guardian" class="peer sr-only">
+                                <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
+                                    <i class="fas fa-user-friends text-2xl text-blue-900 mb-2"></i>
+                                    <p class="font-semibold text-sm">Guardian</p>
+                                </div>
+                            </label>
+                            <label class="relative">
+                                <input type="radio" name="user_type" value="teacher" class="peer sr-only">
+                                <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
+                                    <i class="fas fa-chalkboard-teacher text-2xl text-blue-900 mb-2"></i>
+                                    <p class="font-semibold text-sm">Teacher</p>
+                                </div>
+                            </label>
+                            <label class="relative">
+                                <input type="radio" name="user_type" value="admin" class="peer sr-only">
+                                <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
+                                    <i class="fas fa-chalkboard-teacher text-2xl text-blue-900 mb-2"></i>
+                                    <p class="font-semibold text-sm">Admin</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
                     <!-- Email/Username -->
                     <div>
                         <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">

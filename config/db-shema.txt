@@ -13,6 +13,7 @@ CREATE TABLE admins (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    reset_token VARCHAR(50),
     type ENUM('superuser', 'management') DEFAULT 'management',
     staff_no VARCHAR(50) UNIQUE,
     address VARCHAR(255),
@@ -35,6 +36,7 @@ CREATE TABLE schools (
     whatsapp_number VARCHAR(20),
     facebook VARCHAR(255),
     twitter VARCHAR(255),
+    instagram VARCHAR(255),
     logo_path VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -91,6 +93,8 @@ CREATE TABLE teachers (
     qualification VARCHAR(150),
     staff_no VARCHAR(50) UNIQUE,
     picture_path VARCHAR(255),
+    password VARCHAR(255) NOT NULL,
+    reset_token VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -133,6 +137,8 @@ CREATE TABLE guardians (
     phone VARCHAR(20),
     address VARCHAR(255),
     picture_path VARCHAR(255),
+        password VARCHAR(255) NOT NULL,
+    reset_token VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -149,6 +155,8 @@ CREATE TABLE students (
     class_id INT NOT NULL,
     guardian_id INT,
     picture VARCHAR(255),
+        password VARCHAR(255) NOT NULL,
+    reset_token VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
