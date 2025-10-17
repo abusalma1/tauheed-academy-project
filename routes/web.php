@@ -45,6 +45,9 @@ $routes = [
     'logout' => [
         'url' => " $baseUrl/auth/logout.php"
     ],
+    'school-info' => [
+        'url' => "$baseUrl/pages/school-info.php"
+    ],
 
 
 ];
