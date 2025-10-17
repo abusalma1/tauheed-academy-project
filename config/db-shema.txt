@@ -1,9 +1,9 @@
 -- ===========================================================
--- DATABASE: tauheed-academy-database
+-- DATABASE: tauheed_academy_database
 -- ===========================================================
 
-CREATE DATABASE IF NOT EXISTS tauheed-academy-database;
-USE tauheed-academy-database;
+CREATE DATABASE IF NOT EXISTS tauheed_academy_database;
+USE tauheed_academy_database;
 
 -- ===========================================================
 -- 1. ADMINS TABLE
