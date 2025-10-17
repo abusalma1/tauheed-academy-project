@@ -1,9 +1,9 @@
 -- ===========================================================
--- DATABASE: school_management
+-- DATABASE: tauheed-academy-database
 -- ===========================================================
 
-CREATE DATABASE IF NOT EXISTS school_management;
-USE school_management;
+CREATE DATABASE IF NOT EXISTS tauheed-academy-database;
+USE tauheed-academy-database;
 
 -- ===========================================================
 -- 1. ADMINS TABLE
