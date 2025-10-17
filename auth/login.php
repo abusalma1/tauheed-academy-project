@@ -10,7 +10,7 @@ if (isset($_POST['submit'])) {
     $password = trim($_POST['password']);
 
     if (!empty($email) && !empty($password)) {
-        $statement = $connection->prepare("SELECT * from student where email = ?");
+        $statement = $connection->prepare("SELECT * from students where email = ?");
         $statement->bind_param("s", $email);
         $statement->execute();
         $result = $statement->get_result();
