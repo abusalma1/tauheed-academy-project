@@ -1,9 +1,9 @@
 <?php
 @session_start();
-include(__DIR__ . '/../routes/routes.php');
-
 $title = "Login";
-include("./includes/non-auth-header.php");
+include(__DIR__ . "/./includes/non-auth-header.php");
+
+
 $error = '';
 if (isset($_POST['submit'])) {
     $email =  trim($_POST['email']);
@@ -36,17 +36,6 @@ if (isset($_POST['submit'])) {
 
 ?>
 
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Excellence Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
 
 <body class="bg-gray-50">
 

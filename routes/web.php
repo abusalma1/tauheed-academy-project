@@ -34,7 +34,17 @@ $routes = [
         'url' => " $baseUrl/auth/login.php"
     ],
     'register' => [
-        'url' => " $rootUrl/auth/register.php"
-    ]
+        'url' => " $baseUrl/auth/register.php"
+    ],
+    'forgot-password' => [
+        'url' => " $baseUrl/auth/forgot-password.php"
+    ],
+    'reset-password' => [
+        'url' => " $baseUrl/auth/reset-password.php"
+    ],
+    'logout' => [
+        'url' => " $baseUrl/auth/logout.php"
+    ],
+
 
 ];

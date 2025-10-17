@@ -23,7 +23,7 @@
                 <a href="<?php echo route('gallery'); ?>" class="hover:text-blue-300 transition">Gallery</a>
                 <a href="<?php echo route('login'); ?>" class="hover:text-blue-300 transition">Login</a>
                 <a href="<?php echo route('register'); ?>" class="hover:text-blue-300 transition">Register</a>
-                <a href="<?php echo route('register'); ?>" class="hover:text-blue-300 transition">Logout</a>
+                <a href="<?php echo route('logout'); ?>" class="hover:text-blue-300 transition">Logout</a>
             </div>
 
             <!-- Mobile Menu Button -->
