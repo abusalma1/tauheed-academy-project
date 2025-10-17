@@ -32,7 +32,7 @@ include(__DIR__ .  '/../includes/header.php');
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Uniform Requirements by Category</h2>
 
-            Pre-Primary (Nursery)
+            <!-- Pre-Primary (Nursery) -->
             <div class="mb-12 bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="bg-blue-900 text-white p-6">
                     <h3 class="text-2xl font-bold">Pre-Primary (Nursery 1-2)</h3>
@@ -91,7 +91,7 @@ include(__DIR__ .  '/../includes/header.php');
                 </div>
             </div>
 
-            Primary School
+            <!-- Primary School -->
             <div class="mb-12 bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="bg-blue-900 text-white p-6">
                     <h3 class="text-2xl font-bold">Primary School (Primary 1-6)</h3>
@@ -150,7 +150,7 @@ include(__DIR__ .  '/../includes/header.php');
                 </div>
             </div>
 
-            Secondary School
+            <!-- Secondary School -->
             <div class="mb-12 bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="bg-blue-900 text-white p-6">
                     <h3 class="text-2xl font-bold">Secondary School (JSS 1 - SSS 3)</h3>
@@ -209,7 +209,7 @@ include(__DIR__ .  '/../includes/header.php');
                 </div>
             </div>
 
-            Sports Uniform
+            <!-- Sports Uniform -->
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="bg-blue-900 text-white p-6">
                     <h3 class="text-2xl font-bold">Sports & Physical Education Uniform</h3>
