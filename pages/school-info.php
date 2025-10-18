@@ -1,26 +1,6 @@
 <?php
+$title = "Schoo Information";
 include(__DIR__ . "/../includes/header.php");
-
-
-// Step 1: Try to get an existing school record
-$statement = $connection->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
-$statement->execute();
-$result = $statement->get_result();
-$school = $result->fetch_assoc();
-
-// Step 2: If no record exists, create one with a default name
-if (!$school) {
-    $default_name = 'Tauheed Academy';
-    $insert_stmt = $connection->prepare('INSERT INTO schools (name, created_at, updated_at) VALUES (?, NOW(), NOW())');
-    $insert_stmt->bind_param('s', $default_name);
-    $insert_stmt->execute();
-
-    // Fetch again to get the inserted record
-    $statement = $connection->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
-    $statement->execute();
-    $result = $statement->get_result();
-    $school = $result->fetch_assoc();
-}
 
 if (isset($_POST['submit'])) {
     $id = $school['id']; // existing record id
