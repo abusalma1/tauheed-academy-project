@@ -6,6 +6,7 @@ if (isset($_POST['submit'])) {
     $id = $school['id']; // existing record id
 
     $name = htmlspecialchars($_POST['name']);
+    $motto = htmlspecialchars($_POST['motto']);
     $address = htmlspecialchars($_POST['address']);
     $email = htmlspecialchars($_POST['email']);
     $phone = htmlspecialchars($_POST['phone']);
@@ -16,13 +17,14 @@ if (isset($_POST['submit'])) {
 
     $statement = $connection->prepare("
         UPDATE schools 
-        SET name = ?, address = ?, email = ?, phone = ?, whatsapp_number = ?, facebook = ?, instagram = ?, twitter = ?, updated_at = NOW() 
+        SET name = ?, motto =?, address = ?, email = ?, phone = ?, whatsapp_number = ?, facebook = ?, instagram = ?, twitter = ?, updated_at = NOW() 
         WHERE id = ?
     ");
 
     $statement->bind_param(
-        'ssssssssi',
+        'sssssssssi',
         $name,
+        $motto,
         $address,
         $email,
         $phone,
@@ -93,6 +95,14 @@ if (isset($_POST['submit'])) {
                             <input type="text" id="name" name="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter school name" value="<?= htmlspecialchars($school['name'] ?? '') ?>">
                         </div>
 
+                        <!-- School Motto -->
+                        <div class="mb-6">
+                            <label for="motto" class="block text-gray-700 font-semibold mb-2">
+                                School Motto <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="motto" name="motto" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter school motto" value="<?= htmlspecialchars($school['motto'] ?? '') ?>">
+                        </div>
+
                         <!-- Address -->
                         <div class="mb-6">
                             <label for="address" class="block text-gray-700 font-semibold mb-2">
@@ -148,7 +158,7 @@ if (isset($_POST['submit'])) {
                             <label for="twitter" class="block text-gray-700 font-semibold mb-2">
                                 <i class="fab fa-twitter text-blue-400 mr-2"></i>Twitter Link
                             </label>
-                            <input type="url" id="twitter" name="twitter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://twitter.com/schoolname" value="<?= htmlspecialchars($school['twitter'] ?? '') ?>">
+                            <input type="url" id="twitter" name="twitter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://twitter.com/schoolname" value="<?= htmlspecialchars($school['twitter'] ?? '') ?>">`
                         </div>
 
                         <!-- Instagram -->
@@ -269,6 +279,20 @@ if (isset($_POST['submit'])) {
                 }, 5000);
             }
         }
+
+        // Logo preview
+        const logoFile = document.getElementById('logoFile');
+        const logoPreview = document.getElementById('logoPreview');
+        logoFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    logoPreview.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }); 
     </script>
 </body>
 

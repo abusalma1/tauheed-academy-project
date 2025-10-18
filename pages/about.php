@@ -75,10 +75,10 @@ include(__DIR__ .  '/../includes/header.php');
                         <a href="<?= $school['facebook'] ?? '#' ?>" class="bg-blue-600 hover:bg-blue-700 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="<?= $school['twitter'] ?? '' ?>" class="bg-blue-400 hover:bg-blue-500 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
+                        <a href="<?= $school['twitter'] ?? '#' ?>" class="bg-blue-400 hover:bg-blue-500 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="<?= $school['instagram'] ?? '' ?>" class="bg-pink-600 hover:bg-pink-700 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
+                        <a href="<?= $school['instagram'] ?? '#' ?>" class="bg-pink-600 hover:bg-pink-700 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
                             <i class="fab fa-instagram"></i>
                         </a>
                     </div>
