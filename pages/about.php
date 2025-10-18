@@ -11,7 +11,7 @@ include(__DIR__ .  '/../includes/header.php');
     <section class="bg-blue-900 text-white py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">About & Contact Us</h1>
-            <p class="text-xl text-blue-200">Get in touch with Excellence Academy</p>
+            <p class="text-xl text-blue-200">Get in touch with <?= $school['name'] ?? 'Tauheed Academy' ?></p>
         </div>
     </section>
 
@@ -20,7 +20,7 @@ include(__DIR__ .  '/../includes/header.php');
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-2 gap-12">
                 <div>
-                    <h2 class="text-3xl font-bold text-gray-900 mb-6">About Excellence Academy</h2>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">About <?= $school['name'] ?? 'Tauheed Academy' ?></h2>
                     <p class="text-gray-700 leading-relaxed mb-4">
                         Excellence Academy is a premier educational institution dedicated to providing quality education and nurturing the next generation of leaders. Established with a vision to create a learning environment that fosters academic excellence, character development, and holistic growth.
                     </p>
@@ -43,25 +43,25 @@ include(__DIR__ .  '/../includes/header.php');
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Contact Information</h2>
             <div class="grid md:grid-cols-3 gap-8">
-                Address
+                <!-- Address -->
                 <div class="bg-white p-8 rounded-lg shadow-lg text-center">
                     <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-map-marker-alt text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2">Address</h3>
-                    <p class="text-gray-700">123 Education Street<br>Academic District<br>City, State 12345</p>
+                    <p class="text-gray-700"><?= $school['address'] ?? '' ?></p>
                 </div>
 
-                Phone & Email
+                <!-- Phone & Email -->
                 <div class="bg-white p-8 rounded-lg shadow-lg text-center">
                     <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-phone text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2">Phone & Email</h3>
                     <p class="text-gray-700">
-                        <i class="fas fa-phone mr-2"></i>+234 800 123 4567<br>
-                        <i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu<br>
-                        <i class="fab fa-whatsapp mr-2"></i>+234 800 123 4567
+                        <i class="fas fa-phone mr-2"></i><?= $school['phone'] ?? '' ?><br>
+                        <i class="fas fa-envelope mr-2"></i><?= $school['email'] ?? '' ?><br>
+                        <i class="fab fa-whatsapp mr-2"></i><?= $school['whatsapp_number'] ?? '' ?>
                     </p>
                 </div>
 
@@ -72,13 +72,13 @@ include(__DIR__ .  '/../includes/header.php');
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2">Social Media</h3>
                     <div class="flex justify-center gap-4 mt-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
+                        <a href="<?= $school['facebook'] ?? '#' ?>" class="bg-blue-600 hover:bg-blue-700 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
+                        <a href="<?= $school['twitter'] ?? '' ?>" class="bg-blue-400 hover:bg-blue-500 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
+                        <a href="<?= $school['instagram'] ?? '' ?>" class="bg-pink-600 hover:bg-pink-700 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
                             <i class="fab fa-instagram"></i>
                         </a>
                     </div>
