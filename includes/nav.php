@@ -24,6 +24,8 @@
                 <a href="<?php echo route('login'); ?>" class="hover:text-blue-300 transition">Login</a>
                 <a href="<?php echo route('logout'); ?>" class="hover:text-blue-300 transition">Logout</a>
                 <a href="<?php echo route('school-info'); ?>" class="hover:text-blue-300 transition">School info</a>
+                <a href="<?php echo route('users-management'); ?>" class="hover:text-blue-300 transition">User Management</a>
+
             </div>
 
             <!-- Mobile Menu Button -->

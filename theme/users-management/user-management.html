@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Excellence Academy Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
+                    <div>
+                        <h1 class="text-xl font-bold">Excellence Academy</h1>
+                        <p class="text-xs text-blue-200">Admin Panel</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="school-info.html" class="hover:text-blue-300 transition">School Info</a>
+                    <a href="user-management.html" class="hover:text-blue-300 transition font-semibold">User Management</a>
+                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
+            <a href="school-info.html" class="block py-2 hover:bg-blue-700 px-3 rounded">School Info</a>
+            <a href="user-management.html" class="block py-2 hover:bg-blue-700 px-3 rounded font-semibold">User Management</a>
+            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-blue-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">User Management</h1>
+            <p class="text-xl text-blue-200">Manage all user accounts and roles</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- User Type Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <!-- Admins Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-purple-100 p-4 rounded-lg">
+                            <i class="fas fa-crown text-purple-600 text-2xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-purple-600" id="adminCount">0</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Admins & Super Users</h3>
+                    <p class="text-sm text-gray-600 mb-4">Manage administrator accounts</p>
+                    <a href="admin-management.html" class="inline-block w-full text-center bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Manage
+                    </a>
+                </div>
+
+                <!-- Teachers Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-blue-100 p-4 rounded-lg">
+                            <i class="fas fa-chalkboard-user text-blue-600 text-2xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-blue-600" id="teacherCount">0</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Teachers</h3>
+                    <p class="text-sm text-gray-600 mb-4">Manage teacher accounts</p>
+                    <a href="teacher-management.html" class="inline-block w-full text-center bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Manage
+                    </a>
+                </div>
+
+                <!-- Guardians Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-green-100 p-4 rounded-lg">
+                            <i class="fas fa-users text-green-600 text-2xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-green-600" id="guardianCount">0</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Guardians</h3>
+                    <p class="text-sm text-gray-600 mb-4">Manage guardian accounts</p>
+                    <a href="guardian-management.html" class="inline-block w-full text-center bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Manage
+                    </a>
+                </div>
+
+                <!-- Students Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-orange-100 p-4 rounded-lg">
+                            <i class="fas fa-graduation-cap text-orange-600 text-2xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-orange-600" id="studentCount">0</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Students</h3>
+                    <p class="text-sm text-gray-600 mb-4">Manage student accounts</p>
+                    <a href="student-management.html" class="inline-block w-full text-center bg-orange-600 text-white py-2 rounded-lg font-semibold hover:bg-orange-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Manage
+                    </a>
+                </div>
+            </div>
+
+            <!-- Overall Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Total Users</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2" id="totalUsers">0</p>
+                        </div>
+                        <i class="fas fa-users text-4xl text-blue-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Active Users</p>
+                            <p class="text-3xl font-bold text-green-600 mt-2" id="activeUsers">0</p>
+                        </div>
+                        <i class="fas fa-check-circle text-4xl text-green-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Inactive Users</p>
+                            <p class="text-3xl font-bold text-red-600 mt-2" id="inactiveUsers">0</p>
+                        </div>
+                        <i class="fas fa-times-circle text-4xl text-red-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Last Updated</p>
+                            <p class="text-lg font-bold text-gray-900 mt-2" id="lastUpdated">Today</p>
+                        </div>
+                        <i class="fas fa-calendar text-4xl text-purple-200"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="admin-management.html" class="flex items-center gap-3 p-4 border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition">
+                        <i class="fas fa-plus text-purple-600 text-xl"></i>
+                        <div>
+                            <p class="font-semibold text-gray-900">Create Admin</p>
+                            <p class="text-xs text-gray-600">Add new administrator</p>
+                        </div>
+                    </a>
+
+                    <a href="teacher-management.html" class="flex items-center gap-3 p-4 border-2 border-blue-200 rounded-lg hover:bg-blue-50 transition">
+                        <i class="fas fa-plus text-blue-600 text-xl"></i>
+                        <div>
+                            <p class="font-semibold text-gray-900">Create Teacher</p>
+                            <p class="text-xs text-gray-600">Add new teacher</p>
+                        </div>
+                    </a>
+
+                    <a href="guardian-management.html" class="flex items-center gap-3 p-4 border-2 border-green-200 rounded-lg hover:bg-green-50 transition">
+                        <i class="fas fa-plus text-green-600 text-xl"></i>
+                        <div>
+                            <p class="font-semibold text-gray-900">Create Guardian</p>
+                            <p class="text-xs text-gray-600">Add new guardian</p>
+                        </div>
+                    </a>
+
+                    <a href="student-management.html" class="flex items-center gap-3 p-4 border-2 border-orange-200 rounded-lg hover:bg-orange-50 transition">
+                        <i class="fas fa-plus text-orange-600 text-xl"></i>
+                        <div>
+                            <p class="font-semibold text-gray-900">Create Student</p>
+                            <p class="text-xs text-gray-600">Add new student</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Committed to providing quality education and nurturing future leaders.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="school-info.html" class="text-gray-400 hover:text-white transition">School Info</a></li>
+                        <li><a href="user-management.html" class="text-gray-400 hover:text-white transition">User Management</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
+                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
+                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+                    <div class="flex gap-4">
+                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Update statistics
+        function updateStats() {
+            const admins = JSON.parse(localStorage.getItem('schoolAdmins')) || [];
+            const teachers = JSON.parse(localStorage.getItem('schoolTeachers')) || [];
+            const guardians = JSON.parse(localStorage.getItem('schoolGuardians')) || [];
+            const students = JSON.parse(localStorage.getItem('schoolStudents')) || [];
+
+            const allUsers = [...admins, ...teachers, ...guardians, ...students];
+            const activeUsers = allUsers.filter(u => u.status === 'active').length;
+            const inactiveUsers = allUsers.filter(u => u.status === 'inactive').length;
+
+            document.getElementById('adminCount').textContent = admins.length;
+            document.getElementById('teacherCount').textContent = teachers.length;
+            document.getElementById('guardianCount').textContent = guardians.length;
+            document.getElementById('studentCount').textContent = students.length;
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            document.getElementById('inactiveUsers').textContent = inactiveUsers;
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
+        }
+
+        // Initial update
+        updateStats();
+
+        // Refresh stats every 5 seconds
+        setInterval(updateStats, 5000);
+    </script>
+</body>
+</html>

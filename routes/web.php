@@ -45,6 +45,21 @@ $routes = [
     'school-info' => [
         'url' => "$baseUrl/pages/school-info.php"
     ],
+    'users-management' => [
+        'url' => "$baseUrl/pages/users-management/users-management.php"
+    ],
+    'admins-management' => [
+        'url' => "$baseUrl/pages/users-management/admins-management.php"
+    ],
+    'gurdians-management' => [
+        'url' => "$baseUrl/pages/users-management/guardians-management.php"
+    ],
+    'teachers-management' => [
+        'url' => "$baseUrl/pages/users-management/teachers-management.php"
+    ],
+    'students-management' => [
+        'url' => "$baseUrl/pages/users-management/students-management.php"
+    ],
 
 
 ];
