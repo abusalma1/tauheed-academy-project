@@ -17,6 +17,8 @@ CREATE TABLE admins (
     type ENUM('superuser', 'management') DEFAULT 'management',
     staff_no VARCHAR(50) UNIQUE,
     address VARCHAR(255),
+    department VARCHAR(255),
+    status ENUM('active', 'inactive') DEFAULT 'active',
     phone VARCHAR(20),
     picture_path VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

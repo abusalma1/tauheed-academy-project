@@ -1,38 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management - Excellence Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+<?php
+
+$title = "Students Management";
+include(__DIR__ . '/../../includes/header.php');
+
+?>
+
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Admin Panel</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="user-management.html" class="hover:text-blue-300 transition">Back to Users</a>
-                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="user-management.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Users</a>
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
-        </div>
-    </nav>
+    <?php include(__DIR__ . '/./includes/users-management-nav.php')  ?>
+
 
     <!-- Page Header -->
     <section class="bg-orange-900 text-white py-12">
@@ -50,7 +25,7 @@
                 <div class="md:col-span-2">
                     <div class="bg-white rounded-lg shadow-lg p-8">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Create New Student Account</h2>
-                        
+
                         <form id="studentForm" class="space-y-6">
                             <!-- Full Name -->
                             <div>
@@ -309,7 +284,7 @@
         passwordField.addEventListener('input', () => {
             const password = passwordField.value;
             let strength = 0;
-            
+
             if (password.length >= 8) strength++;
             if (/[a-z]/.test(password)) strength++;
             if (/[A-Z]/.test(password)) strength++;
@@ -318,7 +293,7 @@
 
             const strengthLevels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
             const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600'];
-            
+
             for (let i = 1; i <= 4; i++) {
                 const element = document.getElementById(`strength${i}`);
                 if (i <= strength) {
@@ -327,7 +302,7 @@
                     element.className = 'h-1 w-1/4 bg-gray-300 rounded';
                 }
             }
-            
+
             document.getElementById('strengthText').textContent = `Password strength: ${strengthLevels[strength - 1] || 'Weak'}`;
         });
 
@@ -345,7 +320,7 @@
             const total = students.length;
             const active = students.filter(s => s.status === 'active').length;
             const inactive = students.filter(s => s.status === 'inactive').length;
-            
+
             document.getElementById('totalStudents').textContent = total;
             document.getElementById('activeStudents').textContent = active;
             document.getElementById('inactiveStudents').textContent = inactive;
@@ -402,8 +377,11 @@
             localStorage.setItem('schoolStudents', JSON.stringify(students));
             renderStudents();
             updateStats();
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         }
 
         studentForm.addEventListener('submit', (e) => {
@@ -500,11 +478,11 @@
 
                 students.push(newStudent);
                 localStorage.setItem('schoolStudents', JSON.stringify(students));
-                
+
                 studentForm.reset();
                 renderStudents();
                 updateStats();
-                
+
                 alert('Student account created successfully!');
             }
         });
@@ -514,4 +492,5 @@
         updateStats();
     </script>
 </body>
+
 </html>

@@ -265,21 +265,9 @@ if (isset($_POST['submit'])) {
     <?php include(__DIR__  . '/../includes/footer.php') ?>
 
     <script src="<?= BASE_URL ?>/static/j/main.js"></script>
+    <script src="<?= BASE_URL ?>/static/j/success-message.js"></script>
+
     <script>
-        function showSuccessMessage() {
-            const message = document.getElementById('successMessage');
-            if (message) {
-                message.classList.remove('hidden'); // show the message
-                message.classList.add('flex'); // ensure it displays properly
-
-                // Hide it after 5 seconds
-                setTimeout(() => {
-                    message.classList.add('hidden');
-                    message.classList.remove('flex');
-                }, 5000);
-            }
-        }
-
         // Logo preview
         const logoFile = document.getElementById('logoFile');
         const logoPreview = document.getElementById('logoPreview');
@@ -292,7 +280,7 @@ if (isset($_POST['submit'])) {
                 };
                 reader.readAsDataURL(file);
             }
-        }); 
+        });
     </script>
 </body>
 

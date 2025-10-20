@@ -1,38 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Management - Excellence Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+<?php
+
+$title = "Admins & Super Users Managment";
+include(__DIR__ . '/../../includes/header.php');
+
+
+$statement = $connection->prepare("SELECT * FROM admins");
+$statement->execute();
+$result = $statement->get_result();
+$admins = $result->fetch_all(MYSQLI_ASSOC);
+
+
+// Count total admins
+$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM admins");
+$total = $totalQuery->fetch_assoc()['total'];
+
+// Count active admins
+$activeQuery = $connection->query("SELECT COUNT(*) AS active FROM admins WHERE status = 'active'");
+$active = $activeQuery->fetch_assoc()['active'];
+
+// Count inactive admins
+$inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM admins WHERE status = 'inactive'");
+$inactive = $inactiveQuery->fetch_assoc()['inactive'];
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = $_POST['fullName'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $address = $_POST['address'] ?? '';
+    $staffNumber = $_POST['staffNumber'] ?? '';
+    $roleType = $_POST['roleType'] ?? '';
+    $department = $_POST['department'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $status = $_POST['status'] ?? 'inactive';
+
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    $statement = $connection->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $hashed_password);
+    if ($statement->execute()) {
+        echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
+            </script>";
+
+
+        $statement = $connection->prepare("SELECT * FROM admins");
+        $statement->execute();
+        $result = $statement->get_result();
+        $admins = $result->fetch_all(MYSQLI_ASSOC);
+
+        // Count total admins
+        $totalQuery = $connection->query("SELECT COUNT(*) AS total FROM admins");
+        $total = $totalQuery->fetch_assoc()['total'];
+
+        // Count active admins
+        $activeQuery = $connection->query("SELECT COUNT(*) AS active FROM admins WHERE status = 'active'");
+        $active = $activeQuery->fetch_assoc()['active'];
+
+        // Count inactive admins
+        $inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM admins WHERE status = 'inactive'");
+        $inactive = $inactiveQuery->fetch_assoc()['inactive'];
+    } else {
+        echo "<script>alert('Failed to update school info: " . $statement->error . "');</script>";
+    }
+}
+
+
+?>
+
+<script>
+    const admins = <?= json_encode($admins, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+</script>
+
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Admin Panel</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="user-management.html" class="hover:text-blue-300 transition">Back to Users</a>
-                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="user-management.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Users</a>
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
-        </div>
-    </nav>
+    <?php include(__DIR__ . '/./includes/users-management-nav.php'); ?>
 
     <!-- Page Header -->
     <section class="bg-purple-900 text-white py-12">
@@ -50,36 +90,57 @@
                 <div class="md:col-span-2">
                     <div class="bg-white rounded-lg shadow-lg p-8">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Create New Admin Account</h2>
-                        
-                        <form id="adminForm" class="space-y-6">
+
+                        <form id="adminForm" class="space-y-6" method="post">
+                            <!-- Success Message -->
+                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>User is created successfully!</span>
+                            </div>
                             <!-- Full Name -->
                             <div>
                                 <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                                <input type="text" id="fullName" name="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter full name">
+                                <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter full name">
                                 <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
                             </div>
 
                             <!-- Email -->
                             <div>
                                 <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                                <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter email address">
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter email address">
                                 <span class="text-red-500 text-sm hidden" id="emailError"></span>
                             </div>
 
                             <!-- Phone Number -->
                             <div>
                                 <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                                <input type="tel" id="phone" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter phone number">
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter phone number">
                                 <span class="text-red-500 text-sm hidden" id="phoneError"></span>
+                            </div>
+
+                            <!-- Staff Number -->
+                            <div>
+                                <label for="staffNumber" class="block text-sm font-semibold text-gray-700 mb-2">Staff ID Number *</label>
+                                <input type="tel" id="staffNumber" name="staffNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter staff id number">
+                                <span class="text-red-500 text-sm hidden" id="staffNumberError"></span>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="mb-6">
+                                <label for="address" class="block text-gray-700 font-semibold mb-2">
+                                    Address <span class="text-red-500">*</span>
+                                </label>
+                                <textarea id="address" name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter staff address"></textarea>
+                                <span class="text-red-500 text-sm hidden" id="addressError"></span>
                             </div>
 
                             <!-- Role Type -->
                             <div>
                                 <label for="roleType" class="block text-sm font-semibold text-gray-700 mb-2">Role Type *</label>
-                                <select id="roleType" name="roleType" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
+                                <select id="roleType" name="roleType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
                                     <option value="">Select role type</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="super_admin">Super Admin</option>
+                                    <option value="superuser">Super Admin</option>
+                                    <option value="management">Management</option>
                                 </select>
                                 <span class="text-red-500 text-sm hidden" id="roleTypeError"></span>
                             </div>
@@ -94,7 +155,7 @@
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
                                 <div class="relative">
-                                    <input type="password" id="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter password">
+                                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter password">
                                     <button type="button" id="togglePassword" class="absolute right-3 top-2.5 text-gray-600">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -114,7 +175,7 @@
                             <!-- Confirm Password -->
                             <div>
                                 <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password *</label>
-                                <input type="password" id="confirmPassword" name="confirmPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Confirm password">
+                                <input type="password" id="confirmPassword" name="confirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Confirm password">
                                 <span class="text-red-500 text-sm hidden" id="confirmPasswordError"></span>
                             </div>
 
@@ -176,15 +237,15 @@
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Admins</span>
-                                <span class="text-2xl font-bold text-purple-900" id="totalAdmins">0</span>
+                                <span class="text-2xl font-bold text-purple-900" id="totalAdmins"><?= $total ?></span>
                             </div>
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Active</span>
-                                <span class="text-2xl font-bold text-green-600" id="activeAdmins">0</span>
+                                <span class="text-2xl font-bold text-green-600" id="activeAdmins"><?= $active  ?></span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Inactive</span>
-                                <span class="text-2xl font-bold text-red-600" id="inactiveAdmins">0</span>
+                                <span class="text-2xl font-bold text-red-600" id="inactiveAdmins"><?= $inactive ?></span>
                             </div>
                         </div>
                     </div>
@@ -209,9 +270,34 @@
                             </tr>
                         </thead>
                         <tbody id="adminsTableBody" class="divide-y divide-gray-200">
-                            <tr class="text-center py-8">
-                                <td colspan="6" class="px-6 py-8 text-gray-500">No admin accounts created yet</td>
-                            </tr>
+                            <?php if (count($admins) > 0) : ?>
+                                <?php foreach ($admins as $admin): ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($admin['name'] ?? '') ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= htmlspecialchars($admin['email'] ?? '') ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= htmlspecialchars($admin['phone'] ?? '') ?></td>
+                                        <td class="px-6 py-4 text-sm">
+                                            <span class="px-3 py-1 bg-purple-100 text-purple-900 rounded-full text-xs font-semibold capitalize"><?= $admin['type'] === 'superuser' ? "Super User" : 'Managemnt'; ?></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm">
+                                            <span class="px-3 py-1 ${admin.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize"><?= $admin['status'] ?></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm space-x-2">
+                                            <button class="text-blue-600 hover:text-blue-900 font-semibold">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900 font-semibold">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach ?>
+                            <?php else : ?>
+                                <tr class="text-center py-8">
+                                    <td colspan="6" class="px-6 py-8 text-gray-500">No admin accounts created yet</td>
+                                </tr>
+                            <?php endif; ?>
+
                         </tbody>
                     </table>
                 </div>
@@ -219,60 +305,12 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="user-management.html" class="text-gray-400 hover:text-white transition">User Management</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
+
+    <script src="<?= BASE_URL ?>/static/j/main.js"></script>
+    <script src="<?= BASE_URL ?>/static/j/success-message.js"></script>
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
@@ -287,7 +325,7 @@
         passwordField.addEventListener('input', () => {
             const password = passwordField.value;
             let strength = 0;
-            
+
             if (password.length >= 8) strength++;
             if (/[a-z]/.test(password)) strength++;
             if (/[A-Z]/.test(password)) strength++;
@@ -296,7 +334,7 @@
 
             const strengthLevels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
             const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600'];
-            
+
             for (let i = 1; i <= 4; i++) {
                 const element = document.getElementById(`strength${i}`);
                 if (i <= strength) {
@@ -305,14 +343,14 @@
                     element.className = 'h-1 w-1/4 bg-gray-300 rounded';
                 }
             }
-            
+
             document.getElementById('strengthText').textContent = `Password strength: ${strengthLevels[strength - 1] || 'Weak'}`;
         });
 
         // Form validation and submission
         const adminForm = document.getElementById('adminForm');
-        const adminsTableBody = document.getElementById('adminsTableBody');
-        let admins = JSON.parse(localStorage.getItem('schoolAdmins')) || [];
+        // const adminsTableBody = document.getElementById('adminsTableBody');
+        // let admins = JSON.parse(localStorage.getItem('schoolAdmins')) || [];
 
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -324,70 +362,73 @@
             return re.test(phone.replace(/\s/g, ''));
         }
 
-        function updateStats() {
-            const total = admins.length;
-            const active = admins.filter(a => a.status === 'active').length;
-            const inactive = admins.filter(a => a.status === 'inactive').length;
-            
-            document.getElementById('totalAdmins').textContent = total;
-            document.getElementById('activeAdmins').textContent = active;
-            document.getElementById('inactiveAdmins').textContent = inactive;
-        }
+        // function updateStats() {
+        //     const total = admins.length;
+        //     const active = admins.filter(a => a.status === 'active').length;
+        //     const inactive = admins.filter(a => a.status === 'inactive').length;
 
-        function renderAdmins() {
-            if (admins.length === 0) {
-                adminsTableBody.innerHTML = '<tr class="text-center"><td colspan="6" class="px-6 py-8 text-gray-500">No admin accounts created yet</td></tr>';
-                return;
-            }
+        //     document.getElementById('totalAdmins').textContent = total;
+        //     document.getElementById('activeAdmins').textContent = active;
+        //     document.getElementById('inactiveAdmins').textContent = inactive;
+        // }
 
-            adminsTableBody.innerHTML = admins.map((admin, index) => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm text-gray-900">${admin.fullName}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${admin.email}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${admin.phone}</td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-3 py-1 bg-purple-100 text-purple-900 rounded-full text-xs font-semibold capitalize">${admin.roleType.replace('_', ' ')}</span>
-                    </td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-3 py-1 ${admin.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize">${admin.status}</span>
-                    </td>
-                    <td class="px-6 py-4 text-sm space-x-2">
-                        <button onclick="editAdmin(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button onclick="deleteAdmin(${index})" class="text-red-600 hover:text-red-900 font-semibold">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
+        // function renderAdmins() {
+        //     if (admins.length === 0) {
+        //         adminsTableBody.innerHTML = '<tr class="text-center"><td colspan="6" class="px-6 py-8 text-gray-500">No admin accounts created yet</td></tr>';
+        //         return;
+        //     }
 
-        function deleteAdmin(index) {
-            if (confirm('Are you sure you want to delete this admin account?')) {
-                admins.splice(index, 1);
-                localStorage.setItem('schoolAdmins', JSON.stringify(admins));
-                renderAdmins();
-                updateStats();
-            }
-        }
+        //     adminsTableBody.innerHTML = admins.map((admin, index) => `
+        //         <tr class="hover:bg-gray-50">
+        //             <td class="px-6 py-4 text-sm text-gray-900">${admin.fullName}</td>
+        //             <td class="px-6 py-4 text-sm text-gray-600">${admin.email}</td>
+        //             <td class="px-6 py-4 text-sm text-gray-600">${admin.phone}</td>
+        //             <td class="px-6 py-4 text-sm">
+        //                 <span class="px-3 py-1 bg-purple-100 text-purple-900 rounded-full text-xs font-semibold capitalize">${admin.roleType.replace('_', ' ')}</span>
+        //             </td>
+        //             <td class="px-6 py-4 text-sm">
+        //                 <span class="px-3 py-1 ${admin.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize">${admin.status}</span>
+        //             </td>
+        //             <td class="px-6 py-4 text-sm space-x-2">
+        //                 <button onclick="editAdmin(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
+        //                     <i class="fas fa-edit"></i> Edit
+        //                 </button>
+        //                 <button onclick="deleteAdmin(${index})" class="text-red-600 hover:text-red-900 font-semibold">
+        //                     <i class="fas fa-trash"></i> Delete
+        //                 </button>
+        //             </td>
+        //         </tr>
+        //     `).join('');
+        // }
 
-        function editAdmin(index) {
-            const admin = admins[index];
-            document.getElementById('fullName').value = admin.fullName;
-            document.getElementById('email').value = admin.email;
-            document.getElementById('phone').value = admin.phone;
-            document.getElementById('roleType').value = admin.roleType;
-            document.getElementById('department').value = admin.department || '';
-            document.getElementById('status').value = admin.status;
+        // function deleteAdmin(index) {
+        //     if (confirm('Are you sure you want to delete this admin account?')) {
+        //         admins.splice(index, 1);
+        //         localStorage.setItem('schoolAdmins', JSON.stringify(admins));
+        //         renderAdmins();
+        //         updateStats();
+        //     }
+        // }
 
-            admins.splice(index, 1);
-            localStorage.setItem('schoolAdmins', JSON.stringify(admins));
-            renderAdmins();
-            updateStats();
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        // function editAdmin(index) {
+        //     const admin = admins[index];
+        //     document.getElementById('fullName').value = admin.fullName;
+        //     document.getElementById('email').value = admin.email;
+        //     document.getElementById('phone').value = admin.phone;
+        //     document.getElementById('roleType').value = admin.roleType;
+        //     document.getElementById('department').value = admin.department || '';
+        //     document.getElementById('status').value = admin.status;
+
+        //     admins.splice(index, 1);
+        //     localStorage.setItem('schoolAdmins', JSON.stringify(admins));
+        //     renderAdmins();
+        //     updateStats();
+
+        //     window.scrollTo({
+        //         top: 0,
+        //         behavior: 'smooth'
+        //     });
+        // }
 
         adminForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -403,6 +444,9 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const status = document.getElementById('status').value;
+            const address = document.getElementById('address').value;
+            const staffNumber = document.getElementById('staffNumber').value;
+
 
             let isValid = true;
 
@@ -436,6 +480,18 @@
                 isValid = false;
             }
 
+            if (!address) {
+                document.getElementById('addressError').textContent = 'Please enter address';
+                document.getElementById('addressError').classList.remove('hidden');
+                isValid = false;
+            }
+            if (!staffNumber) {
+                document.getElementById('staffNumberError').textContent = 'Please insert staff ID number';
+                document.getElementById('staffNumberError').classList.remove('hidden');
+                isValid = false;
+            }
+
+
             if (password.length < 8) {
                 document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
                 document.getElementById('passwordError').classList.remove('hidden');
@@ -448,26 +504,11 @@
                 isValid = false;
             }
 
-            if (isValid) {
-                const newAdmin = {
-                    fullName,
-                    email,
-                    phone,
-                    roleType,
-                    department,
-                    status,
-                    createdAt: new Date().toLocaleDateString()
-                };
 
-                admins.push(newAdmin);
-                localStorage.setItem('schoolAdmins', JSON.stringify(admins));
-                
-                adminForm.reset();
-                renderAdmins();
-                updateStats();
-                
-                alert('Admin account created successfully!');
+            if (isValid) {
+                adminForm.submit();
             }
+
         });
 
         // Initial render
@@ -475,4 +516,5 @@
         updateStats();
     </script>
 </body>
+
 </html>

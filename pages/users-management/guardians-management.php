@@ -1,38 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guardian Management - Excellence Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+<?php
+
+$title = 'Guardians Management';
+include(__DIR__ . '/../../includes/header.php');
+
+?>
+
+
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Admin Panel</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="user-management.html" class="hover:text-blue-300 transition">Back to Users</a>
-                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="user-management.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Users</a>
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
-        </div>
-    </nav>
+    <?php include(__DIR__ . '/./includes/users-management-nav.php')  ?>
 
     <!-- Page Header -->
     <section class="bg-green-900 text-white py-12">
@@ -50,7 +25,7 @@
                 <div class="md:col-span-2">
                     <div class="bg-white rounded-lg shadow-lg p-8">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Create New Guardian Account</h2>
-                        
+
                         <form id="guardianForm" class="space-y-6">
                             <!-- Full Name -->
                             <div>
@@ -229,51 +204,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="user-management.html" class="text-gray-400 hover:text-white transition">User Management</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include(__DIR__ . '/../../includes/nav.php'); ?>
 
     <script>
         // Mobile menu toggle
@@ -297,7 +228,7 @@
         passwordField.addEventListener('input', () => {
             const password = passwordField.value;
             let strength = 0;
-            
+
             if (password.length >= 8) strength++;
             if (/[a-z]/.test(password)) strength++;
             if (/[A-Z]/.test(password)) strength++;
@@ -306,7 +237,7 @@
 
             const strengthLevels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
             const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600'];
-            
+
             for (let i = 1; i <= 4; i++) {
                 const element = document.getElementById(`strength${i}`);
                 if (i <= strength) {
@@ -315,7 +246,7 @@
                     element.className = 'h-1 w-1/4 bg-gray-300 rounded';
                 }
             }
-            
+
             document.getElementById('strengthText').textContent = `Password strength: ${strengthLevels[strength - 1] || 'Weak'}`;
         });
 
@@ -338,7 +269,7 @@
             const total = guardians.length;
             const active = guardians.filter(g => g.status === 'active').length;
             const inactive = guardians.filter(g => g.status === 'inactive').length;
-            
+
             document.getElementById('totalGuardians').textContent = total;
             document.getElementById('activeGuardians').textContent = active;
             document.getElementById('inactiveGuardians').textContent = inactive;
@@ -394,8 +325,11 @@
             localStorage.setItem('schoolGuardians', JSON.stringify(guardians));
             renderGuardians();
             updateStats();
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         }
 
         guardianForm.addEventListener('submit', (e) => {
@@ -472,11 +406,11 @@
 
                 guardians.push(newGuardian);
                 localStorage.setItem('schoolGuardians', JSON.stringify(guardians));
-                
+
                 guardianForm.reset();
                 renderGuardians();
                 updateStats();
-                
+
                 alert('Guardian account created successfully!');
             }
         });
@@ -486,4 +420,5 @@
         updateStats();
     </script>
 </body>
+
 </html>
