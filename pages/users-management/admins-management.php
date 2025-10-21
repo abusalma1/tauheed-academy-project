@@ -4,6 +4,15 @@ $title = "Admins & Super Users Managment";
 include(__DIR__ . '/../../includes/header.php');
 
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
+            </script>";
+}
+
 $statement = $connection->prepare("SELECT * FROM admins");
 $statement->execute();
 $result = $statement->get_result();
@@ -23,7 +32,18 @@ $inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM admins WHE
 $inactive = $inactiveQuery->fetch_assoc()['inactive'];
 
 
+$name =  $email  = $phone  =  $address = $staffNumber  = $status =  $roleTypeError = $department = $hashed_password = '';
+$nameError =  $emailError  = $phoneError  =  $addressError = $staffNumberError  = $statusError  = $departmentError =  $roleTypeError = $passwordError = $confirmPasswordError = '';
+
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (
+        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+    ) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }
+
     $name = $_POST['fullName'] ?? '';
     $email = $_POST['email'] ?? '';
     $phone = $_POST['phone'] ?? '';
@@ -32,35 +52,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $roleType = $_POST['roleType'] ?? '';
     $department = $_POST['department'] ?? '';
     $password = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['confirmPassword'];
     $status = $_POST['status'] ?? 'inactive';
 
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    if (empty($name)) {
+        $nameError = 'Full name is required';
+    }
 
-    $statement = $connection->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $hashed_password);
-    if ($statement->execute()) {
-        echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
-            </script>";
-
-
-        $statement = $connection->prepare("SELECT * FROM admins");
-        $statement->execute();
-        $result = $statement->get_result();
-        $admins = $result->fetch_all(MYSQLI_ASSOC);
-
-        // Count total admins
-        $totalQuery = $connection->query("SELECT COUNT(*) AS total FROM admins");
-        $total = $totalQuery->fetch_assoc()['total'];
-
-        // Count active admins
-        $activeQuery = $connection->query("SELECT COUNT(*) AS active FROM admins WHERE status = 'active'");
-        $active = $activeQuery->fetch_assoc()['active'];
-
-        // Count inactive admins
-        $inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM admins WHERE status = 'inactive'");
-        $inactive = $inactiveQuery->fetch_assoc()['inactive'];
+    if (empty($email)) {
+        $emailError = 'Email is required';
     } else {
-        echo "<script>alert('Failed to create admin/super user account: " . $statement->error . "');</script>";
+        if (!validateEmail($email)) {
+            $emailError = 'Please enter a valid email address';
+        } else {
+            if (emailExist($connection, $email, 'admins')) {
+                $emailError = "Email already exists!";
+            }
+        }
+    }
+
+
+    if (empty($phone)) {
+        $phoneError =  'Phone nnumber is required';
+    }
+
+    if (empty($roleType)) {
+        $roleTypeError =  'Subject/Department is required';
+    }
+
+    if (empty($address)) {
+        $addressError = 'Please enter address';
+    }
+
+    if (empty($staffNumber)) {
+        $staffNumberError = 'Please insert staff ID number';
+    } else {
+        if (staffNumberExist($connection, $staffNumber, 'admins')) {
+            $staffNumberError = "Staff No already exists!";
+        }
+    }
+
+    if (empty($department)) {
+        $departmentError = 'Qualification is required';
+    }
+
+    if (empty($password)) {
+        $passwordError = "Password field is required";
+        $password = '';
+    } else {
+        if (strlen($password) < 8) {
+            $passwordError = 'Password must be at least 8 characters';
+        } else {
+            if ($password !== $confirmPassword) {
+                $confirmPasswordError = 'Passwords do not match';
+            } else {
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            }
+        }
+    }
+
+
+    if (empty($status)) {
+        $statusError = "Status is required";
+    }
+
+    if (
+        empty($nameError) && empty($emailError) && empty($phoneError) && empty($addressError)
+        && empty($staffNumberError) && empty($departmentError) && empty($statusError)
+        && empty($roleTypeError) && empty($passwordError) && empty($confirmPasswordError)
+    ) {
+
+        $statement = $connection->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $hashed_password);
+        if ($statement->execute()) {
+            header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
+            exit();
+        } else {
+            echo "<script>alert('Failed to create admin/super user account: " . $statement->error . "');</script>";
+        }
     }
 }
 
@@ -92,6 +161,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Create New Admin Account</h2>
 
                         <form id="adminForm" class="space-y-6" method="post">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+
 
 
                             <!-- Success Message -->
@@ -465,6 +536,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('passwordError').classList.remove('hidden');
                 isValid = false;
             }
+
 
             if (password !== confirmPassword) {
                 document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';

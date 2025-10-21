@@ -45,11 +45,11 @@ function emailExist($connection, $email)
     return $stmt->num_rows > 0;
 }
 
-function staffNumberExist($connection, $staff_no)
+function staffNumberExist($connection, $staff_no, $table)
 {
 
     // Prepare query dynamically for selected column
-    $query = "SELECT id FROM teachers WHERE staff_no = ? LIMIT 1";
+    $query = "SELECT id FROM $table WHERE staff_no = ? LIMIT 1";
     $stmt = $connection->prepare($query);
 
     // Bind the value type correctly (s = string)

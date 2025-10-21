@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $emailError = 'Please enter a valid email address';
             $email = '';
         } else {
-            if (emailExist($connection, $email,)) {
+            if (emailExist($connection, $email, 'teachers')) {
                 $emailError = "Email already exists!";
                 $email = '';
             }
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $staffNumberError = 'Please insert staff ID number';
         $staffNumber = '';
     } else {
-        if (staffNumberExist($connection, $staffNumber)) {
+        if (staffNumberExist($connection, $staffNumber, 'teachers')) {
             $staffNumberError = "Staff No already exists!";
             $staffNumber = '';
         }
@@ -96,14 +96,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $passwordError = "Password field is required";
         $password = '';
     } else {
-        if ($password < 8) {
+        if (strlen($password) < 8) {
             $passwordError = 'Password must be at least 8 characters';
             $password = '';
         } else {
             if ($password !== $confirmPassword) {
                 $confirmPasswordError = 'Passwords do not match';
                 $confirmPassword = '';
-
             } else {
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             }
