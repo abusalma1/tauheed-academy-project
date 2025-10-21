@@ -1,9 +1,158 @@
 <?php
 
-$title = "Teachers Management";
+
+$title = "Teachers Users Managment";
 include(__DIR__ . '/../../includes/header.php');
 
+
+$statement = $connection->prepare("SELECT * FROM teachers");
+$statement->execute();
+$result = $statement->get_result();
+$teachers = $result->fetch_all(MYSQLI_ASSOC);
+
+
+// Count total admins
+$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM teachers");
+$total = $totalQuery->fetch_assoc()['total'];
+
+// Count active admins
+$activeQuery = $connection->query("SELECT COUNT(*) AS active FROM teachers WHERE status = 'active'");
+$active = $activeQuery->fetch_assoc()['active'];
+
+// Count inactive admins
+$inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM teachers WHERE status = 'inactive'");
+$inactive = $inactiveQuery->fetch_assoc()['inactive'];
+
+$name =  $email  = $phone  = $subject =  $address = $staffNumber  = $status  = $qualification =  $subject = $hashed_password = '';
+$nameError =  $emailError  = $phoneError  = $subjectError =  $addressError = $staffNumberError  = $statusError  = $qualificationError =  $subjectError = $passwordError = $confirmPasswordError = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $name = $_POST['fullName'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $address = $_POST['address'] ?? '';
+    $staffNumber = $_POST['staffNumber'] ?? '';
+    $qualification = $_POST['staffNumber'] ?? '';
+    $subject = $_POST['subject'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['confirmPassword'] ?? '';
+    $status = $_POST['status'] ?? 'inactive';
+
+
+
+    if (empty($name)) {
+        $nameError = 'Full name is required';
+        $name = '';
+    }
+
+    if (empty($email)) {
+        $emailError = 'Email is required';
+        $email = '';
+    } else {
+        if (!validateEmail($email)) {
+            $emailError = 'Please enter a valid email address';
+            $email = '';
+        } else {
+            if (emailExist($connection, $email,)) {
+                $emailError = "Email already exists!";
+                $email = '';
+            }
+        }
+    }
+
+
+    if (empty($phone)) {
+        $phoneError =  'Phone nnumber is required';
+        $phone = '';
+    }
+
+    if (empty($subject)) {
+        $subjectError =  'Subject/Department is required';
+        $subject = '';
+    }
+
+    if (empty($address)) {
+        $addressError = 'Please enter address';
+        $address = '';
+    }
+
+    if (empty($staffNumber)) {
+        $staffNumberError = 'Please insert staff ID number';
+        $staffNumber = '';
+    } else {
+        if (staffNumberExist($connection, $staffNumber)) {
+            $staffNumberError = "Staff No already exists!";
+            $staffNumber = '';
+        }
+    }
+
+    if (empty($qualification)) {
+        $qualificationError = 'Qualification is required';
+        $qualification = '';
+    }
+
+    if (empty($password)) {
+        $passwordError = "Password field is required";
+        $password = '';
+    } else {
+        if ($password < 8) {
+            $passwordError = 'Password must be at least 8 characters';
+            $password = '';
+        } else {
+            if ($password !== $confirmPassword) {
+                $confirmPasswordError = 'Passwords do not match';
+                $confirmPassword = '';
+
+            } else {
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            }
+        }
+    }
+
+
+    if (empty($status)) {
+        $statusError = "Status is required";
+    }
+
+    if ($name && $email && $phone && $subject && $address && $staffNumber && $status && $qualification && $subject && $hashed_password) {
+        $statement = $connection->prepare("INSERT INTO teachers (name, email, phone, address, staff_no, status, password) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $statement->bind_param('sssssss', $name, $email, $phone, $address, $staffNumber, $status, $hashed_password);
+
+        if ($statement->execute()) {
+            echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
+            </script>";
+
+
+            $statement = $connection->prepare("SELECT * FROM teachers");
+            $statement->execute();
+            $result = $statement->get_result();
+            $teachers = $result->fetch_all(MYSQLI_ASSOC);
+
+            // Count total admins
+            $totalQuery = $connection->query("SELECT COUNT(*) AS total FROM teachers");
+            $total = $totalQuery->fetch_assoc()['total'];
+
+            // Count active admins
+            $activeQuery = $connection->query("SELECT COUNT(*) AS active FROM teachers WHERE status = 'active'");
+            $active = $activeQuery->fetch_assoc()['active'];
+
+            // Count inactive admins
+            $inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM teachers WHERE status = 'inactive'");
+            $inactive = $inactiveQuery->fetch_assoc()['inactive'];
+        } else {
+            header('Location: ' . route('teachers-management'));
+            echo "<script>alert('Failed to create teacher account: " . $statement->error . "');</script>";
+        }
+    }
+}
+
+
 ?>
+
+<script>
+    const teachers = <?= json_encode($teachers, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+</script>
 
 <body class="bg-gray-50">
     <?php include(__DIR__ . '/./includes/users-management-nav.php')  ?>
@@ -26,53 +175,73 @@ include(__DIR__ . '/../../includes/header.php');
                     <div class="bg-white rounded-lg shadow-lg p-8">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Create New Teacher Account</h2>
 
-                        <form id="teacherForm" class="space-y-6">
+                        <form id="teacherForm" class="space-y-6" method="post">
+
+                            <!-- Success Message -->
+                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>User is created successfully!</span>
+                            </div>
+
+
                             <!-- Full Name -->
                             <div>
                                 <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                                <input type="text" id="fullName" name="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter full name">
-                                <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
+                                <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter full name" value="<?= $name ?? '' ?>">
+                                <span class="text-red-500 text-sm <?= empty($nameError) ? "hidden" : '' ?>" id=" fullNameError"><?= $nameError ?></span>
                             </div>
 
                             <!-- Email -->
                             <div>
                                 <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                                <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter email address">
-                                <span class="text-red-500 text-sm hidden" id="emailError"></span>
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter email address" <?= $email ?? '' ?>>
+                                <span class="text-red-500 text-sm <?= empty($emailError) ? "hidden" : '' ?>" id="emailError"><?= $emailError ?></span>
                             </div>
 
                             <!-- Phone Number -->
                             <div>
                                 <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                                <input type="tel" id="phone" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter phone number">
-                                <span class="text-red-500 text-sm hidden" id="phoneError"></span>
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter phone number" value="<?= $phone ?? '' ?>">
+                                <span class="text-red-500 text-sm <?= empty($phoneError) ? "hidden" : '' ?>" id="phoneError"><?= $phoneError ?></span>
                             </div>
+
+                            <!-- Address -->
+                            <div class="mb-6">
+                                <label for="address" class="block text-gray-700 font-semibold mb-2">
+                                    Address <span class="text-red-500">*</span>
+                                </label>
+                                <textarea id="address" name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter staff address"><?= $address ?? ''  ?></textarea>
+                                <span class="text-red-500 text-sm <?= empty($addressError) ? "hidden" : '' ?>" id="addressError"><?= $addressError ?></span>
+                            </div>
+
 
                             <!-- Subject/Department -->
                             <div>
                                 <label for="subject" class="block text-sm font-semibold text-gray-700 mb-2">Subject/Department *</label>
-                                <input type="text" id="subject" name="subject" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., Mathematics, English, Science">
-                                <span class="text-red-500 text-sm hidden" id="subjectError"></span>
+                                <input type="text" id="subject" name="subject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., Mathematics, English, Science" value="<?= $subject ?? '' ?>">
+                                <span class="text-red-500 text-sm <?= empty($subjectError) ? "hidden" : '' ?>" id="subjectError"><?= $subjectError ?></span>
                             </div>
 
                             <!-- Qualification -->
                             <div>
                                 <label for="qualification" class="block text-sm font-semibold text-gray-700 mb-2">Qualification *</label>
-                                <input type="text" id="qualification" name="qualification" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., B.Sc Education, M.A">
-                                <span class="text-red-500 text-sm hidden" id="qualificationError"></span>
+                                <input type="text" id="qualification" name="qualification" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., B.Sc Education, M.A" value="<?= $qualification ?? '' ?>">
+                                <span class="text-red-500 text-sm <?= empty($qualificationError) ? "hidden" : '' ?>" id="qualificationError"><?= $qualificationError ?></span>
                             </div>
 
-                            <!-- Years of Experience -->
+                            <!-- Staff Number -->
                             <div>
-                                <label for="experience" class="block text-sm font-semibold text-gray-700 mb-2">Years of Experience</label>
-                                <input type="number" id="experience" name="experience" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter years of experience">
+                                <label for="staffNumber" class="block text-sm font-semibold text-gray-700 mb-2">Staff ID Number *</label>
+                                <input type="tel" id="staffNumber" name="staffNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter staff id number" value="<?= $staffNumber ?? '' ?>">
+                                <span class="text-red-500 text-sm <?= empty($staffNumberError) ? "hidden" : '' ?>" id="staffNumberError"><?= $staffNumberError ?></span>
                             </div>
+
 
                             <!-- Password -->
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
                                 <div class="relative">
-                                    <input type="password" id="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter password">
+                                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter password">
                                     <button type="button" id="togglePassword" class="absolute right-3 top-2.5 text-gray-600">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -86,14 +255,14 @@ include(__DIR__ . '/../../includes/header.php');
                                     </div>
                                     <p id="strengthText" class="text-xs text-gray-600">Password strength: Weak</p>
                                 </div>
-                                <span class="text-red-500 text-sm hidden" id="passwordError"></span>
+                                <span class="text-red-500 text-sm <?= empty($passwordError) ? "hidden" : '' ?>" id="passwordError"><?= $passwordError ?></span>
                             </div>
 
                             <!-- Confirm Password -->
                             <div>
                                 <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password *</label>
-                                <input type="password" id="confirmPassword" name="confirmPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Confirm password">
-                                <span class="text-red-500 text-sm hidden" id="confirmPasswordError"></span>
+                                <input type="password" id="confirmPassword" name="confirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Confirm password">
+                                <span class="text-red-500 text-sm <?= empty($confirmPasswordError) ? "hidden" : '' ?>" id="confirmPasswordError"><?= $confirmPasswordError ?></span>
                             </div>
 
                             <!-- Status -->
@@ -107,7 +276,7 @@ include(__DIR__ . '/../../includes/header.php');
 
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
-                                <button type="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
+                                <button type="submit" name="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
                                     <i class="fas fa-plus mr-2"></i>Create Teacher Account
                                 </button>
                                 <button type="reset" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
@@ -154,15 +323,15 @@ include(__DIR__ . '/../../includes/header.php');
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Teachers</span>
-                                <span class="text-2xl font-bold text-blue-900" id="totalTeachers">0</span>
+                                <span class="text-2xl font-bold text-blue-900" id="totalTeachers"><?= $total ?></span>
                             </div>
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Active</span>
-                                <span class="text-2xl font-bold text-green-600" id="activeTeachers">0</span>
+                                <span class="text-2xl font-bold text-green-600" id="activeTeachers"><?= $active ?></span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Inactive</span>
-                                <span class="text-2xl font-bold text-red-600" id="inactiveTeachers">0</span>
+                                <span class="text-2xl font-bold text-red-600" id="inactiveTeachers"><?= $inactive ?></span>
                             </div>
                         </div>
                     </div>
@@ -180,16 +349,38 @@ include(__DIR__ . '/../../includes/header.php');
                             <tr>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Email</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Subject</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">staff No.</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Qualification</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Status</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="teachersTableBody" class="divide-y divide-gray-200">
-                            <tr class="text-center py-8">
-                                <td colspan="6" class="px-6 py-8 text-gray-500">No teacher accounts created yet</td>
-                            </tr>
+                            <?php if ($total > 0): ?>
+                                <?php foreach ($teachers as $teacher): ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 text-sm text-gray-900"><?= $teacher['name'] ?? '' ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $teacher['email'] ?? '' ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $teacher['staff_no'] ?? '' ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $teacher['Qualifications'] ?? '' ?></td>
+                                        <td class="px-6 py-4 text-sm">
+                                            <span class="px-3 py-1 <?= $teacher['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $teacher['status'] ?></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm space-x-2">
+                                            <button class="text-blue-600 hover:text-blue-900 font-semibold">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900 font-semibold">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach ?>
+                            <?php else : ?>
+                                <tr class="text-center py-8">
+                                    <td colspan="6" class="px-6 py-8 text-gray-500">No teacher accounts created yet</td>
+                                </tr>
+                            <?php endif ?>
                         </tbody>
                     </table>
                 </div>
@@ -201,12 +392,28 @@ include(__DIR__ . '/../../includes/header.php');
 
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
+        //  Mobile Menu Script
+        const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        mobileMenuBtn.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
         });
+
+        // Success Message
+        function showSuccessMessage() {
+            const message = document.getElementById("successMessage");
+            if (message) {
+                message.classList.remove("hidden"); // show the message
+                message.classList.add("flex"); // ensure it displays properly
+
+                // Hide it after 5 seconds
+                setTimeout(() => {
+                    message.classList.add("hidden");
+                    message.classList.remove("flex");
+                }, 5000);
+            }
+        }
 
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
@@ -243,181 +450,6 @@ include(__DIR__ . '/../../includes/header.php');
 
             document.getElementById('strengthText').textContent = `Password strength: ${strengthLevels[strength - 1] || 'Weak'}`;
         });
-
-        // Form validation and submission
-        const teacherForm = document.getElementById('teacherForm');
-        const teachersTableBody = document.getElementById('teachersTableBody');
-        let teachers = JSON.parse(localStorage.getItem('schoolTeachers')) || [];
-
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-
-        function validatePhone(phone) {
-            const re = /^\+?234\d{10}$|^\d{11}$/;
-            return re.test(phone.replace(/\s/g, ''));
-        }
-
-        function updateStats() {
-            const total = teachers.length;
-            const active = teachers.filter(t => t.status === 'active').length;
-            const inactive = teachers.filter(t => t.status === 'inactive').length;
-
-            document.getElementById('totalTeachers').textContent = total;
-            document.getElementById('activeTeachers').textContent = active;
-            document.getElementById('inactiveTeachers').textContent = inactive;
-        }
-
-        function renderTeachers() {
-            if (teachers.length === 0) {
-                teachersTableBody.innerHTML = '<tr class="text-center"><td colspan="6" class="px-6 py-8 text-gray-500">No teacher accounts created yet</td></tr>';
-                return;
-            }
-
-            teachersTableBody.innerHTML = teachers.map((teacher, index) => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm text-gray-900">${teacher.fullName}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${teacher.email}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${teacher.subject}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${teacher.qualification}</td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-3 py-1 ${teacher.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize">${teacher.status}</span>
-                    </td>
-                    <td class="px-6 py-4 text-sm space-x-2">
-                        <button onclick="editTeacher(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button onclick="deleteTeacher(${index})" class="text-red-600 hover:text-red-900 font-semibold">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function deleteTeacher(index) {
-            if (confirm('Are you sure you want to delete this teacher account?')) {
-                teachers.splice(index, 1);
-                localStorage.setItem('schoolTeachers', JSON.stringify(teachers));
-                renderTeachers();
-                updateStats();
-            }
-        }
-
-        function editTeacher(index) {
-            const teacher = teachers[index];
-            document.getElementById('fullName').value = teacher.fullName;
-            document.getElementById('email').value = teacher.email;
-            document.getElementById('phone').value = teacher.phone;
-            document.getElementById('subject').value = teacher.subject;
-            document.getElementById('qualification').value = teacher.qualification;
-            document.getElementById('experience').value = teacher.experience || '';
-            document.getElementById('status').value = teacher.status;
-
-            teachers.splice(index, 1);
-            localStorage.setItem('schoolTeachers', JSON.stringify(teachers));
-            renderTeachers();
-            updateStats();
-
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-
-        teacherForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            // Clear previous errors
-            document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
-
-            const fullName = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const subject = document.getElementById('subject').value.trim();
-            const qualification = document.getElementById('qualification').value.trim();
-            const experience = document.getElementById('experience').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const status = document.getElementById('status').value;
-
-            let isValid = true;
-
-            if (!fullName) {
-                document.getElementById('fullNameError').textContent = 'Full name is required';
-                document.getElementById('fullNameError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!validateEmail(email)) {
-                document.getElementById('emailError').textContent = 'Please enter a valid email address';
-                document.getElementById('emailError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (teachers.some(t => t.email === email)) {
-                document.getElementById('emailError').textContent = 'Email already exists';
-                document.getElementById('emailError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!validatePhone(phone)) {
-                document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
-                document.getElementById('phoneError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!subject) {
-                document.getElementById('subjectError').textContent = 'Subject/Department is required';
-                document.getElementById('subjectError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!qualification) {
-                document.getElementById('qualificationError').textContent = 'Qualification is required';
-                document.getElementById('qualificationError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (password.length < 8) {
-                document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
-                document.getElementById('passwordError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (password !== confirmPassword) {
-                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
-                document.getElementById('confirmPasswordError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (isValid) {
-                const newTeacher = {
-                    fullName,
-                    email,
-                    phone,
-                    subject,
-                    qualification,
-                    experience: experience || '0',
-                    status,
-                    createdAt: new Date().toLocaleDateString()
-                };
-
-                teachers.push(newTeacher);
-                localStorage.setItem('schoolTeachers', JSON.stringify(teachers));
-
-                teacherForm.reset();
-                renderTeachers();
-                updateStats();
-
-                alert('Teacher account created successfully!');
-            }
-        });
-
-        // Initial render
-        renderTeachers();
-        updateStats();
     </script>
 </body>
 

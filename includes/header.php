@@ -1,6 +1,6 @@
 <?php
 session_start();
-include(__DIR__ .  '/../routes/routes.php');
+include(__DIR__ .  '/../routes/functions.php');
 
 // Step 1: Try to get an existing school record
 $statement = $connection->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');

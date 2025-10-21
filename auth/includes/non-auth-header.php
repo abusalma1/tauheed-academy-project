@@ -1,5 +1,5 @@
 <?php
-include(__DIR__ . '/../../routes/routes.php');
+include(__DIR__ . '/../../routes/functions.php');
 ?>
 
 <!DOCTYPE html>

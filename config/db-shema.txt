@@ -94,6 +94,7 @@ CREATE TABLE teachers (
     address VARCHAR(255),
     qualification VARCHAR(150),
     staff_no VARCHAR(50) UNIQUE,
+    status ENUM('active', 'inactive') DEFAULT 'active',
     picture_path VARCHAR(255),
     password VARCHAR(255) NOT NULL,
     reset_token VARCHAR(50),

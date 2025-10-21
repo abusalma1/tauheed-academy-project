@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM admins WHERE status = 'inactive'");
         $inactive = $inactiveQuery->fetch_assoc()['inactive'];
     } else {
-        echo "<script>alert('Failed to update school info: " . $statement->error . "');</script>";
+        echo "<script>alert('Failed to create admin/super user account: " . $statement->error . "');</script>";
     }
 }
 
@@ -92,11 +92,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Create New Admin Account</h2>
 
                         <form id="adminForm" class="space-y-6" method="post">
+
+
                             <!-- Success Message -->
                             <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
                                 <i class="fas fa-check-circle"></i>
                                 <span>User is created successfully!</span>
                             </div>
+
+
                             <!-- Full Name -->
                             <div>
                                 <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
@@ -280,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <span class="px-3 py-1 bg-purple-100 text-purple-900 rounded-full text-xs font-semibold capitalize"><?= $admin['type'] === 'superuser' ? "Super User" : 'Managemnt'; ?></span>
                                         </td>
                                         <td class="px-6 py-4 text-sm">
-                                            <span class="px-3 py-1 ${admin.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize"><?= $admin['status'] ?></span>
+                                            <span class="px-3 py-1 <?= $admin['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $admin['status'] ?></span>
                                         </td>
                                         <td class="px-6 py-4 text-sm space-x-2">
                                             <button class="text-blue-600 hover:text-blue-900 font-semibold">
@@ -307,10 +311,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php include(__DIR__ . '/../../includes/footer.php'); ?>
 
-    <script src="<?= BASE_URL ?>/static/j/main.js"></script>
-    <script src="<?= BASE_URL ?>/static/j/success-message.js"></script>
 
     <script>
+        //  Mobile Menu Script
+        const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        mobileMenuBtn.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+        });
+
+        // Success Message
+        function showSuccessMessage() {
+            const message = document.getElementById("successMessage");
+            if (message) {
+                message.classList.remove("hidden"); // show the message
+                message.classList.add("flex"); // ensure it displays properly
+
+                // Hide it after 5 seconds
+                setTimeout(() => {
+                    message.classList.add("hidden");
+                    message.classList.remove("flex");
+                }, 5000);
+            }
+        }
+
+
+
+
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
@@ -362,73 +390,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return re.test(phone.replace(/\s/g, ''));
         }
 
-        // function updateStats() {
-        //     const total = admins.length;
-        //     const active = admins.filter(a => a.status === 'active').length;
-        //     const inactive = admins.filter(a => a.status === 'inactive').length;
-
-        //     document.getElementById('totalAdmins').textContent = total;
-        //     document.getElementById('activeAdmins').textContent = active;
-        //     document.getElementById('inactiveAdmins').textContent = inactive;
-        // }
-
-        // function renderAdmins() {
-        //     if (admins.length === 0) {
-        //         adminsTableBody.innerHTML = '<tr class="text-center"><td colspan="6" class="px-6 py-8 text-gray-500">No admin accounts created yet</td></tr>';
-        //         return;
-        //     }
-
-        //     adminsTableBody.innerHTML = admins.map((admin, index) => `
-        //         <tr class="hover:bg-gray-50">
-        //             <td class="px-6 py-4 text-sm text-gray-900">${admin.fullName}</td>
-        //             <td class="px-6 py-4 text-sm text-gray-600">${admin.email}</td>
-        //             <td class="px-6 py-4 text-sm text-gray-600">${admin.phone}</td>
-        //             <td class="px-6 py-4 text-sm">
-        //                 <span class="px-3 py-1 bg-purple-100 text-purple-900 rounded-full text-xs font-semibold capitalize">${admin.roleType.replace('_', ' ')}</span>
-        //             </td>
-        //             <td class="px-6 py-4 text-sm">
-        //                 <span class="px-3 py-1 ${admin.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize">${admin.status}</span>
-        //             </td>
-        //             <td class="px-6 py-4 text-sm space-x-2">
-        //                 <button onclick="editAdmin(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
-        //                     <i class="fas fa-edit"></i> Edit
-        //                 </button>
-        //                 <button onclick="deleteAdmin(${index})" class="text-red-600 hover:text-red-900 font-semibold">
-        //                     <i class="fas fa-trash"></i> Delete
-        //                 </button>
-        //             </td>
-        //         </tr>
-        //     `).join('');
-        // }
-
-        // function deleteAdmin(index) {
-        //     if (confirm('Are you sure you want to delete this admin account?')) {
-        //         admins.splice(index, 1);
-        //         localStorage.setItem('schoolAdmins', JSON.stringify(admins));
-        //         renderAdmins();
-        //         updateStats();
-        //     }
-        // }
-
-        // function editAdmin(index) {
-        //     const admin = admins[index];
-        //     document.getElementById('fullName').value = admin.fullName;
-        //     document.getElementById('email').value = admin.email;
-        //     document.getElementById('phone').value = admin.phone;
-        //     document.getElementById('roleType').value = admin.roleType;
-        //     document.getElementById('department').value = admin.department || '';
-        //     document.getElementById('status').value = admin.status;
-
-        //     admins.splice(index, 1);
-        //     localStorage.setItem('schoolAdmins', JSON.stringify(admins));
-        //     renderAdmins();
-        //     updateStats();
-
-        //     window.scrollTo({
-        //         top: 0,
-        //         behavior: 'smooth'
-        //     });
-        // }
 
         adminForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -468,6 +429,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
+
             if (!validatePhone(phone)) {
                 document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
                 document.getElementById('phoneError').classList.remove('hidden');
@@ -491,6 +453,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
+            if (admins.some(a => a.staff_no === staffNumber)) {
+                document.getElementById('staffNumberError').textContent = 'Staff Number already exists';
+                document.getElementById('staffNumberError').classList.remove('hidden');
+                isValid = false;
+            }
+
 
             if (password.length < 8) {
                 document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
@@ -510,11 +478,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
         });
-
-        // Initial render
-        renderAdmins();
-        updateStats();
     </script>
+    <script src="<?= BASE_URL ?>/static/j/main.js"></script>
+    <script src="<?= BASE_URL ?>/static/j/success-message.js"></script>
+
 </body>
 
 </html>
