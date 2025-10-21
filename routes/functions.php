@@ -59,3 +59,5 @@ function staffNumberExist($connection, $staff_no, $table)
 
     return $stmt->num_rows > 0;
 }
+
+?>

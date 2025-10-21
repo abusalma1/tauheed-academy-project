@@ -391,28 +391,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <script>
-        //  Mobile Menu Script
-        const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-        const mobileMenu = document.getElementById("mobile-menu");
-
-        mobileMenuBtn.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
         });
-
-        // Success Message
-        function showSuccessMessage() {
-            const message = document.getElementById("successMessage");
-            if (message) {
-                message.classList.remove("hidden"); // show the message
-                message.classList.add("flex"); // ensure it displays properly
-
-                // Hide it after 5 seconds
-                setTimeout(() => {
-                    message.classList.add("hidden");
-                    message.classList.remove("flex");
-                }, 5000);
-            }
-        }
 
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
@@ -449,6 +433,181 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             document.getElementById('strengthText').textContent = `Password strength: ${strengthLevels[strength - 1] || 'Weak'}`;
         });
+
+        // Form validation and submission
+        const teacherForm = document.getElementById('teacherForm');
+        const teachersTableBody = document.getElementById('teachersTableBody');
+        let teachers = JSON.parse(localStorage.getItem('schoolTeachers')) || [];
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validatePhone(phone) {
+            const re = /^\+?234\d{10}$|^\d{11}$/;
+            return re.test(phone.replace(/\s/g, ''));
+        }
+
+        function updateStats() {
+            const total = teachers.length;
+            const active = teachers.filter(t => t.status === 'active').length;
+            const inactive = teachers.filter(t => t.status === 'inactive').length;
+
+            document.getElementById('totalTeachers').textContent = total;
+            document.getElementById('activeTeachers').textContent = active;
+            document.getElementById('inactiveTeachers').textContent = inactive;
+        }
+
+        function renderTeachers() {
+            if (teachers.length === 0) {
+                teachersTableBody.innerHTML = '<tr class="text-center"><td colspan="6" class="px-6 py-8 text-gray-500">No teacher accounts created yet</td></tr>';
+                return;
+            }
+
+            teachersTableBody.innerHTML = teachers.map((teacher, index) => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm text-gray-900">${teacher.fullName}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${teacher.email}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${teacher.subject}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${teacher.qualification}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-3 py-1 ${teacher.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize">${teacher.status}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm space-x-2">
+                        <button onclick="editTeacher(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button onclick="deleteTeacher(${index})" class="text-red-600 hover:text-red-900 font-semibold">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteTeacher(index) {
+            if (confirm('Are you sure you want to delete this teacher account?')) {
+                teachers.splice(index, 1);
+                localStorage.setItem('schoolTeachers', JSON.stringify(teachers));
+                renderTeachers();
+                updateStats();
+            }
+        }
+
+        function editTeacher(index) {
+            const teacher = teachers[index];
+            document.getElementById('fullName').value = teacher.fullName;
+            document.getElementById('email').value = teacher.email;
+            document.getElementById('phone').value = teacher.phone;
+            document.getElementById('subject').value = teacher.subject;
+            document.getElementById('qualification').value = teacher.qualification;
+            document.getElementById('experience').value = teacher.experience || '';
+            document.getElementById('status').value = teacher.status;
+
+            teachers.splice(index, 1);
+            localStorage.setItem('schoolTeachers', JSON.stringify(teachers));
+            renderTeachers();
+            updateStats();
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        teacherForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Clear previous errors
+            document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const qualification = document.getElementById('qualification').value.trim();
+            const experience = document.getElementById('experience').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const status = document.getElementById('status').value;
+
+            let isValid = true;
+
+            if (!fullName) {
+                document.getElementById('fullNameError').textContent = 'Full name is required';
+                document.getElementById('fullNameError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!validateEmail(email)) {
+                document.getElementById('emailError').textContent = 'Please enter a valid email address';
+                document.getElementById('emailError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (teachers.some(t => t.email === email)) {
+                document.getElementById('emailError').textContent = 'Email already exists';
+                document.getElementById('emailError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!validatePhone(phone)) {
+                document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
+                document.getElementById('phoneError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!subject) {
+                document.getElementById('subjectError').textContent = 'Subject/Department is required';
+                document.getElementById('subjectError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!qualification) {
+                document.getElementById('qualificationError').textContent = 'Qualification is required';
+                document.getElementById('qualificationError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (password.length < 8) {
+                document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
+                document.getElementById('passwordError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+                document.getElementById('confirmPasswordError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (isValid) {
+                const newTeacher = {
+                    fullName,
+                    email,
+                    phone,
+                    subject,
+                    qualification,
+                    experience: experience || '0',
+                    status,
+                    createdAt: new Date().toLocaleDateString()
+                };
+
+                teachers.push(newTeacher);
+                localStorage.setItem('schoolTeachers', JSON.stringify(teachers));
+
+                teacherForm.reset();
+                renderTeachers();
+                updateStats();
+
+                alert('Teacher account created successfully!');
+            }
+        });
+
+        // Initial render
+        renderTeachers();
+        updateStats();
     </script>
 </body>
 

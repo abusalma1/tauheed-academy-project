@@ -140,7 +140,10 @@ CREATE TABLE guardians (
     phone VARCHAR(20),
     address VARCHAR(255),
     picture_path VARCHAR(255),
-        password VARCHAR(255) NOT NULL,
+    relationship VARCHAR(255),
+    occupation VARCHAR(255),
+    password VARCHAR(255) NOT NULL,
+    status ENUM('active', 'inactive') DEFAULT 'active',
     reset_token VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

@@ -3,7 +3,105 @@
 $title = 'Guardians Management';
 include(__DIR__ . '/../../includes/header.php');
 
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
+            </script>";
+}
+
+$statement = $connection->prepare("SELECT * FROM guardians");
+$statement->execute();
+$result = $statement->get_result();
+$guardians = $result->fetch_all(MYSQLI_ASSOC);
+
+
+// Count total guardians
+$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM guardians");
+$total = $totalQuery->fetch_assoc()['total'];
+
+// Count active guardians
+$activeQuery = $connection->query("SELECT COUNT(*) AS active FROM guardians WHERE status = 'active'");
+$active = $activeQuery->fetch_assoc()['active'];
+
+// Count inactive guardians
+$inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM guardians WHERE status = 'inactive'");
+$inactive = $inactiveQuery->fetch_assoc()['inactive'];
+
+
+$name =  $email  = $phone  =  $address = $occupation  = $relationship = $status  = $confirmPassword = $password = $hashed_password = '';
+$nameError =  $emailError  = $phoneError  =  $addressError = $occupationError  = $statusError  = $relationshipError =  $roleTypeError = $passwordError = $confirmPasswordError = '';
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }
+
+    $name = $_POST['fullName'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $address = $_POST['address'] ?? '';
+    $relationship = $_POST['relationship'] ?? '';
+    $occupation = $_POST['occupation'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['confirmPassword'] ?? '';
+    $status = $_POST['status'] ?? 'inactive';
+
+    if (empty($name)) $nameError = 'Full name is required';
+
+    if (empty($email)) {
+        $emailError = 'Email is required';
+    } elseif (!validateEmail($email)) {
+        $emailError = 'Please enter a valid email address';
+    } elseif (emailExist($connection, $email, 'guardians')) {
+        $emailError = "Email already exists!";
+    }
+
+    if (empty($phone)) $phoneError = 'Phone number is required';
+    if (empty($relationship)) $relationshipError = 'Relationship is required';
+
+    if (empty($password)) {
+        $passwordError = "Password field is required";
+    } elseif (strlen($password) < 8) {
+        $passwordError = 'Password must be at least 8 characters';
+    } elseif ($password !== $confirmPassword) {
+        $confirmPasswordError = 'Passwords do not match';
+    } else {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    if (empty($status)) $statusError = "Status is required";
+
+    if (
+        empty($nameError) && empty($emailError) && empty($phoneError) && empty($relationshipError)
+        && empty($passwordError) && empty($confirmPasswordError) && empty($statusError)
+    ) {
+        $statement = $connection->prepare(
+            "INSERT INTO guardians (name, email, phone, occupation, address, relationship, status, password)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        $statement->bind_param('ssssssss', $name, $email, $phone, $occupation, $address, $relationship, $status, $hashed_password);
+
+        if ($statement->execute()) {
+            header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
+            exit();
+        } else {
+            echo "<script>alert('Failed to create guardian user account: " . $statement->error . "');</script>";
+        }
+    }
+}
+
 ?>
+
+
+<script>
+    const guardians = <?= json_encode($guardians, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+</script>
+
 
 
 <body class="bg-gray-50">
@@ -26,32 +124,42 @@ include(__DIR__ . '/../../includes/header.php');
                     <div class="bg-white rounded-lg shadow-lg p-8">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Create New Guardian Account</h2>
 
-                        <form id="guardianForm" class="space-y-6">
+                        <form id="guardianForm" class="space-y-6" method="post">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+
+
+                            <!-- Success Message -->
+                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>User is created successfully!</span>
+                            </div>
+
+
                             <!-- Full Name -->
                             <div>
                                 <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                                <input type="text" id="fullName" name="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter full name">
+                                <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter full name">
                                 <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
                             </div>
 
                             <!-- Email -->
                             <div>
                                 <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                                <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter email address">
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter email address">
                                 <span class="text-red-500 text-sm hidden" id="emailError"></span>
                             </div>
 
                             <!-- Phone Number -->
                             <div>
                                 <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                                <input type="tel" id="phone" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter phone number">
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter phone number">
                                 <span class="text-red-500 text-sm hidden" id="phoneError"></span>
                             </div>
 
                             <!-- Relationship -->
                             <div>
                                 <label for="relationship" class="block text-sm font-semibold text-gray-700 mb-2">Relationship to Student *</label>
-                                <select id="relationship" name="relationship" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                <select id="relationship" name="relationship" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
                                     <option value="">Select relationship</option>
                                     <option value="father">Father</option>
                                     <option value="mother">Mother</option>
@@ -65,21 +173,25 @@ include(__DIR__ . '/../../includes/header.php');
 
                             <!-- Occupation -->
                             <div>
-                                <label for="occupation" class="block text-sm font-semibold text-gray-700 mb-2">Occupation</label>
+                                <label for="occupation" class="block text-sm font-semibold text-gray-700 mb-2">Occupation *</label>
                                 <input type="text" id="occupation" name="occupation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., Engineer, Teacher, Business Owner">
+                                <span class="text-red-500 text-sm hidden" id="occupationError"></span>
+
                             </div>
 
                             <!-- Address -->
                             <div>
-                                <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                                <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">Address *</label>
                                 <textarea id="address" name="address" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter residential address"></textarea>
+                                <span class="text-red-500 text-sm hidden" id="addressError"></span>
+
                             </div>
 
                             <!-- Password -->
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
                                 <div class="relative">
-                                    <input type="password" id="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter password">
+                                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter password">
                                     <button type="button" id="togglePassword" class="absolute right-3 top-2.5 text-gray-600">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -99,7 +211,7 @@ include(__DIR__ . '/../../includes/header.php');
                             <!-- Confirm Password -->
                             <div>
                                 <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password *</label>
-                                <input type="password" id="confirmPassword" name="confirmPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Confirm password">
+                                <input type="password" id="confirmPassword" name="confirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Confirm password">
                                 <span class="text-red-500 text-sm hidden" id="confirmPasswordError"></span>
                             </div>
 
@@ -115,10 +227,10 @@ include(__DIR__ . '/../../includes/header.php');
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
                                 <button type="submit" class="flex-1 bg-green-900 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition">
-                                    <i class="fas fa-plus mr-2"></i>Create Guardian Account
+                                    <i class="fas fa-plus mr-2"></i>Create
                                 </button>
                                 <button type="reset" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
-                                    Clear Form
+                                    Clear
                                 </button>
                             </div>
                         </form>
@@ -161,15 +273,15 @@ include(__DIR__ . '/../../includes/header.php');
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Guardians</span>
-                                <span class="text-2xl font-bold text-green-900" id="totalGuardians">0</span>
+                                <span class="text-2xl font-bold text-green-900" id="totalGuardians"><?= $total ?></span>
                             </div>
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Active</span>
-                                <span class="text-2xl font-bold text-green-600" id="activeGuardians">0</span>
+                                <span class="text-2xl font-bold text-green-600" id="activeGuardians"><?= $active ?></span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Inactive</span>
-                                <span class="text-2xl font-bold text-red-600" id="inactiveGuardians">0</span>
+                                <span class="text-2xl font-bold text-red-600" id="inactiveGuardians"><?= $inactive ?></span>
                             </div>
                         </div>
                     </div>
@@ -194,9 +306,34 @@ include(__DIR__ . '/../../includes/header.php');
                             </tr>
                         </thead>
                         <tbody id="guardiansTableBody" class="divide-y divide-gray-200">
-                            <tr class="text-center py-8">
-                                <td colspan="6" class="px-6 py-8 text-gray-500">No guardian accounts created yet</td>
-                            </tr>
+
+                            <?php if (count($guardians) > 0) : ?>
+                                <?php foreach ($guardians as $key => $guardian) : ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 text-sm text-gray-900"><?= $guardian['name'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $guardian['email'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $guardian['phone'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600 capitalize"><?= $guardian['relationship'] ?></td>
+                                        <td class="px-6 py-4 text-sm">
+                                            <span class="px-3 py-1  <?= $guardian['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $guardian['status'] ?></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm space-x-2">
+                                            <button onclick="editGuardian(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button onclick="deleteGuardian(${index})" class="text-red-600 hover:text-red-900 font-semibold">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach ?>
+
+                            <?php else : ?>
+                                <tr class="text-center py-8">
+                                    <td colspan="6" class="px-6 py-8 text-gray-500">No guardian accounts created yet</td>
+                                </tr>
+
+                            <?php endif ?>
                         </tbody>
                     </table>
                 </div>
@@ -204,7 +341,7 @@ include(__DIR__ . '/../../includes/header.php');
         </div>
     </section>
 
-    <?php include(__DIR__ . '/../../includes/nav.php'); ?>
+    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
 
     <script>
         // Mobile menu toggle
@@ -213,6 +350,23 @@ include(__DIR__ . '/../../includes/header.php');
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
+
+        // Success Message
+        function showSuccessMessage() {
+            const message = document.getElementById("successMessage");
+            if (message) {
+                message.classList.remove("hidden"); // show the message
+                message.classList.add("flex"); // ensure it displays properly
+
+                // Hide it after 5 seconds
+                setTimeout(() => {
+                    message.classList.add("hidden");
+                    message.classList.remove("flex");
+                }, 5000);
+            }
+        }
+
+
 
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
@@ -252,8 +406,7 @@ include(__DIR__ . '/../../includes/header.php');
 
         // Form validation and submission
         const guardianForm = document.getElementById('guardianForm');
-        const guardiansTableBody = document.getElementById('guardiansTableBody');
-        let guardians = JSON.parse(localStorage.getItem('schoolGuardians')) || [];
+
 
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -265,72 +418,6 @@ include(__DIR__ . '/../../includes/header.php');
             return re.test(phone.replace(/\s/g, ''));
         }
 
-        function updateStats() {
-            const total = guardians.length;
-            const active = guardians.filter(g => g.status === 'active').length;
-            const inactive = guardians.filter(g => g.status === 'inactive').length;
-
-            document.getElementById('totalGuardians').textContent = total;
-            document.getElementById('activeGuardians').textContent = active;
-            document.getElementById('inactiveGuardians').textContent = inactive;
-        }
-
-        function renderGuardians() {
-            if (guardians.length === 0) {
-                guardiansTableBody.innerHTML = '<tr class="text-center"><td colspan="6" class="px-6 py-8 text-gray-500">No guardian accounts created yet</td></tr>';
-                return;
-            }
-
-            guardiansTableBody.innerHTML = guardians.map((guardian, index) => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm text-gray-900">${guardian.fullName}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${guardian.email}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${guardian.phone}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600 capitalize">${guardian.relationship}</td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-3 py-1 ${guardian.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize">${guardian.status}</span>
-                    </td>
-                    <td class="px-6 py-4 text-sm space-x-2">
-                        <button onclick="editGuardian(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button onclick="deleteGuardian(${index})" class="text-red-600 hover:text-red-900 font-semibold">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function deleteGuardian(index) {
-            if (confirm('Are you sure you want to delete this guardian account?')) {
-                guardians.splice(index, 1);
-                localStorage.setItem('schoolGuardians', JSON.stringify(guardians));
-                renderGuardians();
-                updateStats();
-            }
-        }
-
-        function editGuardian(index) {
-            const guardian = guardians[index];
-            document.getElementById('fullName').value = guardian.fullName;
-            document.getElementById('email').value = guardian.email;
-            document.getElementById('phone').value = guardian.phone;
-            document.getElementById('relationship').value = guardian.relationship;
-            document.getElementById('occupation').value = guardian.occupation || '';
-            document.getElementById('address').value = guardian.address || '';
-            document.getElementById('status').value = guardian.status;
-
-            guardians.splice(index, 1);
-            localStorage.setItem('schoolGuardians', JSON.stringify(guardians));
-            renderGuardians();
-            updateStats();
-
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
 
         guardianForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -347,7 +434,6 @@ include(__DIR__ . '/../../includes/header.php');
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const status = document.getElementById('status').value;
-
             let isValid = true;
 
             if (!fullName) {
@@ -380,6 +466,18 @@ include(__DIR__ . '/../../includes/header.php');
                 isValid = false;
             }
 
+            if (!occupation) {
+                document.getElementById('occupationError').textContent = 'Please enter occupation';
+                document.getElementById('occupationError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!address) {
+                document.getElementById('addressError').textContent = 'Please enter address';
+                document.getElementById('addressError').classList.remove('hidden');
+                isValid = false;
+            }
+
             if (password.length < 8) {
                 document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
                 document.getElementById('passwordError').classList.remove('hidden');
@@ -393,31 +491,9 @@ include(__DIR__ . '/../../includes/header.php');
             }
 
             if (isValid) {
-                const newGuardian = {
-                    fullName,
-                    email,
-                    phone,
-                    relationship,
-                    occupation,
-                    address,
-                    status,
-                    createdAt: new Date().toLocaleDateString()
-                };
-
-                guardians.push(newGuardian);
-                localStorage.setItem('schoolGuardians', JSON.stringify(guardians));
-
-                guardianForm.reset();
-                renderGuardians();
-                updateStats();
-
-                alert('Guardian account created successfully!');
+                guardianForm.submit();
             }
         });
-
-        // Initial render
-        renderGuardians();
-        updateStats();
     </script>
 </body>
 

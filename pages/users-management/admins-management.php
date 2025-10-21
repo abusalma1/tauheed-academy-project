@@ -132,9 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-
 ?>
+
 
 <script>
     const admins = <?= json_encode($admins, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
@@ -266,10 +265,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
                                 <button type="submit" class="flex-1 bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
-                                    <i class="fas fa-plus mr-2"></i>Create Admin Account
+                                    <i class="fas fa-plus mr-2"></i>Create
                                 </button>
                                 <button type="reset" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
-                                    Clear Form
+                                    Clear 
                                 </button>
                             </div>
                         </form>
