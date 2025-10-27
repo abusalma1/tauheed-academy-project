@@ -501,11 +501,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
 
-                if (!validatePhone(phone)) {
-                    document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
-                    document.getElementById('phoneError').classList.remove('hidden');
-                    isValid = false;
-                }
+            if (!validatePhone(phone)) {
+                document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
+                document.getElementById('phoneError').classList.remove('hidden');
+                isValid = false;
+            }
 
             if (!roleType) {
                 document.getElementById('roleTypeError').textContent = 'Please select a role type';
@@ -546,7 +546,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
             if (isValid) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
                 adminForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
 
         });

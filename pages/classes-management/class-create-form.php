@@ -3,6 +3,115 @@
 $title = "Class Creation";
 include(__DIR__ . '/../../includes/header.php');
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    echo "<script>  
+    window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
+        </script> ";
+}
+
+
+$statement = $connection->prepare("
+    SELECT 
+        classes.id AS class_id,
+        classes.name as class_name,
+        teachers.id AS teacher_id,
+        teachers.name AS teacher_name,
+        sections.id as section_id,
+        sections.name as section_name,
+        class_arms.id as arm_id,
+        class_arms.name as arm_name
+
+    FROM classes
+    LEFT JOIN teachers 
+    ON classes.teacher_id = teachers.id
+     LEFT JOIN sections 
+    ON classes.section_id = sections.id
+     LEFT JOIN class_arms 
+    ON classes.class_arm_id = class_arms.id
+");
+$statement->execute();
+$result = $statement->get_result();
+$classes = $result->fetch_all(MYSQLI_ASSOC);
+
+
+$statement = $connection->prepare("SELECT * FROM sections");
+$statement->execute();
+$result = $statement->get_result();
+$sections = $result->fetch_all(MYSQLI_ASSOC);
+
+$statement = $connection->prepare("SELECT * FROM teachers");
+$statement->execute();
+$result = $statement->get_result();
+$teachers = $result->fetch_all(MYSQLI_ASSOC);
+
+$statement = $connection->prepare("SELECT * FROM class_arms");
+$statement->execute();
+$result = $statement->get_result();
+$class_arms = $result->fetch_all(MYSQLI_ASSOC);
+
+
+
+$name = $section = $teacher = $arm =  '';
+$nameError = $sectionError = $teacherError = $armError =  '';
+
+
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (
+        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+    ) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }
+
+    $name = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES);
+    $teacher = htmlspecialchars(trim($_POST['classTeacher'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $arm = htmlspecialchars(trim($_POST['classArm'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+
+    echo ("name: $name,section :  $section, Teacher : $teacher, arm : $arm");
+
+    if (empty($name)) {
+        $nameError = "Name is required";
+    }
+
+    if (empty($section)) {
+        $sectionError = "Section is required";
+    }
+
+    if (empty($teacher)) {
+        $teacherError = "Teacher is required";
+    }
+
+    if (empty($arm)) {
+        $armError = "Arm is required";
+    }
+
+
+    if (empty($nameError)  && empty($sectionError) && empty($teacherError) && empty($armError)) {
+        $statement = $connection->prepare(
+            "INSERT INTO classes (name, section_id, teacher_id, class_arm_id)
+             VALUES (?, ?, ?, ?)"
+        );
+        $statement->bind_param('siii', $name, $section, $teacher, $arm);
+
+        if ($statement->execute()) {
+            header("Location: " . $_SERVER['PHP_SELFs'] . "?success=1");
+            exit();
+        } else {
+            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+        }
+    } else {
+        echo "<script>alert('Failed to create section : ' . '<br>' .$nameError . '<br>' .$teacherError. '<br>' .$sectionError. '<br>'. $armError ');</script>";
+    }
+}
+
 ?>
 
 <body class="bg-gray-50">
@@ -26,6 +135,15 @@ include(__DIR__ . '/../../includes/header.php');
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Add New Class</h2>
 
                         <form id="classForm" class="space-y-6" method="post">
+
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+
+                            <!-- Success Message -->
+                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Section is created successfully!</span>
+                            </div>
+
                             <!-- Class Name -->
                             <div>
                                 <label for="className" class="block text-sm font-semibold text-gray-700 mb-2">Class Name *</label>
@@ -33,37 +151,48 @@ include(__DIR__ . '/../../includes/header.php');
                                 <span class="text-red-500 text-sm hidden" id="classNameError"></span>
                             </div>
 
+                            <!-- Class Arm -->
+                            <div>
+                                <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arm</label>
+                                <select id="classArm" name="classArm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                    <option value="">Select class arm</option>
+                                    <?php foreach ($class_arms as $arm): ?>
+                                        <option value="<?= $arm['id'] ?>"><?= $arm['name'] ?></option>
+                                    <?php endforeach ?>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="classArmError"></span>
+
+                            </div>
+
+
                             <!-- Class section -->
                             <div>
                                 <label for="classSection" class="block text-sm font-semibold text-gray-700 mb-2">Class Section *</label>
                                 <select id="classSection" name="classSection" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
-                                    <option value="">Select class <section></section>
-                                    </option>
-                                    <option value="JSS 1">JSS 1</option>
-                                    <option value="JSS 2">JSS 2</option>
-                                    <option value="JSS 3">JSS 3</option>
-                                    <option value="SSS 1">SSS 1</option>
-                                    <option value="SSS 2">SSS 2</option>
-                                    <option value="SSS 3">SSS 3</option>
+                                    <option value="">Select section </option>
+
+                                    <?php foreach ($sections as $section): ?>
+                                        <option value="<?= $section['id'] ?>"><?= $section['name']; ?></option>
+                                    <?php endforeach ?>
+
                                 </select>
                                 <span class="text-red-500 text-sm hidden" id="classSectionError"></span>
                             </div>
 
                             <!-- Class Teacher -->
+                            classTeacher
+
                             <div>
                                 <label for="classTeacher" class="block text-sm font-semibold text-gray-700 mb-2">Class Teacher *</label>
-                                <input type="text" id="classTeacher" name="classTeacher" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter teacher name">
-                                <span class="text-red-500 text-sm hidden" id="classTeacherError"></span>
-                            </div>
+                                <select id="classTeacher" name="classTeacher" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                    <option value="">Select class teacher </option>
 
+                                    <?php foreach ($teachers as $teacher): ?>
+                                        <option value="<?= $teacher['id'] ?>"><?= $teacher['name']; ?></option>
+                                    <?php endforeach ?>
 
-                            <!-- Status -->
-                            <div>
-                                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                                <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
                                 </select>
+                                <span class="text-red-500 text-sm hidden" id="classTeacherError"></span>
                             </div>
 
                             <!-- Submit Button -->
@@ -128,8 +257,9 @@ include(__DIR__ . '/../../includes/header.php');
                         <thead class="bg-green-900 text-white">
                             <tr>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Class Name</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Arm</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Teacher</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Section</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
                             </tr>
                         </thead>
@@ -138,11 +268,11 @@ include(__DIR__ . '/../../includes/header.php');
                                 <?php foreach ($classes as $class): ?>
 
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 text-sm font-semibold text-gray-900">${cls.className}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-600">${cls.classTeacher}</td>
-                                        <td class="px-6 py-4 text-sm">
-                                            <span class="px-3 py-1 ${cls.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize">${cls.status}</span>
-                                        </td>
+                                        <td class="px-6 py-4 text-sm font-semibold text-gray-900"> <?= $class['class_name'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $class['arm_name'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $class['teacher_name'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $class['section_name'] ?></td>
+
                                         <td class="px-6 py-4 text-sm space-x-2">
                                             <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                 <i class="fas fa-edit"></i> Edit
@@ -176,6 +306,21 @@ include(__DIR__ . '/../../includes/header.php');
             mobileMenu.classList.toggle('hidden');
         });
 
+        // Success Message
+        function showSuccessMessage() {
+            const message = document.getElementById("successMessage");
+            if (message) {
+                message.classList.remove("hidden"); // show the message
+                message.classList.add("flex"); // ensure it displays properly
+
+                // Hide it after 5 seconds
+                setTimeout(() => {
+                    message.classList.add("hidden");
+                    message.classList.remove("flex");
+                }, 5000);
+            }
+        }
+
         // Form validation and submission
         const classForm = document.getElementById('classForm');
 
@@ -189,7 +334,7 @@ include(__DIR__ . '/../../includes/header.php');
             const className = document.getElementById('className').value.trim();
             const classSection = document.getElementById('classSection').value.trim();
             const classTeacher = document.getElementById('classTeacher').value.trim();
-            const status = document.getElementById('status').value;
+            const classArm = document.getElementById('classArm').value.trim();
 
             let isValid = true;
 
@@ -211,9 +356,24 @@ include(__DIR__ . '/../../includes/header.php');
                 isValid = false;
             }
 
+            if (!classArm) {
+                document.getElementById('classArmError').textContent = 'Class arm is required';
+                document.getElementById('classArmError').classList.remove('hidden');
+                isValid = false;
+            }
+
+
             if (isValid) {
-                alert('Class created successfully!');
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
                 classForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
         });
     </script>

@@ -82,20 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     }
 
-    var_dump(
-        [
-            'name' => $nameError,
-            'email' => $emailError,
-            'phone' =>    $phoneError,
-            'subject' =>   $subjectError,
-            'address' =>   $addressError,
-            "staff no"  =>  $staffNumberError,
-            'status' =>  $statusError,
-            'qualification' => $qualificationError,
-            'password' => $passwordError,
-            'C PAss' => $confirmPasswordError,
-        ]
-    );
     if (
         empty($nameError) && empty($emailError) && empty($phoneError) &&
         empty($addressError) && empty($staffNumberError) &&
@@ -213,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
                                 <div class="relative">
-                                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter password">
+                                    <input type="password" id="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter password">
                                     <button type="button" id="togglePassword" class="absolute right-3 top-2.5 text-gray-600">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -390,8 +376,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-
-
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
@@ -402,33 +386,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
         // Password strength checker
-        const passwordField = document.getElementById('password');
-        passwordField.addEventListener('input', () => {
+        // Password strength checker
+        const passwordField = document.getElementById("password");
+        passwordField.addEventListener("input", () => {
             const password = passwordField.value;
             let strength = 0;
 
             if (password.length >= 8) strength++;
             if (/[a-z]/.test(password)) strength++;
-            lert
             if (/[A-Z]/.test(password)) strength++;
             if (/[0-9]/.test(password)) strength++;
             if (/[^a-zA-Z0-9]/.test(password)) strength++;
 
-            const strengthLevels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-            const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600'];
+            const strengthLevels = [
+                "Weak",
+                "Fair",
+                "Good",
+                "Strong",
+                "Very Strong",
+            ];
+            const strengthColors = [
+                "bg-red-500",
+                "bg-orange-500",
+                "bg-yellow-500",
+                "bg-green-500",
+                "bg-green-600",
+            ];
 
             for (let i = 1; i <= 4; i++) {
                 const element = document.getElementById(`strength${i}`);
                 if (i <= strength) {
-                    element.className = `h-1 w-1/4 ${strengthColors[strength - 1]} rounded`;
+                    element.className = `h-1 w-1/4 ${
+              strengthColors[strength - 1]
+            } rounded`;
                 } else {
-                    element.className = 'h-1 w-1/4 bg-gray-300 rounded';
+                    element.className = "h-1 w-1/4 bg-gray-300 rounded";
                 }
             }
 
-            document.getElementById('strengthText').textContent = `Password strength: ${strengthLevels[strength - 1] || 'Weak'}`;
+            document.getElementById(
+                "strengthText"
+            ).textContent = `Password strength: ${
+          strengthLevels[strength - 1] || "Weak"
+        }`;
         });
-
 
 
         function validateEmail(email) {
@@ -486,7 +487,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
-            if (teachers.some(a => a.staff_no === staffNumber)) {
+            if (teachers.some(t => t.staff_no === email)) {
                 document.getElementById('staffNumberError').textContent = 'Staff Number already exists';
                 document.getElementById('staffNumberError').classList.remove('hidden');
                 isValid = false;
@@ -530,7 +531,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (isValid) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
                 teacherForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
         });
     </script>

@@ -491,7 +491,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (isValid) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
                 guardianForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
         });
     </script>

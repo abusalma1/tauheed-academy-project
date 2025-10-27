@@ -24,7 +24,6 @@ $statement = $connection->prepare("
     LEFT JOIN teachers 
     ON sections.head_teacher_id = teachers.id
 ");
-
 $statement->execute();
 $result = $statement->get_result();
 $sections = $result->fetch_all(MYSQLI_ASSOC);
@@ -53,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $name = htmlspecialchars(trim($_POST['sectionName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $description = filter_var(trim($_POST['sectionDescription'] ?? ''), ENT_QUOTES);
+    $description = htmlspecialchars(trim($_POST['sectionDescription'] ?? ''), ENT_QUOTES);
     $headTeacher = htmlspecialchars(trim($_POST['sectionHead'] ?? ''), ENT_QUOTES, 'UTF-8');
 
 
@@ -63,11 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($description)) {
-        $description['name'] = "Name is required";
+        $descriptionError = "Description is required";
     }
 
     if (empty($headTeacher)) {
-        $headTeacher['name'] = "Name is required";
+        $headTeacherError = "Head Teacher is required";
     }
 
     if (empty($nameError)  && empty($descriptionError) && empty($headTeacherError)) {
@@ -328,9 +327,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('sectionHeadError').classList.remove('hidden');
                 isValid = false;
             }
-
             if (isValid) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
                 sectionForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
         });
     </script>

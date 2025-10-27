@@ -45,46 +45,8 @@ CREATE TABLE schools (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 3. SECTIONS TABLE
--- ===========================================================
-CREATE TABLE sections (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    school_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
--- ===========================================================
--- 4. CLASSES TABLE
--- ===========================================================
-CREATE TABLE classes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    section_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
--- ===========================================================
--- 5. CLASSROOMS TABLE
--- ===========================================================
-CREATE TABLE classrooms (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    section_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    picture VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
--- ===========================================================
--- 6. TEACHERS TABLE
+-- 3. TEACHERS TABLE
+-- (created before sections because sections.head_teacher_id references it)
 -- ===========================================================
 CREATE TABLE teachers (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -103,7 +65,50 @@ CREATE TABLE teachers (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
+-- 4. SECTIONS TABLE (no school_id; has head_teacher_id)
+-- ===========================================================
+CREATE TABLE sections (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    head_teacher_id INT NULL, -- head/principal for the section
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (head_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 5. CLASS_ARMS TABLE (restored)
+-- Each arm is a label you can reuse across classes (A, B, Gold, Silver, etc.)
+-- ===========================================================
+CREATE TABLE class_arms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 6. CLASSES TABLE
+-- Now references section, class arm and has a class teacher (teacher_id)
+-- ===========================================================
+CREATE TABLE classes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    section_id INT NOT NULL,
+    class_arm_id INT NULL,
+    name VARCHAR(100) NOT NULL,
+    teacher_id INT NULL, -- class teacher in charge
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
+    FOREIGN KEY (class_arm_id) REFERENCES class_arms(id) ON DELETE SET NULL,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- ===========================================================
 -- 7. TEACHER_SECTION TABLE
+-- (many-to-many: which teachers are attached to which sections)
 -- ===========================================================
 CREATE TABLE teacher_section (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -161,7 +166,7 @@ CREATE TABLE students (
     class_id INT NOT NULL,
     guardian_id INT,
     picture VARCHAR(255),
-        password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     reset_token VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
