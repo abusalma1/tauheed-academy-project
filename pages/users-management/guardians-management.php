@@ -41,15 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $name = $_POST['fullName'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $phone = $_POST['phone'] ?? '';
-    $address = $_POST['address'] ?? '';
-    $relationship = $_POST['relationship'] ?? '';
-    $occupation = $_POST['occupation'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirmPassword'] ?? '';
-    $status = $_POST['status'] ?? 'inactive';
+    $name = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $relationship = htmlspecialchars(trim($_POST['relationship'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $occupation = htmlspecialchars(trim($_POST['occupation'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $password = htmlspecialchars(trim($_POST['password'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $confirmPassword = htmlspecialchars(trim($_POST['confirmPassword'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
 
     if (empty($name)) $nameError = 'Full name is required';
 
@@ -262,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </li>
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-green-600 mt-1"></i>
-                                <span>Occupation and address are optional</span>
+                                <span>All fields are required</span>
                             </li>
                         </ul>
                     </div>
@@ -318,10 +318,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <span class="px-3 py-1  <?= $guardian['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $guardian['status'] ?></span>
                                         </td>
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <button onclick="editGuardian(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
+                                            <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                 <i class="fas fa-edit"></i> Edit
                                             </button>
-                                            <button onclick="deleteGuardian(${index})" class="text-red-600 hover:text-red-900 font-semibold">
+                                            <button class="text-red-600 hover:text-red-900 font-semibold">
                                                 <i class="fas fa-trash"></i> Delete
                                             </button>
                                         </td>

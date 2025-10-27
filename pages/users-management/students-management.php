@@ -1,9 +1,170 @@
 <?php
 
-$title = "Students Management";
+$title = "Students Managment";
 include(__DIR__ . '/../../includes/header.php');
 
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
+            </script>";
+}
+
+$statement = $connection->prepare("SELECT * FROM students");
+$statement->execute();
+$result = $statement->get_result();
+$students = $result->fetch_all(MYSQLI_ASSOC);
+
+
+// Count total students
+$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM students");
+$total = $totalQuery->fetch_assoc()['total'];
+
+// Count active students
+$activeQuery = $connection->query("SELECT COUNT(*) AS active FROM students WHERE status = 'active'");
+$active = $activeQuery->fetch_assoc()['active'];
+
+// Count inactive students
+$inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM students WHERE status = 'inactive'");
+$inactive = $inactiveQuery->fetch_assoc()['inactive'];
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("Invalid CSRF token.");
+    }
+
+    // Collect and sanitize input
+    $name = trim($_POST['fullName'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $admissionNumber = trim($_POST['admissionNumber'] ?? '');
+    $class = trim($_POST['class'] ?? '');
+    $dob = trim($_POST['dob'] ?? '');
+    $gender = trim($_POST['gender'] ?? '');
+    $guardianEmail = trim($_POST['guardianEmail'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['confirmPassword'] ?? '';
+    $status = trim($_POST['status'] ?? 'inactive');
+
+    // Initialize error variables
+    $errors = [];
+
+    // --- VALIDATION RULES ---
+
+    // Required fields
+    if (empty($name)) {
+        $errors['name'] = "Full name is required.";
+    }
+
+    if (empty($admissionNumber)) {
+        $errors['admissionNumber'] = "Admission number is required.";
+    }
+
+    if (empty($class)) {
+        $errors['class'] = "Please select a class.";
+    }
+
+    if (empty($dob)) {
+        $errors['dob'] = "Date of birth is required.";
+    }
+
+    if (empty($gender)) {
+        $errors['gender'] = "Gender is required.";
+    }
+
+    if (empty($password)) {
+        $errors['password'] = "Password is required.";
+    } elseif (strlen($password) < 5) {
+        $errors['password'] = "Password must be at least 5 characters long.";
+    }
+
+    if ($password !== $confirmPassword) {
+        $errors['confirmPassword'] = "Passwords do not match.";
+    }
+
+    // Optional fields
+    if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = "Invalid email format.";
+    }
+
+    if (!empty($guardianEmail) && !filter_var($guardianEmail, FILTER_VALIDATE_EMAIL)) {
+        $errors['guardianEmail'] = "Invalid guardian email format.";
+    }
+
+    if (!empty($phone) && !preg_match('/^[0-9+\s-]{7,15}$/', $phone)) {
+        $errors['phone'] = "Invalid phone number format.";
+    }
+
+    // Admission number uniqueness
+    $checkAdmission = $connection->prepare("SELECT id FROM students WHERE admission_number = ?");
+    $checkAdmission->bind_param("s", $admissionNumber);
+    $checkAdmission->execute();
+    $checkAdmission->store_result();
+    if ($checkAdmission->num_rows > 0) {
+        $errors['admissionNumber'] = "Admission number already exists.";
+    }
+    $checkAdmission->close();
+
+    // Email uniqueness (only if provided)
+    if (!empty($email)) {
+        $checkEmail = $connection->prepare("SELECT id FROM students WHERE email = ?");
+        $checkEmail->bind_param("s", $email);
+        $checkEmail->execute();
+        $checkEmail->store_result();
+        if ($checkEmail->num_rows > 0) {
+            $errors['email'] = "Email already exists.";
+        }
+        $checkEmail->close();
+    }
+
+    // --- FINAL DECISION ---
+    if (empty($errors)) {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        $stmt = $connection->prepare("INSERT INTO students 
+            (name, email, phone, admission_number,  dob, gender,  password, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmt->bind_param(
+            "ssssssss",
+            $name,
+            $email,
+            $phone,
+            $admissionNumber,
+
+            $dob,
+            $gender,
+            $hashed_password,
+            $status
+        );
+
+        if ($stmt->execute()) {
+            header("Location: students-management.php?success=1");
+            exit;
+        } else {
+            echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($stmt->error) . "</p>";
+        }
+
+        $stmt->close();
+    } else {
+        // Display all validation errors
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+
+
 ?>
+
+<script>
+    const students = <?= json_encode($students, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+</script>
 
 <body class="bg-gray-50">
     <?php include(__DIR__ . '/./includes/users-management-nav.php')  ?>
@@ -26,32 +187,51 @@ include(__DIR__ . '/../../includes/header.php');
                     <div class="bg-white rounded-lg shadow-lg p-8">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Create New Student Account</h2>
 
-                        <form id="studentForm" class="space-y-6">
+                        <form id="studentForm" class="space-y-6" method="post">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+
+
+
+                            <!-- Success Message -->
+                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>User is created successfully!</span>
+                            </div>
+
+
                             <!-- Full Name -->
                             <div>
                                 <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                                <input type="text" id="fullName" name="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter full name">
+                                <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter full name">
                                 <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
                             </div>
 
                             <!-- Email -->
                             <div>
-                                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                                <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter email address">
+                                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address (optional)</label>
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter email address">
                                 <span class="text-red-500 text-sm hidden" id="emailError"></span>
                             </div>
+
+                            <!-- Phone Number -->
+                            <div>
+                                <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number (optional)</label>
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter phone number">
+                                <span class="text-red-500 text-sm hidden" id="phoneError"></span>
+                            </div>
+
 
                             <!-- Admission Number -->
                             <div>
                                 <label for="admissionNumber" class="block text-sm font-semibold text-gray-700 mb-2">Admission Number *</label>
-                                <input type="text" id="admissionNumber" name="admissionNumber" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="e.g., EA/2025/001">
+                                <input type="text" id="admissionNumber" name="admissionNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="e.g., EA/2025/001">
                                 <span class="text-red-500 text-sm hidden" id="admissionNumberError"></span>
                             </div>
 
                             <!-- Class -->
                             <div>
                                 <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">Class *</label>
-                                <select id="class" name="class" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                <select id="class" name="class" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                     <option value="">Select class</option>
                                     <option value="JSS1">JSS 1</option>
                                     <option value="JSS2">JSS 2</option>
@@ -66,14 +246,14 @@ include(__DIR__ . '/../../includes/header.php');
                             <!-- Date of Birth -->
                             <div>
                                 <label for="dob" class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth *</label>
-                                <input type="date" id="dob" name="dob" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                <input type="date" id="dob" name="dob" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                 <span class="text-red-500 text-sm hidden" id="dobError"></span>
                             </div>
 
                             <!-- Gender -->
                             <div>
                                 <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender *</label>
-                                <select id="gender" name="gender" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                <select id="gender" name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                     <option value="">Select gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -83,7 +263,7 @@ include(__DIR__ . '/../../includes/header.php');
 
                             <!-- Guardian Email -->
                             <div>
-                                <label for="guardianEmail" class="block text-sm font-semibold text-gray-700 mb-2">Guardian Email</label>
+                                <label for="guardianEmail" class="block text-sm font-semibold text-gray-700 mb-2">Guardian Email (optional)</label>
                                 <input type="email" id="guardianEmail" name="guardianEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter guardian email">
                             </div>
 
@@ -91,7 +271,7 @@ include(__DIR__ . '/../../includes/header.php');
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
                                 <div class="relative">
-                                    <input type="password" id="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter password">
+                                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter password">
                                     <button type="button" id="togglePassword" class="absolute right-3 top-2.5 text-gray-600">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -111,7 +291,7 @@ include(__DIR__ . '/../../includes/header.php');
                             <!-- Confirm Password -->
                             <div>
                                 <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password *</label>
-                                <input type="password" id="confirmPassword" name="confirmPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Confirm password">
+                                <input type="password" id="confirmPassword" name="confirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Confirm password">
                                 <span class="text-red-500 text-sm hidden" id="confirmPasswordError"></span>
                             </div>
 
@@ -154,7 +334,7 @@ include(__DIR__ . '/../../includes/header.php');
                             </li>
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-green-600 mt-1"></i>
-                                <span>Password must be 8+ characters</span>
+                                <span>Password must be 5+ characters</span>
                             </li>
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-green-600 mt-1"></i>
@@ -200,15 +380,42 @@ include(__DIR__ . '/../../includes/header.php');
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Admission No.</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Class</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Email</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Status</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="studentsTableBody" class="divide-y divide-gray-200">
-                            <tr class="text-center py-8">
-                                <td colspan="6" class="px-6 py-8 text-gray-500">No student accounts created yet</td>
-                            </tr>
+
+                            <?php if (count($students) > 0): ?>
+                                <?php foreach ($students as $student): ?>
+
+
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 text-sm text-gray-900"><?= $student['name'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $student['admission_number'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $student['class'] ?></td>
+
+                                        <td class="px-6 py-4 text-sm">
+                                            <span class="px-3 py-1 <?= $student['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $student['status'] ?></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm space-x-2">
+                                            <button class="text-blue-600 hover:text-blue-900 font-semibold">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900 font-semibold">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach ?>
+                            <?php else : ?>
+
+                                <tr class="text-center py-8">
+                                    <td colspan="6" class="px-6 py-8 text-gray-500">No student accounts created yet</td>
+                                </tr>
+
+                            <?php endif ?>
+
                         </tbody>
                     </table>
                 </div>
@@ -217,50 +424,7 @@ include(__DIR__ . '/../../includes/header.php');
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="user-management.html" class="text-gray-400 hover:text-white transition">User Management</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include(__DIR__ . '/../../includes/footer.php ') ?>
 
     <script>
         // Mobile menu toggle
@@ -269,6 +433,22 @@ include(__DIR__ . '/../../includes/header.php');
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
+
+        // Success Message
+        function showSuccessMessage() {
+            const message = document.getElementById("successMessage");
+            if (message) {
+                message.classList.remove("hidden"); // show the message
+                message.classList.add("flex"); // ensure it displays properly
+
+                // Hide it after 5 seconds
+                setTimeout(() => {
+                    message.classList.add("hidden");
+                    message.classList.remove("flex");
+                }, 5000);
+            }
+        }
+
 
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
@@ -308,81 +488,6 @@ include(__DIR__ . '/../../includes/header.php');
 
         // Form validation and submission
         const studentForm = document.getElementById('studentForm');
-        const studentsTableBody = document.getElementById('studentsTableBody');
-        let students = JSON.parse(localStorage.getItem('schoolStudents')) || [];
-
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-
-        function updateStats() {
-            const total = students.length;
-            const active = students.filter(s => s.status === 'active').length;
-            const inactive = students.filter(s => s.status === 'inactive').length;
-
-            document.getElementById('totalStudents').textContent = total;
-            document.getElementById('activeStudents').textContent = active;
-            document.getElementById('inactiveStudents').textContent = inactive;
-        }
-
-        function renderStudents() {
-            if (students.length === 0) {
-                studentsTableBody.innerHTML = '<tr class="text-center"><td colspan="6" class="px-6 py-8 text-gray-500">No student accounts created yet</td></tr>';
-                return;
-            }
-
-            studentsTableBody.innerHTML = students.map((student, index) => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm text-gray-900">${student.fullName}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${student.admissionNumber}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${student.class}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${student.email}</td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-3 py-1 ${student.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize">${student.status}</span>
-                    </td>
-                    <td class="px-6 py-4 text-sm space-x-2">
-                        <button onclick="editStudent(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button onclick="deleteStudent(${index})" class="text-red-600 hover:text-red-900 font-semibold">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function deleteStudent(index) {
-            if (confirm('Are you sure you want to delete this student account?')) {
-                students.splice(index, 1);
-                localStorage.setItem('schoolStudents', JSON.stringify(students));
-                renderStudents();
-                updateStats();
-            }
-        }
-
-        function editStudent(index) {
-            const student = students[index];
-            document.getElementById('fullName').value = student.fullName;
-            document.getElementById('email').value = student.email;
-            document.getElementById('admissionNumber').value = student.admissionNumber;
-            document.getElementById('class').value = student.class;
-            document.getElementById('dob').value = student.dob;
-            document.getElementById('gender').value = student.gender;
-            document.getElementById('guardianEmail').value = student.guardianEmail || '';
-            document.getElementById('status').value = student.status;
-
-            students.splice(index, 1);
-            localStorage.setItem('schoolStudents', JSON.stringify(students));
-            renderStudents();
-            updateStats();
-
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
 
         studentForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -392,6 +497,7 @@ include(__DIR__ . '/../../includes/header.php');
 
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
             const admissionNumber = document.getElementById('admissionNumber').value.trim();
             const studentClass = document.getElementById('class').value;
             const dob = document.getElementById('dob').value;
@@ -408,54 +514,89 @@ include(__DIR__ . '/../../includes/header.php');
                 document.getElementById('fullNameError').classList.remove('hidden');
                 isValid = false;
             }
+            alert(isValid + ' nmae ');
 
-            if (!validateEmail(email)) {
-                document.getElementById('emailError').textContent = 'Please enter a valid email address';
-                document.getElementById('emailError').classList.remove('hidden');
-                isValid = false;
+
+
+            if (email) {
+                if (!validateEmail(email)) {
+                    document.getElementById('emailError').textContent = 'Please enter a valid email address';
+                    document.getElementById('emailError').classList.remove('hidden');
+                    isValid = false;
+                }
+
+                alert(isValid + ' email valid ');
+
+
+                if (students.some(s => s.email === email)) {
+                    document.getElementById('emailError').textContent = 'Email already exists';
+                    document.getElementById('emailError').classList.remove('hidden');
+                    isValid = false;
+                }
+                alert(isValid + ' email uniqe ');
+
             }
 
-            if (students.some(s => s.email === email)) {
-                document.getElementById('emailError').textContent = 'Email already exists';
-                document.getElementById('emailError').classList.remove('hidden');
-                isValid = false;
+            alert(isValid + ' email ');
+
+
+            if (phone) {
+                if (!validatePhone(phone)) {
+                    document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
+                    document.getElementById('phoneError').classList.remove('hidden');
+                    isValid = false;
+                }
             }
+            alert(isValid + ' phone ');
+
 
             if (!admissionNumber) {
                 document.getElementById('admissionNumberError').textContent = 'Admission number is required';
                 document.getElementById('admissionNumberError').classList.remove('hidden');
                 isValid = false;
             }
+            alert(isValid + ' admission numebr exists');
+
 
             if (students.some(s => s.admissionNumber === admissionNumber)) {
                 document.getElementById('admissionNumberError').textContent = 'Admission number already exists';
                 document.getElementById('admissionNumberError').classList.remove('hidden');
                 isValid = false;
             }
+            alert(isValid + ' admmission NUmber Unique');
+
 
             if (!studentClass) {
                 document.getElementById('classError').textContent = 'Please select a class';
                 document.getElementById('classError').classList.remove('hidden');
                 isValid = false;
             }
+            alert(isValid + ' class');
+
+
 
             if (!dob) {
                 document.getElementById('dobError').textContent = 'Date of birth is required';
                 document.getElementById('dobError').classList.remove('hidden');
                 isValid = false;
             }
+            alert(isValid + ' dob');
+
 
             if (!gender) {
                 document.getElementById('genderError').textContent = 'Please select a gender';
                 document.getElementById('genderError').classList.remove('hidden');
                 isValid = false;
             }
+            alert(isValid + ' gender');
 
-            if (password.length < 8) {
-                document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
+
+            if (password.length < 5) {
+                document.getElementById('passwordError').textContent = 'Password must be at least 5 characters';
                 document.getElementById('passwordError').classList.remove('hidden');
                 isValid = false;
             }
+            alert(isValid + ' password lwenght');
 
             if (password !== confirmPassword) {
                 document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
@@ -463,33 +604,11 @@ include(__DIR__ . '/../../includes/header.php');
                 isValid = false;
             }
 
+            alert(isValid + ' password');
             if (isValid) {
-                const newStudent = {
-                    fullName,
-                    email,
-                    admissionNumber,
-                    class: studentClass,
-                    dob,
-                    gender,
-                    guardianEmail,
-                    status,
-                    createdAt: new Date().toLocaleDateString()
-                };
-
-                students.push(newStudent);
-                localStorage.setItem('schoolStudents', JSON.stringify(students));
-
-                studentForm.reset();
-                renderStudents();
-                updateStats();
-
-                alert('Student account created successfully!');
+                studentForm.submit();
             }
         });
-
-        // Initial render
-        renderStudents();
-        updateStats();
     </script>
 </body>
 

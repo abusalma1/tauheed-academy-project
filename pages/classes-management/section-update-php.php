@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Section - Excellence Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
+                    <div>
+                        <h1 class="text-xl font-bold">Excellence Academy</h1>
+                        <p class="text-xs text-blue-200">Admin Panel</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="section-management.html" class="hover:text-blue-300 transition">Back to Sections</a>
+                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
+            <a href="section-management.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Sections</a>
+            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-purple-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Section</h1>
+            <p class="text-xl text-purple-200">Edit section information</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Section Details</h2>
+
+                    <form id="updateSectionForm" class="space-y-6">
+                        <!-- Section Name -->
+                        <div>
+                            <label for="sectionName" class="block text-sm font-semibold text-gray-700 mb-2">Section Name *</label>
+                            <input type="text" id="sectionName" name="sectionName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Tahfeez, Nursery, Primary">
+                            <span class="text-red-500 text-sm hidden" id="sectionNameError"></span>
+                        </div>
+
+                        <!-- Section Description -->
+                        <div>
+                            <label for="sectionDescription" class="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
+                            <textarea id="sectionDescription" name="sectionDescription" required rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Describe the section and its purpose"></textarea>
+                            <span class="text-red-500 text-sm hidden" id="sectionDescriptionError"></span>
+                        </div>
+
+                        <!-- Age Range -->
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="ageMin" class="block text-sm font-semibold text-gray-700 mb-2">Minimum Age *</label>
+                                <input type="number" id="ageMin" name="ageMin" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., 3">
+                                <span class="text-red-500 text-sm hidden" id="ageMinError"></span>
+                            </div>
+                            <div>
+                                <label for="ageMax" class="block text-sm font-semibold text-gray-700 mb-2">Maximum Age *</label>
+                                <input type="number" id="ageMax" name="ageMax" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., 5">
+                                <span class="text-red-500 text-sm hidden" id="ageMaxError"></span>
+                            </div>
+                        </div>
+
+                        <!-- Number of Classes -->
+                        <div>
+                            <label for="numClasses" class="block text-sm font-semibold text-gray-700 mb-2">Number of Classes *</label>
+                            <input type="number" id="numClasses" name="numClasses" required min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., 3">
+                            <span class="text-red-500 text-sm hidden" id="numClassesError"></span>
+                        </div>
+
+                        <!-- Section Head -->
+                        <div>
+                            <label for="sectionHead" class="block text-sm font-semibold text-gray-700 mb-2">Section Head/Coordinator</label>
+                            <input type="text" id="sectionHead" name="sectionHead" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter section head name">
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                            <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex gap-4 pt-4">
+                            <button type="submit" class="flex-1 bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
+                                <i class="fas fa-save mr-2"></i>Update Section
+                            </button>
+                            <a href="section-management.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Committed to providing quality education and nurturing future leaders.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="section-management.html" class="text-gray-400 hover:text-white transition">Sections</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
+                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
+                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+                    <div class="flex gap-4">
+                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Get section index from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sectionIndex = urlParams.get('index');
+        let sections = JSON.parse(localStorage.getItem('schoolSections')) || [];
+
+        const updateSectionForm = document.getElementById('updateSectionForm');
+
+        // Load section data if editing
+        if (sectionIndex !== null && sections[sectionIndex]) {
+            const section = sections[sectionIndex];
+            document.getElementById('sectionName').value = section.sectionName;
+            document.getElementById('sectionDescription').value = section.sectionDescription;
+            document.getElementById('ageMin').value = section.ageMin;
+            document.getElementById('ageMax').value = section.ageMax;
+            document.getElementById('numClasses').value = section.numClasses;
+            document.getElementById('sectionHead').value = section.sectionHead || '';
+            document.getElementById('status').value = section.status;
+        }
+
+        updateSectionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Clear previous errors
+            document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
+
+            const sectionName = document.getElementById('sectionName').value.trim();
+            const sectionDescription = document.getElementById('sectionDescription').value.trim();
+            const ageMin = parseInt(document.getElementById('ageMin').value);
+            const ageMax = parseInt(document.getElementById('ageMax').value);
+            const numClasses = parseInt(document.getElementById('numClasses').value);
+            const sectionHead = document.getElementById('sectionHead').value.trim();
+            const status = document.getElementById('status').value;
+
+            let isValid = true;
+
+            if (!sectionName) {
+                document.getElementById('sectionNameError').textContent = 'Section name is required';
+                document.getElementById('sectionNameError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!sectionDescription) {
+                document.getElementById('sectionDescriptionError').textContent = 'Description is required';
+                document.getElementById('sectionDescriptionError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!ageMin || ageMin < 0) {
+                document.getElementById('ageMinError').textContent = 'Please enter a valid minimum age';
+                document.getElementById('ageMinError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!ageMax || ageMax < ageMin) {
+                document.getElementById('ageMaxError').textContent = 'Maximum age must be greater than minimum age';
+                document.getElementById('ageMaxError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!numClasses || numClasses < 1) {
+                document.getElementById('numClassesError').textContent = 'Please enter a valid number of classes';
+                document.getElementById('numClassesError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (isValid) {
+                if (sectionIndex !== null && sections[sectionIndex]) {
+                    sections[sectionIndex] = {
+                        sectionName,
+                        sectionDescription,
+                        ageMin,
+                        ageMax,
+                        numClasses,
+                        sectionHead,
+                        status,
+                        updatedAt: new Date().toLocaleDateString()
+                    };
+                }
+
+                localStorage.setItem('schoolSections', JSON.stringify(sections));
+                alert('Section updated successfully!');
+                window.location.href = 'section-management.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

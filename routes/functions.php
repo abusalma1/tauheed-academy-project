@@ -30,11 +30,11 @@ function validatePhone($phone)
 
 
 
-function emailExist($connection, $email)
+function emailExist($connection, $email, $table)
 {
 
     // Prepare query dynamically for selected column
-    $query = "SELECT id FROM teachers WHERE email = ? LIMIT 1";
+    $query = "SELECT id FROM $table WHERE email = ? LIMIT 1";
     $stmt = $connection->prepare($query);
 
     // Bind the value type correctly (s = string)

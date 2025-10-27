@@ -61,5 +61,33 @@ $routes = [
         'url' => "$baseUrl/pages/users-management/students-management.php"
     ],
 
+    'class-arm-section-management' => [
+        'url' => "$baseUrl/pages/classes-management/classes-sections-arms-management.php"
+    ],
+    'classes-management' => [
+        'url' => "$baseUrl/pages/classes-management/classes-management.php"
+    ],
+    'update-class' => [
+        'url' => "$baseUrl/pages/classes-management/class-update-form.php"
+    ],
+    'create-class' => [
+        'url' => "$baseUrl/pages/classes-management/class-create-form.php"
+    ],
+
+    'update-class-arm' => [
+        'url' => "$baseUrl/pages/classes-management/class-arm-update-form.php"
+    ],
+    'create-class-arm' => [
+        'url' => "$baseUrl/pages/classes-management/class-arm-management.php"
+    ],
+
+
+    'update-section' => [
+        'url' => "$baseUrl/pages/classes-management/section-update-form.php"
+    ],
+    'create-section' => [
+        'url' => "$baseUrl/pages/classes-management/section-create-form.php"
+    ],
+
 
 ];

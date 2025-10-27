@@ -44,16 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $name = $_POST['fullName'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $phone = $_POST['phone'] ?? '';
-    $address = $_POST['address'] ?? '';
-    $staffNumber = $_POST['staffNumber'] ?? '';
-    $roleType = $_POST['roleType'] ?? '';
-    $department = $_POST['department'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirmPassword'];
-    $status = $_POST['status'] ?? 'inactive';
+    $name = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $staffNumber = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $roleType = htmlspecialchars(trim($_POST['roleType'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $department = htmlspecialchars(trim($_POST['department'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $password = htmlspecialchars(trim($_POST['password'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $confirmPassword = htmlspecialchars(trim($_POST['confirmPassword'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+
 
     if (empty($name)) {
         $nameError = 'Full name is required';
@@ -73,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($phone)) {
-        $phoneError =  'Phone nnumber is required';
+        $phoneError =  'Phone number is required';
     }
 
     if (empty($roleType)) {
@@ -268,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <i class="fas fa-plus mr-2"></i>Create
                                 </button>
                                 <button type="reset" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
-                                    Clear 
+                                    Clear
                                 </button>
                             </div>
                         </form>
@@ -351,7 +352,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= htmlspecialchars($admin['email'] ?? '') ?></td>
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= htmlspecialchars($admin['phone'] ?? '') ?></td>
                                         <td class="px-6 py-4 text-sm">
-                                            <span class="px-3 py-1 bg-purple-100 text-purple-900 rounded-full text-xs font-semibold capitalize"><?= $admin['type'] === 'superuser' ? "Super User" : 'Managemnt'; ?></span>
+                                            <span class="px-3 py-1 bg-purple-100 text-purple-900 rounded-full text-xs font-semibold capitalize"><?= $admin['type'] === 'superuser' ? "Super User" : 'Admin'; ?></span>
                                         </td>
                                         <td class="px-6 py-4 text-sm">
                                             <span class="px-3 py-1 <?= $admin['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $admin['status'] ?></span>
@@ -500,11 +501,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
 
-            if (!validatePhone(phone)) {
-                document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
-                document.getElementById('phoneError').classList.remove('hidden');
-                isValid = false;
-            }
+                if (!validatePhone(phone)) {
+                    document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
+                    document.getElementById('phoneError').classList.remove('hidden');
+                    isValid = false;
+                }
 
             if (!roleType) {
                 document.getElementById('roleTypeError').textContent = 'Please select a role type';
