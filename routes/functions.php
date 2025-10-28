@@ -60,4 +60,20 @@ function staffNumberExist($connection, $staff_no, $table)
     return $stmt->num_rows > 0;
 }
 
-?>
+
+function countUserTotals($connection, $table)
+{
+    // Count total users
+    $totalQuery = $connection->query("SELECT COUNT(*) AS total FROM $table");
+    $total = $totalQuery->fetch_assoc()['total'];
+
+    // Count active users
+    $activeQuery = $connection->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active'");
+    $active = $activeQuery->fetch_assoc()['active'];
+
+    // Count inactive users
+    $inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive'");
+    $inactive = $inactiveQuery->fetch_assoc()['inactive'];
+
+    return ['total' => $total, 'active' => $active, 'inactive' => $inactive];
+}

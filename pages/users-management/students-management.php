@@ -13,23 +13,57 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
             </script>";
 }
 
-$statement = $connection->prepare("SELECT * FROM students");
+$statement = $connection->prepare("
+    SELECT 
+        students.id AS id,
+        students.name AS name,
+        students.admission_number AS admission_number,
+        students.status AS status,
+        classes.id AS class_id,
+        classes.name AS class_name,
+        class_arms.name AS class_arm_name
+    FROM students
+    LEFT JOIN classes ON students.class_id = classes.id
+    LEFT JOIN class_arms ON classes.class_arm_id = class_arms.id
+");
+
+
 $statement->execute();
 $result = $statement->get_result();
 $students = $result->fetch_all(MYSQLI_ASSOC);
 
+$statement = $connection->prepare("SELECT * FROM guardians");
+$statement->execute();
+$result = $statement->get_result();
+$guardians = $result->fetch_all(MYSQLI_ASSOC);
+
+$statement = $connection->prepare(" SELECT 
+        classes.id AS class_id,
+        classes.name as class_name,
+        teachers.id AS teacher_id,
+        teachers.name AS teacher_name,
+        sections.id as section_id,
+        sections.name as section_name,
+        class_arms.id as arm_id,
+        class_arms.name as arm_name
+
+    FROM classes
+    LEFT JOIN teachers 
+    ON classes.teacher_id = teachers.id
+     LEFT JOIN sections 
+    ON classes.section_id = sections.id
+     LEFT JOIN class_arms 
+    ON classes.class_arm_id = class_arms.id
+");
+$statement->execute();
+$result = $statement->get_result();
+$classes = $result->fetch_all(MYSQLI_ASSOC);
+
+
+
 
 // Count total students
-$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM students");
-$total = $totalQuery->fetch_assoc()['total'];
-
-// Count active students
-$activeQuery = $connection->query("SELECT COUNT(*) AS active FROM students WHERE status = 'active'");
-$active = $activeQuery->fetch_assoc()['active'];
-
-// Count inactive students
-$inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM students WHERE status = 'inactive'");
-$inactive = $inactiveQuery->fetch_assoc()['inactive'];
+$studentsCount =  countUserTotals($connection, 'students');
 
 
 
@@ -47,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $class = trim($_POST['class'] ?? '');
     $dob = trim($_POST['dob'] ?? '');
     $gender = trim($_POST['gender'] ?? '');
-    $guardianEmail = trim($_POST['guardianEmail'] ?? '');
+    $guardian = trim($_POST['guardian'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirmPassword = $_POST['confirmPassword'] ?? '';
     $status = trim($_POST['status'] ?? 'inactive');
@@ -78,6 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['gender'] = "Gender is required.";
     }
 
+    if (empty($guardian)) {
+        $errors['guardian'] = "Guardian is required.";
+    }
+
     if (empty($password)) {
         $errors['password'] = "Password is required.";
     } elseif (strlen($password) < 5) {
@@ -93,9 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['email'] = "Invalid email format.";
     }
 
-    if (!empty($guardianEmail) && !filter_var($guardianEmail, FILTER_VALIDATE_EMAIL)) {
-        $errors['guardianEmail'] = "Invalid guardian email format.";
-    }
 
     if (!empty($phone) && !preg_match('/^[0-9+\s-]{7,15}$/', $phone)) {
         $errors['phone'] = "Invalid phone number format.";
@@ -128,19 +163,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         $stmt = $connection->prepare("INSERT INTO students 
-            (name, email, phone, admission_number,  dob, gender,  password, status, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            (name, email, phone, admission_number,  dob, gender,  password, status, guardian_id, class_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
         $stmt->bind_param(
-            "ssssssss",
+            "ssssssssii",
             $name,
             $email,
             $phone,
             $admissionNumber,
-
             $dob,
             $gender,
             $hashed_password,
-            $status
+            $status,
+            $guardian,
+            $class,
+
         );
 
         if ($stmt->execute()) {
@@ -233,12 +270,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">Class *</label>
                                 <select id="class" name="class" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                     <option value="">Select class</option>
-                                    <option value="JSS1">JSS 1</option>
-                                    <option value="JSS2">JSS 2</option>
-                                    <option value="JSS3">JSS 3</option>
-                                    <option value="SS1">SS 1</option>
-                                    <option value="SS2">SS 2</option>
-                                    <option value="SS3">SS 3</option>
+                                    <?php foreach ($classes as $class): ?>
+                                        <option value="<?= $class['class_id'] ?>"><?= $class['class_name'] . $class['arm_name'] ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                                 <span class="text-red-500 text-sm hidden" id="classError"></span>
                             </div>
@@ -261,11 +295,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="genderError"></span>
                             </div>
 
-                            <!-- Guardian Email -->
+                            <!-- Guardian -->
                             <div>
-                                <label for="guardianEmail" class="block text-sm font-semibold text-gray-700 mb-2">Guardian Email (optional)</label>
-                                <input type="email" id="guardianEmail" name="guardianEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter guardian email">
+                                <label for="guardian" class="block text-sm font-semibold text-gray-700 mb-2">Guardian *</label>
+                                <select id="guardian" name="guardian" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select guardian</option>
+                                    <?php foreach ($guardians as $guardian) : ?>
+                                        <option value="<?= $guardian['id'] ?>"><?= $guardian['name'] ?></option>
+                                    <?php endforeach ?>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="guardianError"></span>
+
                             </div>
+
 
                             <!-- Password -->
                             <div>
@@ -353,15 +395,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Students</span>
-                                <span class="text-2xl font-bold text-orange-900" id="totalStudents">0</span>
+                                <span class="text-2xl font-bold text-orange-900" id="totalStudents"><?= $studentsCount['total'] ?></span>
                             </div>
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Active</span>
-                                <span class="text-2xl font-bold text-green-600" id="activeStudents">0</span>
+                                <span class="text-2xl font-bold text-green-600" id="activeStudents"><?= $studentsCount['active'] ?></span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Inactive</span>
-                                <span class="text-2xl font-bold text-red-600" id="inactiveStudents">0</span>
+                                <span class="text-2xl font-bold text-red-600" id="inactiveStudents"><?= $studentsCount['inactive'] ?></span>
                             </div>
                         </div>
                     </div>
@@ -393,7 +435,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 text-sm text-gray-900"><?= $student['name'] ?></td>
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= $student['admission_number'] ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $student['class'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $student['class_name'] . $student['class_arm_name'] ?></td>
 
                                         <td class="px-6 py-4 text-sm">
                                             <span class="px-3 py-1 <?= $student['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $student['status'] ?></span>
@@ -424,7 +466,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../includes/footer.php ') ?>
+    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
+
 
     <script>
         // Mobile menu toggle
@@ -489,6 +532,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Form validation and submission
         const studentForm = document.getElementById('studentForm');
 
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validatePhone(phone) {
+            const re = /^\+?234\d{10}$|^\d{11}$/;
+            return re.test(phone.replace(/\s/g, ''));
+        }
+
+
         studentForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -502,7 +556,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const studentClass = document.getElementById('class').value;
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
-            const guardianEmail = document.getElementById('guardianEmail').value.trim();
+            const guardian = document.getElementById('guardian').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const status = document.getElementById('status').value;
@@ -514,7 +568,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('fullNameError').classList.remove('hidden');
                 isValid = false;
             }
-            alert(isValid + ' nmae ');
 
 
 
@@ -525,7 +578,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     isValid = false;
                 }
 
-                alert(isValid + ' email valid ');
 
 
                 if (students.some(s => s.email === email)) {
@@ -533,11 +585,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     document.getElementById('emailError').classList.remove('hidden');
                     isValid = false;
                 }
-                alert(isValid + ' email uniqe ');
 
             }
 
-            alert(isValid + ' email ');
 
 
             if (phone) {
@@ -547,7 +597,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     isValid = false;
                 }
             }
-            alert(isValid + ' phone ');
 
 
             if (!admissionNumber) {
@@ -555,7 +604,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('admissionNumberError').classList.remove('hidden');
                 isValid = false;
             }
-            alert(isValid + ' admission numebr exists');
 
 
             if (students.some(s => s.admissionNumber === admissionNumber)) {
@@ -563,7 +611,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('admissionNumberError').classList.remove('hidden');
                 isValid = false;
             }
-            alert(isValid + ' admmission NUmber Unique');
+
 
 
             if (!studentClass) {
@@ -571,16 +619,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('classError').classList.remove('hidden');
                 isValid = false;
             }
-            alert(isValid + ' class');
-
-
 
             if (!dob) {
                 document.getElementById('dobError').textContent = 'Date of birth is required';
                 document.getElementById('dobError').classList.remove('hidden');
                 isValid = false;
             }
-            alert(isValid + ' dob');
 
 
             if (!gender) {
@@ -588,7 +632,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('genderError').classList.remove('hidden');
                 isValid = false;
             }
-            alert(isValid + ' gender');
+
+
+            if (!guardian) {
+                document.getElementById('guardianError').textContent = 'Please select a guardian';
+                document.getElementById('guardianError').classList.remove('hidden');
+                isValid = false;
+            }
 
 
             if (password.length < 5) {
@@ -596,7 +646,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('passwordError').classList.remove('hidden');
                 isValid = false;
             }
-            alert(isValid + ' password lwenght');
+
 
             if (password !== confirmPassword) {
                 document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
@@ -604,9 +654,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
-            alert(isValid + ' password');
+
             if (isValid) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
                 studentForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
         });
     </script>
