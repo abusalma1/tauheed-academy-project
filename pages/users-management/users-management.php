@@ -2,6 +2,17 @@
 $title = 'Users Management';
 include(__DIR__ . '/../../includes/header.php');
 
+$adminsCount =  countDataTotal($connection, 'admins', true);
+$teachersCount =  countDataTotal($connection, 'teachers', true);
+$guardiansCount =  countDataTotal($connection, 'guardians', true);
+$studentsCount =  countDataTotal($connection, 'students', true);
+
+
+$totalUsers = $adminsCount['total'] + $teachersCount['total'] + $guardiansCount['total'] + $studentsCount['total'];
+$totalActiveUsers = $adminsCount['active'] + $teachersCount['active'] + $guardiansCount['active'] + $studentsCount['active'];
+$totalInactiveUsers = $adminsCount['inactive'] + $teachersCount['inactive'] + $guardiansCount['inactive'] + $studentsCount['inactive'];
+
+
 ?>
 
 <body class="bg-gray-50">
@@ -26,7 +37,7 @@ include(__DIR__ . '/../../includes/header.php');
                         <div class="bg-purple-100 p-4 rounded-lg">
                             <i class="fas fa-crown text-purple-600 text-2xl"></i>
                         </div>
-                        <span class="text-3xl font-bold text-purple-600" id="adminCount">0</span>
+                        <span class="text-3xl font-bold text-purple-600" id="adminCount"><?= $adminsCount['total']; ?></span>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Admins & Super Users</h3>
                     <p class="text-sm text-gray-600 mb-4">Manage administrator accounts</p>
@@ -41,7 +52,7 @@ include(__DIR__ . '/../../includes/header.php');
                         <div class="bg-blue-100 p-4 rounded-lg">
                             <i class="fas fa-chalkboard-user text-blue-600 text-2xl"></i>
                         </div>
-                        <span class="text-3xl font-bold text-blue-600" id="teacherCount">0</span>
+                        <span class="text-3xl font-bold text-blue-600" id="teacherCount"><?= $teachersCount['total'] ?></span>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Teachers</h3>
                     <p class="text-sm text-gray-600 mb-4">Manage teacher accounts</p>
@@ -56,7 +67,7 @@ include(__DIR__ . '/../../includes/header.php');
                         <div class="bg-green-100 p-4 rounded-lg">
                             <i class="fas fa-users text-green-600 text-2xl"></i>
                         </div>
-                        <span class="text-3xl font-bold text-green-600" id="guardianCount">0</span>
+                        <span class="text-3xl font-bold text-green-600" id="guardianCount"><?= $guardiansCount['total'] ?></span>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Guardians</h3>
                     <p class="text-sm text-gray-600 mb-4">Manage guardian accounts</p>
@@ -71,7 +82,7 @@ include(__DIR__ . '/../../includes/header.php');
                         <div class="bg-orange-100 p-4 rounded-lg">
                             <i class="fas fa-graduation-cap text-orange-600 text-2xl"></i>
                         </div>
-                        <span class="text-3xl font-bold text-orange-600" id="studentCount">0</span>
+                        <span class="text-3xl font-bold text-orange-600" id="studentCount"><?= $studentsCount['total'] ?></span>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Students</h3>
                     <p class="text-sm text-gray-600 mb-4">Manage student accounts</p>
@@ -87,7 +98,7 @@ include(__DIR__ . '/../../includes/header.php');
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-semibold">Total Users</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2" id="totalUsers">0</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2" id="totalUsers"><?= $totalUsers ?></p>
                         </div>
                         <i class="fas fa-users text-4xl text-blue-200"></i>
                     </div>
@@ -97,7 +108,7 @@ include(__DIR__ . '/../../includes/header.php');
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-semibold">Active Users</p>
-                            <p class="text-3xl font-bold text-green-600 mt-2" id="activeUsers">0</p>
+                            <p class="text-3xl font-bold text-green-600 mt-2" id="activeUsers"><?= $totalActiveUsers ?></p>
                         </div>
                         <i class="fas fa-check-circle text-4xl text-green-200"></i>
                     </div>
@@ -107,7 +118,7 @@ include(__DIR__ . '/../../includes/header.php');
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-semibold">Inactive Users</p>
-                            <p class="text-3xl font-bold text-red-600 mt-2" id="inactiveUsers">0</p>
+                            <p class="text-3xl font-bold text-red-600 mt-2" id="inactiveUsers"><?= $totalInactiveUsers ?></p>
                         </div>
                         <i class="fas fa-times-circle text-4xl text-red-200"></i>
                     </div>
@@ -173,33 +184,6 @@ include(__DIR__ . '/../../includes/header.php');
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
-
-        // Update statistics
-        function updateStats() {
-            const admins = JSON.parse(localStorage.getItem('schoolAdmins')) || [];
-            const teachers = JSON.parse(localStorage.getItem('schoolTeachers')) || [];
-            const guardians = JSON.parse(localStorage.getItem('schoolGuardians')) || [];
-            const students = JSON.parse(localStorage.getItem('schoolStudents')) || [];
-
-            const allUsers = [...admins, ...teachers, ...guardians, ...students];
-            const activeUsers = allUsers.filter(u => u.status === 'active').length;
-            const inactiveUsers = allUsers.filter(u => u.status === 'inactive').length;
-
-            document.getElementById('adminCount').textContent = admins.length;
-            document.getElementById('teacherCount').textContent = teachers.length;
-            document.getElementById('guardianCount').textContent = guardians.length;
-            document.getElementById('studentCount').textContent = students.length;
-            document.getElementById('totalUsers').textContent = allUsers.length;
-            document.getElementById('activeUsers').textContent = activeUsers;
-            document.getElementById('inactiveUsers').textContent = inactiveUsers;
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
-        }
-
-        // Initial update
-        updateStats();
-
-        // Refresh stats every 5 seconds
-        setInterval(updateStats, 5000);
     </script>
 </body>
 

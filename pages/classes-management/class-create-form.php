@@ -54,6 +54,10 @@ $result = $statement->get_result();
 $class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
 
+$classesCount = countDataTotal($connection, 'classes')['total'];
+$studentsCount = countDataTotal($connection, 'students')['total'];
+
+
 
 $name = $section = $teacher = $arm =  '';
 $nameError = $sectionError = $teacherError = $armError =  '';
@@ -232,15 +236,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Classes</span>
-                                <span class="text-2xl font-bold text-green-900" id="totalClasses">0</span>
+                                <span class="text-2xl font-bold text-green-900" id="totalClasses"><?= $classesCount; ?></span>
                             </div>
-                            <div class="flex justify-between items-center pb-3 border-b">
-                                <span class="text-gray-600">Active</span>
-                                <span class="text-2xl font-bold text-green-600" id="activeClasses">0</span>
-                            </div>
+
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Total Students</span>
-                                <span class="text-2xl font-bold text-blue-600" id="totalStudents">0</span>
+                                <span class="text-2xl font-bold text-blue-600" id="totalStudents"><?= $studentsCount; ?></span>
                             </div>
                         </div>
                     </div>

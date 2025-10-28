@@ -3,17 +3,11 @@ $title = 'Classes, Sections & Arms Management';
 include(__DIR__ . '/../../includes/header.php');
 
 
-// Count total admins
-$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM admins");
-$total = $totalQuery->fetch_assoc()['total'];
+$armsCount = countDataTotal($connection, 'class_arms')['total'];
+$classesCount = countDataTotal($connection, 'classes')['total'];
+$sectionsCount = countDataTotal($connection, 'sections')['total'];
+$studentsCount = countDataTotal($connection, 'students')['total'];
 
-// Count active admins
-$activeQuery = $connection->query("SELECT COUNT(*) AS active FROM admins WHERE status = 'active'");
-$active = $activeQuery->fetch_assoc()['active'];
-
-// Count inactive admins
-$inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM admins WHERE status = 'inactive'");
-$inactive = $inactiveQuery->fetch_assoc()['inactive'];
 
 
 ?>
@@ -40,7 +34,7 @@ $inactive = $inactiveQuery->fetch_assoc()['inactive'];
                         <div class="bg-indigo-100 p-4 rounded-lg">
                             <i class="fas fa-book text-indigo-600 text-2xl"></i>
                         </div>
-                        <span class="text-3xl font-bold text-indigo-600" id="classCount">0</span>
+                        <span class="text-3xl font-bold text-indigo-600" id="classCount"><?= $classesCount ?></span>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Classes</h3>
                     <p class="text-sm text-gray-600 mb-4">Manage all classes in the school</p>
@@ -55,7 +49,7 @@ $inactive = $inactiveQuery->fetch_assoc()['inactive'];
                         <div class="bg-cyan-100 p-4 rounded-lg">
                             <i class="fas fa-layer-group text-cyan-600 text-2xl"></i>
                         </div>
-                        <span class="text-3xl font-bold text-cyan-600" id="sectionCount">0</span>
+                        <span class="text-3xl font-bold text-cyan-600" id="sectionCount"><?= $sectionsCount ?></span>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Sections</h3>
                     <p class="text-sm text-gray-600 mb-4">Manage educational sections</p>
@@ -70,7 +64,7 @@ $inactive = $inactiveQuery->fetch_assoc()['inactive'];
                         <div class="bg-teal-100 p-4 rounded-lg">
                             <i class="fas fa-sitemap text-teal-600 text-2xl"></i>
                         </div>
-                        <span class="text-3xl font-bold text-teal-600" id="armCount">0</span>
+                        <span class="text-3xl font-bold text-teal-600" id="armCount"><?= $armsCount ?></span>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Class Arms</h3>
                     <p class="text-sm text-gray-600 mb-4">Manage class divisions (A, B, C...)</p>
@@ -86,7 +80,7 @@ $inactive = $inactiveQuery->fetch_assoc()['inactive'];
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-semibold">Total Classes</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2" id="totalClasses">0</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2" id="totalClasses"><?= $classesCount ?></p>
                         </div>
                         <i class="fas fa-book text-4xl text-indigo-200"></i>
                     </div>
@@ -96,13 +90,13 @@ $inactive = $inactiveQuery->fetch_assoc()['inactive'];
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-semibold">Total Students</p>
-                            <p class="text-3xl font-bold text-cyan-600 mt-2" id="totalStudentsEnrolled">0</p>
+                            <p class="text-3xl font-bold text-cyan-600 mt-2" id="totalStudentsEnrolled"><?= $studentsCount ?></p>
                         </div>
                         <i class="fas fa-users text-4xl text-cyan-200"></i>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-6">
+                <!-- <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-semibold">Total Capacity</p>
@@ -110,7 +104,7 @@ $inactive = $inactiveQuery->fetch_assoc()['inactive'];
                         </div>
                         <i class="fas fa-chair text-4xl text-teal-200"></i>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- Quick Actions -->

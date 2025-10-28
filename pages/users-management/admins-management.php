@@ -18,18 +18,8 @@ $statement->execute();
 $result = $statement->get_result();
 $admins = $result->fetch_all(MYSQLI_ASSOC);
 
-
 // Count total admins
-$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM admins");
-$total = $totalQuery->fetch_assoc()['total'];
-
-// Count active admins
-$activeQuery = $connection->query("SELECT COUNT(*) AS active FROM admins WHERE status = 'active'");
-$active = $activeQuery->fetch_assoc()['active'];
-
-// Count inactive admins
-$inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM admins WHERE status = 'inactive'");
-$inactive = $inactiveQuery->fetch_assoc()['inactive'];
+$adminsCount =  countDataTotal($connection, 'admins', true);
 
 
 $name =  $email  = $phone  =  $address = $staffNumber  = $status =  $roleTypeError = $department = $hashed_password = '';
@@ -312,15 +302,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Admins</span>
-                                <span class="text-2xl font-bold text-purple-900" id="totalAdmins"><?= $total ?></span>
+                                <span class="text-2xl font-bold text-purple-900" id="totalAdmins"><?= $adminsCount['total'] ?></span>
                             </div>
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Active</span>
-                                <span class="text-2xl font-bold text-green-600" id="activeAdmins"><?= $active  ?></span>
+                                <span class="text-2xl font-bold text-green-600" id="activeAdmins"><?= $adminsCount['active']  ?></span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Inactive</span>
-                                <span class="text-2xl font-bold text-red-600" id="inactiveAdmins"><?= $inactive ?></span>
+                                <span class="text-2xl font-bold text-red-600" id="inactiveAdmins"><?= $adminsCount['inactive'] ?></span>
                             </div>
                         </div>
                     </div>

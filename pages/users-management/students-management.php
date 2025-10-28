@@ -63,7 +63,7 @@ $classes = $result->fetch_all(MYSQLI_ASSOC);
 
 
 // Count total students
-$studentsCount =  countUserTotals($connection, 'students');
+$studentsCount =  countDataTotal($connection, 'students', true);
 
 
 

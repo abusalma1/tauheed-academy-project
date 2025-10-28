@@ -19,16 +19,7 @@ $teachers = $result->fetch_all(MYSQLI_ASSOC);
 
 
 // Count total teachers
-$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM teachers");
-$total = $totalQuery->fetch_assoc()['total'];
-
-// Count active teachers
-$activeQuery = $connection->query("SELECT COUNT(*) AS active FROM teachers WHERE status = 'active'");
-$active = $activeQuery->fetch_assoc()['active'];
-
-// Count inactive teachers
-$inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM teachers WHERE status = 'inactive'");
-$inactive = $inactiveQuery->fetch_assoc()['inactive'];
+$teachersCount =  countDataTotal($connection, 'teachers', true);
 
 $nameError = $emailError = $phoneError = $subjectError = $addressError = $staffNumberError = $statusError = $qualificationError = $passwordError = $confirmPasswordError = '';
 $name = $email = $phone = $subject = $address = $staffNumber = $status = $qualification = $password = $confirmPassword = '';
@@ -281,15 +272,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Teachers</span>
-                                <span class="text-2xl font-bold text-blue-900" id="totalTeachers"><?= $total ?></span>
+                                <span class="text-2xl font-bold text-blue-900" id="totalTeachers"><?= $teachersCount['total'] ?></span>
                             </div>
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Active</span>
-                                <span class="text-2xl font-bold text-green-600" id="activeTeachers"><?= $active ?></span>
+                                <span class="text-2xl font-bold text-green-600" id="activeTeachers"><?= $teachersCount['active'] ?></span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Inactive</span>
-                                <span class="text-2xl font-bold text-red-600" id="inactiveTeachers"><?= $inactive ?></span>
+                                <span class="text-2xl font-bold text-red-600" id="inactiveTeachers"><?= $teachersCount['inactive'] ?></span>
                             </div>
                         </div>
                     </div>

@@ -20,16 +20,7 @@ $guardians = $result->fetch_all(MYSQLI_ASSOC);
 
 
 // Count total guardians
-$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM guardians");
-$total = $totalQuery->fetch_assoc()['total'];
-
-// Count active guardians
-$activeQuery = $connection->query("SELECT COUNT(*) AS active FROM guardians WHERE status = 'active'");
-$active = $activeQuery->fetch_assoc()['active'];
-
-// Count inactive guardians
-$inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM guardians WHERE status = 'inactive'");
-$inactive = $inactiveQuery->fetch_assoc()['inactive'];
+$guardiansCount =  countDataTotal($connection, 'guardians', true);
 
 
 $name =  $email  = $phone  =  $address = $occupation  = $relationship = $status  = $confirmPassword = $password = $hashed_password = '';
@@ -273,15 +264,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Guardians</span>
-                                <span class="text-2xl font-bold text-green-900" id="totalGuardians"><?= $total ?></span>
+                                <span class="text-2xl font-bold text-green-900" id="totalGuardians"><?= $guardiansCount['total'] ?></span>
                             </div>
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Active</span>
-                                <span class="text-2xl font-bold text-green-600" id="activeGuardians"><?= $active ?></span>
+                                <span class="text-2xl font-bold text-green-600" id="activeGuardians"><?= $guardiansCount['active'] ?></span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Inactive</span>
-                                <span class="text-2xl font-bold text-red-600" id="inactiveGuardians"><?= $inactive ?></span>
+                                <span class="text-2xl font-bold text-red-600" id="inactiveGuardians"><?= $guardiansCount['inactive'] ?></span>
                             </div>
                         </div>
                     </div>

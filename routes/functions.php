@@ -61,19 +61,28 @@ function staffNumberExist($connection, $staff_no, $table)
 }
 
 
-function countUserTotals($connection, $table)
+function countDataTotal($connection, $table, $haveActivity = false)
 {
     // Count total users
     $totalQuery = $connection->query("SELECT COUNT(*) AS total FROM $table");
     $total = $totalQuery->fetch_assoc()['total'];
+    $total = number_format($total);
 
-    // Count active users
-    $activeQuery = $connection->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active'");
-    $active = $activeQuery->fetch_assoc()['active'];
+    if ($haveActivity) {
+        // Count active users
+        $activeQuery = $connection->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active'");
+        $active = $activeQuery->fetch_assoc()['active'];
+        $active = number_format($active);
 
-    // Count inactive users
-    $inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive'");
-    $inactive = $inactiveQuery->fetch_assoc()['inactive'];
 
-    return ['total' => $total, 'active' => $active, 'inactive' => $inactive];
+        // Count inactive users
+        $inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive'");
+        $inactive = $inactiveQuery->fetch_assoc()['inactive'];
+        $inactive = number_format($inactive);
+
+
+        return ['total' => $total, 'active' => $active, 'inactive' => $inactive];
+    }
+
+    return ['total' => $total];
 }

@@ -33,10 +33,9 @@ $statement->execute();
 $result = $statement->get_result();
 $teachers = $result->fetch_all(MYSQLI_ASSOC);
 
-// Count total sections
-$totalQuery = $connection->query("SELECT COUNT(*) AS total FROM sections");
-$total = $totalQuery->fetch_assoc()['total'];
 
+$classesCount = countDataTotal($connection, 'classes')['total'];
+$sectionsCount = countDataTotal($connection, 'sections')['total'];
 
 $name = $description = $headTeacher = '';
 $nameError = $descriptionError = $headTeacherError = '';
@@ -184,32 +183,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <i class="fas fa-check text-purple-600 mt-1"></i>
                                 <span>Provide clear section description</span>
                             </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-purple-600 mt-1"></i>
-                                <span>Set appropriate age range</span>
-                            </li>
+
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-purple-600 mt-1"></i>
                                 <span>Assign a section coordinator</span>
                             </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-purple-600 mt-1"></i>
-                                <span>Define number of classes</span>
-                            </li>
+
                         </ul>
                     </div>
 
                     <!-- Statistics -->
                     <div class="mt-6 bg-white rounded-lg shadow p-6">
                         <h3 class="text-lg font-bold text-gray-900 mb-4">Section Statistics</h3>
-                        <div class="space-y-3">
+                        <div class="space-y-3">         
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Sections</span>
-                                <span class="text-2xl font-bold text-purple-900" id="totalSections"><?= $total ?></span>
+                                <span class="text-2xl font-bold text-purple-900" id="totalSections"><?= $sectionsCount ?></span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Total Classes</span>
-                                <span class="text-2xl font-bold text-blue-600" id="totalClasses">0</span>
+                                <span class="text-2xl font-bold text-blue-600" id="totalClasses"><?= $classesCount ?></span>
                             </div>
                         </div>
                     </div>

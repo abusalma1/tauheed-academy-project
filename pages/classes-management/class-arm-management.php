@@ -19,8 +19,11 @@ $statement->execute();
 $result = $statement->get_result();
 $class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
+$armsCount = countDataTotal($connection, 'class_arms')['total'];
+
+
 $name = $description = '';
-$nameError ='';
+$nameError = '';
 
 
 
@@ -157,16 +160,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Arms</span>
-                                <span class="text-2xl font-bold text-indigo-900" id="totalArms">0</span>
+                                <span class="text-2xl font-bold text-indigo-900" id="totalArms"><?= $armsCount ?></span>
                             </div>
-                            <div class="flex justify-between items-center pb-3 border-b">
+                            <!-- <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Active</span>
                                 <span class="text-2xl font-bold text-indigo-600" id="activeArms">0</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Total Capacity</span>
                                 <span class="text-2xl font-bold text-blue-600" id="totalCapacity">0</span>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
