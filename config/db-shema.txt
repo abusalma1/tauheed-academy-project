@@ -96,7 +96,7 @@ CREATE TABLE class_arms (
 CREATE TABLE classes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     section_id INT NOT NULL,
-    class_arm_id INT NULL,
+class_arm_id INT NULL,
     name VARCHAR(100) NOT NULL,
     teacher_id INT NULL, -- class teacher in charge
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

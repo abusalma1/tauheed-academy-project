@@ -182,7 +182,7 @@ $studentsCount = countDataTotal('students')['total'];
 
                                         </div>
                                         <div class="flex flex-col gap-2 md:w-auto">
-                                            <a href="class-update.html?class=Tahfeez%201" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                                            <a href="<?= route('update-class') . '?id=' . $class['class_id'] ?>" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px4 rounded-lg transition flex items-center justify-center gap-2">
                                                 <i class="fas fa-edit"></i> Update
                                             </a>
                                             <a href="delete-confirmation.html?type=class&name=Tahfeez%201" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">

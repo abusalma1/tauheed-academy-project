@@ -3,6 +3,36 @@
 $title = "Classe Update Form";
 include(__DIR__ . '/../../../includes/header.php');
 
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $statement = $connection->prepare('SELECT * FROM classes WHERE id=?');
+    $statement->bind_param('i', $id);
+    $statement->execute();
+    $result = $statement->get_result();
+    if ($result->num_rows > 0) {
+        $class = $result->fetch_assoc();
+    }
+} else {
+    header('Location: ' . $_SERVER['HTTP_REFERER']);
+}
+
+$statement = $connection->prepare("SELECT * FROM sections");
+$statement->execute();
+$result = $statement->get_result();
+$sections = $result->fetch_all(MYSQLI_ASSOC);
+
+$statement = $connection->prepare("SELECT * FROM teachers");
+$statement->execute();
+$result = $statement->get_result();
+$teachers = $result->fetch_all(MYSQLI_ASSOC);
+
+$statement = $connection->prepare("SELECT * FROM class_arms");
+$statement->execute();
+$result = $statement->get_result();
+$class_arms = $result->fetch_all(MYSQLI_ASSOC);
+
+
+
 ?>
 
 <body class="bg-gray-50">
@@ -23,66 +53,64 @@ include(__DIR__ . '/../../../includes/header.php');
                 <div class="bg-white rounded-lg shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Class Details</h2>
 
-                    <form id="updateClassForm" class="space-y-6">
+                    <form id="updateClassForm" class="space-y-6" method="post">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+
+                        <!-- Success Message -->
+                        <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Section is created successfully!</span>
+                        </div>
+
                         <!-- Class Name -->
                         <div>
                             <label for="className" class="block text-sm font-semibold text-gray-700 mb-2">Class Name *</label>
-                            <input type="text" id="className" name="className" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., JSS 1A">
+                            <input type="text" id="className" name="className" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., JSS 1A, SSS 3B" value="<?= $class['name'] ?>">
                             <span class="text-red-500 text-sm hidden" id="classNameError"></span>
                         </div>
 
-                        <!-- Class Level -->
+                        <!-- Class Arm -->
                         <div>
-                            <label for="classLevel" class="block text-sm font-semibold text-gray-700 mb-2">Class Level *</label>
-                            <select id="classLevel" name="classLevel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
-                                <option value="">Select class level</option>
-                                <option value="JSS 1">JSS 1</option>
-                                <option value="JSS 2">JSS 2</option>
-                                <option value="JSS 3">JSS 3</option>
-                                <option value="SSS 1">SSS 1</option>
-                                <option value="SSS 2">SSS 2</option>
-                                <option value="SSS 3">SSS 3</option>
+                            <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arm</label>
+                            <select id="classArm" name="classArm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                <option value="">Select class arm</option>
+                                <?php foreach ($class_arms as $arm): ?>
+                                    <option value="<?= $arm['id'] ?>" <?= $class['class_arm_id'] === $arm['id'] ? 'selected' : ''; ?>><?= $arm['name'] ?></option>
+                                <?php endforeach ?>
                             </select>
+                            <span class="text-red-500 text-sm hidden" id="classArmError"></span>
+
                         </div>
 
-                        <!-- Class Section -->
+
+                        <!-- Class section -->
                         <div>
-                            <label for="classSection" class="block text-sm font-semibold text-gray-700 mb-2">Section/Arm *</label>
-                            <input type="text" id="classSection" name="classSection" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., A, B, C">
+                            <label for="classSection" class="block text-sm font-semibold text-gray-700 mb-2">Class Section *</label>
+                            <select id="classSection" name="classSection" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                <option value="">Select section </option>
+
+                                <?php foreach ($sections as $section): ?>
+                                    <option value="<?= $section['id'] ?>" <?= $class['section_id'] === $section['id'] ? 'selected' : ''; ?>><?= $section['name']; ?></option>
+                                <?php endforeach ?>
+
+                            </select>
+                            <span class="text-red-500 text-sm hidden" id="classSectionError"></span>
                         </div>
 
                         <!-- Class Teacher -->
+                        classTeacher
+
                         <div>
                             <label for="classTeacher" class="block text-sm font-semibold text-gray-700 mb-2">Class Teacher *</label>
-                            <input type="text" id="classTeacher" name="classTeacher" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter teacher name">
-                        </div>
+                            <select id="classTeacher" name="classTeacher" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                <option value="">Select class teacher </option>
 
-                        <!-- Capacity -->
-                        <div>
-                            <label for="capacity" class="block text-sm font-semibold text-gray-700 mb-2">Class Capacity *</label>
-                            <input type="number" id="capacity" name="capacity" required min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., 40">
-                            <span class="text-red-500 text-sm hidden" id="capacityError"></span>
-                        </div>
+                                <?php foreach ($teachers as $teacher): ?>
+                                    <option value="<?= $teacher['id'] ?>" <?= $class['teacher_id'] === $teacher['id'] ? 'selected' : ''; ?>><?= $teacher['name']; ?></option>
+                                <?php endforeach ?>
 
-                        <!-- Current Enrollment -->
-                        <div>
-                            <label for="enrollment" class="block text-sm font-semibold text-gray-700 mb-2">Current Enrollment</label>
-                            <input type="number" id="enrollment" name="enrollment" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., 35">
-                        </div>
-
-                        <!-- Room Number -->
-                        <div>
-                            <label for="roomNumber" class="block text-sm font-semibold text-gray-700 mb-2">Room Number</label>
-                            <input type="text" id="roomNumber" name="roomNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., Block A, Room 101">
-                        </div>
-
-                        <!-- Status -->
-                        <div>
-                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                            <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
                             </select>
+                            <span class="text-red-500 text-sm hidden" id="classTeacherError"></span>
                         </div>
 
                         <!-- Submit Button -->
@@ -111,28 +139,8 @@ include(__DIR__ . '/../../../includes/header.php');
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Get class ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const classId = urlParams.get('id');
 
         const updateClassForm = document.getElementById('updateClassForm');
-        let classes = JSON.parse(localStorage.getItem('schoolClasses')) || [];
-
-        // Load class data if editing
-        if (classId) {
-            const classIndex = parseInt(classId);
-            if (classIndex >= 0 && classIndex < classes.length) {
-                const cls = classes[classIndex];
-                document.getElementById('className').value = cls.className;
-                document.getElementById('classLevel').value = cls.classLevel;
-                document.getElementById('classSection').value = cls.classSection;
-                document.getElementById('classTeacher').value = cls.classTeacher;
-                document.getElementById('capacity').value = cls.capacity;
-                document.getElementById('enrollment').value = cls.enrollment || 0;
-                document.getElementById('roomNumber').value = cls.roomNumber || '';
-                document.getElementById('status').value = cls.status;
-            }
-        }
 
         updateClassForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -156,38 +164,10 @@ include(__DIR__ . '/../../../includes/header.php');
                 isValid = false;
             }
 
-            if (!capacity || capacity < 1) {
-                document.getElementById('capacityError').textContent = 'Please enter a valid capacity';
-                document.getElementById('capacityError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (enrollment > capacity) {
-                document.getElementById('capacityError').textContent = 'Enrollment cannot exceed capacity';
-                document.getElementById('capacityError').classList.remove('hidden');
-                isValid = false;
-            }
 
             if (isValid) {
-                const classIndex = parseInt(classId);
-                if (classIndex >= 0 && classIndex < classes.length) {
-                    classes[classIndex] = {
-                        className,
-                        classLevel,
-                        classSection,
-                        classTeacher,
-                        capacity,
-                        enrollment,
-                        roomNumber,
-                        status,
-                        createdAt: classes[classIndex].createdAt,
-                        updatedAt: new Date().toLocaleDateString()
-                    };
 
-                    localStorage.setItem('schoolClasses', JSON.stringify(classes));
-                    alert('Class updated successfully!');
-                    window.location.href = 'class-management.html';
-                }
+
             }
         });
     </script>
