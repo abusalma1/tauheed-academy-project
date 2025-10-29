@@ -12,19 +12,23 @@
             </div>
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center gap-6">
-                <a href="<?php echo route('home') ?>" class="hover:text-blue-300 transition">Home</a>
-                <a href="<?php echo route('about'); ?>" class="hover:text-blue-300 transition">About</a>
-                <a href="<?php echo route('admission'); ?>" class="hover:text-blue-300 transition">Admissions</a>
-                <a href="<?php echo route('fees'); ?>" class="hover:text-blue-300 transition">Fees</a>
-                <a href="<?php echo route('timetable'); ?>" class="hover:text-blue-300 transition">Timetable</a>
-                <a href="<?php echo route('academics'); ?>" class="hover:text-blue-300 transition">Academics</a>
-                <a href="<?php echo route('staff'); ?>" class="hover:text-blue-300 transition">Staff</a>
-                <a href="<?php echo route('uniform'); ?>" class="hover:text-blue-300 transition">Uniform</a>
-                <a href="<?php echo route('gallery'); ?>" class="hover:text-blue-300 transition">Gallery</a>
-                <a href="<?php echo route('login'); ?>" class="hover:text-blue-300 transition">Login</a>
-                <a href="<?php echo route('logout'); ?>" class="hover:text-blue-300 transition">Logout</a>
-                <a href="<?php echo route('school-info'); ?>" class="hover:text-blue-300 transition">School info</a>
-                <a href="<?php echo route('users-management'); ?>" class="hover:text-blue-300 transition">User Management</a>
+                <a href="<?= route('home') ?>" class="hover:text-blue-300 transition">Home</a>
+                <a href="<?= route('about'); ?>" class="hover:text-blue-300 transition">About</a>
+                <a href="<?= route('admission'); ?>" class="hover:text-blue-300 transition">Admissions</a>
+                <a href="<?= route('fees'); ?>" class="hover:text-blue-300 transition">Fees</a>
+                <a href="<?= route('timetable'); ?>" class="hover:text-blue-300 transition">Timetable</a>
+                <a href="<?= route('academics'); ?>" class="hover:text-blue-300 transition">Academics</a>
+                <a href="<?= route('staff'); ?>" class="hover:text-blue-300 transition">Staff</a>
+                <a href="<?= route('uniform'); ?>" class="hover:text-blue-300 transition">Uniform</a>
+                <a href="<?= route('gallery'); ?>" class="hover:text-blue-300 transition">Gallery</a>
+                <?php if (isset($_SESSION['user_session'])): ?>
+                    <a href="<?= route('school-info'); ?>" class="hover:text-blue-300 transition">School info</a>
+                    <a href="<?= route('users-management'); ?>" class="hover:text-blue-300 transition">User Management</a>
+                    <a href="<?= route('logout'); ?>" class="hover:text-blue-300 transition">Logout</a>
+                <?php else: ?>
+                    <a href="<?= route('login'); ?>" class="hover:text-blue-300 transition">Login</a>
+                <?php endif ?>
+
 
             </div>
 
@@ -37,18 +41,18 @@
 
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-        <a href="<?php echo route('home'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Home</a>
-        <a href="<?php echo route('about'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">About</a>
-        <a href="<?php echo route('admission'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admissions</a>
-        <a href="<?php echo route('fees'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Fees</a>
-        <a href="<?php echo route('timetable'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Timetable</a>
-        <a href="<?php echo route('academics'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Academics</a>
-        <a href="<?php echo route('staff'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Staff</a>
-        <a href="<?php echo route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
-        <a href="<?php echo route('gallery'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Gallery</a>
-        <a href="<?php echo route('login'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">login</a>
-        <a href="<?php echo route('register'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Register</a>
-        <a href="<?php echo route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
-        <a href="<?php echo route('logout'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Logout</a>
+        <a href="<?= route('home'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Home</a>
+        <a href="<?= route('about'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">About</a>
+        <a href="<?= route('admission'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admissions</a>
+        <a href="<?= route('fees'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Fees</a>
+        <a href="<?= route('timetable'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Timetable</a>
+        <a href="<?= route('academics'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Academics</a>
+        <a href="<?= route('staff'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Staff</a>
+        <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
+        <a href="<?= route('gallery'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Gallery</a>
+        <a href="<?= route('login'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">login</a>
+        <a href="<?= route('register'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Register</a>
+        <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
+        <a href="<?= route('logout'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Logout</a>
     </div>
 </nav>
