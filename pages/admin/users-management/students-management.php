@@ -1,7 +1,7 @@
 <?php
 
 $title = "Students Managment";
-include(__DIR__ . '/../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
 
 if (empty($_SESSION['csrf_token'])) {
@@ -204,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </script>
 
 <body class="bg-gray-50">
-    <?php include(__DIR__ . '/./includes/users-management-nav.php')  ?>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php')  ?>
 
 
     <!-- Page Header -->
@@ -466,7 +466,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
 
     <script>

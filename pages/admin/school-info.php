@@ -1,6 +1,6 @@
 <?php
 $title = "Schoo Information";
-include(__DIR__ . "/../includes/header.php");
+include(__DIR__ . "/../../includes/header.php");
 
 if (isset($_POST['submit'])) {
     $id = $school['id']; // existing record id
@@ -52,7 +52,7 @@ if (isset($_POST['submit'])) {
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../includes/nav.php') ?>
+    <?php include(__DIR__ . '/../../includes/nav.php') ?>
 
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-16">
@@ -262,7 +262,7 @@ if (isset($_POST['submit'])) {
         </div>
     </section>
 
-    <?php include(__DIR__  . '/../includes/footer.php') ?>
+    <?php include(__DIR__  . '/../../includes/footer.php') ?>
 
     <script src="<?= BASE_URL ?>/static/j/main.js"></script>
     <script src="<?= BASE_URL ?>/static/j/success-message.js"></script>

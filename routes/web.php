@@ -43,50 +43,50 @@ $routes = [
         'url' => " $baseUrl/auth/logout.php"
     ],
     'school-info' => [
-        'url' => "$baseUrl/pages/school-info.php"
+        'url' => "$baseUrl/pages/admin/school-info.php"
     ],
     'users-management' => [
-        'url' => "$baseUrl/pages/users-management/users-management.php"
+        'url' => "$baseUrl/pages/admin/users-management/users-management.php"
     ],
     'admins-management' => [
-        'url' => "$baseUrl/pages/users-management/admins-management.php"
+        'url' => "$baseUrl/pages/admin/users-management/admins-management.php"
     ],
     'gurdians-management' => [
-        'url' => "$baseUrl/pages/users-management/guardians-management.php"
+        'url' => "$baseUrl/pages/admin/users-management/guardians-management.php"
     ],
     'teachers-management' => [
-        'url' => "$baseUrl/pages/users-management/teachers-management.php"
+        'url' => "$baseUrl/pages/admin/users-management/teachers-management.php"
     ],
     'students-management' => [
-        'url' => "$baseUrl/pages/users-management/students-management.php"
+        'url' => "$baseUrl/pages/admin/users-management/students-management.php"
     ],
 
     'class-arm-section-management' => [
-        'url' => "$baseUrl/pages/classes-management/classes-sections-arms-management.php"
+        'url' => "$baseUrl/pages/admin/classes-management/classes-sections-arms-management.php"
     ],
     'classes-management' => [
-        'url' => "$baseUrl/pages/classes-management/classes-management.php"
+        'url' => "$baseUrl/pages/admin/classes-management/classes-management.php"
     ],
     'update-class' => [
-        'url' => "$baseUrl/pages/classes-management/class-update-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/class-update-form.php"
     ],
     'create-class' => [
-        'url' => "$baseUrl/pages/classes-management/class-create-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/class-create-form.php"
     ],
 
     'update-class-arm' => [
-        'url' => "$baseUrl/pages/classes-management/class-arm-update-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/class-arm-update-form.php"
     ],
     'create-class-arm' => [
-        'url' => "$baseUrl/pages/classes-management/class-arm-management.php"
+        'url' => "$baseUrl/pages/admin/classes-management/class-arm-management.php"
     ],
 
 
     'update-section' => [
-        'url' => "$baseUrl/pages/classes-management/section-update-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/section-update-form.php"
     ],
     'create-section' => [
-        'url' => "$baseUrl/pages/classes-management/section-create-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/section-create-form.php"
     ],
 
 

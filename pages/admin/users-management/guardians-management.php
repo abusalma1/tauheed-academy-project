@@ -1,7 +1,7 @@
 <?php
 
 $title = 'Guardians Management';
-include(__DIR__ . '/../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
 
 if (empty($_SESSION['csrf_token'])) {
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 <body class="bg-gray-50">
-    <?php include(__DIR__ . '/./includes/users-management-nav.php')  ?>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php')  ?>
 
     <!-- Page Header -->
     <section class="bg-green-900 text-white py-12">
@@ -332,7 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </section>
 
-    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
         // Mobile menu toggle

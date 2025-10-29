@@ -1,5 +1,4 @@
 <?php
-session_start();
 include(__DIR__ .  '/../routes/functions.php');
 
 // Step 1: Try to get an existing school record

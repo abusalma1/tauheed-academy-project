@@ -1,7 +1,7 @@
 <?php
 
 $title = "Create Class Arm";
-include(__DIR__ . '/../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/./includes/classes-management-nav.php'); ?>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php'); ?>
 
     <!-- Page Header -->
     <section class="bg-indigo-900 text-white py-12">
@@ -222,7 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../includes/footer.php') ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php') ?>
 
     <script>
         // Mobile menu toggle

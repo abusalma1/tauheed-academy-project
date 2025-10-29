@@ -1,12 +1,12 @@
 <?php
 
 $title = "Classe Update Form";
-include(__DIR__ . '/../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
 ?>
 
 <body class="bg-gray-50">
-    <?php include(__DIR__ . '/./includes/classes-management-nav.php') ?>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
     <!-- Page Header -->
     <!-- Page Header -->
     <section class="bg-green-900 text-white py-12">
@@ -100,15 +100,15 @@ include(__DIR__ . '/../../includes/header.php');
         </div>
     </section>
 
- <?php include(__DIR__ . '/../../includes/footer.php');    ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php');    ?>
 
 
-        <script>
+    <script>
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         mobileMenuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('hidden');
         });
 
         // Get class ID from URL
@@ -120,21 +120,21 @@ include(__DIR__ . '/../../includes/header.php');
 
         // Load class data if editing
         if (classId) {
-        const classIndex = parseInt(classId);
-        if (classIndex >= 0 && classIndex < classes.length) {
-            const cls=classes[classIndex];
-            document.getElementById('className').value=cls.className;
-            document.getElementById('classLevel').value=cls.classLevel;
-            document.getElementById('classSection').value=cls.classSection;
-            document.getElementById('classTeacher').value=cls.classTeacher;
-            document.getElementById('capacity').value=cls.capacity;
-            document.getElementById('enrollment').value=cls.enrollment || 0;
-            document.getElementById('roomNumber').value=cls.roomNumber || '' ;
-            document.getElementById('status').value=cls.status;
+            const classIndex = parseInt(classId);
+            if (classIndex >= 0 && classIndex < classes.length) {
+                const cls = classes[classIndex];
+                document.getElementById('className').value = cls.className;
+                document.getElementById('classLevel').value = cls.classLevel;
+                document.getElementById('classSection').value = cls.classSection;
+                document.getElementById('classTeacher').value = cls.classTeacher;
+                document.getElementById('capacity').value = cls.capacity;
+                document.getElementById('enrollment').value = cls.enrollment || 0;
+                document.getElementById('roomNumber').value = cls.roomNumber || '';
+                document.getElementById('status').value = cls.status;
             }
-            }
+        }
 
-            updateClassForm.addEventListener('submit', (e)=> {
+        updateClassForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
             document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
@@ -151,46 +151,46 @@ include(__DIR__ . '/../../includes/header.php');
             let isValid = true;
 
             if (!className) {
-            document.getElementById('classNameError').textContent = 'Class name is required';
-            document.getElementById('classNameError').classList.remove('hidden');
-            isValid = false;
+                document.getElementById('classNameError').textContent = 'Class name is required';
+                document.getElementById('classNameError').classList.remove('hidden');
+                isValid = false;
             }
 
             if (!capacity || capacity < 1) {
-                document.getElementById('capacityError').textContent='Please enter a valid capacity' ;
+                document.getElementById('capacityError').textContent = 'Please enter a valid capacity';
                 document.getElementById('capacityError').classList.remove('hidden');
-                isValid=false;
-                }
+                isValid = false;
+            }
 
-                if (enrollment> capacity) {
+            if (enrollment > capacity) {
                 document.getElementById('capacityError').textContent = 'Enrollment cannot exceed capacity';
                 document.getElementById('capacityError').classList.remove('hidden');
                 isValid = false;
-                }
+            }
 
-                if (isValid) {
+            if (isValid) {
                 const classIndex = parseInt(classId);
                 if (classIndex >= 0 && classIndex < classes.length) {
-                    classes[classIndex]={
-                    className,
-                    classLevel,
-                    classSection,
-                    classTeacher,
-                    capacity,
-                    enrollment,
-                    roomNumber,
-                    status,
-                    createdAt: classes[classIndex].createdAt,
-                    updatedAt: new Date().toLocaleDateString()
+                    classes[classIndex] = {
+                        className,
+                        classLevel,
+                        classSection,
+                        classTeacher,
+                        capacity,
+                        enrollment,
+                        roomNumber,
+                        status,
+                        createdAt: classes[classIndex].createdAt,
+                        updatedAt: new Date().toLocaleDateString()
                     };
 
                     localStorage.setItem('schoolClasses', JSON.stringify(classes));
                     alert('Class updated successfully!');
-                    window.location.href='class-management.html' ;
-                    }
-                    }
-                    });
-                    </script>
+                    window.location.href = 'class-management.html';
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

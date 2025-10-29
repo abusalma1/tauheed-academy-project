@@ -1,6 +1,6 @@
 <?php
 $title = 'Classes, Sections & Arms Management';
-include(__DIR__ . '/../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
 
 $armsCount = countDataTotal('class_arms')['total'];
@@ -13,7 +13,7 @@ $studentsCount = countDataTotal('students')['total'];
 ?>
 
 <body class="bg-gray-50">
-    <?php include(__DIR__ . '/./includes/classes-management-nav.php'); ?>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php'); ?>
 
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
@@ -163,7 +163,7 @@ $studentsCount = countDataTotal('students')['total'];
         </div>
     </section>
 
-    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
         // Mobile menu toggle

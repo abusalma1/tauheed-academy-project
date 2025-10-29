@@ -22,8 +22,7 @@
                 <a href="<?= route('uniform'); ?>" class="hover:text-blue-300 transition">Uniform</a>
                 <a href="<?= route('gallery'); ?>" class="hover:text-blue-300 transition">Gallery</a>
                 <?php if (isset($_SESSION['user_session'])): ?>
-                    <a href="<?= route('school-info'); ?>" class="hover:text-blue-300 transition">School info</a>
-                    <a href="<?= route('users-management'); ?>" class="hover:text-blue-300 transition">User Management</a>
+                    <a href="<?= route('users-management'); ?>" class="hover:text-blue-300 transition">Admin Section</a>
                     <a href="<?= route('logout'); ?>" class="hover:text-blue-300 transition">Logout</a>
                 <?php else: ?>
                     <a href="<?= route('login'); ?>" class="hover:text-blue-300 transition">Login</a>

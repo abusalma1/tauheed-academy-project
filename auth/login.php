@@ -1,5 +1,4 @@
 <?php
-@session_start();
 $title = "Login";
 include(__DIR__ . "/./includes/non-auth-header.php");
 $error = '';
@@ -20,9 +19,9 @@ if (isset($_SESSION['user_session'])) {
             } else if ($user_type === 'teacher') {
                 $statement = $connection->prepare("SELECT * from teachers where email = ?");
             } else if ($user_type === 'guardian') {
-                $statement = $connection->prepare("SELECT * from guardian where email = ?");
+                $statement = $connection->prepare("SELECT * from guardians where email = ?");
             } else if ($user_type === 'admin') {
-                $statement = $connection->prepare("SELECT * from admin where email = ?");
+                $statement = $connection->prepare("SELECT * from admins where email = ?");
             }
 
 

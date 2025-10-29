@@ -1,7 +1,7 @@
 <?php
 
 $title = "Classes Management";
-include(__DIR__ . '/../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
 $statement = $connection->prepare("
     SELECT 
@@ -66,7 +66,7 @@ $studentsCount = countDataTotal('students')['total'];
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/./includes/classes-management-nav.php');  ?>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php');  ?>
 
 
     <!-- Page Header -->
@@ -125,7 +125,7 @@ $studentsCount = countDataTotal('students')['total'];
                     </div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-4">
-                    <div class="flex items-center justify-between"> 
+                    <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm">Total Students</p>
                             <p class="text-3xl font-bold text-purple-900"><?= $studentsCount ?></p>
@@ -200,7 +200,7 @@ $studentsCount = countDataTotal('students')['total'];
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../includes/footer.php');    ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php');    ?>
 
     <script>
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');

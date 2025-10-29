@@ -1,6 +1,6 @@
 <?php
 $title = 'Users Management';
-include(__DIR__ . '/../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
 $adminsCount =  countDataTotal('admins', true);
 $teachersCount =  countDataTotal('teachers', true);
@@ -16,7 +16,7 @@ $totalInactiveUsers = $adminsCount['inactive'] + $teachersCount['inactive'] + $g
 ?>
 
 <body class="bg-gray-50">
-    <?php include(__DIR__ . '/./includes/users-management-nav.php'); ?>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php'); ?>
 
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
@@ -175,7 +175,7 @@ $totalInactiveUsers = $adminsCount['inactive'] + $teachersCount['inactive'] + $g
         </div>
     </section>
 
-    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
         // Mobile menu toggle
