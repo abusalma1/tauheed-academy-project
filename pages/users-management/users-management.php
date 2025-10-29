@@ -2,10 +2,10 @@
 $title = 'Users Management';
 include(__DIR__ . '/../../includes/header.php');
 
-$adminsCount =  countDataTotal($connection, 'admins', true);
-$teachersCount =  countDataTotal($connection, 'teachers', true);
-$guardiansCount =  countDataTotal($connection, 'guardians', true);
-$studentsCount =  countDataTotal($connection, 'students', true);
+$adminsCount =  countDataTotal('admins', true);
+$teachersCount =  countDataTotal('teachers', true);
+$guardiansCount =  countDataTotal('guardians', true);
+$studentsCount =  countDataTotal('students', true);
 
 
 $totalUsers = $adminsCount['total'] + $teachersCount['total'] + $guardiansCount['total'] + $studentsCount['total'];

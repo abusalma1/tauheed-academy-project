@@ -34,8 +34,8 @@ $result = $statement->get_result();
 $teachers = $result->fetch_all(MYSQLI_ASSOC);
 
 
-$classesCount = countDataTotal($connection, 'classes')['total'];
-$sectionsCount = countDataTotal($connection, 'sections')['total'];
+$classesCount = countDataTotal('classes')['total'];
+$sectionsCount = countDataTotal('sections')['total'];
 
 $name = $description = $headTeacher = '';
 $nameError = $descriptionError = $headTeacherError = '';
@@ -195,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- Statistics -->
                     <div class="mt-6 bg-white rounded-lg shadow p-6">
                         <h3 class="text-lg font-bold text-gray-900 mb-4">Section Statistics</h3>
-                        <div class="space-y-3">         
+                        <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
                                 <span class="text-gray-600">Total Sections</span>
                                 <span class="text-2xl font-bold text-purple-900" id="totalSections"><?= $sectionsCount ?></span>

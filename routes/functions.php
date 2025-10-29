@@ -61,8 +61,10 @@ function staffNumberExist($connection, $staff_no, $table)
 }
 
 
-function countDataTotal($connection, $table, $haveActivity = false)
+function countDataTotal($table, $haveActivity = false)
 {
+    global $connection;
+
     // Count total users
     $totalQuery = $connection->query("SELECT COUNT(*) AS total FROM $table");
     $total = $totalQuery->fetch_assoc()['total'];

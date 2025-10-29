@@ -19,7 +19,7 @@ $teachers = $result->fetch_all(MYSQLI_ASSOC);
 
 
 // Count total teachers
-$teachersCount =  countDataTotal($connection, 'teachers', true);
+$teachersCount =  countDataTotal('teachers', true);
 
 $nameError = $emailError = $phoneError = $subjectError = $addressError = $staffNumberError = $statusError = $qualificationError = $passwordError = $confirmPasswordError = '';
 $name = $email = $phone = $subject = $address = $staffNumber = $status = $qualification = $password = $confirmPassword = '';

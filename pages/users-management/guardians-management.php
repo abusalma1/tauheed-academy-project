@@ -20,7 +20,7 @@ $guardians = $result->fetch_all(MYSQLI_ASSOC);
 
 
 // Count total guardians
-$guardiansCount =  countDataTotal($connection, 'guardians', true);
+$guardiansCount =  countDataTotal('guardians', true);
 
 
 $name =  $email  = $phone  =  $address = $occupation  = $relationship = $status  = $confirmPassword = $password = $hashed_password = '';

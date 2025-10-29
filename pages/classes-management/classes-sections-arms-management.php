@@ -3,10 +3,10 @@ $title = 'Classes, Sections & Arms Management';
 include(__DIR__ . '/../../includes/header.php');
 
 
-$armsCount = countDataTotal($connection, 'class_arms')['total'];
-$classesCount = countDataTotal($connection, 'classes')['total'];
-$sectionsCount = countDataTotal($connection, 'sections')['total'];
-$studentsCount = countDataTotal($connection, 'students')['total'];
+$armsCount = countDataTotal('class_arms')['total'];
+$classesCount = countDataTotal('classes')['total'];
+$sectionsCount = countDataTotal('sections')['total'];
+$studentsCount = countDataTotal('students')['total'];
 
 
 

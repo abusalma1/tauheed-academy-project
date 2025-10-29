@@ -54,8 +54,8 @@ $result = $statement->get_result();
 $class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
 
-$classesCount = countDataTotal($connection, 'classes')['total'];
-$studentsCount = countDataTotal($connection, 'students')['total'];
+$classesCount = countDataTotal('classes')['total'];
+$studentsCount = countDataTotal('students')['total'];
 
 
 

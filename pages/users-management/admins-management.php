@@ -19,7 +19,7 @@ $result = $statement->get_result();
 $admins = $result->fetch_all(MYSQLI_ASSOC);
 
 // Count total admins
-$adminsCount =  countDataTotal($connection, 'admins', true);
+$adminsCount =  countDataTotal('admins', true);
 
 
 $name =  $email  = $phone  =  $address = $staffNumber  = $status =  $roleTypeError = $department = $hashed_password = '';

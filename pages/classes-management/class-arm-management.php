@@ -19,7 +19,7 @@ $statement->execute();
 $result = $statement->get_result();
 $class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
-$armsCount = countDataTotal($connection, 'class_arms')['total'];
+$armsCount = countDataTotal('class_arms')['total'];
 
 
 $name = $description = '';
