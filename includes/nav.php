@@ -22,10 +22,10 @@
                 <a href="<?= route('uniform'); ?>" class="hover:text-blue-300 transition">Uniform</a>
                 <a href="<?= route('gallery'); ?>" class="hover:text-blue-300 transition">Gallery</a>
                 <?php if (isset($_SESSION['user_session'])): ?>
-                    <a href="<?= route('users-management'); ?>" class="hover:text-blue-300 transition">Admin Section</a>
-                    <a href="<?= route('logout'); ?>" class="hover:text-blue-300 transition">Logout</a>
+                    <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Section</a>
+                    <a href="<?= route('logout'); ?>"> <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button></a>
                 <?php else: ?>
-                    <a href="<?= route('login'); ?>" class="hover:text-blue-300 transition">Login</a>
+                    <a href="<?= route('login'); ?>"> <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Login</button></a>
                 <?php endif ?>
 
 
@@ -48,10 +48,15 @@
         <a href="<?= route('academics'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Academics</a>
         <a href="<?= route('staff'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Staff</a>
         <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
-        <a href="<?= route('gallery'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Gallery</a>
-        <a href="<?= route('login'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">login</a>
-        <a href="<?= route('register'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Register</a>
+        <a href="<?= route('gallery'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Gallery</a>      
         <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
-        <a href="<?= route('logout'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Logout</a>
+
+                <?php if (isset($_SESSION['user_session'])): ?>
+        <a href="<?= route('login'); ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Login</button></a>
+                <?php else: ?>
+
+        <a href="<?= route('logout'); ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button></a>
+                <?php endif; ?>
+
     </div>
 </nav>

@@ -16,7 +16,7 @@
 
                 <a href="<?= route('class-arm-section-management') ?>" class="hover:text-blue-300 transition">Manage Classes</a>
                 <a href="<?= route('home') ?>" class="hover:text-blue-300 transition">Back to Site</a>
-                <a href="<?= route('logout') ?>" class="hover:text-blue-300 transition">Logout</a>
+                <a href="<?= route('logout') ?>"> <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button></a>
 
             </div>
             <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
@@ -30,7 +30,7 @@
         <a href="<?= route('classes-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Classes</a>
 
         <a href="<?= route('home') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
-        <a href="<?= route('logout') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Logout</a>
+        <a href="<?= route('logout') ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button></a>
 
     </div>
 </nav>

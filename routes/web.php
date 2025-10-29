@@ -31,19 +31,22 @@ $routes = [
         'url' => "$baseUrl/pages/uniform.php"
     ],
     'login' => [
-        'url' => " $baseUrl/auth/login.php"
+        'url' => "$baseUrl/auth/login.php"
     ],
     'forgot-password' => [
-        'url' => " $baseUrl/auth/forgot-password.php"
+        'url' => "$baseUrl/auth/forgot-password.php"
     ],
     'reset-password' => [
-        'url' => " $baseUrl/auth/reset-password.php"
+        'url' => "$baseUrl/auth/reset-password.php"
     ],
     'logout' => [
-        'url' => " $baseUrl/auth/logout.php"
+        'url' => "$baseUrl/auth/logout.php"
     ],
     'school-info' => [
         'url' => "$baseUrl/pages/admin/school-info.php"
+    ],
+    'admin-section' => [
+        'url' => "$baseUrl/pages/admin/admin-section-landing.php"
     ],
     'users-management' => [
         'url' => "$baseUrl/pages/admin/users-management/users-management.php"

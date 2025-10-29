@@ -52,7 +52,7 @@ if (isset($_POST['submit'])) {
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/nav.php') ?>
+    <?php include(__DIR__ . '/./includes/admins-section-nav.php') ?>
 
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-16">
