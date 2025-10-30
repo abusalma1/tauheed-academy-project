@@ -5,8 +5,8 @@ include(__DIR__ . '/../../../includes/header.php');
 
 $armsCount = countDataTotal('class_arms')['total'];
 $classesCount = countDataTotal('classes')['total'];
-$sectionsCount = countDataTotal('sections')['total'];
 $studentsCount = countDataTotal('students')['total'];
+$sectionsCount = countDataTotal('sections')['total'];
 
 
 
@@ -53,7 +53,7 @@ $studentsCount = countDataTotal('students')['total'];
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Sections</h3>
                     <p class="text-sm text-gray-600 mb-4">Manage educational sections</p>
-                    <a href="section-management.html" class="inline-block w-full text-center bg-cyan-600 text-white py-2 rounded-lg font-semibold hover:bg-cyan-700 transition">
+                    <a href="<?= route('sections-management') ?>" class="inline-block w-full text-center bg-cyan-600 text-white py-2 rounded-lg font-semibold hover:bg-cyan-700 transition">
                         <i class="fas fa-arrow-right mr-2"></i>Manage
                     </a>
                 </div>
@@ -68,7 +68,7 @@ $studentsCount = countDataTotal('students')['total'];
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Class Arms</h3>
                     <p class="text-sm text-gray-600 mb-4">Manage class divisions (A, B, C...)</p>
-                    <a href="class-arm-management.html" class="inline-block w-full text-center bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition">
+                    <a href="<?= route('arms-management') ?>" class="inline-block w-full text-center bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition">
                         <i class="fas fa-arrow-right mr-2"></i>Manage
                     </a>
                 </div>

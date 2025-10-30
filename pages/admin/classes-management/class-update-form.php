@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="bg-gray-50">
     <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
     <!-- Page Header -->
-    <!-- Page Header -->
+
     <section class="bg-green-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Class Information</h1>

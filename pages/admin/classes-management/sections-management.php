@@ -2,14 +2,35 @@
 $title = "Sections Management";
 include(__DIR__ . '/../../../includes/header.php');
 
-$statement = $connection->prepare("SELECT * FROM class_arms");
+$statement = $connection->prepare("
+    SELECT 
+        sections.id AS section_id,
+        sections.name AS section_name,
+        sections.description,
+        teachers.id AS teacher_id,
+        teachers.name AS head_teacher_name,
+        COUNT(classes.id) AS class_count
+    FROM sections
+    LEFT JOIN teachers 
+        ON sections.head_teacher_id = teachers.id
+    LEFT JOIN classes 
+        ON classes.section_id = sections.id
+    GROUP BY 
+        sections.id, 
+        sections.name, 
+        sections.description,
+        teachers.id, 
+        teachers.name
+");
+
 $statement->execute();
 $result = $statement->get_result();
-$arms = $result->fetch_all(MYSQLI_ASSOC);
+$sections = $result->fetch_all(MYSQLI_ASSOC);
 
-$armsCount = countDataTotal('class_arms')['total'];
 $classesCount = countDataTotal('classes')['total'];
+$sectionsCount = countDataTotal('sections')['total'];
 $studentsCount = countDataTotal('students')['total'];
+
 
 ?>
 
@@ -18,17 +39,16 @@ $studentsCount = countDataTotal('students')['total'];
     <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
 
 
-
     <!-- Page Header -->
-    <section class="bg-amber-900 text-white py-12">
+    <section class="bg-indigo-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4">View Class Arms</h1>
-                    <p class="text-xl text-amber-200">Browse and manage all class divisions</p>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">View Sections</h1>
+                    <p class="text-xl text-indigo-200">Browse and manage all school sections</p>
                 </div>
-                <a href="<?= route('create-class-arm') ?>" class="bg-white text-amber-900 px-6 py-3 rounded-lg font-semibold hover:bg-amber-100 transition">
-                    <i class="fas fa-plus mr-2"></i>Create Arm
+                <a href="<?= route('create-section') ?>" class="bg-white text-indigo-900 px-6 py-3 rounded-lg font-semibold hover:bg-indigo-100 transition">
+                    <i class="fas fa-plus mr-2"></i>Create Section
                 </a>
             </div>
         </div>
@@ -42,10 +62,10 @@ $studentsCount = countDataTotal('students')['total'];
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-600 text-sm">Total Arms</p>
-                            <p class="text-3xl font-bold text-amber-900" id="totalArms"><?= $armsCount ?></p>
+                            <p class="text-gray-600 text-sm">Total Sections</p>
+                            <p class="text-3xl font-bold text-indigo-900" id="totalSections"><?= $sectionsCount ?></p>
                         </div>
-                        <i class="fas fa-sitemap text-4xl text-amber-200"></i>
+                        <i class="fas fa-layer-group text-4xl text-indigo-200"></i>
                     </div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
@@ -72,37 +92,39 @@ $studentsCount = countDataTotal('students')['total'];
             <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                 <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Search by Arm Name</label>
-                        <input type="text" id="searchInput" placeholder="Enter arm name..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-900">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Search by Section Name</label>
+                        <input type="text" id="searchInput" placeholder="Enter section name..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900">
                     </div>
                     <div class="hidden">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Filter by Status</label>
-                        <select id="statusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-900">
+                        <select id="statusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900">
                             <option value="">All Status</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <!-- Class Arms Table -->
+            <!-- Sections Table -->
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <table class="w-full">
-                    <thead class="bg-amber-900 text-white">
+                    <thead class="bg-indigo-900 text-white">
                         <tr>
-                            <th class="px-6 py-4 text-left font-semibold">Arm Name</th>
-                            <th class="px-6 py-4 text-left font-semibold">Description</th>
+                            <th class="px-6 py-4 text-left font-semibold">Section Name</th>
+                            <th class="px-6 py-4 text-left font-semibold">Head Teacher</th>
+                            <th class="px-6 py-4 text-left font-semibold">Classes</th>
                             <th class="px-6 py-4 text-center font-semibold">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="armsTableBody" class="divide-y divide-gray-200">
-                        <?php foreach ($arms as $arm) : ?>
-                            <tr class="hover:bg-gray-50 transition arm-row" data-name="<?= $arm['name'] ?>" data-status="active">
-                                <td class="px-6 py-4 font-semibold text-gray-900">Arm <?= $arm['name'] ?></td>
-                                <td class="px-6 py-4 text-gray-600"><?= $arm['description'] ?></td>
+                    <tbody id="sectionsTableBody" class="divide-y divide-gray-200">
+                        <?php foreach ($sections as $section) : ?>
+                            <tr class="hover:bg-gray-50 transition section-row" data-name="<?= $section['section_name'] ?>" data-status="active">
+                                <td class="px-6 py-4 font-semibold text-gray-900"><?= $section['section_name'] ?></td>
+                                <td class="px-6 py-4 text-gray-600"><?= $section['head_teacher_name'] ?></td>
+                                <td class="px-6 py-4 text-gray-600"><?= $section['class_count'] ?></td>
 
 
                                 <td class="px-6 py-4 text-center">
-                                    <a href="<?= route('update-class-arm') ?>?id=<?= $arm['id'] ?>">
+                                    <a href="<?= route('update-section') ?>?id=<?= $section['section_id'] ?>">
                                         <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
@@ -122,7 +144,6 @@ $studentsCount = countDataTotal('students')['total'];
     <!-- Footer -->
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
-
     <script>
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -133,13 +154,13 @@ $studentsCount = countDataTotal('students')['total'];
 
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
-        const armRows = document.querySelectorAll('.arm-row');
+        const sectionRows = document.querySelectorAll('.section-row');
 
-        function filterArms() {
+        function filterSections() {
             const searchTerm = searchInput.value.toLowerCase();
             const statusValue = statusFilter.value;
 
-            armRows.forEach(row => {
+            sectionRows.forEach(row => {
                 const name = row.getAttribute('data-name').toLowerCase();
                 const status = row.getAttribute('data-status');
 
@@ -150,8 +171,8 @@ $studentsCount = countDataTotal('students')['total'];
             });
         }
 
-        searchInput.addEventListener('input', filterArms);
-        statusFilter.addEventListener('change', filterArms);
+        searchInput.addEventListener('input', filterSections);
+        statusFilter.addEventListener('change', filterSections);
     </script>
 </body>
 
