@@ -140,64 +140,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <form id="classForm" class="space-y-6" method="post">
 
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-                        <!-- Success Message -->
-                        <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Section is created successfully!</span>
-                        </div>
+                            <!-- Success Message -->
+                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Section is created successfully!</span>
+                            </div>
 
-                        <!-- Class Name -->
-                        <div>
-                            <label for="className" class="block text-sm font-semibold text-gray-700 mb-2">Class Name *</label>
-                            <input type="text" id="className" name="className" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., JSS 1A, SSS 3B">
-                            <span class="text-red-500 text-sm hidden" id="classNameError"></span>
-                        </div>
+                            <!-- Class Name -->
+                            <div>
+                                <label for="className" class="block text-sm font-semibold text-gray-700 mb-2">Class Name *</label>
+                                <input type="text" id="className" name="className" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., JSS 1A, SSS 3B">
+                                <span class="text-red-500 text-sm hidden" id="classNameError"></span>
+                            </div>
 
-                        <!-- Class Arm -->
-                        <div>
-                            <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arm</label>
-                            <select id="classArm" name="classArm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
-                                <option value="">Select class arm</option>
-                                <?php foreach ($class_arms as $arm): ?>
-                                    <option value="<?= $arm['id'] ?>"><?= $arm['name'] ?></option>
-                                <?php endforeach ?>
-                            </select>
-                            <span class="text-red-500 text-sm hidden" id="classArmError"></span>
+                            <!-- Class Arm -->
+                            <div>
+                                <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arm</label>
+                                <select id="classArm" name="classArm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                    <option value="">Select class arm</option>
+                                    <?php foreach ($class_arms as $arm): ?>
+                                        <option value="<?= $arm['id'] ?>"><?= $arm['name'] ?></option>
+                                    <?php endforeach ?>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="classArmError"></span>
 
-                        </div>
+                            </div>
 
 
-                        <!-- Class section -->
-                        <div>
-                            <label for="classSection" class="block text-sm font-semibold text-gray-700 mb-2">Class Section *</label>
-                            <select id="classSection" name="classSection" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
-                                <option value="">Select section </option>
+                            <!-- Class section -->
+                            <div>
+                                <label for="classSection" class="block text-sm font-semibold text-gray-700 mb-2">Class Section *</label>
+                                <select id="classSection" name="classSection" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                    <option value="">Select section </option>
 
-                                <?php foreach ($sections as $section): ?>
-                                    <option value="<?= $section['id'] ?>"><?= $section['name']; ?></option>
-                                <?php endforeach ?>
+                                    <?php foreach ($sections as $section): ?>
+                                        <option value="<?= $section['id'] ?>"><?= $section['name']; ?></option>
+                                    <?php endforeach ?>
 
-                            </select>
-                            <span class="text-red-500 text-sm hidden" id="classSectionError"></span>
-                        </div>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="classSectionError"></span>
+                            </div>
 
-                        <!-- Class Teacher -->
-                        classTeacher
+                            <!-- Class Teacher -->
+                            classTeacher
 
-                        <div>
-                            <label for="classTeacher" class="block text-sm font-semibold text-gray-700 mb-2">Class Teacher *</label>
-                            <select id="classTeacher" name="classTeacher" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
-                                <option value="">Select class teacher </option>
+                            <div>
+                                <label for="classTeacher" class="block text-sm font-semibold text-gray-700 mb-2">Class Teacher *</label>
+                                <select id="classTeacher" name="classTeacher" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                    <option value="">Select class teacher </option>
 
-                                <?php foreach ($teachers as $teacher): ?>
-                                    <option value="<?= $teacher['id'] ?>"><?= $teacher['name']; ?></option>
-                                <?php endforeach ?>
+                                    <?php foreach ($teachers as $teacher): ?>
+                                        <option value="<?= $teacher['id'] ?>"><?= $teacher['name']; ?></option>
+                                    <?php endforeach ?>
 
-                            </select>
-                            <span class="text-red-500 text-sm hidden" id="classTeacherError"></span>
-                        </div>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="classTeacherError"></span>
+                            </div>
 
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
@@ -275,9 +275,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= $class['section_name'] ?></td>
 
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <button class="text-blue-600 hover:text-blue-900 font-semibold">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
+                                            <a href="<?= route('update-class'); ?>?id=<?= $class['class_id'] ?>">
+                                                <button class="text-blue-600 hover:text-blue-900 font-semibold">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                            </a>
                                             <button class="text-red-600 hover:text-red-900 font-semibold">
                                                 <i class="fas fa-trash"></i> Delete
                                             </button>

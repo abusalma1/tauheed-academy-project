@@ -3,6 +3,14 @@
 $title = "Classe Update Form";
 include(__DIR__ . '/../../../includes/header.php');
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
+    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
+}
+
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $statement = $connection->prepare('SELECT * FROM classes WHERE id=?');
@@ -13,7 +21,7 @@ if (isset($_GET['id'])) {
         $class = $result->fetch_assoc();
     }
 } else {
-    header('Location: ' . $_SERVER['HTTP_REFERER']);
+    header('Location: ' . $_SESSION['previous_page']);
 }
 
 $statement = $connection->prepare("SELECT * FROM sections");
@@ -31,6 +39,61 @@ $statement->execute();
 $result = $statement->get_result();
 $class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
+
+$name = $section = $teacher = $arm =  '';
+$nameError = $sectionError = $teacherError = $armError =  '';
+
+
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (
+        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+    ) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }
+
+    $name = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES);
+    $teacher = htmlspecialchars(trim($_POST['classTeacher'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $arm = htmlspecialchars(trim($_POST['classArm'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $id = htmlspecialchars(trim($_POST['classId'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+
+    if (empty($name)) {
+        $nameError = "Name is required";
+    }
+
+    if (empty($section)) {
+        $sectionError = "Section is required";
+    }
+
+    if (empty($teacher)) {
+        $teacherError = "Teacher is required";
+    }
+
+    if (empty($arm)) {
+        $armError = "Arm is required";
+    }
+
+
+    if (empty($nameError)  && empty($sectionError) && empty($teacherError) && empty($armError)) {
+        $statement = $connection->prepare(
+            "UPDATE classes SET name = ?, section_id = ?, teacher_id = ?, class_arm_id = ? WHERE id = ?"
+        );
+        $statement->bind_param('siiii', $name, $section, $teacher, $arm, $id);
+
+        if ($statement->execute()) {
+            header("Location: " . $_SESSION['previous_page']);
+            exit();
+        } else {
+            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+        }
+    } else {
+        echo "<script>alert('Failed to create section : ' . '<br>' .$nameError . '<br>' .$teacherError. '<br>' .$sectionError. '<br>'. $armError ');</script>";
+    }
+}
 
 
 ?>
@@ -55,6 +118,8 @@ $class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
                     <form id="updateClassForm" class="space-y-6" method="post">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+                        <input type="hidden" name="classId" value="<?= $class['id'] ?>">
+
 
                         <!-- Success Message -->
                         <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
@@ -98,7 +163,6 @@ $class_arms = $result->fetch_all(MYSQLI_ASSOC);
                         </div>
 
                         <!-- Class Teacher -->
-                        classTeacher
 
                         <div>
                             <label for="classTeacher" class="block text-sm font-semibold text-gray-700 mb-2">Class Teacher *</label>
@@ -118,7 +182,7 @@ $class_arms = $result->fetch_all(MYSQLI_ASSOC);
                             <button type="submit" class="flex-1 bg-green-900 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition">
                                 <i class="fas fa-save mr-2"></i>Update Class
                             </button>
-                            <a href="class-management.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                            <a href="<?= $_SESSION['previous_page'] ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
                                 <i class="fas fa-arrow-left mr-2"></i>Back
                             </a>
                         </div>
@@ -140,21 +204,36 @@ $class_arms = $result->fetch_all(MYSQLI_ASSOC);
         });
 
 
+        // Success Message
+        function showSuccessMessage() {
+            const message = document.getElementById("successMessage");
+            if (message) {
+                message.classList.remove("hidden"); // show the message
+                message.classList.add("flex"); // ensure it displays properly
+
+                // Hide it after 5 seconds
+                setTimeout(() => {
+                    message.classList.add("hidden");
+                    message.classList.remove("flex");
+                }, 5000);
+            }
+        }
+
+
+
+
         const updateClassForm = document.getElementById('updateClassForm');
 
         updateClassForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
+            // Clear previous errors
             document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
 
             const className = document.getElementById('className').value.trim();
-            const classLevel = document.getElementById('classLevel').value;
             const classSection = document.getElementById('classSection').value.trim();
             const classTeacher = document.getElementById('classTeacher').value.trim();
-            const capacity = parseInt(document.getElementById('capacity').value);
-            const enrollment = parseInt(document.getElementById('enrollment').value) || 0;
-            const roomNumber = document.getElementById('roomNumber').value.trim();
-            const status = document.getElementById('status').value;
+            const classArm = document.getElementById('classArm').value.trim();
 
             let isValid = true;
 
@@ -164,10 +243,36 @@ $class_arms = $result->fetch_all(MYSQLI_ASSOC);
                 isValid = false;
             }
 
+            if (!classSection) {
+                document.getElementById('classSectionError').textContent = 'Class section is required';
+                document.getElementById('classSectionError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!classTeacher) {
+                document.getElementById('classTeacherError').textContent = 'Class teacher is required';
+                document.getElementById('classTeacherError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!classArm) {
+                document.getElementById('classArmError').textContent = 'Class arm is required';
+                document.getElementById('classArmError').classList.remove('hidden');
+                isValid = false;
+            }
+
 
             if (isValid) {
-
-
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                updateClassForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
         });
     </script>

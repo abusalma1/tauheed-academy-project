@@ -97,7 +97,7 @@ $studentsCount = countDataTotal('students')['total'];
                         </select>
                     </div>
                     <div class="flex items-end">
-                        <a href="class-management.html" class="w-full md:w-auto bg-green-900 hover:bg-green-800 text-white font-semibold py-2 px-6 rounded-lg transition flex items-center justify-center gap-2">
+                        <a href="<?= route('create-class') ?>" class="w-full md:w-auto bg-green-900 hover:bg-green-800 text-white font-semibold py-2 px-6 rounded-lg transition flex items-center justify-center gap-2">
                             <i class="fas fa-plus"></i> Create Class
                         </a>
                     </div>
