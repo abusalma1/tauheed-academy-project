@@ -25,8 +25,8 @@ if (isset($_GET['id'])) {
 }
 
 $statement = $connection->prepare("SELECT * FROM sections WHERE id != ?");
-                                        $statement->bind_param('i', $id);
-                                        $statement->execute();
+$statement->bind_param('i', $id);
+$statement->execute();
 $result = $statement->get_result();
 $sections = $result->fetch_all(MYSQLI_ASSOC);
 
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "UPDATE sections SET name =? , description = ?, head_teacher_id = ?
              WHERE id = ?"
         );
-        $statement->bind_param('ssii', $name , $description, $headTeacher, $id);
+        $statement->bind_param('ssii', $name, $description, $headTeacher, $id);
 
         if ($statement->execute()) {
             header("Location: " . $_SESSION['previous_page']);
@@ -104,116 +104,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Main Content -->
     <section class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-lg shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Section Details</h2>
-
-                    <form id="updateSectionForm" class="space-y-6" method="POST">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
-                        <input type="hidden" name="sectionId" value="<?= $section['id'] ?>">
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Form Section -->
+                <div class="md:col-span-2">
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Add New Section</h2>
 
 
-                        <!-- Success Message -->
-                        <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Section is created successfully!</span>
-                        </div>
-
-                        <!-- Section Name -->
-                        <div>
-                            <label for="sectionName" class="block text-sm font-semibold text-gray-700 mb-2">Section Name *</label>
-                            <input type="text" id="sectionName" name="sectionName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Tahfeez, Nursery, Primary" value="<?= $section['name'] ?>">
-                            <span class="text-red-500 text-sm hidden" id="sectionNameError"></span>
-                        </div>
-
-                        <!-- Section Description -->
-                        <div>
-                            <label for="sectionDescription" class="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
-                            <textarea id="sectionDescription" name="sectionDescription" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Describe the section and its purpose"><?= $section['description'] ?></textarea>
-                            <span class="text-red-500 text-sm hidden" id="sectionDescriptionError"></span>
-                        </div>
+                        <form id="updateSectionForm" class="space-y-6" method="POST">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <input type="hidden" name="sectionId" value="<?= $section['id'] ?>">
 
 
-                        <!-- Section Head -->
-                        <div>
-                            <label for="sectionHead" class="block text-sm font-semibold text-gray-700 mb-2">Section Head/Coordinator</label>
-                            <select type="text" id="sectionHead" name="sectionHead" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
-                                <option value="">-- Select Section Head --</option>
-                                <?php if ($teachers < 1) : ?>
-                                    <option value="">-- You Must add teacher first --</option>
-                                <?php else : ?>
-                                    <?php foreach ($teachers as $teacher) : ?>
-                                        <option value="<?= $teacher['id'] ?>" <?= $teacher['id'] === $section['head_teacher_id'] ? 'selected' : '' ?>><?= $teacher['name']; ?></option>
-                                    <?php endforeach ?>
-                                <?php endif ?>
-                            </select>
-                            <span class="text-red-500 text-sm hidden" id="sectionHeadError"></span>
+                            <!-- Success Message -->
+                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Section is created successfully!</span>
+                            </div>
 
-                        </div>
+                            <!-- Section Name -->
+                            <div>
+                                <label for="sectionName" class="block text-sm font-semibold text-gray-700 mb-2">Section Name *</label>
+                                <input type="text" id="sectionName" name="sectionName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Tahfeez, Nursery, Primary" value="<?= $section['name'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="sectionNameError"></span>
+                            </div>
+
+                            <!-- Section Description -->
+                            <div>
+                                <label for="sectionDescription" class="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
+                                <textarea id="sectionDescription" name="sectionDescription" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Describe the section and its purpose"><?= $section['description'] ?></textarea>
+                                <span class="text-red-500 text-sm hidden" id="sectionDescriptionError"></span>
+                            </div>
+
+
+                            <!-- Section Head -->
+                            <div>
+                                <label for="sectionHead" class="block text-sm font-semibold text-gray-700 mb-2">Section Head/Coordinator</label>
+                                <select type="text" id="sectionHead" name="sectionHead" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
+                                    <option value="">-- Select Section Head --</option>
+                                    <?php if ($teachers < 1) : ?>
+                                        <option value="">-- You Must add teacher first --</option>
+                                    <?php else : ?>
+                                        <?php foreach ($teachers as $teacher) : ?>
+                                            <option value="<?= $teacher['id'] ?>" <?= $teacher['id'] === $section['head_teacher_id'] ? 'selected' : '' ?>><?= $teacher['name']; ?></option>
+                                        <?php endforeach ?>
+                                    <?php endif ?>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="sectionHeadError"></span>
+
+                            </div>
 
 
 
-                        <!-- Submit Button -->
-                        <div class="flex gap-4 pt-4">
-                            <button type="submit" class="flex-1 bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
-                                <i class="fas fa-save mr-2"></i>Update Section
-                            </button>
+                            <!-- Submit Button -->
+                            <div class="flex gap-4 pt-4">
+                                <button type="submit" class="flex-1 bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
+                                    <i class="fas fa-save mr-2"></i>Update Section
+                                </button>
 
-                            <a href="<?= $_SESSION['previous_page'] ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
+                                <a href="<?= $_SESSION['previous_page'] ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+
+
+                    </div>
+                </div>
+
+                <!-- Info Section -->
+                <div class="md:col-span-1">
+                    <div class="bg-purple-50 rounded-lg shadow p-6 border-l-4 border-purple-900">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">
+                            <i class="fas fa-info-circle text-purple-900 mr-2"></i>Update Guidelines
+                        </h3>
+                        <ul class="space-y-3 text-sm text-gray-700">
+
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-purple-600 mt-1"></i>
+                                <span>Modify the details as needed</span>
+                            </li>
+
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-purple-600 mt-1"></i>
+                                <span>Click Update to save changes</span>
+                            </li>
+
+                        </ul>
+                    </div>
+
+
                 </div>
             </div>
+
+
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="section-management.html" class="text-gray-400 hover:text-white transition">Sections</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include(__DIR__ . '/../../../includes/footer.php');  ?>
+
 
     <script>
         // Mobile menu toggle

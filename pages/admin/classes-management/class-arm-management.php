@@ -198,9 +198,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <td class="px-6 py-4 text-sm text-gray-600" <?= $arm['description']  ?></td>
 
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <button class="text-blue-600 hover:text-blue-900 font-semibold">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
+                                            <a href="<?= route('update-class-arm') ?>?id=<?= $arm['id'] ?>">
+                                                <button class="text-blue-600 hover:text-blue-900 font-semibold">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                            </a>
                                             <button class="text-red-600 hover:text-red-900 font-semibold">
                                                 <i class="fas fa-trash"></i> Delete
                                             </button>
