@@ -181,7 +181,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($stmt->execute()) {
-            header("Location: students-management.php?success=1");
+            header("Location: " . $_SERVER['PHP_SELF'] . '?success=1');
+            
             exit;
         } else {
             echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($stmt->error) . "</p>";

@@ -70,6 +70,7 @@ function countDataTotal($table, $haveActivity = false)
     $total = $totalQuery->fetch_assoc()['total'];
     $total = number_format($total);
 
+
     if ($haveActivity) {
         // Count active users
         $activeQuery = $connection->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active'");
@@ -83,8 +84,35 @@ function countDataTotal($table, $haveActivity = false)
         $inactive = number_format($inactive);
 
 
+        if ($table === 'admins') {
+            // Count active admins
+            $activeQuery = $connection->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin'");
+            $admin = $activeQuery->fetch_assoc()['admin'];
+            $admin = number_format($active);
+
+
+            // Count inactive superadmins
+            $inactiveQuery = $connection->query("SELECT COUNT(*) AS superadmin FROM $table WHERE type = 'superadmin'");
+            $superadmin = $inactiveQuery->fetch_assoc()['superadmin'];
+            $superadmin = number_format($inactive);
+
+            return ['total' => $total, 'active' => $active, 'inactive' => $inactive, 'admin' => $admin, 'superadmin' => $superadmin];
+        }
+
+
         return ['total' => $total, 'active' => $active, 'inactive' => $inactive];
     }
 
     return ['total' => $total];
+}
+
+function selectAllData($table)
+{
+    global $connection;
+    $statement = $connection->prepare("SELECT * FROM $table");
+    $statement->execute();
+    $result = $statement->get_result();
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+
+    return $data;
 }

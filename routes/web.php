@@ -51,17 +51,29 @@ $routes = [
     'users-management' => [
         'url' => "$baseUrl/pages/admin/users-management/users-management.php"
     ],
-    'admins-management' => [
-        'url' => "$baseUrl/pages/admin/users-management/admins-management.php"
+    'admin-create' => [
+        'url' => "$baseUrl/pages/admin/users-management/admin-create.php"
     ],
-    'gurdians-management' => [
-        'url' => "$baseUrl/pages/admin/users-management/guardians-management.php"
+    'admin-update' => [
+        'url' => "$baseUrl/pages/admin/users-management/admin-update.php"
     ],
-    'teachers-management' => [
-        'url' => "$baseUrl/pages/admin/users-management/teachers-management.php"
+    'guardian-create' => [
+        'url' => "$baseUrl/pages/admin/users-management/guardian-create.php"
     ],
-    'students-management' => [
-        'url' => "$baseUrl/pages/admin/users-management/students-management.php"
+    'guardian-update' => [
+        'url' => "$baseUrl/pages/admin/users-management/guardian-update.php"
+    ],
+    'teacher-create' => [
+        'url' => "$baseUrl/pages/admin/users-management/teacher-create.php"
+    ],
+    'teacher-update' => [
+        'url' => "$baseUrl/pages/admin/users-management/teacher-update.php"
+    ],
+    'student-create' => [
+        'url' => "$baseUrl/pages/admin/users-management/student-create.php"
+    ],
+    'student-update' => [
+        'url' => "$baseUrl/pages/admin/users-management/student-update.php"
     ],
 
     'class-arm-section-management' => [

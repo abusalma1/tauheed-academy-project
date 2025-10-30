@@ -57,11 +57,11 @@ include(__DIR__ . '/../../includes/header.php');
                             <a href="<?= route('users-management') ?>" class="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold">
                                 <i class="fas fa-users-cog"></i>All Users
                             </a>
-                            <a href="<?= route('admins-management') ?>" class="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold">
+                            <a href="<?= route('users-management') ?>" class="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold">
                                 <i class="fas fa-crown"></i>Admins
                             </a>
                         </div>
-                        <a href="<?= route('admins-management') ?>">
+                        <a href="<?= route('users-management') ?>">
                             <button class="w-full mt-6 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
                                 <i class="fas fa-arrow-right mr-2"></i>Manage
                             </button>

@@ -14,7 +14,7 @@ CREATE TABLE admins (
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     reset_token VARCHAR(50),
-    type ENUM('superuser', 'management') DEFAULT 'management',
+    type ENUM('admin', 'superAdmin') DEFAULT 'admin',
     staff_no VARCHAR(50) UNIQUE,
     address VARCHAR(255),
     department VARCHAR(255),
