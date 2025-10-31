@@ -46,10 +46,10 @@ $routes = [
         'url' => "$baseUrl/pages/admin/school-info.php"
     ],
     'admin-section' => [
-        'url' => "$baseUrl/pages/admin/admin-section-landing.php"
+        'url' => "$baseUrl/pages/admin/"
     ],
     'users-management' => [
-        'url' => "$baseUrl/pages/admin/users-management/users-management.php"
+        'url' => "$baseUrl/pages/admin/users-management/"
     ],
     'admin-create' => [
         'url' => "$baseUrl/pages/admin/users-management/admin-create.php"
@@ -77,7 +77,7 @@ $routes = [
     ],
 
     'class-arm-section-management' => [
-        'url' => "$baseUrl/pages/admin/classes-management/classes-sections-arms-management.php"
+        'url' => "$baseUrl/pages/admin/classes-management/"
     ],
     'classes-management' => [
         'url' => "$baseUrl/pages/admin/classes-management/classes-management.php"

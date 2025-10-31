@@ -21,9 +21,7 @@ $teachers = $result->fetch_all(MYSQLI_ASSOC);
 // Count total teachers
 $teachersCount =  countDataTotal('teachers', true);
 
-$nameError = $emailError = $phoneError = $subjectError = $addressError = $staffNumberError = $statusError = $qualificationError = $passwordError = $confirmPasswordError = '';
-$name = $email = $phone = $subject = $address = $staffNumber = $status = $qualification = $password = $confirmPassword = '';
-
+$errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (
@@ -45,40 +43,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
 
     // validations...
-    if (empty($name)) $nameError = 'Full name is required';
+    if (empty($name)) $errors['nameError'] = 'Full name is required';
     if (empty($email)) {
-        $emailError = 'Email is required';
+        $errors['emailError'] = 'Email is required';
     } elseif (!validateEmail($email)) {
-        $emailError = 'Invalid email format';
+        $errors['emailError'] = 'Invalid email format';
     } elseif (emailExist($email, 'teachers')) {
-        $emailError = 'Email already exists';
+        $errors['emailError'] = 'Email already exists';
     }
 
-    if (empty($phone)) $phoneError = 'Phone number is required';
-    if (empty($subject)) $subjectError = 'Subject/Department is required';
-    if (empty($address)) $addressError = 'Address is required';
+    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
+    if (empty($subject)) $errors['subjectError'] = 'Subject/Department is required';
+    if (empty($address)) $errors['addressError'] = 'Address is required';
     if (empty($staffNumber)) {
-        $staffNumberError = 'Staff number is required';
+        $errors['staffNumberError'] = 'Staff number is required';
     } elseif (staffNumberExist($staffNumber, 'teachers')) {
-        $staffNumberError = 'Staff No already exists';
+        $errors['staffNumberError'] = 'Staff No already exists';
     }
-    if (empty($qualification)) $qualificationError = 'Qualification is required';
+    if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
     if (empty($password)) {
-        $passwordError = 'Password is required';
+        $errors['passwordError'] = 'Password is required';
     } elseif (strlen($password) < 8) {
-        $passwordError = 'Password must be at least 8 characters';
+        $errors['passwordError'] = 'Password must be at least 8 characters';
     } elseif ($password !== $confirmPassword) {
-        $confirmPasswordError = 'Passwords do not match';
+        $errors['confirmPasswordError'] = 'Passwords do not match';
     } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     }
 
-    if (
-        empty($nameError) && empty($emailError) && empty($phoneError) &&
-        empty($addressError) && empty($staffNumberError) &&
-        empty($statusError) && empty($qualificationError) && empty($passwordError) &&
-        empty($confirmPasswordError)
-    ) {
+    if (empty($errors)) {
         $statement = $connection->prepare("
             INSERT INTO teachers (name, email, phone, address, staff_no, qualification,  status, password)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -92,7 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "<script>alert('Database error: " . $statement->error . "');</script>";
         }
     } else {
-        echo "<script>alert('Validation failed');</script>";
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
     }
 }
 
@@ -108,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Teacher Management</h1>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Create Teacher Account</h1>
             <p class="text-xl text-blue-200">Create and manage teacher accounts</p>
         </div>
     </section>
@@ -127,10 +122,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-                            <!-- Success Message -->
-                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                            <!-- Error Message -->
+                            <div id="errorMessage" class="hidden mt-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
                                 <i class="fas fa-check-circle"></i>
-                                <span>User is created successfully!</span>
+                                <span>Check the form & make sure all requirments are satisfied</span>
                             </div>
 
                             <!-- Full Name -->
@@ -190,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
                                 <div class="relative">
-                                    <input type="password" id="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter password">
+                                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter password">
                                     <button type="button" id="togglePassword" class="absolute right-3 top-2.5 text-gray-600">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -317,12 +312,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <span class="px-3 py-1 <?= $teacher['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $teacher['status'] ?></span>
                                         </td>
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <button class="text-blue-600 hover:text-blue-900 font-semibold">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
-                                            <button class="text-red-600 hover:text-red-900 font-semibold">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </button>
+                                            <a href="<?= route('teacher-update') . '?id=' . $teacher['id'] ?>">
+                                                <button class="text-blue-600 hover:text-blue-900 font-semibold">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                            </a>
+                                            <a href="">
+                                                <button class="text-red-600 hover:text-red-900 font-semibold">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -352,9 +351,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Success Message
-        function showSuccessMessage() {
-            const message = document.getElementById("successMessage");
+        // Error Message
+        function showErrorMessage() {
+            const message = document.getElementById("errorMessage");
             if (message) {
                 message.classList.remove("hidden"); // show the message
                 message.classList.add("flex"); // ensure it displays properly
@@ -446,8 +445,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const phone = document.getElementById('phone').value.trim();
             const subject = document.getElementById('subject').value.trim();
             const qualification = document.getElementById('qualification').value.trim();
-            const address = document.getElementById('qualification').value.trim();
-            const staffNumber = document.getElementById('address').value;
+            const address = document.getElementById('address').value.trim();
+            const staffNumber = document.getElementById('staffNumber').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const status = document.getElementById('status').value;
@@ -478,7 +477,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
-            if (teachers.some(t => t.staff_no === email)) {
+            if (teachers.some(t => t.staff_no === staffNumber)) {
                 document.getElementById('staffNumberError').textContent = 'Staff Number already exists';
                 document.getElementById('staffNumberError').classList.remove('hidden');
                 isValid = false;
@@ -532,6 +531,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     top: 0,
                     behavior: 'smooth'
                 });
+                showErrorMessage()
             }
         });
     </script>

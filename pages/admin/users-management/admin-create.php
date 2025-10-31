@@ -3,6 +3,9 @@
 $title = "Admins & Super Users Managment";
 include(__DIR__ . '/../../../includes/header.php');
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
+    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
+}
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -116,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $connection->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $hashed_password);
         if ($statement->execute()) {
-            header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
+            header("Location: " . $_SESSION['previous_page'] . "?success=1");
             exit();
         } else {
             echo "<script>alert('Failed to create admin/super user account: " . $statement->error . "');</script>";

@@ -15,6 +15,8 @@ if (isset($_GET['id'])) {
     $result = $statement->get_result();
     if ($result->num_rows > 0) {
         $admin = $result->fetch_assoc();
+    } else {
+        header('Location: ' . $_SESSION['previous_page']);
     }
 } else {
     header('Location: ' . $_SESSION['previous_page']);
