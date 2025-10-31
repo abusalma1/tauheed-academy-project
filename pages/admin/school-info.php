@@ -263,11 +263,15 @@ if (isset($_POST['submit'])) {
     </section>
 
     <?php include(__DIR__  . '/../../includes/footer.php') ?>
-
-    <script src="<?= BASE_URL ?>/static/j/main.js"></script>
-    <script src="<?= BASE_URL ?>/static/j/success-message.js"></script>
-
+ 
     <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
         // Logo preview
         const logoFile = document.getElementById('logoFile');
         const logoPreview = document.getElementById('logoPreview');

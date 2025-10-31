@@ -29,31 +29,45 @@ function validatePhone($phone)
 }
 
 
-
-function emailExist($connection, $email, $table)
+function emailExist($email, $table, $whereIdIs = 0)
 {
+    global $connection;
 
-    // Prepare query dynamically for selected column
-    $query = "SELECT id FROM $table WHERE email = ? LIMIT 1";
-    $stmt = $connection->prepare($query);
+    if ($whereIdIs > 0) {
+        // Check if email exists for others excluding this ID
+        $query = "SELECT id FROM $table WHERE email = ? AND id != ? LIMIT 1";
+        $stmt = $connection->prepare($query);
+        $stmt->bind_param('si', $email, $whereIdIs);
+    } else {
+        // Normal check for email existence
+        $query = "SELECT id FROM $table WHERE email = ? LIMIT 1";
+        $stmt = $connection->prepare($query);
+        $stmt->bind_param('s', $email);
+    }
 
-    // Bind the value type correctly (s = string)
-    $stmt->bind_param('s', $email);
     $stmt->execute();
     $stmt->store_result();
 
     return $stmt->num_rows > 0;
 }
 
-function staffNumberExist($connection, $staff_no, $table)
+
+function staffNumberExist($staff_no, $table, $whereIdIs = 0)
 {
+    global $connection;
 
-    // Prepare query dynamically for selected column
-    $query = "SELECT id FROM $table WHERE staff_no = ? LIMIT 1";
-    $stmt = $connection->prepare($query);
+    if ($whereIdIs > 0) {
+        // Check if staff number exists for others excluding this ID
+        $query = "SELECT id FROM $table WHERE staff_no = ? AND id != ? LIMIT 1";
+        $stmt = $connection->prepare($query);
+        $stmt->bind_param('si', $staff_no, $whereIdIs);
+    } else {
+        // Normal check for staff number existence
+        $query = "SELECT id FROM $table WHERE staff_no = ? LIMIT 1";
+        $stmt = $connection->prepare($query);
+        $stmt->bind_param('s', $staff_no);
+    }
 
-    // Bind the value type correctly (s = string)
-    $stmt->bind_param('s', $staff_no);
     $stmt->execute();
     $stmt->store_result();
 

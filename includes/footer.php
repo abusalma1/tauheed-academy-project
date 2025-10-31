@@ -14,7 +14,7 @@
             <div>
                 <h3 class="text-xl font-bold mb-4">Quick Links</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
+                    <li><a href="<?= route('home') ?>" class="text-gray-400 hover:text-white transition">Home</a></li>
                     <li><a href="pages/about.html" class="text-gray-400 hover:text-white transition">About Us</a></li>
                     <li><a href="pages/admissions.html" class="text-gray-400 hover:text-white transition">Admissions</a></li>
                     <li><a href="pages/academics.html" class="text-gray-400 hover:text-white transition">Academics</a></li>

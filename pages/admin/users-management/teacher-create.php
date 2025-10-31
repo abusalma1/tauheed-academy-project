@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $emailError = 'Email is required';
     } elseif (!validateEmail($email)) {
         $emailError = 'Invalid email format';
-    } elseif (emailExist($connection, $email, 'teachers')) {
+    } elseif (emailExist($email, 'teachers')) {
         $emailError = 'Email already exists';
     }
 
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($address)) $addressError = 'Address is required';
     if (empty($staffNumber)) {
         $staffNumberError = 'Staff number is required';
-    } elseif (staffNumberExist($connection, $staffNumber, 'teachers')) {
+    } elseif (staffNumberExist($staffNumber, 'teachers')) {
         $staffNumberError = 'Staff No already exists';
     }
     if (empty($qualification)) $qualificationError = 'Qualification is required';

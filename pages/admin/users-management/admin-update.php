@@ -1,38 +1,135 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Admin Account - Excellence Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+<?php
+
+$title = "Update Admins & Super Users";
+include(__DIR__ . '/../../../includes/header.php');
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
+    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
+}
+
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $statement = $connection->prepare('SELECT * FROM admins WHERE id=?');
+    $statement->bind_param('i', $id);
+    $statement->execute();
+    $result = $statement->get_result();
+    if ($result->num_rows > 0) {
+        $admin = $result->fetch_assoc();
+    }
+} else {
+    header('Location: ' . $_SESSION['previous_page']);
+}
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
+            </script>";
+}
+
+$statement = $connection->prepare("SELECT * FROM admins where id != ?");
+$statement->bind_param('i', $id);
+$statement->execute();
+$result = $statement->get_result();
+$admins = $result->fetch_all(MYSQLI_ASSOC);
+
+// Count total admins
+$adminsCount =  countDataTotal('admins', true);
+
+
+$name =  $email  = $phone  =  $address = $staffNumber  = $status =  $roleTypeError = $department = '';
+$errors = [];
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (
+        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+    ) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }
+
+    $name = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $id = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $staffNumber = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $roleType = htmlspecialchars(trim($_POST['roleType'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $department = htmlspecialchars(trim($_POST['department'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+
+
+    if (empty($name)) {
+        $errors['nameError'] = 'Full name is required';
+    }
+
+    if (empty($email)) {
+
+        $errors['emailError'] = 'Email is required';
+    } else {
+        if (!validateEmail($email)) {
+            $errors['emailError'] = 'Please enter a valid email address';
+        } else {
+            if (emailExist($email, 'admins', $id)) {
+                $errors['emailError'] = "Email already exists!";
+            }
+        }
+    }
+
+    if (empty($phone)) {
+        $errors['phoneError'] =  'Phone number is required';
+    }
+
+    if (empty($roleType)) {
+        $errors['roleTypeError'] =  'Subject/Department is required';
+    }
+
+    if (empty($address)) {
+        $errors['addressError']  = 'Please enter address';
+    }
+
+    if (empty($staffNumber)) {
+        $errors['staffNumberError'] = 'Please insert staff ID number';
+    } else {
+        if (staffNumberExist($staffNumber, 'admins', $id)) {
+            $errors['staffNumberError'] = "Staff No already exists!";
+        }
+    }
+
+    if (empty($department)) {
+        $errors['departmentError'] = 'Qualification is required';
+    }
+
+    if (empty($status)) {
+        $errors['statusError'] = "Status is required";
+    }
+
+    if (empty($errors)) {
+
+        $statement = $connection->prepare("UPDATE admins set name = ?, email = ?, phone = ?, department = ?, address = ?, staff_no = ?, status = ?, type = ? where id = ? ");
+        $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $id);
+        if ($statement->execute()) {
+            header("Location: " . $_SESSION['previous_page']);
+            exit();
+        } else {
+            echo "<script>alert('Failed to create admin/super user account: " . $statement->error . "');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+?>
+
+
+<script>
+    const admins = <?= json_encode($admins, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+</script>
+
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Admin Panel</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="admin-management.html" class="hover:text-blue-300 transition">Back to Admins</a>
-                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="admin-management.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Admins</a>
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
-        </div>
-    </nav>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php'); ?>
 
     <!-- Page Header -->
     <section class="bg-purple-900 text-white py-12">
@@ -45,118 +142,146 @@
     <!-- Main Content -->
     <section class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-lg shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Admin Information</h2>
-                    
-                    <form id="updateAdminForm" class="space-y-6">
-                        <!-- Full Name -->
-                        <div>
-                            <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                            <input type="text" id="fullName" name="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter full name">
-                            <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
-                        </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Form Section -->
+                <div class="md:col-span-2">
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Admin Information</h2>
 
-                        <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                            <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter email address">
-                            <span class="text-red-500 text-sm hidden" id="emailError"></span>
-                        </div>
+                        <form id="updateAdminForm" class="space-y-6" method="POST">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <input type="hidden" name="id" value="<?= $admin['id'] ?>">
 
-                        <!-- Phone Number -->
-                        <div>
-                            <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                            <input type="tel" id="phone" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter phone number">
-                            <span class="text-red-500 text-sm hidden" id="phoneError"></span>
-                        </div>
 
-                        <!-- Role Type -->
-                        <div>
-                            <label for="roleType" class="block text-sm font-semibold text-gray-700 mb-2">Role Type *</label>
-                            <select id="roleType" name="roleType" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
-                                <option value="">Select role type</option>
-                                <option value="admin">Admin</option>
-                                <option value="super_admin">Super Admin</option>
-                            </select>
-                            <span class="text-red-500 text-sm hidden" id="roleTypeError"></span>
-                        </div>
 
-                        <!-- Department -->
-                        <div>
-                            <label for="department" class="block text-sm font-semibold text-gray-700 mb-2">Department/Area</label>
-                            <input type="text" id="department" name="department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Academic, Finance, Operations">
-                        </div>
 
-                        <!-- Status -->
-                        <div>
-                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Account Status</label>
-                            <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
+                            <!-- Success Message -->
+                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>User is Updated successfully!</span>
+                            </div>
 
-                        <!-- Submit Button -->
-                        <div class="flex gap-4 pt-4">
-                            <button type="submit" class="flex-1 bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
-                                <i class="fas fa-save mr-2"></i>Update Admin Account
-                            </button>
-                            <a href="admin-management.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
+
+                            <!-- Full Name -->
+                            <div>
+                                <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+                                <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter full name" value="<?= $admin['name'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter email address" value="<?= $admin['email'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="emailError"></span>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div>
+                                <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter phone number" value="<?= $admin['phone'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="phoneError"></span>
+                            </div>
+
+                            <!-- Staff Number -->
+                            <div>
+                                <label for="staffNumber" class="block text-sm font-semibold text-gray-700 mb-2">Staff ID Number *</label>
+                                <input type="tel" id="staffNumber" name="staffNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter staff id number" value="<?= $admin['staff_no'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="staffNumberError"></span>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="mb-6">
+                                <label for="address" class="block text-gray-700 font-semibold mb-2">
+                                    Address <span class="text-red-500">*</span>
+                                </label>
+                                <textarea id="address" name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter staff address"><?= $admin['address'] ?></textarea>
+                                <span class="text-red-500 text-sm hidden" id="addressError"></span>
+                            </div>
+
+                            <!-- Role Type -->
+                            <div>
+                                <label for="roleType" class="block text-sm font-semibold text-gray-700 mb-2">Role Type *</label>
+                                <select id="roleType" name="roleType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
+                                    <option value="">Select role type</option>
+                                    <option value="superAdmin" <?= $admin['type'] === 'superAdmin' ? 'selected' : '' ?>>Super Admin</option>
+                                    <option value="admin" <?= $admin['type'] === 'admin' ?  'selected' : '' ?>>Admin</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="roleTypeError"></span>
+                            </div>
+
+                            <!-- Department -->
+                            <div>
+                                <label for="department" class="block text-sm font-semibold text-gray-700 mb-2">Department/Area</label>
+                                <input type="text" id="department" name="department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Academic, Finance, Operations" value="<?= $admin['department'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="departmentError"></span>
+
+                            </div>
+
+                            <!-- Status -->
+                            <div>
+                                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Account Status</label>
+                                <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
+                                    <option value="active" <?= $admin['status'] === 'active' ? 'selected' : '' ?>>Active</option>
+                                    <option value="inactive" <?= $admin['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                                </select>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="flex gap-4 pt-4">
+                                <button type="submit" class="flex-1 bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
+                                    <i class="fas fa-save mr-2"></i>Update Admin Account
+                                </button>
+                                <a href="admin-management.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info Section -->
+                <div class="md:col-span-1">
+                    <div class="bg-purple-50 rounded-lg shadow p-6 border-l-4 border-purple-900">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">
+                            <i class="fas fa-info-circle text-purple-900 mr-2"></i>Admin Guidelines
+                        </h3>
+                        <ul class="space-y-3 text-sm text-gray-700">
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Modify the details as needed</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span><strong>Super Admin:</strong> Full system access</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span><strong>Admin:</strong> Limited management access</span>
+                            </li>
+
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Email must be unique</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Phone format: +234XXXXXXXXXX</span>
+                            </li>
+                        </ul>
+                    </div>
+
+
                 </div>
             </div>
+
+
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="admin-management.html" class="text-gray-400 hover:text-white transition">Admin Management</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
+
 
     <script>
         // Mobile menu toggle
@@ -168,7 +293,6 @@
 
         // Form validation and submission
         const updateAdminForm = document.getElementById('updateAdminForm');
-        const adminIndex = new URLSearchParams(window.location.search).get('index');
 
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -180,20 +304,7 @@
             return re.test(phone.replace(/\s/g, ''));
         }
 
-        // Load admin data if editing
-        if (adminIndex !== null) {
-            const admins = JSON.parse(localStorage.getItem('schoolAdmins')) || [];
-            const admin = admins[adminIndex];
-            
-            if (admin) {
-                document.getElementById('fullName').value = admin.fullName;
-                document.getElementById('email').value = admin.email;
-                document.getElementById('phone').value = admin.phone;
-                document.getElementById('roleType').value = admin.roleType;
-                document.getElementById('department').value = admin.department || '';
-                document.getElementById('status').value = admin.status;
-            }
-        }
+
 
         updateAdminForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -207,6 +318,9 @@
             const roleType = document.getElementById('roleType').value;
             const department = document.getElementById('department').value.trim();
             const status = document.getElementById('status').value;
+            const address = document.getElementById('address').value;
+            const staffNumber = document.getElementById('staffNumber').value;
+
 
             let isValid = true;
 
@@ -222,6 +336,13 @@
                 isValid = false;
             }
 
+            if (admins.some(a => a.email === email)) {
+                document.getElementById('emailError').textContent = 'Email already exists';
+                document.getElementById('emailError').classList.remove('hidden');
+                isValid = false;
+            }
+
+
             if (!validatePhone(phone)) {
                 document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
                 document.getElementById('phoneError').classList.remove('hidden');
@@ -234,26 +355,43 @@
                 isValid = false;
             }
 
-            if (isValid) {
-                const admins = JSON.parse(localStorage.getItem('schoolAdmins')) || [];
-                
-                if (adminIndex !== null) {
-                    admins[adminIndex] = {
-                        fullName,
-                        email,
-                        phone,
-                        roleType,
-                        department,
-                        status,
-                        updatedAt: new Date().toLocaleDateString()
-                    };
-                    localStorage.setItem('schoolAdmins', JSON.stringify(admins));
-                    alert('Admin account updated successfully!');
-                }
-                
-                window.location.href = 'admin-management.html';
+            if (!address) {
+                document.getElementById('addressError').textContent = 'Please enter address';
+                document.getElementById('addressError').classList.remove('hidden');
+                isValid = false;
             }
+            if (!staffNumber) {
+                document.getElementById('staffNumberError').textContent = 'Please insert staff ID number';
+                document.getElementById('staffNumberError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!department) {
+                document.getElementById('departmentError').textContent = 'Please enter Department';
+                document.getElementById('departmentError').classList.remove('hidden');
+                isValid = false;
+            }
+            if (admins.some(a => a.staff_no === staffNumber)) {
+                document.getElementById('staffNumberError').textContent = 'Staff Number already exists';
+                document.getElementById('staffNumberError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (isValid) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                updateAdminForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
         });
     </script>
 </body>
+
 </html>

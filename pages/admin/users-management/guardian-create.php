@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $emailError = 'Email is required';
     } elseif (!validateEmail($email)) {
         $emailError = 'Please enter a valid email address';
-    } elseif (emailExist($connection, $email, 'guardians')) {
+    } elseif (emailExist($email, 'guardians')) {
         $emailError = "Email already exists!";
     }
 

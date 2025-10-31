@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!validateEmail($email)) {
             $emailError = 'Please enter a valid email address';
         } else {
-            if (emailExist($connection, $email, 'admins')) {
+            if (emailExist($email, 'admins')) {
                 $emailError = "Email already exists!";
             }
         }
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($staffNumber)) {
         $staffNumberError = 'Please insert staff ID number';
     } else {
-        if (staffNumberExist($connection, $staffNumber, 'admins')) {
+        if (staffNumberExist($staffNumber, 'admins')) {
             $staffNumberError = "Staff No already exists!";
         }
     }
@@ -214,6 +214,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div>
                                 <label for="department" class="block text-sm font-semibold text-gray-700 mb-2">Department/Area</label>
                                 <input type="text" id="department" name="department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Academic, Finance, Operations">
+                                <span class="text-red-500 text-sm hidden" id="departmentError"></span>
+
                             </div>
 
                             <!-- Password -->
@@ -370,6 +372,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </section>
 
+    <!-- Footer -->
+
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
 
@@ -514,6 +518,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
+            if (!department) {
+                document.getElementById('departmentError').textContent = 'Please enter Department';
+                document.getElementById('departmentError').classList.remove('hidden');
+                isValid = false;
+            }
+
             if (admins.some(a => a.staff_no === staffNumber)) {
                 document.getElementById('staffNumberError').textContent = 'Staff Number already exists';
                 document.getElementById('staffNumberError').classList.remove('hidden');
@@ -550,8 +560,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         });
     </script>
-    <script src="<?= BASE_URL ?>/static/j/main.js"></script>
-    <script src="<?= BASE_URL ?>/static/j/success-message.js"></script>
 
 </body>
 
