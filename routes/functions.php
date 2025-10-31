@@ -120,10 +120,19 @@ function countDataTotal($table, $haveActivity = false)
     return ['total' => $total];
 }
 
-function selectAllData($table)
+function selectAllData($table, $whereIdIs = null, $whereIdIsNot = null)
 {
     global $connection;
-    $statement = $connection->prepare("SELECT * FROM $table");
+
+    if($whereIdIs){
+    $statement = $connection->prepare("SELECT * FROM $table WHERE id =  ?");
+        $statement->bind_param('i', $whereIdIs);
+    }else if ($whereIdIsNot){
+        $statement = $connection->prepare("SELECT * FROM $table WHERE id != ?");
+        $statement->bind_param('i', $whereIdIsNot);
+    }else{
+        $statement = $connection->prepare("SELECT * FROM $table");
+    }
     $statement->execute();
     $result = $statement->get_result();
     $data = $result->fetch_all(MYSQLI_ASSOC);

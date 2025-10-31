@@ -1,5 +1,5 @@
 <?php
-$title = "Teachers Management";
+$title = "Create Teacher Account";
 include(__DIR__ . '/../../../includes/header.php');
 
 
@@ -10,6 +10,10 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['success']) && $_GET['success'] == 1) {
     echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
             </script>";
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
+    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
 }
 
 $statement = $connection->prepare("SELECT * FROM teachers");
@@ -79,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssssssss', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $hashed_password);
 
         if ($statement->execute()) {
-            header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
+            header("Location: " . $_SESSION['previous_page'] . "?success=1");
             exit();
         } else {
             echo "<script>alert('Database error: " . $statement->error . "');</script>";
@@ -98,8 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../includes/admins-section-nav.php')
-    ?>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php')    ?>
+
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

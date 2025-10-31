@@ -21,6 +21,7 @@ if (isset($_GET['id'])) {
 } else {
     header('Location: ' . $_SESSION['previous_page']);
 }
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -251,15 +252,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <ul class="space-y-3 text-sm text-gray-700">
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-green-600 mt-1"></i>
-                                <span>Modify the details as needed</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-green-600 mt-1"></i>
                                 <span><strong>Super Admin:</strong> Full system access</span>
                             </li>
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-green-600 mt-1"></i>
                                 <span><strong>Admin:</strong> Limited management access</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Modify the details as needed</span>
                             </li>
 
                             <li class="flex gap-2">
