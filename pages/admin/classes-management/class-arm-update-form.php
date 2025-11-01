@@ -103,12 +103,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <form id="updateArmForm" class="space-y-6" method="post">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-                            <!-- Success Message -->
-                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Section is created successfully!</span>
-                            </div>
 
+                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
+  
                             <!-- Arm Name -->
                             <div>
                                 <label for="armName" class="block text-sm font-semibold text-gray-700 mb-2">Arm Name/Code *</label>
@@ -143,13 +141,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-info-circle text-indigo-900 mr-2"></i>Update Guidelines
                         </h3>
                         <ul class="space-y-3 text-sm text-gray-700">
-        
+
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-indigo-600 mt-1"></i>
                                 <span>Modify the details as needed</span>
                             </li>
-                          
-               
+
+
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-indigo-600 mt-1"></i>
                                 <span>Click Update to save changes</span>
@@ -173,19 +171,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mobileMenu.classList.toggle('hidden');
         });
 
-        function showSuccessMessage() {
-            const message = document.getElementById("successMessage");
-            if (message) {
-                message.classList.remove("hidden"); // show the message
-                message.classList.add("flex"); // ensure it displays properly
-
-                // Hide it after 5 seconds
-                setTimeout(() => {
-                    message.classList.add("hidden");
-                    message.classList.remove("flex");
-                }, 5000);
-            }
-        }
 
         const updateArmForm = document.getElementById('updateArmForm');
 
@@ -225,11 +210,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     top: 0,
                     behavior: 'smooth'
                 });
+                showErrorMessage();
             }
         });
-
-        // Initial render
-        populateArmSelect();
     </script>
 </body>
 

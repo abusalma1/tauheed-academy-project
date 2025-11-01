@@ -8,10 +8,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-if (isset($_GET['success']) && $_GET['success'] == 1) {
-    echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
-            </script>";
-}
 
 $statement = $connection->prepare("
     SELECT 
@@ -182,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             header("Location: " . $_SERVER['PHP_SELF'] . '?success=1');
-            
+
             exit;
         } else {
             echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($stmt->error) . "</p>";
@@ -228,14 +224,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <form id="studentForm" class="space-y-6" method="post">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-
-
-                            <!-- Success Message -->
-                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>
-                                <span>User is created successfully!</span>
-                            </div>
-
+                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
 
                             <!-- Full Name -->
                             <div>
@@ -478,21 +468,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Success Message
-        function showSuccessMessage() {
-            const message = document.getElementById("successMessage");
-            if (message) {
-                message.classList.remove("hidden"); // show the message
-                message.classList.add("flex"); // ensure it displays properly
-
-                // Hide it after 5 seconds
-                setTimeout(() => {
-                    message.classList.add("hidden");
-                    message.classList.remove("flex");
-                }, 5000);
-            }
-        }
-
 
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
@@ -667,6 +642,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     top: 0,
                     behavior: 'smooth'
                 });
+                showErrorMessage();
             }
         });
     </script>

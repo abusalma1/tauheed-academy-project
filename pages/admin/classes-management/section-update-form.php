@@ -116,11 +116,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="hidden" name="sectionId" value="<?= $section['id'] ?>">
 
 
-                            <!-- Success Message -->
-                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Section is created successfully!</span>
-                            </div>
+                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
+
 
                             <!-- Section Name -->
                             <div>
@@ -212,22 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
-        // Success Message
-        function showSuccessMessage() {
-            const message = document.getElementById("successMessage");
-            if (message) {
-                message.classList.remove("hidden"); // show the message
-                message.classList.add("flex"); // ensure it displays properly
-
-                // Hide it after 5 seconds
-                setTimeout(() => {
-                    message.classList.add("hidden");
-                    message.classList.remove("flex");
-                }, 5000);
-            }
-        }
-
-
+       
         const updateSectionForm = document.getElementById('updateSectionForm');
         updateSectionForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -274,6 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     top: 0,
                     behavior: 'smooth'
                 });
+                showErrorMessage();
             }
         });
     </script>

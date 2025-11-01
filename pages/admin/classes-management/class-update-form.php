@@ -124,12 +124,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <input type="hidden" name="classId" value="<?= $class['id'] ?>">
 
+                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
 
-                            <!-- Success Message -->
-                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Section is created successfully!</span>
-                            </div>
 
                             <!-- Class Name -->
                             <div>
@@ -229,24 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
 
-        // Success Message
-        function showSuccessMessage() {
-            const message = document.getElementById("successMessage");
-            if (message) {
-                message.classList.remove("hidden"); // show the message
-                message.classList.add("flex"); // ensure it displays properly
-
-                // Hide it after 5 seconds
-                setTimeout(() => {
-                    message.classList.add("hidden");
-                    message.classList.remove("flex");
-                }, 5000);
-            }
-        }
-
-
-
-
         const updateClassForm = document.getElementById('updateClassForm');
 
         updateClassForm.addEventListener('submit', (e) => {
@@ -298,6 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     top: 0,
                     behavior: 'smooth'
                 });
+                showErrorMessage();
             }
         });
     </script>

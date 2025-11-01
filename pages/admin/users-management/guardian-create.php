@@ -1,6 +1,6 @@
 <?php
 
-$title = 'Guardians Management';
+$title = 'Create Guardian';
 include(__DIR__ . '/../../../includes/header.php');
 
 
@@ -8,10 +8,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-if (isset($_GET['success']) && $_GET['success'] == 1) {
-    echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
-            </script>";
-}
 
 $statement = $connection->prepare("SELECT * FROM guardians");
 $statement->execute();
@@ -24,8 +20,8 @@ $guardiansCount =  countDataTotal('guardians', true);
 
 
 $name =  $email  = $phone  =  $address = $occupation  = $relationship = $status  = $confirmPassword = $password = $hashed_password = '';
-$nameError =  $emailError  = $phoneError  =  $addressError = $occupationError  = $statusError  = $relationshipError =  $roleTypeError = $passwordError = $confirmPasswordError = '';
 
+$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
@@ -42,35 +38,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmPassword = htmlspecialchars(trim($_POST['confirmPassword'] ?? ''), ENT_QUOTES, 'UTF-8');
     $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
 
-    if (empty($name)) $nameError = 'Full name is required';
+    if (empty($name)) $errors['nameError'] = 'Full name is required';
 
     if (empty($email)) {
-        $emailError = 'Email is required';
+        $errors['emailError'] = 'Email is required ';
     } elseif (!validateEmail($email)) {
-        $emailError = 'Please enter a valid email address';
+        $errors['emailError '] = 'Please enter a valid email address';
     } elseif (emailExist($email, 'guardians')) {
-        $emailError = "Email already exists!";
+        $errors['emailError'] = "Email already exists!";
     }
 
-    if (empty($phone)) $phoneError = 'Phone number is required';
-    if (empty($relationship)) $relationshipError = 'Relationship is required';
+    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
+    if (empty($relationship)) $errors['relationshipError'] = 'Relationship is required ';
 
     if (empty($password)) {
-        $passwordError = "Password field is required";
+        $errors['passwordError'] = "Password field is required";
     } elseif (strlen($password) < 8) {
-        $passwordError = 'Password must be at least 8 characters';
+        $errors['passwordError'] = 'Password must be at least 8 characters ';
     } elseif ($password !== $confirmPassword) {
-        $confirmPasswordError = 'Passwords do not match';
+        $errors['confirmPasswordError'] = 'Passwords do not match';
     } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     }
 
-    if (empty($status)) $statusError = "Status is required";
+    if (empty($status)) $errors['statusError'] = "Status is required";
 
-    if (
-        empty($nameError) && empty($emailError) && empty($phoneError) && empty($relationshipError)
-        && empty($passwordError) && empty($confirmPasswordError) && empty($statusError)
-    ) {
+    if (empty($errors)) {
         $statement = $connection->prepare(
             "INSERT INTO guardians (name, email, phone, occupation, address, relationship, status, password)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
@@ -82,6 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             echo "<script>alert('Failed to create guardian user account: " . $statement->error . "');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
         }
     }
 }
@@ -119,11 +116,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
 
 
-                            <!-- Success Message -->
-                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>
-                                <span>User is created successfully!</span>
-                            </div>
+                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
+
 
 
                             <!-- Full Name -->
@@ -342,23 +337,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Success Message
-        function showSuccessMessage() {
-            const message = document.getElementById("successMessage");
-            if (message) {
-                message.classList.remove("hidden"); // show the message
-                message.classList.add("flex"); // ensure it displays properly
-
-                // Hide it after 5 seconds
-                setTimeout(() => {
-                    message.classList.add("hidden");
-                    message.classList.remove("flex");
-                }, 5000);
-            }
-        }
-
-
-
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
@@ -492,6 +470,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     top: 0,
                     behavior: 'smooth'
                 });
+                showErrorMessage();
             }
         });
     </script>

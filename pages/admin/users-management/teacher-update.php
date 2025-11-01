@@ -7,10 +7,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-if (isset($_GET['success']) && $_GET['success'] == 1) {
-    echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
-            </script>";
-}
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
     $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
@@ -66,7 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
     if (empty($address)) $errors['addressError'] = 'Address is required';
-    if (empty($staffNumber)) {        $errors['staffNumberError'] = 'Staff number is required';
+    if (empty($staffNumber)) {
+        $errors['staffNumberError'] = 'Staff number is required';
     } elseif (staffNumberExist($staffNumber, 'teachers', $id)) {
         $errors['staffNumberError'] = 'Staff No already exists';
     }
@@ -122,11 +119,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="hidden" name="id" value="<?= $teacher['id'] ?>">
 
 
-                            <!-- Error Message -->
-                            <div id="errorMessage" class="hidden mt-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Check the form & make sure all requirments are satisfied</span>
-                            </div>
+                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
 
                             <!-- Full Name -->
                             <div>
@@ -245,21 +239,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mobileMenu.classList.toggle('hidden');
         });
 
-
-        // Error Message
-        function showErrorMessage() {
-            const message = document.getElementById("errorMessage");
-            if (message) {
-                message.classList.remove("hidden"); // show the message
-                message.classList.add("flex"); // ensure it displays properly
-
-                // Hide it after 5 seconds
-                setTimeout(() => {
-                    message.classList.add("hidden");
-                    message.classList.remove("flex");
-                }, 5000);
-            }
-        }
 
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

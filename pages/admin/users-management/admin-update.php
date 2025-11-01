@@ -26,10 +26,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-if (isset($_GET['success']) && $_GET['success'] == 1) {
-    echo "<script>  window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
-            </script>";
-}
 
 $statement = $connection->prepare("SELECT * FROM admins where id != ?");
 $statement->bind_param('i', $id);
@@ -158,12 +154,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-                            <!-- Success Message -->
-                            <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>
-                                <span>User is Updated successfully!</span>
-                            </div>
-
+                          <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
+                   
 
                             <!-- Full Name -->
                             <div>
@@ -391,6 +384,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     top: 0,
                     behavior: 'smooth'
                 });
+
+                            showErrorMessage();
             }
 
         });
