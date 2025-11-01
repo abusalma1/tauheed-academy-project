@@ -29,15 +29,15 @@ function validatePhone($phone)
 }
 
 
-function emailExist($email, $table, $whereIdIs = 0)
+function emailExist($email, $table, $whereIdIsNot = 0)
 {
     global $connection;
 
-    if ($whereIdIs > 0) {
+    if ($whereIdIsNot > 0) {
         // Check if email exists for others excluding this ID
         $query = "SELECT id FROM $table WHERE email = ? AND id != ? LIMIT 1";
         $stmt = $connection->prepare($query);
-        $stmt->bind_param('si', $email, $whereIdIs);
+        $stmt->bind_param('si', $email, $whereIdIsNot);
     } else {
         // Normal check for email existence
         $query = "SELECT id FROM $table WHERE email = ? LIMIT 1";
@@ -52,15 +52,15 @@ function emailExist($email, $table, $whereIdIs = 0)
 }
 
 
-function staffNumberExist($staff_no, $table, $whereIdIs = 0)
+function staffNumberExist($staff_no, $table, $whereIdIsNot = 0)
 {
     global $connection;
 
-    if ($whereIdIs > 0) {
+    if ($whereIdIsNot > 0) {
         // Check if staff number exists for others excluding this ID
         $query = "SELECT id FROM $table WHERE staff_no = ? AND id != ? LIMIT 1";
         $stmt = $connection->prepare($query);
-        $stmt->bind_param('si', $staff_no, $whereIdIs);
+        $stmt->bind_param('si', $staff_no, $whereIdIsNot);
     } else {
         // Normal check for staff number existence
         $query = "SELECT id FROM $table WHERE staff_no = ? LIMIT 1";
@@ -102,15 +102,15 @@ function countDataTotal($table, $haveActivity = false)
             // Count active admins
             $activeQuery = $connection->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin'");
             $admin = $activeQuery->fetch_assoc()['admin'];
-            $admin = number_format($active);
+            $admin = number_format($admin);
 
 
             // Count inactive superadmins
-            $inactiveQuery = $connection->query("SELECT COUNT(*) AS superadmin FROM $table WHERE type = 'superadmin'");
-            $superadmin = $inactiveQuery->fetch_assoc()['superadmin'];
-            $superadmin = number_format($inactive);
+            $inactiveQuery = $connection->query("SELECT COUNT(*) AS superAdmin FROM $table WHERE type = 'superAdmin'");
+            $superAdmin = $inactiveQuery->fetch_assoc()['superAdmin'];
+            $superAdmin = number_format($superAdmin);
 
-            return ['total' => $total, 'active' => $active, 'inactive' => $inactive, 'admin' => $admin, 'superadmin' => $superadmin];
+            return ['total' => $total, 'active' => $active, 'inactive' => $inactive, 'admin' => $admin, 'superadmin' => $superAdmin];
         }
 
 
@@ -124,13 +124,13 @@ function selectAllData($table, $whereIdIs = null, $whereIdIsNot = null)
 {
     global $connection;
 
-    if($whereIdIs){
-    $statement = $connection->prepare("SELECT * FROM $table WHERE id =  ?");
+    if ($whereIdIs) {
+        $statement = $connection->prepare("SELECT * FROM $table WHERE id =  ?");
         $statement->bind_param('i', $whereIdIs);
-    }else if ($whereIdIsNot){
+    } else if ($whereIdIsNot) {
         $statement = $connection->prepare("SELECT * FROM $table WHERE id != ?");
         $statement->bind_param('i', $whereIdIsNot);
-    }else{
+    } else {
         $statement = $connection->prepare("SELECT * FROM $table");
     }
     $statement->execute();
