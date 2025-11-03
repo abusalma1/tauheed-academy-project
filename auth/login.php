@@ -70,7 +70,7 @@ if (isset($_SESSION['user_session'])) {
                     <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-900 rounded-full mb-4">
                         <i class="fas fa-user text-white text-2xl"></i>
                     </div>
-                    <h2 class="text-3xl font-bold text-gray-900">Welcome ('back')</h2>
+                    <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
                     <p class="text-gray-600 mt-2">Sign in to access your account</p>
                 </div>
 

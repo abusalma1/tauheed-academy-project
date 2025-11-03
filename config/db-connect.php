@@ -7,6 +7,8 @@ session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
     $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
+}else{
+    $_SESSION['previous_page'] = $_SERVER['PHP_SELF'];
 }
 
 

@@ -40,7 +40,7 @@ if (!$school) {
             }
 
             body {
-                ('back')ground: white;
+                background: white;
             }
         }
     </style>
