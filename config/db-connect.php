@@ -1,7 +1,13 @@
 <?php
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
+    
 session_start();
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
+    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
+}
 
 
 define('BASE_URL', '/tauheed-academy-project');

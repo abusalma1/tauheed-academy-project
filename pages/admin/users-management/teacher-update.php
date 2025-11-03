@@ -8,10 +8,6 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
-    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
-}
-
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $statement = $connection->prepare('SELECT * FROM teachers WHERE id=?');
@@ -21,10 +17,10 @@ if (isset($_GET['id'])) {
     if ($result->num_rows > 0) {
         $teacher = $result->fetch_assoc();
     } else {
-        header('Location: ' . $_SESSION['previous_page']);
+        header('Location: ' .  route('back'));
     }
 } else {
-    header('Location: ' . $_SESSION['previous_page']);
+    header('Location: ' .  route('back'));
 }
 
 
@@ -75,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('sssssssi', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $id);
 
         if ($statement->execute()) {
-            header("Location: " . $_SESSION['previous_page'] . "?success=1");
+            header("Location: " .  route('back') . "?success=1");
             exit();
         } else {
             echo "<script>alert('Database error: " . $statement->error . "');</script>";
@@ -182,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <button type="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
                                     <i class="fas fa-save mr-2"></i>Update Teacher Account
                                 </button>
-                                <a href="teacher-management.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                <a href="<?= route('back') ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
                                     Cancel
                                 </a>
                             </div>

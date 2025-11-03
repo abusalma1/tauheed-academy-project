@@ -3,6 +3,9 @@ include(__DIR__ . '/../config/db-connect.php');
 $baseUrl = BASE_URL;
 
 $routes = [
+    'back' => [
+        'url' => $_SESSION['previous_page']
+    ],
     'home' => [
         'url' => "$baseUrl/index.php"
     ],

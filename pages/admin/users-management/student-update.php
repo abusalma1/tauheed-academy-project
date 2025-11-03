@@ -1,38 +1,183 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Student Account - Excellence Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+<?php
+
+$title = "Students Managment";
+include(__DIR__ . '/../../../includes/header.php');
+
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $statement = $connection->prepare('SELECT * FROM students WHERE id=?');
+    $statement->bind_param('i', $id);
+    $statement->execute();
+    $result = $statement->get_result();
+    if ($result->num_rows > 0) {
+        $student = $result->fetch_assoc();
+    } else {
+        header('Location: ' . route('back'));
+    }
+} else {
+    header('Location: ' .  route('back'));
+}
+
+
+$guardians = selectAllData('guardians');
+$students = selectAllData('students', null, $id);
+
+
+$statement = $connection->prepare(" SELECT 
+        classes.id AS class_id,
+        classes.name as class_name,
+        teachers.id AS teacher_id,
+        teachers.name AS teacher_name,
+        sections.id as section_id,
+        sections.name as section_name,
+        class_arms.id as arm_id,
+        class_arms.name as arm_name
+
+    FROM classes
+    LEFT JOIN teachers 
+    ON classes.teacher_id = teachers.id
+     LEFT JOIN sections 
+    ON classes.section_id = sections.id
+     LEFT JOIN class_arms 
+    ON classes.class_arm_id = class_arms.id
+");
+$statement->execute();
+$result = $statement->get_result();
+$classes = $result->fetch_all(MYSQLI_ASSOC);
+
+
+
+
+// Count total students
+$studentsCount =  countDataTotal('students', true);
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("Invalid CSRF token.");
+    }
+
+    // Collect and sanitize input
+    $id = trim($_POST['id'] ?? '');
+    $name = trim($_POST['fullName'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $admissionNumber = trim($_POST['admissionNumber'] ?? '');
+    $class = trim($_POST['class'] ?? '');
+    $dob = trim($_POST['dob'] ?? '');
+    $gender = trim($_POST['gender'] ?? '');
+    $guardian = trim($_POST['guardian'] ?? '');
+    $status = trim($_POST['status'] ?? 'inactive');
+
+    // Initialize error variables
+    $errors = [];
+
+    // --- VALIDATION RULES ---
+
+    // Required fields
+    if (empty($name)) {
+        $errors['name'] = "Full name is required.";
+    }
+
+    if (empty($admissionNumber)) {
+        $errors['admissionNumber'] = "Admission number is required.";
+    }
+
+    if (empty($class)) {
+        $errors['class'] = "Please select a class.";
+    }
+
+    if (empty($dob)) {
+        $errors['dob'] = "Date of birth is required.";
+    }
+
+    if (empty($gender)) {
+        $errors['gender'] = "Gender is required.";
+    }
+
+    if (empty($guardian)) {
+        $errors['guardian'] = "Guardian is required.";
+    }
+
+
+    if (!empty($phone) && !preg_match('/^[0-9+\s-]{7,15}$/', $phone)) {
+        $errors['phone'] = "Invalid phone number format.";
+    }
+
+    // Admission number uniqueness
+    $checkAdmission = $connection->prepare("SELECT id FROM students WHERE admission_number = ? and id != ?");
+    $checkAdmission->bind_param("si", $admissionNumber, $id);
+    $checkAdmission->execute();
+    $checkAdmission->store_result();
+    if ($checkAdmission->num_rows > 0) {
+        $errors['admissionNumber'] = "Admission number already exists.";
+    }
+    $checkAdmission->close();
+
+
+    if (!empty($email)) {
+        if (!validateEmail($email)) {
+            $errors['emailError '] = 'Please enter a valid email address';
+        } elseif (emailExist($email, 'students', $id)) {
+            $errors['emailError'] = "Email already exists!";
+        }
+    }
+
+    // --- FINAL DECISION ---
+    if (empty($errors)) {
+
+        $stmt = $connection->prepare("UPDATE students set
+           name = ?, email = ?, phone = ?, admission_number = ?,  dob = ?, gender = ?, status = ?, guardian_id = ?, class_id = ? where id = ?");
+        $stmt->bind_param(
+            "sssssssiii",
+            $name,
+            $email,
+            $phone,
+            $admissionNumber,
+            $dob,
+            $gender,
+            $status,
+            $guardian,
+            $class,
+            $id
+
+        );
+
+        if ($stmt->execute()) {
+            header("Location: " .  route('back') . '?success=1');
+
+            exit;
+        } else {
+            echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($stmt->error) . "</p>";
+        }
+
+        $stmt->close();
+    } else {
+        // Display all validation errors
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+
+
+?>
+
+<script>
+    const students = <?= json_encode($students, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+</script>
+
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Admin Panel</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="student-management.html" class="hover:text-blue-300 transition">Back to Students</a>
-                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="student-management.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Students</a>
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
-        </div>
-    </nav>
+    <?php include(__DIR__ . '/../includes/admins-section-nav.php')  ?>
+
 
     <!-- Page Header -->
     <section class="bg-orange-900 text-white py-12">
@@ -45,140 +190,154 @@
     <!-- Main Content -->
     <section class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-lg shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Student Information</h2>
-                    
-                    <form id="updateStudentForm" class="space-y-6">
-                        <!-- Full Name -->
-                        <div>
-                            <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                            <input type="text" id="fullName" name="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter full name">
-                            <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
-                        </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Form Section -->
+                <div class="md:col-span-2">
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Student Information</h2>
 
-                        <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                            <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter email address">
-                            <span class="text-red-500 text-sm hidden" id="emailError"></span>
-                        </div>
+                        <form id="updateStudentForm" class="space-y-6" method="post">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <input type="hidden" name="id" value="<?= $student['id'] ?>">
 
-                        <!-- Admission Number -->
-                        <div>
-                            <label for="admissionNumber" class="block text-sm font-semibold text-gray-700 mb-2">Admission Number *</label>
-                            <input type="text" id="admissionNumber" name="admissionNumber" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="e.g., EA/2025/001">
-                            <span class="text-red-500 text-sm hidden" id="admissionNumberError"></span>
-                        </div>
 
-                        <!-- Class -->
-                        <div>
-                            <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">Class *</label>
-                            <select id="class" name="class" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                <option value="">Select class</option>
-                                <option value="JSS1">JSS 1</option>
-                                <option value="JSS2">JSS 2</option>
-                                <option value="JSS3">JSS 3</option>
-                                <option value="SS1">SS 1</option>
-                                <option value="SS2">SS 2</option>
-                                <option value="SS3">SS 3</option>
-                            </select>
-                            <span class="text-red-500 text-sm hidden" id="classError"></span>
-                        </div>
+                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
 
-                        <!-- Date of Birth -->
-                        <div>
-                            <label for="dob" class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth *</label>
-                            <input type="date" id="dob" name="dob" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                            <span class="text-red-500 text-sm hidden" id="dobError"></span>
-                        </div>
+                            <!-- Full Name -->
+                            <div>
+                                <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+                                <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter full name" value="<?= $student['name'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
+                            </div>
 
-                        <!-- Gender -->
-                        <div>
-                            <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender *</label>
-                            <select id="gender" name="gender" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                <option value="">Select gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                            </select>
-                            <span class="text-red-500 text-sm hidden" id="genderError"></span>
-                        </div>
+                            <!-- Email -->
+                            <div>
+                                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address (optional)</label>
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter email address" value="<?= $student['phone'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="emailError"></span>
+                            </div>
 
-                        <!-- Guardian Email -->
-                        <div>
-                            <label for="guardianEmail" class="block text-sm font-semibold text-gray-700 mb-2">Guardian Email</label>
-                            <input type="email" id="guardianEmail" name="guardianEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter guardian email">
-                        </div>
+                            <!-- Phone Number -->
+                            <div>
+                                <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number (optional)</label>
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter phone number" value="<?= $student['email'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="phoneError"></span>
+                            </div>
 
-                        <!-- Status -->
-                        <div>
-                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Account Status</label>
-                            <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
 
-                        <!-- Submit Button -->
-                        <div class="flex gap-4 pt-4">
-                            <button type="submit" class="flex-1 bg-orange-900 text-white py-3 rounded-lg font-semibold hover:bg-orange-800 transition">
-                                <i class="fas fa-save mr-2"></i>Update Student Account
-                            </button>
-                            <a href="student-management.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
+                            <!-- Admission Number -->
+                            <div>
+                                <label for="admissionNumber" class="block text-sm font-semibold text-gray-700 mb-2">Admission Number *</label>
+                                <input type="text" id="admissionNumber" name="admissionNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="e.g., EA/2025/001" value="<?= $student['admission_number'] ?>">
+                                <span class="text-red-500 text-sm hidden" id="admissionNumberError"></span>
+                            </div>
+
+                            <!-- Class -->
+                            <div>
+                                <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">Class *</label>
+                                <select id="class" name="class" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select class</option>
+                                    <?php foreach ($classes as $class): ?>
+                                        <option value="<?= $class['class_id'] ?>" <?= $class['class_id'] === $student['class_id'] ? 'selected' : '' ?>><?= $class['class_name'] . $class['arm_name'] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="classError"></span>
+                            </div>
+
+                            <!-- Date of Birth -->
+                            <div>
+                                <label for="dob" class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth *</label>
+                                <input type="date" id="dob" name="dob" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" value="<?= date('Y-m-d', strtotime($student['dob'])) ?>">
+                                <span class="text-red-500 text-sm hidden" id="dobError"></span>
+                            </div>
+
+                            <!-- Gender -->
+                            <div>
+                                <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender *</label>
+                                <select id="gender" name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select gender</option>
+                                    <option value="male" <?= $student['gender'] === 'male' ? 'selected' : '' ?>>Male</option>
+                                    <option value="female" <?= $student['gender'] === 'female' ? 'selected' : '' ?>>Female</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="genderError"></span>
+                            </div>
+
+                            <!-- Guardian -->
+                            <div>
+                                <label for="guardian" class="block text-sm font-semibold text-gray-700 mb-2">Guardian *</label>
+                                <select id="guardian" name="guardian" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select guardian</option>
+                                    <?php foreach ($guardians as $guardian) : ?>
+                                        <option value="<?= $guardian['id'] ?>" <?= $guardian['id'] === $student['guardian_id'] ? 'selected' : '' ?>><?= $guardian['name'] ?></option>
+                                    <?php endforeach ?>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="guardianError"></span>
+
+                            </div>
+
+                            <!-- Status -->
+                            <div>
+                                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Account Status</label>
+                                <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="active" <?= $student['status'] === 'active' ? 'selected' : '' ?>>Active</option>
+                                    <option value="inactive" <?= $student['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                                </select>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="flex gap-4 pt-4">
+                                <button type="submit" class="flex-1 bg-orange-900 text-white py-3 rounded-lg font-semibold hover:bg-orange-800 transition">
+                                    <i class="fas fa-save mr-2"></i>Update Student Account
+                                </button>
+                                <a href="<?= route('back') ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info Section -->
+                <div class="md:col-span-1">
+                    <div class="bg-orange-50 rounded-lg shadow p-6 border-l-4 border-orange-900">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">
+                            <i class="fas fa-info-circle text-orange-900 mr-2"></i>Student Guidelines
+                        </h3>
+                        <ul class="space-y-3 text-sm text-gray-700">
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Admission number must be unique</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Select appropriate class level</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Modify the details as needed</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Email must be unique</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Guardian email is optional</span>
+                            </li>
+                        </ul>
+                    </div>
+
+
                 </div>
             </div>
+
+
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="student-management.html" class="text-gray-400 hover:text-white transition">Student Management</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
         // Mobile menu toggle
@@ -197,23 +356,6 @@
             return re.test(email);
         }
 
-        // Load student data if editing
-        if (studentIndex !== null) {
-            const students = JSON.parse(localStorage.getItem('schoolStudents')) || [];
-            const student = students[studentIndex];
-            
-            if (student) {
-                document.getElementById('fullName').value = student.fullName;
-                document.getElementById('email').value = student.email;
-                document.getElementById('admissionNumber').value = student.admissionNumber;
-                document.getElementById('class').value = student.class;
-                document.getElementById('dob').value = student.dob;
-                document.getElementById('gender').value = student.gender;
-                document.getElementById('guardianEmail').value = student.guardianEmail || '';
-                document.getElementById('status').value = student.status;
-            }
-        }
-
         updateStudentForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -222,11 +364,12 @@
 
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
             const admissionNumber = document.getElementById('admissionNumber').value.trim();
             const studentClass = document.getElementById('class').value;
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
-            const guardianEmail = document.getElementById('guardianEmail').value.trim();
+            const guardian = document.getElementById('guardian').value.trim();
             const status = document.getElementById('status').value;
 
             let isValid = true;
@@ -237,17 +380,49 @@
                 isValid = false;
             }
 
-            if (!validateEmail(email)) {
-                document.getElementById('emailError').textContent = 'Please enter a valid email address';
-                document.getElementById('emailError').classList.remove('hidden');
-                isValid = false;
+
+
+            if (email) {
+                if (!validateEmail(email)) {
+                    document.getElementById('emailError').textContent = 'Please enter a valid email address';
+                    document.getElementById('emailError').classList.remove('hidden');
+                    isValid = false;
+                }
+
+
+
+                if (students.some(s => s.email === email)) {
+                    document.getElementById('emailError').textContent = 'Email already exists';
+                    document.getElementById('emailError').classList.remove('hidden');
+                    isValid = false;
+                }
             }
+
+
+
+            if (phone) {
+                if (!validatePhone(phone)) {
+                    document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
+                    document.getElementById('phoneError').classList.remove('hidden');
+                    isValid = false;
+                }
+            }
+
 
             if (!admissionNumber) {
                 document.getElementById('admissionNumberError').textContent = 'Admission number is required';
                 document.getElementById('admissionNumberError').classList.remove('hidden');
                 isValid = false;
             }
+
+
+            if (students.some(s => s.admissionNumber === admissionNumber)) {
+                document.getElementById('admissionNumberError').textContent = 'Admission number already exists';
+                document.getElementById('admissionNumberError').classList.remove('hidden');
+                isValid = false;
+            }
+
+
 
             if (!studentClass) {
                 document.getElementById('classError').textContent = 'Please select a class';
@@ -261,34 +436,35 @@
                 isValid = false;
             }
 
+
             if (!gender) {
                 document.getElementById('genderError').textContent = 'Please select a gender';
                 document.getElementById('genderError').classList.remove('hidden');
                 isValid = false;
             }
 
+
+            if (!guardian) {
+                document.getElementById('guardianError').textContent = 'Please select a guardian';
+                document.getElementById('guardianError').classList.remove('hidden');
+                isValid = false;
+            }
+
             if (isValid) {
-                const students = JSON.parse(localStorage.getItem('schoolStudents')) || [];
-                
-                if (studentIndex !== null) {
-                    students[studentIndex] = {
-                        fullName,
-                        email,
-                        admissionNumber,
-                        class: studentClass,
-                        dob,
-                        gender,
-                        guardianEmail,
-                        status,
-                        updatedAt: new Date().toLocaleDateString()
-                    };
-                    localStorage.setItem('schoolStudents', JSON.stringify(students));
-                    alert('Student account updated successfully!');
-                }
-                
-                window.location.href = 'student-management.html';
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                updateStudentForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                showErrorMessage();
             }
         });
     </script>
 </body>
+
 </html>

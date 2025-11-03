@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssi', $name, $description, $headTeacher);
 
         if ($statement->execute()) {
-            header("Location: " . $_SERVER['PHP_SELFs'] . "?success=1");
+            header("Location: " .  route('back') . "?success=1");
             exit();
         } else {
             echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
 
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>         
+                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
                             <!-- Section Name -->
                             <div>
                                 <label for="sectionName" class="block text-sm font-semibold text-gray-700 mb-2">Section Name *</label>

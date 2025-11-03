@@ -4,7 +4,7 @@ $title = 'Update Guardian Account';
 include(__DIR__ . '/../../../includes/header.php');
 
 
-    if (empty($_SESSION['csrf_token'])) {
+if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
@@ -17,10 +17,10 @@ if (isset($_GET['id'])) {
     if ($result->num_rows > 0) {
         $guardian = $result->fetch_assoc();
     } else {
-        header('Location: ' . $_SESSION['previous_page']);
+        header('Location: ' .  route('back'));
     }
 } else {
-    header('Location: ' . $_SESSION['previous_page']);
+    header('Location: ' .  route('back'));
 }
 
 $guardians = selectAllData('guardians', null, $id);
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('sssssssi', $name, $email, $phone, $occupation, $address, $relationship, $status, $id);
 
         if ($statement->execute()) {
-            header("Location: " . $_SESSION['previous_page'] . "?success=1");
+            header("Location: " .  route('back') . "?success=1");
             exit();
         } else {
             echo "<script>
@@ -187,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <button type="submit" class="flex-1 bg-green-900 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition">
                                     <i class="fas fa-save mr-2"></i>Update Guardian Account
                                 </button>
-                                <a href="guardian-management.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                <a href="<?= route('back') ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
                                     Cancel
                                 </a>
                             </div>

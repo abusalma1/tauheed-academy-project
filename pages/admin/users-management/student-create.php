@@ -28,10 +28,8 @@ $statement->execute();
 $result = $statement->get_result();
 $students = $result->fetch_all(MYSQLI_ASSOC);
 
-$statement = $connection->prepare("SELECT * FROM guardians");
-$statement->execute();
-$result = $statement->get_result();
-$guardians = $result->fetch_all(MYSQLI_ASSOC);
+
+$guardians = selectAllData('guardians');
 
 $statement = $connection->prepare(" SELECT 
         classes.id AS class_id,
@@ -143,15 +141,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkAdmission->close();
 
     // Email uniqueness (only if provided)
-    if (!empty($email)) {
-        $checkEmail = $connection->prepare("SELECT id FROM students WHERE email = ?");
-        $checkEmail->bind_param("s", $email);
-        $checkEmail->execute();
-        $checkEmail->store_result();
-        if ($checkEmail->num_rows > 0) {
-            $errors['email'] = "Email already exists.";
-        }
-        $checkEmail->close();
+
+    if (empty($email)) {
+        $errors['emailError'] = 'Email is required ';
+    } elseif (!validateEmail($email)) {
+        $errors['emailError '] = 'Please enter a valid email address';
+    } elseif (emailExist($email, 'students')) {
+        $errors['emailError'] = "Email already exists!";
     }
 
     // --- FINAL DECISION ---
@@ -177,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($stmt->execute()) {
-            header("Location: " . $_SERVER['PHP_SELF'] . '?success=1');
+            header("Location: " . route('back') . '?success=1');
 
             exit;
         } else {
@@ -211,6 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="text-xl text-orange-200">Create and manage student accounts</p>
         </div>
     </section>
+
 
     <!-- Main Content -->
     <section class="py-12 bg-gray-50">
@@ -432,9 +429,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <span class="px-3 py-1 <?= $student['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $student['status'] ?></span>
                                         </td>
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <button class="text-blue-600 hover:text-blue-900 font-semibold">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
+                                            <a href="<?= route('student-update') . '?id=' . $student['id'] ?>">
+                                                <button class="text-blue-600 hover:text-blue-900 font-semibold">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                            </a>
                                             <button class="text-red-600 hover:text-red-900 font-semibold">
                                                 <i class="fas fa-trash"></i> Delete
                                             </button>

@@ -8,10 +8,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
-    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
-}
-
 
 $guardians = selectAllData('guardians');
 
@@ -72,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssssssss', $name, $email, $phone, $occupation, $address, $relationship, $status, $hashed_password);
 
         if ($statement->execute()) {
-            header("Location: " . $_SESSION['previous_page'] . "?success=1");
+            header("Location: " .  route('back') . "?success=1");
             exit();
         } else {
             echo "<script>alert('Failed to create guardian user account: " . $statement->error . "');</script>";
@@ -305,6 +301,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <span class="px-3 py-1  <?= $guardian['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $guardian['status'] ?></span>
                                         </td>
                                         <td class="px-6 py-4 text-sm space-x-2">
+                                            <a href="<?= route('guardian-update') . "?id=" . $guardian['id'] ?>"></a>
                                             <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                 <i class="fas fa-edit"></i> Edit
                                             </button>

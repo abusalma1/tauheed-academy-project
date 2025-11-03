@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('siii', $name, $section, $teacher, $arm);
 
         if ($statement->execute()) {
-            header("Location: " . $_SERVER['PHP_SELFs'] . "?success=1");
+            header("Location: " .  route('back') . "?success=1");
             exit();
         } else {
             echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
@@ -300,7 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
-        
+
         // Form validation and submission
         const classForm = document.getElementById('classForm');
 

@@ -3,10 +3,6 @@
 $title = "Admins & Super Users Create";
 include(__DIR__ . '/../../../includes/header.php');
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
-    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
-}
-
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -114,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $connection->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $hashed_password);
         if ($statement->execute()) {
-            header("Location: " . $_SESSION['previous_page'] . "?success=1");
+            header("Location: " .  route('back') . "?success=1");
             exit();
         } else {
             echo "<script>alert('Failed to create admin/super user account: " . $statement->error . "');</script>";
@@ -154,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
-                     
+
 
                             <!-- Full Name -->
                             <div>
@@ -344,9 +340,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <span class="px-3 py-1 <?= $admin['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $admin['status'] ?></span>
                                         </td>
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <button class="text-blue-600 hover:text-blue-900 font-semibold">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
+                                            <a href="<?= route('admin-update') . "?id=" . $admin['id'] ?>">
+                                                <button class="text-blue-600 hover:text-blue-900 font-semibold">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                            </a>
                                             <button class="text-red-600 hover:text-red-900 font-semibold">
                                                 <i class="fas fa-trash"></i> Delete
                                             </button>

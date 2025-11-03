@@ -70,7 +70,7 @@ if (isset($_SESSION['user_session'])) {
                     <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-900 rounded-full mb-4">
                         <i class="fas fa-user text-white text-2xl"></i>
                     </div>
-                    <h2 class="text-3xl font-bold text-gray-900">Welcome Back</h2>
+                    <h2 class="text-3xl font-bold text-gray-900">Welcome ('back')</h2>
                     <p class="text-gray-600 mt-2">Sign in to access your account</p>
                 </div>
 
@@ -113,7 +113,7 @@ if (isset($_SESSION['user_session'])) {
                             <label class="relative">
                                 <input type="radio" name="user_type" value="admin" class="peer sr-only">
                                 <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
-                                    <i class="fas fa-chalkboard-teacher text-2xl text-blue-900 mb-2"></i>
+                                    <i class="fas fa-crown text-2xl text-blue-900 mr-2"></i>
                                     <p class="font-semibold text-sm">Admin</p>
                                 </div>
                             </label>

@@ -131,11 +131,11 @@ include(__DIR__ . '/./includes/non-auth-header.php');
                     </div>
                 </div>
 
-                <!-- Back to Login  -->
+                <!-- back to Login  -->
                 <div class="text-center">
                     <a href="<?= route('login') ?>" class="inline-flex items-center text-blue-900 hover:text-blue-700 font-semibold">
                         <i class="fas fa-arrow-left mr-2"></i>
-                        Back to Login
+                        back to Login
                     </a>
                 </div>
             </div>

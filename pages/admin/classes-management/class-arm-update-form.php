@@ -7,9 +7,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
-    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
-}
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -21,7 +18,7 @@ if (isset($_GET['id'])) {
         $arm = $result->fetch_assoc();
     }
 } else {
-    header('Location: ' . $_SESSION['previous_page']);
+    header('Location: ' .  route('back'));
 }
 
 $statement = $connection->prepare("SELECT * FROM class_arms WHERE id != ?");
@@ -66,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssi', $name, $description, $id);
 
         if ($statement->execute()) {
-            header("Location: " . $_SESSION['previous_page']);
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Failed to create class arm : " . $statement->error . "');</script>";
@@ -106,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
-  
+
                             <!-- Arm Name -->
                             <div>
                                 <label for="armName" class="block text-sm font-semibold text-gray-700 mb-2">Arm Name/Code *</label>
@@ -126,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <button type="submit" class="flex-1 bg-indigo-900 text-white py-3 rounded-lg font-semibold hover:bg-indigo-800 transition">
                                     <i class="fas fa-save mr-2"></i>Update Arm
                                 </button>
-                                <a href="<?= $_SESSION['previous_page'] ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                <a href="<?= route('back') ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
                                     Cancel
                                 </a>
                             </div>

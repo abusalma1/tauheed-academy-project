@@ -1,282 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Class Arm Management - Excellence Academy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-50">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gray-50">
     <!-- Navigation -->
     <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Admin Panel</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="class-management.html" class="hover:text-blue-300 transition">Back to Classes</a>
-                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center gap-3">
+            <img
+              src="/placeholder.svg?height=50&width=50"
+              alt="School Logo"
+              class="h-12 w-12 rounded-full bg-white p-1"
+            />
+            <div>
+              <h1 class="text-xl font-bold">Excellence Academy</h1>
+              <p class="text-xs text-blue-200">Admin Panel</p>
             </div>
+          </div>
+          <div class="hidden md:flex items-center gap-6">
+            <a
+              href="class-management.html"
+              class="hover:text-blue-300 transition"
+              >back to Classes</a
+            >
+            <a href="../index.html" class="hover:text-blue-300 transition"
+              >back to Site</a
+            >
+          </div>
+          <button
+            id="mobile-menu-btn"
+            class="md:hidden text-white focus:outline-none"
+          >
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="class-management.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Classes</a>
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
-        </div>
+      </div>
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2"
+      >
+        <a
+          href="class-management.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >back to Classes</a
+        >
+        <a
+          href="../index.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >back to Site</a
+        >
+      </div>
     </nav>
 
     <!-- Page Header -->
     <section class="bg-indigo-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Class Arm Management</h1>
-            <p class="text-xl text-indigo-200">Customize and manage class divisions/arms for your school</p>
-        </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">
+          Class Arm Management
+        </h1>
+        <p class="text-xl text-indigo-200">
+          Customize and manage class divisions/arms for your school
+        </p>
+      </div>
     </section>
 
     <!-- Main Content -->
     <section class="py-12 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Form Section -->
-                <div class="md:col-span-2">
-                    <div class="bg-white rounded-lg shadow-lg p-8">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Add New Class Arm</h2>
-                        
-                        <form id="armForm" class="space-y-6">
-                            <!-- Arm Name -->
-                            <div>
-                                <label for="armName" class="block text-sm font-semibold text-gray-700 mb-2">Arm Name/Code *</label>
-                                <input type="text" id="armName" name="armName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900" placeholder="e.g., A, B, C or Gold, Silver, Diamond or Orange, Blue, Red">
-                                <span class="text-red-500 text-sm hidden" id="armNameError"></span>
-                            </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-3 gap-8">
+          <!-- Form Section -->
+          <div class="md:col-span-2">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+              <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                Add New Class Arm
+              </h2>
 
-                            <!-- Arm Description -->
-                            <div>
-                                <label for="armDescription" class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                                <textarea id="armDescription" name="armDescription" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900" placeholder="Optional: Describe this arm (e.g., Science stream, Arts stream)"></textarea>
-                            </div>
-
-                            <!-- Arm Color (for visual identification) -->
-                            <div>
-                                <label for="armColor" class="block text-sm font-semibold text-gray-700 mb-2">Arm Color (for identification) *</label>
-                                <div class="flex gap-4 items-center">
-                                    <input type="color" id="armColor" name="armColor" value="#3B82F6" class="w-16 h-10 border border-gray-300 rounded-lg cursor-pointer">
-                                    <input type="text" id="armColorHex" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900" placeholder="#3B82F6" readonly>
-                                </div>
-                            </div>
-
-                            <!-- Capacity -->
-                            <div>
-                                <label for="capacity" class="block text-sm font-semibold text-gray-700 mb-2">Capacity (students per arm) *</label>
-                                <input type="number" id="capacity" name="capacity" required min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900" placeholder="e.g., 40">
-                                <span class="text-red-500 text-sm hidden" id="capacityError"></span>
-                            </div>
-
-                            <!-- Status -->
-                            <div>
-                                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                                <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900">
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                </select>
-                            </div>
-
-                            <!-- Submit Button -->
-                            <div class="flex gap-4 pt-4">
-                                <button type="submit" class="flex-1 bg-indigo-900 text-white py-3 rounded-lg font-semibold hover:bg-indigo-800 transition">
-                                    <i class="fas fa-plus mr-2"></i>Add Arm
-                                </button>
-                                <button type="reset" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
-                                    Clear Form
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+              <form id="armForm" class="space-y-6">
+                <!-- Arm Name -->
+                <div>
+                  <label
+                    for="armName"
+                    class="block text-sm font-semibold text-gray-700 mb-2"
+                    >Arm Name/Code *</label
+                  >
+                  <input
+                    type="text"
+                    id="armName"
+                    name="armName"
+                    required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900"
+                    placeholder="e.g., A, B, C or Gold, Silver, Diamond or Orange, Blue, Red"
+                  />
+                  <span
+                    class="text-red-500 text-sm hidden"
+                    id="armNameError"
+                  ></span>
                 </div>
 
-                <!-- Info Section -->
-                <div class="md:col-span-1">
-                    <div class="bg-indigo-50 rounded-lg shadow p-6 border-l-4 border-indigo-900">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4">
-                            <i class="fas fa-info-circle text-indigo-900 mr-2"></i>Arm Examples
-                        </h3>
-                        <ul class="space-y-3 text-sm text-gray-700">
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-indigo-600 mt-1"></i>
-                                <span><strong>Alphabetic:</strong> A, B, C, D</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-indigo-600 mt-1"></i>
-                                <span><strong>Precious Metals:</strong> Gold, Silver, Bronze</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-indigo-600 mt-1"></i>
-                                <span><strong>Colors:</strong> Red, Blue, Green, Yellow</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-indigo-600 mt-1"></i>
-                                <span><strong>Streams:</strong> Science, Arts, Commerce</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-indigo-600 mt-1"></i>
-                                <span><strong>Numbers:</strong> 1, 2, 3, 4</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Statistics -->
-                    <div class="mt-6 bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4">Arm Statistics</h3>
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center pb-3 border-b">
-                                <span class="text-gray-600">Total Arms</span>
-                                <span class="text-2xl font-bold text-indigo-900" id="totalArms">0</span>
-                            </div>
-                            <div class="flex justify-between items-center pb-3 border-b">
-                                <span class="text-gray-600">Active</span>
-                                <span class="text-2xl font-bold text-indigo-600" id="activeArms">0</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600">Total Capacity</span>
-                                <span class="text-2xl font-bold text-blue-600" id="totalCapacity">0</span>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Arm Description -->
+                <div>
+                  <label
+                    for="armDescription"
+                    class="block text-sm font-semibold text-gray-700 mb-2"
+                    >Description</label
+                  >
+                  <textarea
+                    id="armDescription"
+                    name="armDescription"
+                    rows="3"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900"
+                    placeholder="Optional: Describe this arm (e.g., Science stream, Arts stream)"
+                  ></textarea>
                 </div>
+
+                <!-- Arm Color (for visual identification) -->
+                <div>
+                  <label
+                    for="armColor"
+                    class="block text-sm font-semibold text-gray-700 mb-2"
+                    >Arm Color (for identification) *</label
+                  >
+                  <div class="flex gap-4 items-center">
+                    <input
+                      type="color"
+                      id="armColor"
+                      name="armColor"
+                      value="#3B82F6"
+                      class="w-16 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      id="armColorHex"
+                      class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900"
+                      placeholder="#3B82F6"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <!-- Capacity -->
+                <div>
+                  <label
+                    for="capacity"
+                    class="block text-sm font-semibold text-gray-700 mb-2"
+                    >Capacity (students per arm) *</label
+                  >
+                  <input
+                    type="number"
+                    id="capacity"
+                    name="capacity"
+                    required
+                    min="1"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900"
+                    placeholder="e.g., 40"
+                  />
+                  <span
+                    class="text-red-500 text-sm hidden"
+                    id="capacityError"
+                  ></span>
+                </div>
+
+                <!-- Status -->
+                <div>
+                  <label
+                    for="status"
+                    class="block text-sm font-semibold text-gray-700 mb-2"
+                    >Status</label
+                  >
+                  <select
+                    id="status"
+                    name="status"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex gap-4 pt-4">
+                  <button
+                    type="submit"
+                    class="flex-1 bg-indigo-900 text-white py-3 rounded-lg font-semibold hover:bg-indigo-800 transition"
+                  >
+                    <i class="fas fa-plus mr-2"></i>Add Arm
+                  </button>
+                  <button
+                    type="reset"
+                    class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition"
+                  >
+                    Clear Form
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Info Section -->
+          <div class="md:col-span-1">
+            <div
+              class="bg-indigo-50 rounded-lg shadow p-6 border-l-4 border-indigo-900"
+            >
+              <h3 class="text-lg font-bold text-gray-900 mb-4">
+                <i class="fas fa-info-circle text-indigo-900 mr-2"></i>Arm
+                Examples
+              </h3>
+              <ul class="space-y-3 text-sm text-gray-700">
+                <li class="flex gap-2">
+                  <i class="fas fa-check text-indigo-600 mt-1"></i>
+                  <span><strong>Alphabetic:</strong> A, B, C, D</span>
+                </li>
+                <li class="flex gap-2">
+                  <i class="fas fa-check text-indigo-600 mt-1"></i>
+                  <span
+                    ><strong>Precious Metals:</strong> Gold, Silver,
+                    Bronze</span
+                  >
+                </li>
+                <li class="flex gap-2">
+                  <i class="fas fa-check text-indigo-600 mt-1"></i>
+                  <span><strong>Colors:</strong> Red, Blue, Green, Yellow</span>
+                </li>
+                <li class="flex gap-2">
+                  <i class="fas fa-check text-indigo-600 mt-1"></i>
+                  <span><strong>Streams:</strong> Science, Arts, Commerce</span>
+                </li>
+                <li class="flex gap-2">
+                  <i class="fas fa-check text-indigo-600 mt-1"></i>
+                  <span><strong>Numbers:</strong> 1, 2, 3, 4</span>
+                </li>
+              </ul>
             </div>
 
-            <!-- Arms Table -->
-            <div class="mt-12 bg-white rounded-lg shadow-lg overflow-hidden">
-                <div class="p-6 border-b border-gray-200">
-                    <h2 class="text-2xl font-bold text-gray-900">All Class Arms</h2>
+            <!-- Statistics -->
+            <div class="mt-6 bg-white rounded-lg shadow p-6">
+              <h3 class="text-lg font-bold text-gray-900 mb-4">
+                Arm Statistics
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center pb-3 border-b">
+                  <span class="text-gray-600">Total Arms</span>
+                  <span
+                    class="text-2xl font-bold text-indigo-900"
+                    id="totalArms"
+                    >0</span
+                  >
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-indigo-900 text-white">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Arm Name</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Color</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Description</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Capacity</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Status</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="armsTableBody" class="divide-y divide-gray-200">
-                            <tr class="text-center py-8">
-                                <td colspan="6" class="px-6 py-8 text-gray-500">No arms created yet</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="flex justify-between items-center pb-3 border-b">
+                  <span class="text-gray-600">Active</span>
+                  <span
+                    class="text-2xl font-bold text-indigo-600"
+                    id="activeArms"
+                    >0</span
+                  >
                 </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">Total Capacity</span>
+                  <span
+                    class="text-2xl font-bold text-blue-600"
+                    id="totalCapacity"
+                    >0</span
+                  >
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+
+        <!-- Arms Table -->
+        <div class="mt-12 bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="p-6 border-b border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900">All Class Arms</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-indigo-900 text-white">
+                <tr>
+                  <th class="px-6 py-3 text-left text-sm font-semibold">
+                    Arm Name
+                  </th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold">
+                    Color
+                  </th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold">
+                    Description
+                  </th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold">
+                    Capacity
+                  </th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold">
+                    Status
+                  </th>
+                  <th class="px-6 py-3 text-left text-sm font-semibold">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="armsTableBody" class="divide-y divide-gray-200">
+                <tr class="text-center py-8">
+                  <td colspan="6" class="px-6 py-8 text-gray-500">
+                    No arms created yet
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="class-management.html" class="text-gray-400 hover:text-white transition">Classes</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Committed to providing quality education and nurturing future
+              leaders.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <a
+                  href="../index.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="class-management.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Classes</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+            <ul class="space-y-2 text-sm text-gray-400">
+              <li>
+                <i class="fas fa-map-marker-alt mr-2"></i>123 Education Street,
+                City
+              </li>
+              <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
+              <li>
+                <i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+            <div class="flex gap-4">
+              <a
+                href="#"
+                class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-instagram"></i>
+              </a>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
+          </div>
         </div>
+        <div
+          class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm"
+        >
+          <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+        </div>
+      </div>
     </footer>
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+      mobileMenuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
 
-        // Color picker sync
-        const armColor = document.getElementById('armColor');
-        const armColorHex = document.getElementById('armColorHex');
-        armColor.addEventListener('change', (e) => {
-            armColorHex.value = e.target.value;
-        });
+      // Color picker sync
+      const armColor = document.getElementById("armColor");
+      const armColorHex = document.getElementById("armColorHex");
+      armColor.addEventListener("change", (e) => {
+        armColorHex.value = e.target.value;
+      });
 
-        // Form validation and submission
-        const armForm = document.getElementById('armForm');
-        const armsTableBody = document.getElementById('armsTableBody');
-        let arms = JSON.parse(localStorage.getItem('schoolArms')) || [];
+      // Form validation and submission
+      const armForm = document.getElementById("armForm");
+      const armsTableBody = document.getElementById("armsTableBody");
+      let arms = JSON.parse(localStorage.getItem("schoolArms")) || [];
 
-        function updateStats() {
-            const total = arms.length;
-            const active = arms.filter(a => a.status === 'active').length;
-            const totalCapacity = arms.reduce((sum, a) => sum + (parseInt(a.capacity) || 0), 0);
-            
-            document.getElementById('totalArms').textContent = total;
-            document.getElementById('activeArms').textContent = active;
-            document.getElementById('totalCapacity').textContent = totalCapacity;
+      function updateStats() {
+        const total = arms.length;
+        const active = arms.filter((a) => a.status === "active").length;
+        const totalCapacity = arms.reduce(
+          (sum, a) => sum + (parseInt(a.capacity) || 0),
+          0
+        );
+
+        document.getElementById("totalArms").textContent = total;
+        document.getElementById("activeArms").textContent = active;
+        document.getElementById("totalCapacity").textContent = totalCapacity;
+      }
+
+      function renderArms() {
+        if (arms.length === 0) {
+          armsTableBody.innerHTML =
+            '<tr class="text-center"><td colspan="6" class="px-6 py-8 text-gray-500">No arms created yet</td></tr>';
+          return;
         }
 
-        function renderArms() {
-            if (arms.length === 0) {
-                armsTableBody.innerHTML = '<tr class="text-center"><td colspan="6" class="px-6 py-8 text-gray-500">No arms created yet</td></tr>';
-                return;
-            }
-
-            armsTableBody.innerHTML = arms.map((arm, index) => `
+        armsTableBody.innerHTML = arms
+          .map(
+            (arm, index) => `
                 <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">${arm.armName}</td>
+                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">${
+                      arm.armName
+                    }</td>
                     <td class="px-6 py-4 text-sm">
                         <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded" style="background-color: ${arm.armColor}"></div>
+                            <div class="w-6 h-6 rounded" style="background-color: ${
+                              arm.armColor
+                            }"></div>
                             <span class="text-gray-600">${arm.armColor}</span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${arm.armDescription || '-'}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${arm.capacity} students</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${
+                      arm.armDescription || "-"
+                    }</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${
+                      arm.capacity
+                    } students</td>
                     <td class="px-6 py-4 text-sm">
-                        <span class="px-3 py-1 ${arm.status === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'} rounded-full text-xs font-semibold capitalize">${arm.status}</span>
+                        <span class="px-3 py-1 ${
+                          arm.status === "active"
+                            ? "bg-green-100 text-green-900"
+                            : "bg-red-100 text-red-900"
+                        } rounded-full text-xs font-semibold capitalize">${
+              arm.status
+            }</span>
                     </td>
                     <td class="px-6 py-4 text-sm space-x-2">
                         <button onclick="editArm(${index})" class="text-blue-600 hover:text-blue-900 font-semibold">
@@ -287,93 +472,105 @@
                         </button>
                     </td>
                 </tr>
-            `).join('');
+            `
+          )
+          .join("");
+      }
+
+      function deleteArm(index) {
+        if (confirm("Are you sure you want to delete this arm?")) {
+          arms.splice(index, 1);
+          localStorage.setItem("schoolArms", JSON.stringify(arms));
+          renderArms();
+          updateStats();
         }
+      }
 
-        function deleteArm(index) {
-            if (confirm('Are you sure you want to delete this arm?')) {
-                arms.splice(index, 1);
-                localStorage.setItem('schoolArms', JSON.stringify(arms));
-                renderArms();
-                updateStats();
-            }
-        }
+      function editArm(index) {
+        const arm = arms[index];
+        document.getElementById("armName").value = arm.armName;
+        document.getElementById("armDescription").value =
+          arm.armDescription || "";
+        document.getElementById("armColor").value = arm.armColor;
+        document.getElementById("armColorHex").value = arm.armColor;
+        document.getElementById("capacity").value = arm.capacity;
+        document.getElementById("status").value = arm.status;
 
-        function editArm(index) {
-            const arm = arms[index];
-            document.getElementById('armName').value = arm.armName;
-            document.getElementById('armDescription').value = arm.armDescription || '';
-            document.getElementById('armColor').value = arm.armColor;
-            document.getElementById('armColorHex').value = arm.armColor;
-            document.getElementById('capacity').value = arm.capacity;
-            document.getElementById('status').value = arm.status;
-
-            arms.splice(index, 1);
-            localStorage.setItem('schoolArms', JSON.stringify(arms));
-            renderArms();
-            updateStats();
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        armForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            // Clear previous errors
-            document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
-
-            const armName = document.getElementById('armName').value.trim();
-            const armDescription = document.getElementById('armDescription').value.trim();
-            const armColor = document.getElementById('armColor').value;
-            const capacity = parseInt(document.getElementById('capacity').value);
-            const status = document.getElementById('status').value;
-
-            let isValid = true;
-
-            if (!armName) {
-                document.getElementById('armNameError').textContent = 'Arm name is required';
-                document.getElementById('armNameError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (arms.some(a => a.armName.toLowerCase() === armName.toLowerCase())) {
-                document.getElementById('armNameError').textContent = 'Arm name already exists';
-                document.getElementById('armNameError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!capacity || capacity < 1) {
-                document.getElementById('capacityError').textContent = 'Please enter a valid capacity';
-                document.getElementById('capacityError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (isValid) {
-                const newArm = {
-                    armName,
-                    armDescription,
-                    armColor,
-                    capacity,
-                    status,
-                    createdAt: new Date().toLocaleDateString()
-                };
-
-                arms.push(newArm);
-                localStorage.setItem('schoolArms', JSON.stringify(arms));
-                
-                armForm.reset();
-                document.getElementById('armColor').value = '#3B82F6';
-                document.getElementById('armColorHex').value = '#3B82F6';
-                renderArms();
-                updateStats();
-                
-                alert('Class arm created successfully!');
-            }
-        });
-
-        // Initial render
+        arms.splice(index, 1);
+        localStorage.setItem("schoolArms", JSON.stringify(arms));
         renderArms();
         updateStats();
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      armForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        // Clear previous errors
+        document
+          .querySelectorAll('[id$="Error"]')
+          .forEach((el) => el.classList.add("hidden"));
+
+        const armName = document.getElementById("armName").value.trim();
+        const armDescription = document
+          .getElementById("armDescription")
+          .value.trim();
+        const armColor = document.getElementById("armColor").value;
+        const capacity = parseInt(document.getElementById("capacity").value);
+        const status = document.getElementById("status").value;
+
+        let isValid = true;
+
+        if (!armName) {
+          document.getElementById("armNameError").textContent =
+            "Arm name is required";
+          document.getElementById("armNameError").classList.remove("hidden");
+          isValid = false;
+        }
+
+        if (
+          arms.some((a) => a.armName.toLowerCase() === armName.toLowerCase())
+        ) {
+          document.getElementById("armNameError").textContent =
+            "Arm name already exists";
+          document.getElementById("armNameError").classList.remove("hidden");
+          isValid = false;
+        }
+
+        if (!capacity || capacity < 1) {
+          document.getElementById("capacityError").textContent =
+            "Please enter a valid capacity";
+          document.getElementById("capacityError").classList.remove("hidden");
+          isValid = false;
+        }
+
+        if (isValid) {
+          const newArm = {
+            armName,
+            armDescription,
+            armColor,
+            capacity,
+            status,
+            createdAt: new Date().toLocaleDateString(),
+          };
+
+          arms.push(newArm);
+          localStorage.setItem("schoolArms", JSON.stringify(arms));
+
+          armForm.reset();
+          document.getElementById("armColor").value = "#3B82F6";
+          document.getElementById("armColorHex").value = "#3B82F6";
+          renderArms();
+          updateStats();
+
+          alert("Class arm created successfully!");
+        }
+      });
+
+      // Initial render
+      renderArms();
+      updateStats();
     </script>
-</body>
+  </body>
 </html>

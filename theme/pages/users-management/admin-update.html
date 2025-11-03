@@ -1,259 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Update Admin Account - Excellence Academy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-50">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gray-50">
     <!-- Navigation -->
     <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Admin Panel</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="admin-management.html" class="hover:text-blue-300 transition">Back to Admins</a>
-                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center gap-3">
+            <img
+              src="/placeholder.svg?height=50&width=50"
+              alt="School Logo"
+              class="h-12 w-12 rounded-full bg-white p-1"
+            />
+            <div>
+              <h1 class="text-xl font-bold">Excellence Academy</h1>
+              <p class="text-xs text-blue-200">Admin Panel</p>
             </div>
+          </div>
+          <div class="hidden md:flex items-center gap-6">
+            <a
+              href="admin-management.html"
+              class="hover:text-blue-300 transition"
+              >back to Admins</a
+            >
+            <a href="../index.html" class="hover:text-blue-300 transition"
+              >back to Site</a
+            >
+          </div>
+          <button
+            id="mobile-menu-btn"
+            class="md:hidden text-white focus:outline-none"
+          >
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="admin-management.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Admins</a>
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
-        </div>
+      </div>
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2"
+      >
+        <a
+          href="admin-management.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >back to Admins</a
+        >
+        <a
+          href="../index.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >back to Site</a
+        >
+      </div>
     </nav>
 
     <!-- Page Header -->
     <section class="bg-purple-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Admin Account</h1>
-            <p class="text-xl text-purple-200">Edit administrator account information</p>
-        </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">
+          Update Admin Account
+        </h1>
+        <p class="text-xl text-purple-200">
+          Edit administrator account information
+        </p>
+      </div>
     </section>
 
     <!-- Main Content -->
     <section class="py-12 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-lg shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Admin Information</h2>
-                    
-                    <form id="updateAdminForm" class="space-y-6">
-                        <!-- Full Name -->
-                        <div>
-                            <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                            <input type="text" id="fullName" name="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter full name">
-                            <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
-                        </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto">
+          <div class="bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">
+              Edit Admin Information
+            </h2>
 
-                        <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                            <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter email address">
-                            <span class="text-red-500 text-sm hidden" id="emailError"></span>
-                        </div>
+            <form id="updateAdminForm" class="space-y-6">
+              <!-- Full Name -->
+              <div>
+                <label
+                  for="fullName"
+                  class="block text-sm font-semibold text-gray-700 mb-2"
+                  >Full Name *</label
+                >
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900"
+                  placeholder="Enter full name"
+                />
+                <span
+                  class="text-red-500 text-sm hidden"
+                  id="fullNameError"
+                ></span>
+              </div>
 
-                        <!-- Phone Number -->
-                        <div>
-                            <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                            <input type="tel" id="phone" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter phone number">
-                            <span class="text-red-500 text-sm hidden" id="phoneError"></span>
-                        </div>
+              <!-- Email -->
+              <div>
+                <label
+                  for="email"
+                  class="block text-sm font-semibold text-gray-700 mb-2"
+                  >Email Address *</label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900"
+                  placeholder="Enter email address"
+                />
+                <span
+                  class="text-red-500 text-sm hidden"
+                  id="emailError"
+                ></span>
+              </div>
 
-                        <!-- Role Type -->
-                        <div>
-                            <label for="roleType" class="block text-sm font-semibold text-gray-700 mb-2">Role Type *</label>
-                            <select id="roleType" name="roleType" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
-                                <option value="">Select role type</option>
-                                <option value="admin">Admin</option>
-                                <option value="super_admin">Super Admin</option>
-                            </select>
-                            <span class="text-red-500 text-sm hidden" id="roleTypeError"></span>
-                        </div>
+              <!-- Phone Number -->
+              <div>
+                <label
+                  for="phone"
+                  class="block text-sm font-semibold text-gray-700 mb-2"
+                  >Phone Number *</label
+                >
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900"
+                  placeholder="Enter phone number"
+                />
+                <span
+                  class="text-red-500 text-sm hidden"
+                  id="phoneError"
+                ></span>
+              </div>
 
-                        <!-- Department -->
-                        <div>
-                            <label for="department" class="block text-sm font-semibold text-gray-700 mb-2">Department/Area</label>
-                            <input type="text" id="department" name="department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Academic, Finance, Operations">
-                        </div>
+              <!-- Role Type -->
+              <div>
+                <label
+                  for="roleType"
+                  class="block text-sm font-semibold text-gray-700 mb-2"
+                  >Role Type *</label
+                >
+                <select
+                  id="roleType"
+                  name="roleType"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900"
+                >
+                  <option value="">Select role type</option>
+                  <option value="admin">Admin</option>
+                  <option value="super_admin">Super Admin</option>
+                </select>
+                <span
+                  class="text-red-500 text-sm hidden"
+                  id="roleTypeError"
+                ></span>
+              </div>
 
-                        <!-- Status -->
-                        <div>
-                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Account Status</label>
-                            <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
+              <!-- Department -->
+              <div>
+                <label
+                  for="department"
+                  class="block text-sm font-semibold text-gray-700 mb-2"
+                  >Department/Area</label
+                >
+                <input
+                  type="text"
+                  id="department"
+                  name="department"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900"
+                  placeholder="e.g., Academic, Finance, Operations"
+                />
+              </div>
 
-                        <!-- Submit Button -->
-                        <div class="flex gap-4 pt-4">
-                            <button type="submit" class="flex-1 bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
-                                <i class="fas fa-save mr-2"></i>Update Admin Account
-                            </button>
-                            <a href="admin-management.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+              <!-- Status -->
+              <div>
+                <label
+                  for="status"
+                  class="block text-sm font-semibold text-gray-700 mb-2"
+                  >Account Status</label
+                >
+                <select
+                  id="status"
+                  name="status"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="flex gap-4 pt-4">
+                <button
+                  type="submit"
+                  class="flex-1 bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 transition"
+                >
+                  <i class="fas fa-save mr-2"></i>Update Admin Account
+                </button>
+                <a
+                  href="admin-management.html"
+                  class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center"
+                >
+                  Cancel
+                </a>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="admin-management.html" class="text-gray-400 hover:text-white transition">Admin Management</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Committed to providing quality education and nurturing future
+              leaders.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <a
+                  href="../index.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="admin-management.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Admin Management</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+            <ul class="space-y-2 text-sm text-gray-400">
+              <li>
+                <i class="fas fa-map-marker-alt mr-2"></i>123 Education Street,
+                City
+              </li>
+              <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
+              <li>
+                <i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+            <div class="flex gap-4">
+              <a
+                href="#"
+                class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-instagram"></i>
+              </a>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
+          </div>
         </div>
+        <div
+          class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm"
+        >
+          <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+        </div>
+      </div>
     </footer>
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+      mobileMenuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
 
-        // Form validation and submission
-        const updateAdminForm = document.getElementById('updateAdminForm');
-        const adminIndex = new URLSearchParams(window.location.search).get('index');
+      // Form validation and submission
+      const updateAdminForm = document.getElementById("updateAdminForm");
+      const adminIndex = new URLSearchParams(window.location.search).get(
+        "index"
+      );
 
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
+      function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+      }
+
+      function validatePhone(phone) {
+        const re = /^\+?234\d{10}$|^\d{11}$/;
+        return re.test(phone.replace(/\s/g, ""));
+      }
+
+      // Load admin data if editing
+      if (adminIndex !== null) {
+        const admins = JSON.parse(localStorage.getItem("schoolAdmins")) || [];
+        const admin = admins[adminIndex];
+
+        if (admin) {
+          document.getElementById("fullName").value = admin.fullName;
+          document.getElementById("email").value = admin.email;
+          document.getElementById("phone").value = admin.phone;
+          document.getElementById("roleType").value = admin.roleType;
+          document.getElementById("department").value = admin.department || "";
+          document.getElementById("status").value = admin.status;
+        }
+      }
+
+      updateAdminForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        // Clear previous errors
+        document
+          .querySelectorAll('[id$="Error"]')
+          .forEach((el) => el.classList.add("hidden"));
+
+        const fullName = document.getElementById("fullName").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const roleType = document.getElementById("roleType").value;
+        const department = document.getElementById("department").value.trim();
+        const status = document.getElementById("status").value;
+
+        let isValid = true;
+
+        if (!fullName) {
+          document.getElementById("fullNameError").textContent =
+            "Full name is required";
+          document.getElementById("fullNameError").classList.remove("hidden");
+          isValid = false;
         }
 
-        function validatePhone(phone) {
-            const re = /^\+?234\d{10}$|^\d{11}$/;
-            return re.test(phone.replace(/\s/g, ''));
+        if (!validateEmail(email)) {
+          document.getElementById("emailError").textContent =
+            "Please enter a valid email address";
+          document.getElementById("emailError").classList.remove("hidden");
+          isValid = false;
         }
 
-        // Load admin data if editing
-        if (adminIndex !== null) {
-            const admins = JSON.parse(localStorage.getItem('schoolAdmins')) || [];
-            const admin = admins[adminIndex];
-            
-            if (admin) {
-                document.getElementById('fullName').value = admin.fullName;
-                document.getElementById('email').value = admin.email;
-                document.getElementById('phone').value = admin.phone;
-                document.getElementById('roleType').value = admin.roleType;
-                document.getElementById('department').value = admin.department || '';
-                document.getElementById('status').value = admin.status;
-            }
+        if (!validatePhone(phone)) {
+          document.getElementById("phoneError").textContent =
+            "Please enter a valid phone number";
+          document.getElementById("phoneError").classList.remove("hidden");
+          isValid = false;
         }
 
-        updateAdminForm.addEventListener('submit', (e) => {
-            e.preventDefault();
+        if (!roleType) {
+          document.getElementById("roleTypeError").textContent =
+            "Please select a role type";
+          document.getElementById("roleTypeError").classList.remove("hidden");
+          isValid = false;
+        }
 
-            // Clear previous errors
-            document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
+        if (isValid) {
+          const admins = JSON.parse(localStorage.getItem("schoolAdmins")) || [];
 
-            const fullName = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const roleType = document.getElementById('roleType').value;
-            const department = document.getElementById('department').value.trim();
-            const status = document.getElementById('status').value;
+          if (adminIndex !== null) {
+            admins[adminIndex] = {
+              fullName,
+              email,
+              phone,
+              roleType,
+              department,
+              status,
+              updatedAt: new Date().toLocaleDateString(),
+            };
+            localStorage.setItem("schoolAdmins", JSON.stringify(admins));
+            alert("Admin account updated successfully!");
+          }
 
-            let isValid = true;
-
-            if (!fullName) {
-                document.getElementById('fullNameError').textContent = 'Full name is required';
-                document.getElementById('fullNameError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!validateEmail(email)) {
-                document.getElementById('emailError').textContent = 'Please enter a valid email address';
-                document.getElementById('emailError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!validatePhone(phone)) {
-                document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
-                document.getElementById('phoneError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!roleType) {
-                document.getElementById('roleTypeError').textContent = 'Please select a role type';
-                document.getElementById('roleTypeError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (isValid) {
-                const admins = JSON.parse(localStorage.getItem('schoolAdmins')) || [];
-                
-                if (adminIndex !== null) {
-                    admins[adminIndex] = {
-                        fullName,
-                        email,
-                        phone,
-                        roleType,
-                        department,
-                        status,
-                        updatedAt: new Date().toLocaleDateString()
-                    };
-                    localStorage.setItem('schoolAdmins', JSON.stringify(admins));
-                    alert('Admin account updated successfully!');
-                }
-                
-                window.location.href = 'admin-management.html';
-            }
-        });
+          window.location.href = "admin-management.html";
+        }
+      });
     </script>
-</body>
+  </body>
 </html>

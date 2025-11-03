@@ -7,9 +7,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
-    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
-}
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -20,10 +17,10 @@ if (isset($_GET['id'])) {
     if ($result->num_rows > 0) {
         $class = $result->fetch_assoc();
     } else {
-        header('Location: ' . $_SESSION['previous_page']);
+        header('Location: ' .  route('back'));
     }
 } else {
-    header('Location: ' . $_SESSION['previous_page']);
+    header('Location: ' .  route('back'));
 }
 
 $statement = $connection->prepare("SELECT * FROM sections");
@@ -87,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('siiii', $name, $section, $teacher, $arm, $id);
 
         if ($statement->execute()) {
-            header("Location: " . $_SESSION['previous_page']);
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
@@ -183,8 +180,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <button type="submit" class="flex-1 bg-green-900 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition">
                                     <i class="fas fa-save mr-2"></i>Update Class
                                 </button>
-                                <a href="<?= $_SESSION['previous_page'] ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
-                                    <i class="fas fa-arrow-left mr-2"></i>Back
+                                <a href="<?= route('back') ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                    <i class="fas fa-arrow-left mr-2"></i>back
                                 </a>
                             </div>
                         </form>

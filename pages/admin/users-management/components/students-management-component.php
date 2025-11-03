@@ -66,7 +66,7 @@
                                         <span class="px-3 py-1 <?= $student['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $student['status'] ?></span>
                                     </td>
                                     <td class="px-6 py-4 text-sm space-x-2">
-                                        <a href="<?= route('student-update') . '?id=' .$student['student_id'] ?>" class="text-green-600 hover:text-green-800 font-semibold"><button class="text-blue-600 hover:text-blue-900 font-semibold">
+                                        <a href="<?= route('student-update') . '?id=' . $student['student_id'] ?>" class="text-green-600 hover:text-green-800 font-semibold"><button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                 <i class="fas fa-edit"></i> Edit
                                             </button>
 

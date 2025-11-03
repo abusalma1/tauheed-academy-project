@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ss', $name, $description);
 
         if ($statement->execute()) {
-            header("Location: " . $_SERVER['PHP_SELFs'] . "?success=1");
+            header("Location: " .  route('back') . "?success=1");
             exit();
         } else {
             echo "<script>alert('Failed to create class arm : " . $statement->error . "');</script>";

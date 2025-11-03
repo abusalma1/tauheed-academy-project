@@ -8,14 +8,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
-    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
-}
-
-$statement = $connection->prepare("SELECT * FROM teachers");
-$statement->execute();
-$result = $statement->get_result();
-$teachers = $result->fetch_all(MYSQLI_ASSOC);
+$teachers = selectAllData('teachers');
 
 
 // Count total teachers
@@ -79,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssssssss', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $hashed_password);
 
         if ($statement->execute()) {
-            header("Location: " . $_SESSION['previous_page'] . "?success=1");
+            header("Location: " .  route('back') . "?success=1");
             exit();
         } else {
             echo "<script>alert('Database error: " . $statement->error . "');</script>";
@@ -122,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
-                         
+
                             <!-- Full Name -->
                             <div>
                                 <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>

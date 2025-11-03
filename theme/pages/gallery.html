@@ -1,447 +1,795 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gallery - Excellence Academy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-        }
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            max-width: 90%;
-            max-height: 90%;
-        }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+      }
+      .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+      }
     </style>
-</head>
-<body class="bg-gray-50">
-     Navigation 
+  </head>
+  <body class="bg-gray-50">
+    Navigation
     <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Nurturing Future Leaders</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="../index.html" class="hover:text-blue-300 transition">Home</a>
-                    <a href="about.html" class="hover:text-blue-300 transition">About</a>
-                    <a href="admissions.html" class="hover:text-blue-300 transition">Admissions</a>
-                    <a href="fees.html" class="hover:text-blue-300 transition">Fees</a>
-                    <a href="timetable.html" class="hover:text-blue-300 transition">Timetable</a>
-                    <a href="academics.html" class="hover:text-blue-300 transition">Academics</a>
-                    <a href="staff.html" class="hover:text-blue-300 transition">Staff</a>
-                    <a href="uniform.html" class="hover:text-blue-300 transition">Uniform</a>
-                    <a href="gallery.html" class="hover:text-blue-300 transition">Gallery</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center gap-3">
+            <img
+              src="/placeholder.svg?height=50&width=50"
+              alt="School Logo"
+              class="h-12 w-12 rounded-full bg-white p-1"
+            />
+            <div>
+              <h1 class="text-xl font-bold">Excellence Academy</h1>
+              <p class="text-xs text-blue-200">Nurturing Future Leaders</p>
             </div>
+          </div>
+          <div class="hidden md:flex items-center gap-6">
+            <a href="../index.html" class="hover:text-blue-300 transition"
+              >Home</a
+            >
+            <a href="about.html" class="hover:text-blue-300 transition"
+              >About</a
+            >
+            <a href="admissions.html" class="hover:text-blue-300 transition"
+              >Admissions</a
+            >
+            <a href="fees.html" class="hover:text-blue-300 transition">Fees</a>
+            <a href="timetable.html" class="hover:text-blue-300 transition"
+              >Timetable</a
+            >
+            <a href="academics.html" class="hover:text-blue-300 transition"
+              >Academics</a
+            >
+            <a href="staff.html" class="hover:text-blue-300 transition"
+              >Staff</a
+            >
+            <a href="uniform.html" class="hover:text-blue-300 transition"
+              >Uniform</a
+            >
+            <a href="gallery.html" class="hover:text-blue-300 transition"
+              >Gallery</a
+            >
+          </div>
+          <button
+            id="mobile-menu-btn"
+            class="md:hidden text-white focus:outline-none"
+          >
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Home</a>
-            <a href="about.html" class="block py-2 hover:bg-blue-700 px-3 rounded">About</a>
-            <a href="admissions.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Admissions</a>
-            <a href="fees.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Fees</a>
-            <a href="timetable.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Timetable</a>
-            <a href="academics.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Academics</a>
-            <a href="staff.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Staff</a>
-            <a href="uniform.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
-            <a href="gallery.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Gallery</a>
-        </div>
+      </div>
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2"
+      >
+        <a
+          href="../index.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Home</a
+        >
+        <a href="about.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >About</a
+        >
+        <a
+          href="admissions.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Admissions</a
+        >
+        <a href="fees.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Fees</a
+        >
+        <a
+          href="timetable.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Timetable</a
+        >
+        <a
+          href="academics.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Academics</a
+        >
+        <a href="staff.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Staff</a
+        >
+        <a href="uniform.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Uniform</a
+        >
+        <a href="gallery.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Gallery</a
+        >
+      </div>
     </nav>
 
-     Page Header 
+    Page Header
     <section class="bg-blue-900 text-white py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Photo Gallery</h1>
-            <p class="text-xl text-blue-200">Capturing Moments of Excellence</p>
-        </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Photo Gallery</h1>
+        <p class="text-xl text-blue-200">Capturing Moments of Excellence</p>
+      </div>
     </section>
 
-     Gallery Categories 
+    Gallery Categories
     <section class="py-8 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap justify-center gap-4">
-                <button onclick="filterGallery('all')" class="filter-btn bg-blue-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
-                    All Photos
-                </button>
-                <button onclick="filterGallery('facilities')" class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
-                    Facilities
-                </button>
-                <button onclick="filterGallery('classrooms')" class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
-                    Classrooms
-                </button>
-                <button onclick="filterGallery('events')" class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
-                    Events
-                </button>
-                <button onclick="filterGallery('sports')" class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
-                    Sports
-                </button>
-                <button onclick="filterGallery('activities')" class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
-                    Activities
-                </button>
-            </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap justify-center gap-4">
+          <button
+            onclick="filterGallery('all')"
+            class="filter-btn bg-blue-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition"
+          >
+            All Photos
+          </button>
+          <button
+            onclick="filterGallery('facilities')"
+            class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+          >
+            Facilities
+          </button>
+          <button
+            onclick="filterGallery('classrooms')"
+            class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+          >
+            Classrooms
+          </button>
+          <button
+            onclick="filterGallery('events')"
+            class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+          >
+            Events
+          </button>
+          <button
+            onclick="filterGallery('sports')"
+            class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+          >
+            Sports
+          </button>
+          <button
+            onclick="filterGallery('activities')"
+            class="filter-btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+          >
+            Activities
+          </button>
         </div>
+      </div>
     </section>
 
-     Gallery Grid 
+    Gallery Grid
     <section class="py-16 bg-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="gallery-grid">
-                 Facilities 
-                <div class="gallery-item facilities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="School Building" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Main School Building</p>
-                            <p class="text-white text-sm">Our modern educational facility</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item facilities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Library" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">School Library</p>
-                            <p class="text-white text-sm">Well-stocked with educational resources</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item facilities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Laboratory" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Science Laboratory</p>
-                            <p class="text-white text-sm">State-of-the-art lab equipment</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item facilities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Computer Lab" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Computer Laboratory</p>
-                            <p class="text-white text-sm">Modern computing facilities</p>
-                        </div>
-                    </div>
-                </div>
-
-                 Classrooms 
-                <div class="gallery-item classrooms cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Classroom" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Primary Classroom</p>
-                            <p class="text-white text-sm">Bright and spacious learning environment</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item classrooms cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Secondary Classroom" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Secondary Classroom</p>
-                            <p class="text-white text-sm">Equipped with modern teaching aids</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item classrooms cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Teaching Session" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Interactive Learning</p>
-                            <p class="text-white text-sm">Engaging classroom sessions</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item classrooms cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Students Learning" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Focused Learning</p>
-                            <p class="text-white text-sm">Students engaged in studies</p>
-                        </div>
-                    </div>
-                </div>
-
-                 Events 
-                <div class="gallery-item events cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Graduation" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Graduation Ceremony</p>
-                            <p class="text-white text-sm">Celebrating academic achievements</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item events cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Cultural Day" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Cultural Day</p>
-                            <p class="text-white text-sm">Celebrating diversity and culture</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item events cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Assembly" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Morning Assembly</p>
-                            <p class="text-white text-sm">Daily gathering and announcements</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item events cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Awards" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Awards Ceremony</p>
-                            <p class="text-white text-sm">Recognizing excellence</p>
-                        </div>
-                    </div>
-                </div>
-
-                 Sports 
-                <div class="gallery-item sports cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Football" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Football Match</p>
-                            <p class="text-white text-sm">Inter-house sports competition</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item sports cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Athletics" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Athletics Day</p>
-                            <p class="text-white text-sm">Track and field events</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item sports cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Basketball" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Basketball Tournament</p>
-                            <p class="text-white text-sm">School sports competition</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item sports cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Sports Field" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Sports Field</p>
-                            <p class="text-white text-sm">Our expansive sports facilities</p>
-                        </div>
-                    </div>
-                </div>
-
-                 Activities 
-                <div class="gallery-item activities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Science Fair" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Science Fair</p>
-                            <p class="text-white text-sm">Student experiments and projects</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item activities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Art Class" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Art & Creativity</p>
-                            <p class="text-white text-sm">Creative arts session</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item activities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Music" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Music Performance</p>
-                            <p class="text-white text-sm">School choir and band</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item activities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Drama" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Drama Club</p>
-                            <p class="text-white text-sm">Annual drama presentation</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item activities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Excursion" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Educational Excursion</p>
-                            <p class="text-white text-sm">Learning beyond the classroom</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gallery-item activities cursor-pointer" onclick="openModal(this)">
-                    <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                        <img src="/placeholder.svg?height=300&width=400" alt="Reading" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p class="text-white font-semibold">Reading Club</p>
-                            <p class="text-white text-sm">Promoting literacy and learning</p>
-                        </div>
-                    </div>
-                </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          id="gallery-grid"
+        >
+          Facilities
+          <div
+            class="gallery-item facilities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="School Building"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Main School Building</p>
+                <p class="text-white text-sm">
+                  Our modern educational facility
+                </p>
+              </div>
             </div>
+          </div>
+
+          <div
+            class="gallery-item facilities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Library"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">School Library</p>
+                <p class="text-white text-sm">
+                  Well-stocked with educational resources
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item facilities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Laboratory"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Science Laboratory</p>
+                <p class="text-white text-sm">State-of-the-art lab equipment</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item facilities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Computer Lab"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Computer Laboratory</p>
+                <p class="text-white text-sm">Modern computing facilities</p>
+              </div>
+            </div>
+          </div>
+
+          Classrooms
+          <div
+            class="gallery-item classrooms cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Classroom"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Primary Classroom</p>
+                <p class="text-white text-sm">
+                  Bright and spacious learning environment
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item classrooms cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Secondary Classroom"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Secondary Classroom</p>
+                <p class="text-white text-sm">
+                  Equipped with modern teaching aids
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item classrooms cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Teaching Session"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Interactive Learning</p>
+                <p class="text-white text-sm">Engaging classroom sessions</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item classrooms cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Students Learning"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Focused Learning</p>
+                <p class="text-white text-sm">Students engaged in studies</p>
+              </div>
+            </div>
+          </div>
+
+          Events
+          <div
+            class="gallery-item events cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Graduation"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Graduation Ceremony</p>
+                <p class="text-white text-sm">
+                  Celebrating academic achievements
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item events cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Cultural Day"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Cultural Day</p>
+                <p class="text-white text-sm">
+                  Celebrating diversity and culture
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item events cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Assembly"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Morning Assembly</p>
+                <p class="text-white text-sm">
+                  Daily gathering and announcements
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item events cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Awards"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Awards Ceremony</p>
+                <p class="text-white text-sm">Recognizing excellence</p>
+              </div>
+            </div>
+          </div>
+
+          Sports
+          <div
+            class="gallery-item sports cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Football"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Football Match</p>
+                <p class="text-white text-sm">Inter-house sports competition</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item sports cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Athletics"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Athletics Day</p>
+                <p class="text-white text-sm">Track and field events</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item sports cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Basketball"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Basketball Tournament</p>
+                <p class="text-white text-sm">School sports competition</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item sports cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Sports Field"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Sports Field</p>
+                <p class="text-white text-sm">
+                  Our expansive sports facilities
+                </p>
+              </div>
+            </div>
+          </div>
+
+          Activities
+          <div
+            class="gallery-item activities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Science Fair"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Science Fair</p>
+                <p class="text-white text-sm">
+                  Student experiments and projects
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item activities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Art Class"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Art & Creativity</p>
+                <p class="text-white text-sm">Creative arts session</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item activities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Music"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Music Performance</p>
+                <p class="text-white text-sm">School choir and band</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item activities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Drama"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Drama Club</p>
+                <p class="text-white text-sm">Annual drama presentation</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item activities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Excursion"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Educational Excursion</p>
+                <p class="text-white text-sm">Learning beyond the classroom</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="gallery-item activities cursor-pointer"
+            onclick="openModal(this)"
+          >
+            <div class="relative overflow-hidden rounded-lg shadow-lg group">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="Reading"
+                class="w-full h-64 object-cover group-hover:scale-110 transition duration-300"
+              />
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+              >
+                <p class="text-white font-semibold">Reading Club</p>
+                <p class="text-white text-sm">
+                  Promoting literacy and learning
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
-     Image Modal 
+    Image Modal
     <div id="imageModal" class="modal" onclick="closeModal()">
-        <span class="absolute top-4 right-8 text-white text-5xl font-bold cursor-pointer hover:text-gray-300">&times;</span>
-        <img class="modal-content" id="modalImage" onclick="event.stopPropagation()">
+      <span
+        class="absolute top-4 right-8 text-white text-5xl font-bold cursor-pointer hover:text-gray-300"
+        >&times;</span
+      >
+      <img
+        class="modal-content"
+        id="modalImage"
+        onclick="event.stopPropagation()"
+      />
     </div>
 
-     Footer 
+    Footer
     <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders through academic excellence and character development.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="about.html" class="text-gray-400 hover:text-white transition">About Us</a></li>
-                        <li><a href="admissions.html" class="text-gray-400 hover:text-white transition">Admissions</a></li>
-                        <li><a href="academics.html" class="text-gray-400 hover:text-white transition">Academics</a></li>
-                        <li><a href="gallery.html" class="text-gray-400 hover:text-white transition">Gallery</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                        <li><i class="fab fa-whatsapp mr-2"></i>+234 800 123 4567</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Committed to providing quality education and nurturing future
+              leaders through academic excellence and character development.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <a
+                  href="../index.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="about.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >About Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="admissions.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Admissions</a
+                >
+              </li>
+              <li>
+                <a
+                  href="academics.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Academics</a
+                >
+              </li>
+              <li>
+                <a
+                  href="gallery.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Gallery</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+            <ul class="space-y-2 text-sm text-gray-400">
+              <li>
+                <i class="fas fa-map-marker-alt mr-2"></i>123 Education Street,
+                City
+              </li>
+              <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
+              <li>
+                <i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu
+              </li>
+              <li><i class="fab fa-whatsapp mr-2"></i>+234 800 123 4567</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+            <div class="flex gap-4">
+              <a
+                href="#"
+                class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-instagram"></i>
+              </a>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
+          </div>
         </div>
+        <div
+          class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm"
+        >
+          <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+        </div>
+      </div>
     </footer>
 
     <script>
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+      mobileMenuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
+
+      // Gallery filter function
+      function filterGallery(category) {
+        const items = document.querySelectorAll(".gallery-item");
+        const buttons = document.querySelectorAll(".filter-btn");
+
+        // Update button styles
+        buttons.forEach((btn) => {
+          btn.classList.remove("bg-blue-900", "text-white");
+          btn.classList.add("bg-gray-200", "text-gray-700");
         });
+        event.target.classList.remove("bg-gray-200", "text-gray-700");
+        event.target.classList.add("bg-blue-900", "text-white");
 
-        // Gallery filter function
-        function filterGallery(category) {
-            const items = document.querySelectorAll('.gallery-item');
-            const buttons = document.querySelectorAll('.filter-btn');
-            
-            // Update button styles
-            buttons.forEach(btn => {
-                btn.classList.remove('bg-blue-900', 'text-white');
-                btn.classList.add('bg-gray-200', 'text-gray-700');
-            });
-            event.target.classList.remove('bg-gray-200', 'text-gray-700');
-            event.target.classList.add('bg-blue-900', 'text-white');
-            
-            // Filter items
-            items.forEach(item => {
-                if (category === 'all' || item.classList.contains(category)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
-        // Modal functions
-        function openModal(element) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            const img = element.querySelector('img');
-            
-            modal.classList.add('active');
-            modalImg.src = img.src;
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('imageModal');
-            modal.classList.remove('active');
-        }
-
-        // Close modal on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
+        // Filter items
+        items.forEach((item) => {
+          if (category === "all" || item.classList.contains(category)) {
+            item.style.display = "block";
+          } else {
+            item.style.display = "none";
+          }
         });
+      }
+
+      // Modal functions
+      function openModal(element) {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+        const img = element.querySelector("img");
+
+        modal.classList.add("active");
+        modalImg.src = img.src;
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("imageModal");
+        modal.classList.remove("active");
+      }
+
+      // Close modal on Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeModal();
+        }
+      });
     </script>
-</body>
+  </body>
 </html>

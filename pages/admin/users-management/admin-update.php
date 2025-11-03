@@ -3,9 +3,6 @@
 $title = "Update Admins & Super Users";
 include(__DIR__ . '/../../../includes/header.php');
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
-    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
-}
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -16,10 +13,10 @@ if (isset($_GET['id'])) {
     if ($result->num_rows > 0) {
         $admin = $result->fetch_assoc();
     } else {
-        header('Location: ' . $_SESSION['previous_page']);
+        header('Location: ' .  route('back'));
     }
 } else {
-    header('Location: ' . $_SESSION['previous_page']);
+    header('Location: ' .  route('back'));
 }
 
 if (empty($_SESSION['csrf_token'])) {
@@ -109,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $connection->prepare("UPDATE admins set name = ?, email = ?, phone = ?, department = ?, address = ?, staff_no = ?, status = ?, type = ? where id = ? ");
         $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $id);
         if ($statement->execute()) {
-            header("Location: " . $_SESSION['previous_page']);
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Failed to create admin/super user account: " . $statement->error . "');</script>";
@@ -154,9 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-                          <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
-                   
+
 
                             <!-- Full Name -->
                             <div>
@@ -228,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <button type="submit" class="flex-1 bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
                                     <i class="fas fa-save mr-2"></i>Update Admin Account
                                 </button>
-                                <a href="admin-management.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                <a href="<?= route('back') ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
                                     Cancel
                                 </a>
                             </div>
@@ -385,7 +382,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     behavior: 'smooth'
                 });
 
-                            showErrorMessage();
+                showErrorMessage();
             }
 
         });
