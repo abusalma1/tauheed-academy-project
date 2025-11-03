@@ -8,11 +8,12 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
+    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
+}
 
-$statement = $connection->prepare("SELECT * FROM guardians");
-$statement->execute();
-$result = $statement->get_result();
-$guardians = $result->fetch_all(MYSQLI_ASSOC);
+
+$guardians = selectAllData('guardians');
 
 
 // Count total guardians
@@ -71,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssssssss', $name, $email, $phone, $occupation, $address, $relationship, $status, $hashed_password);
 
         if ($statement->execute()) {
-            header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
+            header("Location: " . $_SESSION['previous_page'] . "?success=1");
             exit();
         } else {
             echo "<script>alert('Failed to create guardian user account: " . $statement->error . "');</script>";
