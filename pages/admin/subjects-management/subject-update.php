@@ -2,102 +2,114 @@
 $title = "Update Subject";
 include(__DIR__ . '/../../../includes/header.php');
 
-
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// All classes for multi-select
+$classes = selectAllData('classes');
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM teachers WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
-    if ($result->num_rows > 0) {
-        $teacher = $result->fetch_assoc();
-    } else {
-        header('Location: ' .  route('back'));
-    }
-} else {
-    header('Location: ' .  route('back'));
+// Validate subject id
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    header('Location: ' . route('back'));
 }
+$subject_id = intval($_GET['id']);
 
+// Fetch subject
+$subjectStmt = $connection->prepare("SELECT * FROM subjects WHERE id = ?");
+$subjectStmt->bind_param('i', $subject_id);
+$subjectStmt->execute();
+$subjectResult = $subjectStmt->get_result();
+if ($subjectResult->num_rows === 0) {
+    die('<p class="text-red-600 font-semibold">Subject not found.</p>');
+}
+$current_subject = $subjectResult->fetch_assoc();
 
-$teachers = selectAllData('teachers', null, $id);
+// Fetch associated classes
+$selected_classes = [];
+$csStmt = $connection->prepare("SELECT class_id FROM class_subject WHERE subject_id = ?");
+$csStmt->bind_param('i', $subject_id);
+$csStmt->execute();
+$csRes = $csStmt->get_result();
+while ($r = $csRes->fetch_assoc()) {
+    $selected_classes[] = (int)$r['class_id'];
+}
+$csStmt->close();
 
-
+// Handle POST (update)
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $id = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $name = trim($_POST['name'] ?? '');
+    $class_ids = isset($_POST['classes']) ? $_POST['classes'] : [];
 
-    $name = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
-    $phone = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $staffNumber = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $qualification = htmlspecialchars(trim($_POST['qualification'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
-
-    // validations...
-    if (empty($name)) $errors['nameError'] = 'Full name is required';
-    if (empty($email)) {
-        $errors['emailError'] = 'Email is required';
-    } elseif (!validateEmail($email)) {
-        $errors['emailError'] = 'Invalid email format';
-    } elseif (emailExist($email, 'teachers', $id)) {
-        $errors['emailError'] = 'Email already exists';
+    // Validations
+    if ($name === '') {
+        $errors['name'] = "Subject name is required.";
     }
 
-    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
-    if (empty($address)) $errors['addressError'] = 'Address is required';
-    if (empty($staffNumber)) {
-        $errors['staffNumberError'] = 'Staff number is required';
-    } elseif (staffNumberExist($staffNumber, 'teachers', $id)) {
-        $errors['staffNumberError'] = 'Staff No already exists';
+    if (empty($class_ids) || !is_array($class_ids)) {
+        $errors['classes'] = "Please select at least one class.";
     }
-    if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
 
+    // Optionally ensure unique name (exclude current subject)
+    $uniqueStmt = $connection->prepare("SELECT id FROM subjects WHERE name = ? AND id != ?");
+    $uniqueStmt->bind_param('si', $name, $subject_id);
+    $uniqueStmt->execute();
+    $uniqueRes = $uniqueStmt->get_result();
+    if ($uniqueRes->num_rows > 0) {
+        $errors['name'] = "A subject with this name already exists.";
+    }
+    $uniqueStmt->close();
 
     if (empty($errors)) {
-        $statement = $connection->prepare("UPDATE teachers SET name = ? , email = ?, phone = ?, address = ?, staff_no = ?, qualification = ?,  status = ? WHERE id = ?");
-        $statement->bind_param('sssssssi', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $id);
+        // Update subject name
+        $updateStmt = $connection->prepare("UPDATE subjects SET name = ? WHERE id = ?");
+        $updateStmt->bind_param('si', $name, $subject_id);
 
-        if ($statement->execute()) {
-            header("Location: " .  route('back') . "?success=1");
-            exit();
+        if ($updateStmt->execute()) {
+            // Replace pivot rows: delete old, insert new
+            $delStmt = $connection->prepare("DELETE FROM class_subject WHERE subject_id = ?");
+            $delStmt->bind_param('i', $subject_id);
+            $delStmt->execute();
+            $delStmt->close();
+
+            $insertPivot = $connection->prepare("INSERT INTO class_subject (class_id, subject_id) VALUES (?, ?)");
+            foreach ($class_ids as $cid) {
+                $cid = intval($cid);
+                $insertPivot->bind_param('ii', $cid, $subject_id);
+                $insertPivot->execute();
+            }
+            $insertPivot->close();
+
+            $_SESSION['success'] = "Subject updated successfully!";
+            // Refresh selected classes to reflect saved state
+            $selected_classes = array_map('intval', $class_ids);
+            // Update the current subject name for form display
+            $current_subject['name'] = $name;
         } else {
-            echo "<script>alert('Database error: " . $statement->error . "');</script>";
+            $errors['general'] = "Failed to update subject. Try again.";
         }
-    } else {
-        foreach ($errors as $field => $error) {
-            echo "<p class='text-red-600 font-semibold'>$error</p>";
-        }
+        $updateStmt->close();
     }
 }
-
 ?>
 <script>
-    const teachers = <?= json_encode($teachers, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const selectedClasses = <?= json_encode($selected_classes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>
 
 <body class="bg-gray-50">
     <!-- Navigation -->
     <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
 
-
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Teacher Account</h1>
-            <p class="text-xl text-blue-200">Edit teacher account information</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Subject</h1>
+            <p class="text-xl text-blue-200">Edit subject and its class assignments</p>
         </div>
     </section>
 
@@ -108,77 +120,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Form Section -->
                 <div class="md:col-span-2">
                     <div class="bg-white rounded-lg shadow-lg p-8">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Teacher Information</h2>
-                        <form id="updateTeacherForm" class="space-y-6" method="POST">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Update Subject</h2>
 
+                        <?php if (!empty($errors['general'])): ?>
+                            <div class="mb-4 text-red-600 font-semibold"><?= htmlspecialchars($errors['general']) ?></div>
+                        <?php endif; ?>
+
+                        <form id="subjectFrom" class="space-y-6" method="POST">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
-                            <input type="hidden" name="id" value="<?= $teacher['id'] ?>">
-
+                            <input type="hidden" name="subject_id" value="<?= $subject_id; ?>">
 
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
 
-                            <!-- Full Name -->
+                            <!-- Name -->
                             <div>
-                                <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                                <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter full name" value="<?= $teacher['name'] ?>">
-                                <span class="text-red-500 text-sm hidden" id="fullNameError"></span>
+                                <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Subject name *</label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    value="<?= htmlspecialchars($current_subject['name'] ?? '') ?>"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900"
+                                    placeholder="Enter Subject name">
+                                <span class="text-red-500 text-sm <?= isset($errors['name']) ? '' : 'hidden' ?>" id="nameError"><?= htmlspecialchars($errors['name'] ?? '') ?></span>
                             </div>
 
-                            <!-- Email -->
-                            <div>
-                                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter email address" value="<?= $teacher['email'] ?>">
-                                <span class="text-red-500 text-sm hidden" id="emailError"></span>
-                            </div>
+                            <!-- classes -->
+                            <div class="relative w-full" id="multi-select-wrapper">
+                                <label for="classes" class="block text-sm font-semibold text-gray-700 mb-2">Classes</label>
 
-                            <!-- Phone Number -->
-                            <div>
-                                <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter phone number" value=" <?= $teacher['phone'] ?>">
-                                <span class="text-red-500 text-sm hidden" id="phoneError"></span>
-                            </div>
+                                <!-- Input / Display -->
+                                <div id="multi-select-input" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-900">
+                                    <span id="multi-select-placeholder" class="text-gray-500 w-full <?= count($selected_classes) ? 'hidden' : '' ?>">Select classes... </span>
+                                    <span id="multi-select-selected" class="text-gray-800 <?= count($selected_classes) ? '' : 'hidden' ?>"></span>
+                                </div>
 
+                                <!-- Dropdown List -->
+                                <div id="multi-select-options" class="absolute w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-scroll z-10 hidden">
+                                    <?php foreach ($classes as $class): ?>
+                                        <label class="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                                            <input type="checkbox" value="<?= $class['id'] ?>" class="form-checkbox text-blue-900" />
+                                            <span class="ml-2"><?= htmlspecialchars($class['name']) ?></span>
+                                        </label>
+                                    <?php endforeach ?>
+                                </div>
 
-                            <!-- Qualification -->
-                            <div>
-                                <label for="qualification" class="block text-sm font-semibold text-gray-700 mb-2">Qualification *</label>
-                                <input type="text" id="qualification" name="qualification" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., B.Sc Education, M.A" value="<?= $teacher['qualification'] ?>">
-                                <span class="text-red-500 text-sm hidden" id="qualificationError"></span>
-                            </div>
-
-                            <!-- Staff Number -->
-                            <div>
-                                <label for="staffNumber" class="block text-sm font-semibold text-gray-700 mb-2">Staff ID Number *</label>
-                                <input type="tel" id="staffNumber" name="staffNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter staff id number" value="<?= $teacher['staff_no'] ?>">
-                                <span class="text-red-500 text-sm hidden" id="staffNumberError"></span>
-                            </div>
-
-                            <!-- Address -->
-                            <div class="mb-6">
-                                <label for="address" class="block text-gray-700 font-semibold mb-2">
-                                    Address <span class="text-red-500">*</span>
-                                </label>
-                                <textarea id="address" name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter staff address"> <?= $teacher['address'] ?></textarea>
-                                <span class="text-red-500 text-sm hidden" id="addressError"></span>
-                            </div>
-
-
-                            <!-- Status -->
-                            <div>
-                                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Account Status</label>
-                                <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900">
-                                    <option value="active" <?= $teacher['status'] === 'active' ? 'selected' : '' ?>>Active</option>
-                                    <option value="inactive" <?= $teacher['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
-                                </select>
+                                <!-- Hidden inputs to submit selection -->
+                                <div id="multi-select-hidden"></div>
+                                <span class="text-red-500 text-sm <?= isset($errors['classes']) ? '' : 'hidden' ?>" id="classesError"><?= htmlspecialchars($errors['classes'] ?? '') ?></span>
                             </div>
 
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
                                 <button type="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
-                                    <i class="fas fa-save mr-2"></i>Update Teacher Account
+                                    <i class="fas fa-save mr-2"></i>Update Subject
                                 </button>
-                                <a href="<?= route('back') ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                                <a href="<?= route('back') ?>" class="flex-1 text-center bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
                                     Cancel
                                 </a>
                             </div>
@@ -190,143 +189,142 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="md:col-span-1">
                     <div class="bg-blue-50 rounded-lg shadow p-6 border-l-4 border-blue-900">
                         <h3 class="text-lg font-bold text-gray-900 mb-4">
-                            <i class="fas fa-info-circle text-blue-900 mr-2"></i>Teacher Guidelines
+                            <i class="fas fa-info-circle text-blue-900 mr-2"></i>Subject Guidelines
                         </h3>
                         <ul class="space-y-3 text-sm text-gray-700">
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-green-600 mt-1"></i>
-                                <span>Provide valid teaching qualification</span>
+                                <span>Subject Name Must Be Unique</span>
                             </li>
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-green-600 mt-1"></i>
-                                <span>Subject field is mandatory</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-green-600 mt-1"></i>
-                                <span>Password must be 8+ characters</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-green-600 mt-1"></i>
-                                <span>Email must be unique</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-check text-green-600 mt-1"></i>
-                                <span>Experience field is optional</span>
+                                <span>Atleast One class must be picked</span>
                             </li>
                         </ul>
                     </div>
-
-
                 </div>
             </div>
-
         </div>
     </section>
 
     <!-- Footer -->
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
-
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
+        // Basic helper loader / error functions (safe fallback if not defined elsewhere)
+        function showLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.classList.remove('hidden');
+                loader.classList.add('flex');
+            }
+            const submitBtn = document.querySelector('#subjectFrom button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function showErrorMessage() {
+            // fallback: scroll will reveal inline error labels
+            return;
+        }
+
+        // Multi-select UI wiring
+        const input = document.getElementById('multi-select-input');
+        const dropdown = document.getElementById('multi-select-options');
+        const placeholder = document.getElementById('multi-select-placeholder');
+        const selectedDisplay = document.getElementById('multi-select-selected');
+        const hiddenContainer = document.getElementById('multi-select-hidden');
+        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+
+        function rebuildHiddenInputs() {
+            const checked = Array.from(checkboxes).filter(i => i.checked).map(i => i.value);
+            hiddenContainer.innerHTML = '';
+            if (checked.length > 0) {
+                placeholder.classList.add('hidden');
+                selectedDisplay.classList.remove('hidden');
+                selectedDisplay.textContent = checked.join(', ');
+            } else {
+                placeholder.classList.remove('hidden');
+                selectedDisplay.classList.add('hidden');
+                selectedDisplay.textContent = '';
+            }
+            checked.forEach(value => {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'classes[]';
+                hiddenInput.value = value;
+                hiddenContainer.appendChild(hiddenInput);
+            });
+        }
+
+        input.addEventListener('click', () => {
+            dropdown.classList.toggle('hidden');
         });
 
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('multi-select-wrapper').contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
 
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', rebuildHiddenInputs);
+        });
 
-        function validatePhone(phone) {
-            const re = /^\+?234\d{10}$|^\d{11}$/;
-            return re.test(phone.replace(/\s/g, ''));
-        }
+        // Preselect classes (from PHP selectedClasses)
+        window.addEventListener('DOMContentLoaded', () => {
+            if (Array.isArray(selectedClasses) && selectedClasses.length > 0) {
+                checkboxes.forEach(cb => {
+                    if (selectedClasses.includes(parseInt(cb.value))) {
+                        cb.checked = true;
+                    }
+                });
+                rebuildHiddenInputs();
+            }
+        });
 
-        // Form validation and submission
-        const updateTeacherForm = document.getElementById('updateTeacherForm');
-        updateTeacherForm.addEventListener('submit', (e) => {
+        // Form validation and submission (client-side)
+        const subjectFrom = document.getElementById('subjectFrom');
+        subjectFrom.addEventListener('submit', (e) => {
             e.preventDefault();
-
-            // Clear previous errors
-            document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
-
-            const fullName = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const qualification = document.getElementById('qualification').value.trim();
-            const address = document.getElementById('address').value.trim();
-            const staffNumber = document.getElementById('staffNumber').value;
-            const status = document.getElementById('status').value;
 
             let isValid = true;
 
-            if (!fullName) {
-                document.getElementById('fullNameError').textContent = 'Full name is required';
-                document.getElementById('fullNameError').classList.remove('hidden');
+            // Clear previous visible errors
+            document.querySelectorAll('[id$="Error"]').forEach(el => {
+                el.classList.add('hidden');
+                el.textContent = '';
+            });
+
+            const name = document.getElementById('name').value.trim();
+            const classInputs = document.querySelectorAll('input[name="classes[]"]');
+
+            // Validate name
+            if (!name) {
+                const nameError = document.getElementById('nameError');
+                nameError.textContent = 'Subject name is required.';
+                nameError.classList.remove('hidden');
                 isValid = false;
             }
 
-            if (!validateEmail(email)) {
-                document.getElementById('emailError').textContent = 'Please enter a valid email address';
-                document.getElementById('emailError').classList.remove('hidden');
+            // Validate classes
+            const classesErrorEl = document.getElementById('classesError');
+            if (classInputs.length === 0) {
+                classesErrorEl.textContent = 'Please select at least one class.';
+                classesErrorEl.classList.remove('hidden');
                 isValid = false;
+            } else {
+                classesErrorEl.classList.add('hidden');
+                classesErrorEl.textContent = '';
             }
-
-            if (teachers.some(t => t.email === email)) {
-                document.getElementById('emailError').textContent = 'Email already exists';
-                document.getElementById('emailError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!staffNumber) {
-                document.getElementById('staffNumberError').textContent = 'Please insert staff ID number';
-                document.getElementById('staffNumberError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (teachers.some(t => t.staff_no === staffNumber)) {
-                document.getElementById('staffNumberError').textContent = 'Staff Number already exists';
-                document.getElementById('staffNumberError').classList.remove('hidden');
-                isValid = false;
-            }
-
-
-            if (!validatePhone(phone)) {
-                document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
-                document.getElementById('phoneError').classList.remove('hidden');
-                isValid = false;
-            }
-
-
-            if (!address) {
-                document.getElementById('addressError').textContent = 'Please enter address';
-                document.getElementById('addressError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (!qualification) {
-                document.getElementById('qualificationError').textContent = 'Qualification is required';
-                document.getElementById('qualificationError').classList.remove('hidden');
-                isValid = false;
-            }
-
 
             if (isValid) {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-                updateTeacherForm.submit();
+                showLoader();
+                subjectFrom.submit();
             } else {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-                showErrorMessage()
+                showErrorMessage();
             }
         });
     </script>

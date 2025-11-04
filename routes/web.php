@@ -91,7 +91,6 @@ $routes = [
     'create-class' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-create-form.php"
     ],
-
     'arms-management' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-arm-management.php"
     ],
@@ -101,7 +100,6 @@ $routes = [
     'update-class-arm' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-arm-update-form.php"
     ],
-
     'sections-management' => [
         'url' => "$baseUrl/pages/admin/classes-management/sections-management.php"
     ],

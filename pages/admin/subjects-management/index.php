@@ -196,12 +196,12 @@ $totalCapacity = 0;
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 text-sm text-slate-600 text-center">
-                                                <a href="<?= route('subject-update') . '?id=' . $subject['id'] ?>">
+                                                <a href="<?= route('update-subject') . '?id=' . $subject['id'] ?>">
                                                     <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                         <i class="fas fa-edit"></i> Add/Edit Teacher
                                                     </button>
                                                 </a>
-                                                <a href="<?= route('subject-update') . '?id=' . $subject['id'] ?>">
+                                                <a href="<?= route('update-subject') . '?id=' . $subject['id'] ?>">
                                                     <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                         <i class="fas fa-edit"></i> Edit
                                                     </button>
