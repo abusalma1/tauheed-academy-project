@@ -1,6 +1,7 @@
 <!-- Error Message -->
 <div id="errorMessage" class="hidden mt-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
-    <i class="fas fa-check-circle"></i>
+    <i class="fas fa-exclamation-circle"></i>
+
     <span>Check the form & make sure all requirments are satisfied</span>
 </div>
 

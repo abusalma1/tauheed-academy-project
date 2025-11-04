@@ -32,7 +32,9 @@ if (!$school) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?? '' ?> | <?= $school['name'] ?? 'Tauheed Academy' ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
         @media print {
             .no-print {
@@ -42,6 +44,22 @@ if (!$school) {
             body {
                 background: white;
             }
+        }
+
+        @keyframes upDown {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .animate-upDown {
+            animation: upDown 0.6s infinite alternate;
         }
     </style>
 </head>

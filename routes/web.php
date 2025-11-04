@@ -111,6 +111,15 @@ $routes = [
     'update-section' => [
         'url' => "$baseUrl/pages/admin/classes-management/section-update-form.php"
     ],
+    'subjects-management' => [
+        'url' => "$baseUrl/pages/admin/subjects-management/"
+    ],
+    'create-subject' => [
+        'url' => "$baseUrl/pages/admin/subjects-management/subject-create.php"
+    ],
+    'update-subject' => [
+        'url' => "$baseUrl/pages/admin/subjects-management/subject-update.php"
+    ],
 
 
 ];

@@ -20,11 +20,11 @@ include(__DIR__ . '/../../includes/header.php');
     <section class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Main Management Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
                 <!-- School Info Card -->
                 <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
                     <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 p-8 rounded-t-lg">
-                        <i class="fas fa-school text-white text-5xl mb-4"></i>
+                        <i class="fas fa-bullhorn text-white text-5xl mb-4"></i>
                         <h3 class="text-2xl font-bold text-white">School Information</h3>
                     </div>
                     <div class="p-6">
@@ -70,10 +70,38 @@ include(__DIR__ . '/../../includes/header.php');
                     </div>
                 </div>
 
+                <!-- Subjects Management Card -->
+                <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="bg-gradient-to-r from-pink-500 to-pink-600 p-8 rounded-t-lg">
+                        <i class="fas fa-book  text-white text-5xl mb-4" title="Subjects"></i>
+                        <h3 class="text-2xl font-bold text-white">Subjects Management</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">Create and manage Subjects for all classes</p>
+                        <div class="space-y-3">
+                            <a href="<?= route('subjects-management') ?>" class="flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold">
+                                <i class="fas fa-list" title="Subjects"></i>
+                                All Subjects
+                            </a>
+                            <a href="<?= route('create-subject') ?>" class="flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold">
+                                <i class="fas fa-plus"></i>Create Subject
+                            </a>
+                        </div>
+                        <a href="<?= route('subjects-management') ?>">
+                            <button class="w-full mt-6 bg-pink-600 text-white py-3 rounded-lg font-semibold hover:bg-pink-700 transition">
+                                <i class="fas fa-arrow-right mr-2"></i>Manage
+                            </button>
+                        </a>
+
+                    </div>
+                </div>
+
                 <!-- Classes Management Card -->
                 <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
                     <div class="bg-gradient-to-r from-green-500 to-green-600 p-8 rounded-t-lg">
-                        <i class="fas fa-book text-white text-5xl mb-4"></i>
+                        <!-- <i class="fas fa-book "></i> -->
+                        <i class="fas fa-chalkboard-teacher text-white text-5xl mb-4" title="Classes"></i>
+
                         <h3 class="text-2xl font-bold text-white">Classes Management</h3>
                     </div>
                     <div class="p-6">

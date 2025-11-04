@@ -1,24 +1,10 @@
 <?php 
 
 $title = "Delete Confirmation";
-
+include(__DIR__ . '/../includes/header.php');
 
 ?>
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Admin Panel</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
 
     <!-- Main Content -->
     <section class="py-12 bg-gray-50 min-h-screen flex items-center justify-center">

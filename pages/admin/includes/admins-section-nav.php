@@ -12,7 +12,9 @@
             </div>
             <div class="hidden md:flex items-center gap-6">
                 <a href="<?= route('school-info') ?>" class="hover:text-blue-300 transition">Manage School Info</a>
+                <a href="<?= route('subjects-management') ?>" class="hover:text-blue-300 transition">Manage Subjects</a>
                 <a href="<?= route('users-management') ?>" class="hover:text-blue-300 transition">Manage Users</a>
+
 
                 <a href="<?= route('class-arm-section-management') ?>" class="hover:text-blue-300 transition">Manage Classes</a>
                 <a href="<?= route('home') ?>" class="hover:text-blue-300 transition">back to Site</a>
