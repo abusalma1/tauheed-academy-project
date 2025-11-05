@@ -130,13 +130,13 @@ CREATE TABLE subjects (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 8.1 CLASS_SUBJECT (Updated: Added teacher_id)
+-- 8.1 CLASS_SUBJECTS (Updated: Added teacher_id)
 -- ===========================================================
-CREATE TABLE class_subject (
+CREATE TABLE class_subjects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     class_id INT NOT NULL,
     subject_id INT NOT NULL,
-    teacher_id INT NULL, -- teacher for this class and subject
+    teacher_id INT NULL, -- teacher for this class and  subject
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,

@@ -1,16 +1,22 @@
+
 <?php
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
-    
+
 session_start();
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SERVER['HTTP_REFERER'])) {
-    $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
-}else{
-    $_SESSION['previous_page'] = $_SERVER['PHP_SELF'];
+// Only store previous page on the very first GET load (without submission)
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['submitted'])) {
+    if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] !== $_SERVER['PHP_SELF']) {
+        $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
+    } else {
+        $_SESSION['previous_page'] = route('subjects-management'); // fallback route
+    }
 }
 
+
+// echo('Working');
 
 define('BASE_URL', '/tauheed-academy-project');
 define('DB_HOST', 'localhost');

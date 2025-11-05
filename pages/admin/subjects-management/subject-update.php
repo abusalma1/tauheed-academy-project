@@ -27,7 +27,7 @@ $current_subject = $subjectResult->fetch_assoc();
 
 // Fetch associated classes
 $selected_classes = [];
-$csStmt = $connection->prepare("SELECT class_id FROM class_subject WHERE subject_id = ?");
+$csStmt = $connection->prepare("SELECT class_id FROM class_subjects WHERE subject_id = ?");
 $csStmt->bind_param('i', $subject_id);
 $csStmt->execute();
 $csRes = $csStmt->get_result();
@@ -72,12 +72,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($updateStmt->execute()) {
             // Replace pivot rows: delete old, insert new
-            $delStmt = $connection->prepare("DELETE FROM class_subject WHERE subject_id = ?");
+            $delStmt = $connection->prepare("DELETE FROM class_subjects WHERE subject_id = ?");
             $delStmt->bind_param('i', $subject_id);
             $delStmt->execute();
             $delStmt->close();
 
-            $insertPivot = $connection->prepare("INSERT INTO class_subject (class_id, subject_id) VALUES (?, ?)");
+            $insertPivot = $connection->prepare("INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)");
             foreach ($class_ids as $cid) {
                 $cid = intval($cid);
                 $insertPivot->bind_param('ii', $cid, $subject_id);
@@ -85,11 +85,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $insertPivot->close();
 
+
             $_SESSION['success'] = "Subject updated successfully!";
-            // Refresh selected classes to reflect saved state
-            $selected_classes = array_map('intval', $class_ids);
-            // Update the current subject name for form display
-            $current_subject['name'] = $name;
+
+            // Redirect back to previous page after successful update
+            header('Location: ' . route('back'));
+            exit;
         } else {
             $errors['general'] = "Failed to update subject. Try again.";
         }
@@ -133,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
+
 
                             <!-- Name -->
                             <div>
@@ -211,25 +213,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
-        // Basic helper loader / error functions (safe fallback if not defined elsewhere)
-        function showLoader() {
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.classList.remove('hidden');
-                loader.classList.add('flex');
-            }
-            const submitBtn = document.querySelector('#subjectFrom button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        }
-
-        function showErrorMessage() {
-            // fallback: scroll will reveal inline error labels
-            return;
-        }
-
         // Multi-select UI wiring
         const input = document.getElementById('multi-select-input');
         const dropdown = document.getElementById('multi-select-options');
@@ -321,9 +304,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (isValid) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
                 showLoader();
                 subjectFrom.submit();
             } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
                 showErrorMessage();
             }
         });

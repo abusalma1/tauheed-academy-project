@@ -117,6 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
+
 
                             <!-- Full Name -->
                             <div>
@@ -320,6 +322,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     top: 0,
                     behavior: 'smooth'
                 });
+                showLoader();
                 updateTeacherForm.submit();
             } else {
                 window.scrollTo({

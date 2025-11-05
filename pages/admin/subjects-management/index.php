@@ -12,14 +12,16 @@ $statement = $connection->prepare("
         subjects.name AS subject_name,
         teachers.id AS teacher_id,
         teachers.name AS teacher_name,
-        sections.name AS section_name
+        sections.name AS section_name,
+        class_subjects.id AS class_subject_id 
     FROM classes
-    LEFT JOIN class_subject ON classes.id = class_subject.class_id
-    LEFT JOIN subjects ON class_subject.subject_id = subjects.id
-    LEFT JOIN teachers ON class_subject.teacher_id = teachers.id
+    LEFT JOIN class_subjects ON classes.id = class_subjects.class_id
+    LEFT JOIN subjects ON class_subjects.subject_id = subjects.id
+    LEFT JOIN teachers ON class_subjects.teacher_id = teachers.id
     LEFT JOIN sections ON classes.section_id = sections.id
     ORDER BY classes.id, subjects.name
 ");
+
 
 
 $statement->execute();
@@ -41,6 +43,7 @@ while ($row = $result->fetch_assoc()) {
 
     if ($row['subject_id']) {
         $classes[$classId]['subjects'][] = [
+            'class_subject_id' => $row['class_subject_id'],
             'id' => $row['subject_id'],
             'name' => $row['subject_name'],
             'teacher' => $row['teacher_name'] ?: 'No teacher assigned'
@@ -79,8 +82,8 @@ $totalCapacity = 0;
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Admin & Super User Management</h1>
-            <p class="text-xl text-purple-200">Create and manage administrator accounts</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Subjects By Classes Management</h1>
+            <p class="text-xl text-purple-200">Create and manage Subjects</p>
         </div>
     </section>
 
@@ -172,7 +175,7 @@ $totalCapacity = 0;
                         </div>
 
                         <!-- Subjects Table -->
-                        <div class="bg-white rounded-b-lg shadow-md overflow-hidden">
+                        <div class="bg-white rounded-b-lg shadow-md overflow-x-auto">
                             <table class="w-full">
                                 <thead>
                                     <tr class="bg-gray-100 border-b">
@@ -195,23 +198,26 @@ $totalCapacity = 0;
                                                     <?= $subject['teacher']; ?>
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 text-sm text-slate-600 text-center">
-                                                <a href="<?= route('update-subject') . '?id=' . $subject['id'] ?>">
-                                                    <button class="text-blue-600 hover:text-blue-900 font-semibold">
-                                                        <i class="fas fa-edit"></i> Add/Edit Teacher
-                                                    </button>
-                                                </a>
-                                                <a href="<?= route('update-subject') . '?id=' . $subject['id'] ?>">
-                                                    <button class="text-blue-600 hover:text-blue-900 font-semibold">
-                                                        <i class="fas fa-edit"></i> Edit
-                                                    </button>
-                                                </a>
-                                                <a href="">
-                                                    <button class="text-red-600 hover:text-red-900 font-semibold">
-                                                        <i class="fas fa-trash"></i> Delete
-                                                    </button>
-                                                </a>
+                                            <td class="px-6 py-4 text-sm text-slate-600">
+                                                <div class="flex items-center justify-center gap-4">
+                                                    <a href="<?= route('assing-subject-teacher') . '?id=' . $subject['class_subject_id'] ?>">
+                                                        <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
+                                                            <i class="fas fa-user-plus"></i> Add/Edit Teacher
+                                                        </button>
+                                                    </a>
+                                                    <a href="<?= route('update-subject') . '?id=' . $subject['id'] ?>">
+                                                        <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </button>
+                                                    </a>
+                                                    <a href="">
+                                                        <button class="text-red-600 hover:text-red-900 font-semibold flex items-center gap-1">
+                                                            <i class="fas fa-trash"></i> Delete
+                                                        </button>
+                                                    </a>
+                                                </div>
                                             </td>
+
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

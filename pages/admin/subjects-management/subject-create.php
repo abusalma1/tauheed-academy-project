@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $subject_id = $stmt->insert_id;
                 $stmt->close();
 
-                $pivot_query = "INSERT INTO class_subject (class_id, subject_id) VALUES (?, ?)";
+                $pivot_query = "INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)";
                 $stmt_pivot = $connection->prepare($pivot_query);
 
                 foreach (
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $stmt_pivot->close();
 
-                $_SESSION['success'] = "Subject added successfully!";
+                // $_SESSION['success'] = "Subject added successfully!";
                 header("Location: " .  route('back'));
                 exit();
             } else {
@@ -113,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
+
 
 
                             <!-- Name -->
@@ -207,8 +208,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
-            <!-- Teachers Table -->
-            <!--   
+            <!-- Subject Table -->
+
             <div class="mt-12 bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="p-6 border-b border-gray-200">
                     <h2 class="text-2xl font-bold text-gray-900">Teacher Accounts</h2>
@@ -263,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </tbody>
                     </table>
                 </div>
-            </div> -->
+            </div>
         </div>
     </section>
 
@@ -370,8 +371,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     top: 0,
                     behavior: 'smooth'
                 });
-                subjectFrom.submit();
                 showLoader();
+                subjectFrom.submit();
             } else {
                 window.scrollTo({
                     top: 0,
