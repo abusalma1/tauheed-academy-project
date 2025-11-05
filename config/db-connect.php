@@ -5,13 +5,11 @@ ini_set("display_errors", 1);
 
 session_start();
 
-
-// Only store previous page on the very first GET load (without submission)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['submitted'])) {
     if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] !== $_SERVER['PHP_SELF']) {
         $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
     } else {
-        $_SESSION['previous_page'] = route('subjects-management'); // fallback route
+        $_SESSION['previous_page'] = route('home');
     }
 }
 

@@ -88,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_SESSION['success'] = "Subject updated successfully!";
 
-            // Redirect back to previous page after successful update
             header('Location: ' . route('back'));
             exit;
         } else {

@@ -63,3 +63,8 @@ if (!$school) {
         }
     </style>
 </head>
+
+<?php
+include(__DIR__ . '/./components/success-notification.php');
+?>
+

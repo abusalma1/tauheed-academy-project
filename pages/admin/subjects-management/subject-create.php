@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $stmt_pivot->close();
 
-                // $_SESSION['success'] = "Subject added successfully!";
+                $_SESSION['success'] = "Subject added successfully!";
                 header("Location: " .  route('back'));
                 exit();
             } else {
