@@ -3,8 +3,7 @@
 $title = "Classes Management";
 include(__DIR__ . '/../../../includes/header.php');
 
-$statement = $connection->prepare("
-    SELECT 
+$statement = $connection->prepare("SELECT 
         sections.id AS section_id,
         sections.name AS section_name,
         head_teachers.id AS head_teacher_id,
@@ -21,7 +20,9 @@ $statement = $connection->prepare("
     LEFT JOIN teachers AS head_teachers ON sections.head_teacher_id = head_teachers.id
     LEFT JOIN classes ON classes.section_id = sections.id
     LEFT JOIN teachers AS class_teachers ON classes.teacher_id = class_teachers.id
-    LEFT JOIN class_arms ON classes.class_arm_id = class_arms.id
+    LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
+    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+
 ");
 
 $statement->execute();
@@ -58,11 +59,8 @@ $armsCount = countDataTotal('class_arms')['total'];
 $sectionsCount = countDataTotal('sections')['total'];
 $studentsCount = countDataTotal('students')['total'];
 
-
-
-
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -155,43 +153,62 @@ $studentsCount = countDataTotal('students')['total'];
                                 <p class="text-sm opacity-90"><?= count($section['classes']) ?> classes</p>
                             </div>
                         </div>
-                        <div class="p-6 space-y-6">
-                            <?php foreach ($section['classes'] as $class) : ?>
-                                <div class="class-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition" data-class-name="<?= $class['class_name'] ?>" data-teacher="<?= $class['class_teacher_name'] ?>" data-arms="<?= $class['arm_name'] ?>">
-                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                        <div class="flex-1">
-                                            <h3 class="text-lg font-bold text-gray-900 mb-2"><?= $class['class_name'] ?></h3>
-                                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                                <div>
-                                                    <p class="text-gray-600">Arm</p>
-                                                    <p class="font-semibold text-gray-900"><?= $class['arm_name'] ?></p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-gray-600">Teacher</p>
-                                                    <p class="font-semibold text-gray-900"><?= $class['class_teacher_name'] ?></p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-gray-600">Enrollment</p>
-                                                    <p class="font-semibold text-gray-900">Not Provided yet</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-gray-600">Capacity</p>
-                                                    <p class="font-semibold text-gray-900">50</p>
-                                                </div>
-                                            </div>
 
-                                        </div>
-                                        <div class="flex flex-col gap-2 md:w-auto">
-                                            <a href="<?= route('update-class') . '?id=' . $class['class_id'] ?>" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px4 rounded-lg transition flex items-center justify-center gap-2">
-                                                <i class="fas fa-edit"></i> Update
-                                            </a>
-                                            <a href="delete-confirmation.html?type=class&name=Tahfeez%201" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
+
+                        <div class="bg-white rounded-b-lg shadow-md overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-100 border-b">
+                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">Class</th>
+                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">Teacher</th>
+                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">Enrollment</th>
+                                        <th class="px-6 py-3 text-center text-sm font-semibold text-slate-700">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($section['classes'] as $class) :   ?>
+                                        <tr
+                                            class="class-item border-b border-slate-100 hover:bg-blue-50 transition subject-row whitespace-nowrap"
+                                            data-class-name="<?= $class['class_name'] ?>"
+                                            data-teacher="<?= $class['class_teacher_name'] ?>"
+                                            data-arms="<?= $class['arm_name'] ?>">
+
+                                            <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= $class['class_name'] . ' ' . $class['arm_name'] ?></td>
+                                            <td class="px-6 py-4 text-sm text-slate-600">
+                                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xm font-medium">
+                                                    <?= $class['class_teacher_name'] ?>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-slate-600">
+                                                <span class="font-semibold text-gray-900">
+                                                    Not Provided yet
+                                                </span>
+                                            </td>
+
+                                            <td class="px-6 py-4 text-sm text-slate-600">
+                                                <div class="flex items-center justify-center gap-4">
+                                                    <a href="<?= route('assing-class-teacher') . '?id=' . $subject['class_subject_id'] ?>">
+                                                        <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
+                                                            <i class="fas fa-user-plus"></i> Add/Edit Teacher
+                                                        </button>
+                                                    </a>
+                                                    <a href="<?= route('update-class') . '?id=' . $subject['id'] ?>">
+                                                        <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </button>
+                                                    </a>
+                                                    <a href="">
+                                                        <button class="text-red-600 hover:text-red-900 font-semibold flex items-center gap-1">
+                                                            <i class="fas fa-trash"></i> Delete
+                                                        </button>
+                                                    </a>
+                                                </div v>
+                                            </td>
+
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 <?php endforeach ?>
@@ -236,8 +253,8 @@ $studentsCount = countDataTotal('students')['total'];
                     const matches = className.includes(searchTerm) ||
                         teacher.includes(searchTerm) ||
                         arms.includes(searchTerm);
+                    classItem.style.display = matches ? 'table-row' : 'none';
 
-                    classItem.style.display = matches ? 'block' : 'none';
                     if (matches) visibleClasses++;
                 });
 

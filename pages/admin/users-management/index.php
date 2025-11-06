@@ -37,18 +37,20 @@ $statement = $connection->prepare("
         students.gender,
         students.status
 
-
     FROM sections
     LEFT JOIN teachers AS head_teachers 
         ON sections.head_teacher_id = head_teachers.id
     LEFT JOIN classes 
         ON classes.section_id = sections.id
+    LEFT JOIN class_class_arms 
+        ON class_class_arms.class_id = classes.id
     LEFT JOIN class_arms 
-        ON classes.class_arm_id = class_arms.id
+        ON class_class_arms.arm_id = class_arms.id
+    LEFT JOIN student_class_records 
+        ON classes.id = student_class_records.class_id
     LEFT JOIN students 
-        ON students.class_id = classes.id
+        ON students.id = student_class_records.student_id
 ");
-
 
 $statement->execute();
 $result = $statement->get_result();
@@ -72,17 +74,16 @@ foreach ($rows as $row) {
     // Add students belonging to that section
     if (!empty($row['student_id'])) {
         $sections[$sectionId]['students'][] = [
-            'student_id' => $row['student_id'],
+            'student_id'   => $row['student_id'],
             'student_name' => $row['student_name'],
-            'gender' => $row['gender'],
-            'status' => $row['status'],
+            'gender'       => $row['gender'],
+            'status'       => $row['status'],
             'admission_number' => $row['admission_number'],
-            'class_name' => $row['class_name'],
-            'arm_name' => $row['arm_name']
+            'class_name'   => $row['class_name'],
+            'arm_name'     => $row['arm_name'] // Will now properly show multiple arms per class
         ];
     }
 }
-
 
 
 $classesCount = countDataTotal('classes')['total'];

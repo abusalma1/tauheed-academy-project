@@ -20,13 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-
-    // Sanitizing input
     $name = trim($_POST['name']);
     $class_ids = isset($_POST['classes']) ? $_POST['classes'] : [];
 
-
-    // Form validations
     if (empty($name)) {
         $errors['name'] = "Subject name is required.";
     }
@@ -35,31 +31,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['classes'] = "Please select at least one class.";
     }
 
-
     if (empty($errors)) {
 
-        $stmt = $connection->prepare("INSERT INTO subjects (name) VALUES (?)");
+        $statement = $connection->prepare("INSERT INTO subjects (name) VALUES (?)");
 
-        if ($stmt) {
-            $stmt->bind_param('s', $name);
+        if ($statement) {
+            $statement->bind_param('s', $name);
 
-            if ($stmt->execute()) {
-                $subject_id = $stmt->insert_id;
-                $stmt->close();
+            if ($statement->execute()) {
+                $subject_id = $statement->insert_id;
+                $statement->close();
 
                 $pivot_query = "INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)";
-                $stmt_pivot = $connection->prepare($pivot_query);
+                $statement_pivot = $connection->prepare($pivot_query);
 
                 foreach (
                     $class_ids as
                     $class_id
                 ) {
 
-                    $stmt_pivot->bind_param('ii', $class_id, $subject_id);
-                    $stmt_pivot->execute();
+                    $statement_pivot->bind_param('ii', $class_id, $subject_id);
+                    $statement_pivot->execute();
                 }
 
-                $stmt_pivot->close();
+                $statement_pivot->close();
 
                 $_SESSION['success'] = "Subject added successfully!";
                 header("Location: " .  route('back'));

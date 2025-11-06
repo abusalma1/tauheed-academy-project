@@ -175,54 +175,7 @@ $totalCapacity = 0;
                         </div>
 
                         <!-- Subjects Table -->
-                        <div class="bg-white rounded-b-lg shadow-md overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="bg-gray-100 border-b">
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">Subject Name</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">Teacher</th>
-                                        <th class="px-6 py-3 text-center text-sm font-semibold text-slate-700">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($class['subjects'] as $subject) :   ?>
-                                        <tr
-                                            class="border-b border-slate-100 hover:bg-blue-50 transition subject-row"
-                                            data-subject-name="<?= strtolower($subject['name']); ?>"
-                                            data-teacher-name="<?= strtolower($subject['teacher']); ?>"
-                                            data-class-name="<?= strtolower($class['name']); ?>">
-
-                                            <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= $subject['name']; ?></td>
-                                            <td class="px-6 py-4 text-sm text-slate-600">
-                                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
-                                                    <?= $subject['teacher']; ?>
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 text-sm text-slate-600">
-                                                <div class="flex items-center justify-center gap-4">
-                                                    <a href="<?= route('assing-subject-teacher') . '?id=' . $subject['class_subject_id'] ?>">
-                                                        <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
-                                                            <i class="fas fa-user-plus"></i> Add/Edit Teacher
-                                                        </button>
-                                                    </a>
-                                                    <a href="<?= route('update-subject') . '?id=' . $subject['id'] ?>">
-                                                        <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
-                                                            <i class="fas fa-edit"></i> Edit
-                                                        </button>
-                                                    </a>
-                                                    <a href="">
-                                                        <button class="text-red-600 hover:text-red-900 font-semibold flex items-center gap-1">
-                                                            <i class="fas fa-trash"></i> Delete
-                                                        </button>
-                                                    </a>
-                                                </div>
-                                            </td>
-
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                      
                     </div>
                 </div>
 

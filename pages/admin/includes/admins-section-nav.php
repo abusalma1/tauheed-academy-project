@@ -11,11 +11,10 @@
                 </div>
             </div>
             <div class="hidden md:flex items-center gap-6">
+                <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Dashboard</a>
                 <a href="<?= route('school-info') ?>" class="hover:text-blue-300 transition">Manage School Info</a>
                 <a href="<?= route('subjects-management') ?>" class="hover:text-blue-300 transition">Manage Subjects</a>
                 <a href="<?= route('users-management') ?>" class="hover:text-blue-300 transition">Manage Users</a>
-
-
                 <a href="<?= route('class-arm-section-management') ?>" class="hover:text-blue-300 transition">Manage Classes</a>
                 <a href="<?= route('home') ?>" class="hover:text-blue-300 transition">back to Site</a>
                 <a href="<?= route('logout') ?>"> <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button></a>
@@ -27,7 +26,9 @@
         </div>
     </div>
     <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
+        <a href="<?= route('admin-section') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Dashboard</a>
         <a href="<?= route('school-info') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Schoool Info</a>
+        <a href="<?= route('subjects-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Subjects</a>
         <a href="<?= route('users-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Users</a>
         <a href="<?= route('classes-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Classes</a>
 

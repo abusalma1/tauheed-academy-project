@@ -1,5 +1,5 @@
 -- ===========================================================
--- DATABASE: tauheed_academy_database
+-- DATABASE: tauheed_academy_database (UPDATED)
 -- ===========================================================
 
 CREATE DATABASE IF NOT EXISTS tauheed_academy_database;
@@ -46,7 +46,7 @@ CREATE TABLE schools (
 
 -- ===========================================================
 -- 3. TEACHERS TABLE
--- (created before sections because sections.head_teacher_id references it)
+-- (created before sections)
 -- ===========================================================
 CREATE TABLE teachers (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -65,21 +65,20 @@ CREATE TABLE teachers (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 4. SECTIONS TABLE (no school_id; has head_teacher_id)
+-- 4. SECTIONS TABLE
 -- ===========================================================
 CREATE TABLE sections (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
-    head_teacher_id INT NULL, -- head/principal for the section
+    head_teacher_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (head_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 5. CLASS_ARMS TABLE (restored)
--- Each arm is a label you can reuse across classes (A, B, Gold, Silver, etc.)
+-- 5. CLASS_ARMS TABLE
 -- ===========================================================
 CREATE TABLE class_arms (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -91,24 +90,32 @@ CREATE TABLE class_arms (
 
 -- ===========================================================
 -- 6. CLASSES TABLE
--- Now references section, class arm and has a class teacher (teacher_id)
+-- (updated: removed class_arm_id)
 -- ===========================================================
 CREATE TABLE classes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     section_id INT NOT NULL,
-    class_arm_id INT NULL,
     name VARCHAR(100) NOT NULL,
-    teacher_id INT NULL, -- class teacher in charge
+    teacher_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
-    FOREIGN KEY (class_arm_id) REFERENCES class_arms(id) ON DELETE SET NULL,
     FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ===========================================================
+-- 6.1 CLASS_CLASS_ARMS TABLE (pivot for many-to-many)
+-- ===========================================================
+CREATE TABLE class_class_arms (
+    class_id INT NOT NULL,
+    arm_id INT NOT NULL,
+    PRIMARY KEY (class_id, arm_id),
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
+    FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ===========================================================
 -- 7. TEACHER_SECTION TABLE
--- (many-to-many: which teachers are attached to which sections)
 -- ===========================================================
 CREATE TABLE teacher_section (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -120,7 +127,7 @@ CREATE TABLE teacher_section (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 8. SUBJECTS TABLE (Updated: Removed teacher_id)
+-- 8. SUBJECTS TABLE
 -- ===========================================================
 CREATE TABLE subjects (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -130,13 +137,13 @@ CREATE TABLE subjects (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 8.1 CLASS_SUBJECTS (Updated: Added teacher_id)
+-- 8.1 CLASS_SUBJECTS TABLE
 -- ===========================================================
 CREATE TABLE class_subjects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     class_id INT NOT NULL,
     subject_id INT NOT NULL,
-    teacher_id INT NULL, -- teacher for this class and  subject
+    teacher_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
@@ -164,7 +171,7 @@ CREATE TABLE guardians (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 10. STUDENTS TABLE
+-- 10. STUDENTS TABLE (unchanged)
 -- ===========================================================
 CREATE TABLE students (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -172,9 +179,8 @@ CREATE TABLE students (
     admission_number VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) NULL,
     phone VARCHAR(20) NULL,
-    class_id INT NOT NULL,
     guardian_id INT,
-    dob TIME,
+    dob DATE,
     picture VARCHAR(255),
     password VARCHAR(255) NOT NULL,
     reset_token VARCHAR(50),
@@ -182,12 +188,53 @@ CREATE TABLE students (
     gender ENUM('male', 'female') DEFAULT 'male',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
     FOREIGN KEY (guardian_id) REFERENCES guardians(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 11. ASSESSMENTS TABLE (No change needed)
+-- 10.1 SESSIONS TABLE
+-- ===========================================================
+CREATE TABLE sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL, -- e.g., '2023/2024'
+    start_date DATE,
+    end_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 10.2 TERMS TABLE
+-- ===========================================================
+CREATE TABLE terms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL, -- e.g., 'First Term'
+    session_id INT NOT NULL,
+    start_date DATE,
+    end_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 10.3 STUDENT_CLASS_RECORDS TABLE
+-- ===========================================================
+CREATE TABLE student_class_records (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    class_id INT NOT NULL,
+    session_id INT NOT NULL,
+    term_id INT NULL,
+    date_assigned TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    remarks VARCHAR(255),
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
+    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE SET NULL,
+    UNIQUE (student_id, class_id, session_id, term_id)
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 11. ASSESSMENTS TABLE
 -- ===========================================================
 CREATE TABLE assessments (
     id INT AUTO_INCREMENT PRIMARY KEY,

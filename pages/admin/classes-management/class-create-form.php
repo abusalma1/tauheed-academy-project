@@ -11,21 +11,16 @@ if (empty($_SESSION['csrf_token'])) {
 $statement = $connection->prepare("
     SELECT 
         classes.id AS class_id,
-        classes.name as class_name,
-        teachers.id AS teacher_id,
+        classes.name AS class_name,
         teachers.name AS teacher_name,
-        sections.id as section_id,
-        sections.name as section_name,
-        class_arms.id as arm_id,
-        class_arms.name as arm_name
-
+        sections.name AS section_name,
+        GROUP_CONCAT(class_arms.name SEPARATOR ', ') AS arm_names
     FROM classes
-    LEFT JOIN teachers 
-    ON classes.teacher_id = teachers.id
-     LEFT JOIN sections 
-    ON classes.section_id = sections.id
-     LEFT JOIN class_arms 
-    ON classes.class_arm_id = class_arms.id
+    LEFT JOIN teachers ON classes.teacher_id = teachers.id
+    LEFT JOIN sections ON classes.section_id = sections.id
+    LEFT JOIN class_class_arms ON classes.id = class_class_arms.class_id
+    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+    GROUP BY classes.id
 ");
 $statement->execute();
 $result = $statement->get_result();
@@ -49,15 +44,10 @@ $class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
 
 $classesCount = countDataTotal('classes')['total'];
-$studentsCount = countDataTotal('students')['total'];
-
-
+$errors  = [];
 
 $name = $section = $teacher = $arm =  '';
 $nameError = $sectionError = $teacherError = $armError =  '';
-
-
-
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -70,47 +60,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
     $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES);
     $teacher = htmlspecialchars(trim($_POST['classTeacher'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $arm = htmlspecialchars(trim($_POST['classArm'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $arms = $_POST['classArm'] ?? [];
 
 
-    echo ("name: $name,section :  $section, Teacher : $teacher, arm : $arm");
+    if (!is_array($arms)) {
+        $arms = [$arms];
+    }
+
+    $arms = array_map(
+        function ($arm) {
+            return htmlspecialchars(trim($arm), ENT_QUOTES, 'UTF-8');
+        },
+        $arms
+    );
+
+
 
     if (empty($name)) {
-        $nameError = "Name is required";
+        $errors['nameError'] = "Name is required";
     }
 
     if (empty($section)) {
-        $sectionError = "Section is required";
+        $errors['sectionError'] = "Section is required";
     }
 
     if (empty($teacher)) {
-        $teacherError = "Teacher is required";
+        $errors['teacherError'] = "Teacher is required";
     }
 
-    if (empty($arm)) {
-        $armError = "Arm is required";
+    if (empty($arms)) {
+        $errors['armError'] = "Arm is required";
     }
 
 
-    if (empty($nameError)  && empty($sectionError) && empty($teacherError) && empty($armError)) {
+    if (empty($errors)) {
         $statement = $connection->prepare(
-            "INSERT INTO classes (name, section_id, teacher_id, class_arm_id)
-             VALUES (?, ?, ?, ?)"
+            "INSERT INTO classes (name, section_id, teacher_id) VALUES (?, ?, ?)"
         );
-        $statement->bind_param('siii', $name, $section, $teacher, $arm);
+        $statement->bind_param('sii', $name, $section, $teacher);
 
         if ($statement->execute()) {
+            $class_id = $statement->insert_id;
+            $statement->close();
+
+            $pivot_query = "INSERT INTO class_class_arms (arm_id, class_id) VALUES (?, ?)";
+            $statement_pivot = $connection->prepare($pivot_query);
+
+            foreach ($arms as $arm_id) {
+                $statement_pivot->bind_param('ii', $arm_id, $class_id);
+                $statement_pivot->execute();
+            }
+
             header("Location: " .  route('back') . "?success=1");
             exit();
         } else {
             echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
         }
     } else {
-        echo "<script>alert('Failed to create section : ' . '<br>' .$nameError . '<br>' .$teacherError. '<br>' .$sectionError. '<br>'. $armError ');</script>";
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
     }
 }
 
 ?>
+
+
+<script>
+    const classes = <?= json_encode($classes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+</script>
+
 
 <body class="bg-gray-50">
     <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
@@ -152,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Class Arm -->
                             <div>
                                 <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arm</label>
-                                <select id="classArm" name="classArm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                <select id="classArm" name="classArm[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" multiple>
                                     <option value="">Select class arm</option>
                                     <?php foreach ($class_arms as $arm): ?>
                                         <option value="<?= $arm['id'] ?>"><?= $arm['name'] ?></option>
@@ -178,8 +197,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
 
                             <!-- Class Teacher -->
-                            classTeacher
-
                             <div>
                                 <label for="classTeacher" class="block text-sm font-semibold text-gray-700 mb-2">Class Teacher *</label>
                                 <select id="classTeacher" name="classTeacher" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
@@ -303,6 +320,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mobileMenu.classList.toggle('hidden');
         });
 
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect("#classArm", {
+                plugins: ['remove_button'], // allows removing selected items
+                placeholder: "Select class arms...",
+                persist: false,
+                create: false,
+            });
+        });
+
         // Form validation and submission
         const classForm = document.getElementById('classForm');
 
@@ -325,6 +351,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('classNameError').classList.remove('hidden');
                 isValid = false;
             }
+
+
+            if (classes.some(s => s.class_name === className)) {
+                document.getElementById('classNameError').textContent = 'Class already exists';
+                document.getElementById('classNameError').classList.remove('hidden');
+                isValid = false;
+            }
+
 
             if (!classSection) {
                 document.getElementById('classSectionError').textContent = 'Class section is required';

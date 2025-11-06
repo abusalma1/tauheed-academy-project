@@ -9,8 +9,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-$statement = $connection->prepare("
-    SELECT 
+$statement = $connection->prepare("SELECT 
         students.id AS id,
         students.name AS name,
         students.admission_number AS admission_number,
@@ -19,8 +18,11 @@ $statement = $connection->prepare("
         classes.name AS class_name,
         class_arms.name AS class_arm_name
     FROM students
-    LEFT JOIN classes ON students.class_id = classes.id
-    LEFT JOIN class_arms ON classes.class_arm_id = class_arms.id
+    LEFT JOIN student_class_records ON students.id = student_class_records.student_id
+    LEFT JOIN classes ON student_class_records.class_id = classes.id
+    LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
+    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+
 ");
 
 
@@ -46,8 +48,10 @@ $statement = $connection->prepare(" SELECT
     ON classes.teacher_id = teachers.id
      LEFT JOIN sections 
     ON classes.section_id = sections.id
+     LEFT JOIN class_class_arms 
+    ON class_class_arms.class_id = classes.id
      LEFT JOIN class_arms 
-    ON classes.class_arm_id = class_arms.id
+    ON class_class_arms.arm_id = class_arms.id
 ");
 $statement->execute();
 $result = $statement->get_result();
