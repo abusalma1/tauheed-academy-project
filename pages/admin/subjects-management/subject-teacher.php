@@ -169,6 +169,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+
         const updateTeacherForm = document.getElementById('updateTeacherForm');
 
         updateTeacherForm.addEventListener('submit', (e) => {

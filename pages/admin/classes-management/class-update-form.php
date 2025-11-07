@@ -1,12 +1,11 @@
 <?php
 
-$title = "Classe Update Form";
+$title = "Class Update Form";
 include(__DIR__ . '/../../../includes/header.php');
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -14,37 +13,32 @@ if (isset($_GET['id'])) {
     $statement->bind_param('i', $id);
     $statement->execute();
     $result = $statement->get_result();
+
     if ($result->num_rows > 0) {
         $class = $result->fetch_assoc();
+        $class_id = $class['id'];
     } else {
-        header('Location: ' .  route('back'));
+        header('Location: ' . route('back'));
+        exit;
     }
 } else {
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit;
 }
 
-$statement = $connection->prepare("SELECT * FROM sections");
+$sections = selectAllData('sections');
+$classes = selectAllData('classes', null, $class_id);
+$class_arms = selectAllData('class_arms');
+
+$statement = $connection->prepare("SELECT * FROM class_class_arms WHERE class_id = ?");
+$statement->bind_param('i', $class_id);
 $statement->execute();
 $result = $statement->get_result();
-$sections = $result->fetch_all(MYSQLI_ASSOC);
+$selected_class_arms = $result->fetch_all(MYSQLI_ASSOC);
+$linked_class_arms = array_column($selected_class_arms, 'arm_id');
 
-$statement = $connection->prepare("SELECT * FROM teachers");
-$statement->execute();
-$result = $statement->get_result();
-$teachers = $result->fetch_all(MYSQLI_ASSOC);
-
-$statement = $connection->prepare("SELECT * FROM class_arms");
-$statement->execute();
-$result = $statement->get_result();
-$class_arms = $result->fetch_all(MYSQLI_ASSOC);
-
-
-$name = $section = $teacher = $arm =  '';
-$nameError = $sectionError = $teacherError = $armError =  '';
-
-
-
-
+$name = $section = '';
+$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (
@@ -54,48 +48,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $name = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES);
-    $teacher = htmlspecialchars(trim($_POST['classTeacher'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $arm = htmlspecialchars(trim($_POST['classArm'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES, 'UTF-8');
     $id = htmlspecialchars(trim($_POST['classId'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $arms = $_POST['classArm'] ?? [];
 
+    if (!is_array($arms)) {
+        $arms = [$arms];
+    }
+
+    $arms = array_map(
+        fn($arm) => htmlspecialchars(trim($arm), ENT_QUOTES, 'UTF-8'),
+        $arms
+    );
 
     if (empty($name)) {
-        $nameError = "Name is required";
+        $errors['nameError'] = "Name is required";
     }
 
     if (empty($section)) {
-        $sectionError = "Section is required";
+        $errors['sectionError'] = "Section is required";
     }
 
-    if (empty($teacher)) {
-        $teacherError = "Teacher is required";
+    if (empty($arms)) {
+        $errors['armError'] = "At least one arm is required";
     }
 
-    if (empty($arm)) {
-        $armError = "Arm is required";
-    }
-
-
-    if (empty($nameError)  && empty($sectionError) && empty($teacherError) && empty($armError)) {
-        $statement = $connection->prepare(
-            "UPDATE classes SET name = ?, section_id = ?, teacher_id = ?, class_arm_id = ? WHERE id = ?"
+    if (empty($errors)) {
+        $updateStmt = $connection->prepare(
+            "UPDATE classes SET name = ?, section_id = ? WHERE id = ?"
         );
-        $statement->bind_param('siiii', $name, $section, $teacher, $arm, $id);
+        $updateStmt->bind_param('sii', $name, $section, $id);
+        if ($updateStmt->execute()) {
 
-        if ($statement->execute()) {
-            header("Location: " .  route('back'));
+            $delStmt = $connection->prepare("DELETE FROM class_class_arms WHERE class_id = ?");
+            $delStmt->bind_param('i', $id);
+            $delStmt->execute();
+
+
+            $insert_stmt = $connection->prepare("INSERT INTO class_class_arms (class_id, arm_id) VALUES (?, ?)");
+            foreach ($arms as $arm_id) {
+                $insert_stmt->bind_param('ii', $id, $arm_id);
+                $insert_stmt->execute();
+            }
+
+            header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+            $errors['general'] = "Failed to update subject. Try again.";
         }
+        $updateStmt->close();
     } else {
-        echo "<script>alert('Failed to create section : ' . '<br>' .$nameError . '<br>' .$teacherError. '<br>' .$sectionError. '<br>'. $armError ');</script>";
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
     }
 }
-
-
 ?>
+
+
+<script>
+    const classes = <?= json_encode($classes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+</script>
+
 
 <body class="bg-gray-50">
     <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
@@ -136,15 +150,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <!-- Class Arm -->
                             <div>
-                                <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arm</label>
-                                <select id="classArm" name="classArm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
-                                    <option value="">Select class arm</option>
-                                    <?php foreach ($class_arms as $arm): ?>
-                                        <option value="<?= $arm['id'] ?>" <?= $class['class_arm_id'] === $arm['id'] ? 'selected' : ''; ?>><?= $arm['name'] ?></option>
-                                    <?php endforeach ?>
+                                <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arms *</label>
+                                <select id="classArm" name="classArm[]" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                    <?php foreach ($class_arms as $arm):
+                                        $selected = in_array($arm['id'], $linked_class_arms) ? 'selected' : ''; ?>
+                                        <option value="<?= $arm['id'] ?>" <?= $selected ?>><?= $arm['name'] ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                                 <span class="text-red-500 text-sm hidden" id="classArmError"></span>
-
                             </div>
 
 
@@ -162,20 +175,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="classSectionError"></span>
                             </div>
 
-                            <!-- Class Teacher -->
-
-                            <div>
-                                <label for="classTeacher" class="block text-sm font-semibold text-gray-700 mb-2">Class Teacher *</label>
-                                <select id="classTeacher" name="classTeacher" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
-                                    <option value="">Select class teacher </option>
-
-                                    <?php foreach ($teachers as $teacher): ?>
-                                        <option value="<?= $teacher['id'] ?>" <?= $class['teacher_id'] === $teacher['id'] ? 'selected' : ''; ?>><?= $teacher['name']; ?></option>
-                                    <?php endforeach ?>
-
-                                </select>
-                                <span class="text-red-500 text-sm hidden" id="classTeacherError"></span>
-                            </div>
 
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
@@ -225,6 +224,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
 
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect("#classArm", {
+                plugins: ['remove_button'], // allows removing selected items
+                placeholder: "Select class arms...",
+                persist: false,
+                create: false,
+            });
+        });
+
+
         const updateClassForm = document.getElementById('updateClassForm');
 
         updateClassForm.addEventListener('submit', (e) => {
@@ -235,7 +244,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             const className = document.getElementById('className').value.trim();
             const classSection = document.getElementById('classSection').value.trim();
-            const classTeacher = document.getElementById('classTeacher').value.trim();
             const classArm = document.getElementById('classArm').value.trim();
 
             let isValid = true;
@@ -246,23 +254,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
+
+            if (classes.some(s => s.name === className)) {
+                document.getElementById('classNameError').textContent = 'Class already exists';
+                document.getElementById('classNameError').classList.remove('hidden');
+                isValid = false;
+            }
+
+
             if (!classSection) {
                 document.getElementById('classSectionError').textContent = 'Class section is required';
                 document.getElementById('classSectionError').classList.remove('hidden');
                 isValid = false;
             }
-
-            if (!classTeacher) {
-                document.getElementById('classTeacherError').textContent = 'Class teacher is required';
-                document.getElementById('classTeacherError').classList.remove('hidden');
-                isValid = false;
-            }
-
             if (!classArm) {
                 document.getElementById('classArmError').textContent = 'Class arm is required';
                 document.getElementById('classArmError').classList.remove('hidden');
                 isValid = false;
             }
+
+
 
 
             if (isValid) {

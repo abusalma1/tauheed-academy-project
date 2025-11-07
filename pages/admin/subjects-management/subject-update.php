@@ -22,10 +22,10 @@ if (isset($_GET['id'])) {
     header('Location: ' .  route('back'));
 }
 
-    $subject_id = $subject['id'];
+$subject_id = $subject['id'];
 
 
-    $statement = $connection->prepare('SELECT * FROM class_subjects WHERE subject_id = ?');
+$statement = $connection->prepare('SELECT * FROM class_subjects WHERE subject_id = ?');
 $statement->bind_param('i', $subject['id']);
 $statement->execute();
 $result = $statement->get_result();
@@ -136,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     placeholder="Enter Subject name">
                                 <span class="text-red-500 text-sm <?= isset($errors['name']) ? '' : 'hidden' ?>" id="nameError"><?= htmlspecialchars($errors['name'] ?? '') ?></span>
                             </div>
+                            
                             <div>
                                 <label for="classes" class="block text-sm font-semibold text-gray-700 mb-2">Classes</label>
                                 <select id="classes" name="classes[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" multiple>
@@ -192,10 +193,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
-            new TomSelect("#classes", {
+            new TomSelect("#classArm", {
                 plugins: ['remove_button'], // allows removing selected items
-                placeholder: "Select classes...",
+                placeholder: "Select class arms...",
                 persist: false,
                 create: false,
             });
