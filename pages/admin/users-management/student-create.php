@@ -44,12 +44,12 @@ $statement = $connection->prepare(" SELECT
         class_arms.name as arm_name
 
     FROM classes
-    LEFT JOIN teachers 
-    ON classes.teacher_id = teachers.id
-     LEFT JOIN sections 
-    ON classes.section_id = sections.id
      LEFT JOIN class_class_arms 
     ON class_class_arms.class_id = classes.id
+    LEFT JOIN teachers 
+    ON class_class_arms.teacher_id = teachers.id
+     LEFT JOIN sections 
+    ON classes.section_id = sections.id
      LEFT JOIN class_arms 
     ON class_class_arms.arm_id = class_arms.id
 ");
@@ -146,12 +146,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Email uniqueness (only if provided)
 
-    if (empty($email)) {
-        $errors['emailError'] = 'Email is required ';
-    } elseif (!validateEmail($email)) {
-        $errors['emailError '] = 'Please enter a valid email address';
-    } elseif (emailExist($email, 'students')) {
-        $errors['emailError'] = "Email already exists!";
+    if (!empty($email)) {
+        if (!validateEmail($email)) {
+            $errors['emailError '] = 'Please enter a valid email address';
+        } elseif (emailExist($email, 'students')) {
+            $errors['emailError'] = "Email already exists!";
+        }
     }
 
     // --- FINAL DECISION ---
@@ -159,10 +159,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         $stmt = $connection->prepare("INSERT INTO students 
-            (name, email, phone, admission_number,  dob, gender,  password, status, guardian_id, class_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
+            (name, email, phone, admission_number,  dob, gender,  password, status, guardian_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param(
-            "ssssssssii",
+            "ssssssssi",
             $name,
             $email,
             $phone,
@@ -172,11 +172,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashed_password,
             $status,
             $guardian,
-            $class,
-
         );
 
         if ($stmt->execute()) {
+            $statmement = $connection->prepare("INSERT into ")
+
             header("Location: " . route('back') . '?success=1');
 
             exit;

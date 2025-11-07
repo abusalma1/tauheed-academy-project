@@ -121,6 +121,29 @@ $routes = [
     'assing-subject-teacher' => [
         'url' => "$baseUrl/pages/admin/subjects-management/subject-teacher.php"
     ],
-
+    'term-session-management' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/"
+    ],
+    'create-session' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/session-create.php"
+    ],
+    'update-session' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/session-update.php"
+    ],
+    'create-term' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/add-term.php"
+    ],
+    'update-term' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/edit-term.php"
+    ],
+    'session-terms' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/subject-teacher.php"
+    ],
+    'sessions' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/sessions.php"
+    ],
+    'terms' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/terms.php"
+    ],
 
 ];
