@@ -96,11 +96,9 @@ CREATE TABLE classes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     section_id INT NOT NULL,
     name VARCHAR(100) NOT NULL,
-    teacher_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
-    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
+    FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- ===========================================================
@@ -109,9 +107,11 @@ CREATE TABLE classes (
 CREATE TABLE class_class_arms (
     class_id INT NOT NULL,
     arm_id INT NOT NULL,
+    teacher_id INT NULL,
     PRIMARY KEY (class_id, arm_id),
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
-    FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE
+    FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ===========================================================

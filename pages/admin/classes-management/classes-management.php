@@ -19,8 +19,8 @@ $statement = $connection->prepare("SELECT
     FROM sections
     LEFT JOIN teachers AS head_teachers ON sections.head_teacher_id = head_teachers.id
     LEFT JOIN classes ON classes.section_id = sections.id
-    LEFT JOIN teachers AS class_teachers ON classes.teacher_id = class_teachers.id
     LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
+    LEFT JOIN teachers AS class_teachers ON class_class_arms.teacher_id = class_teachers.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
 
 ");
@@ -176,7 +176,7 @@ $studentsCount = countDataTotal('students')['total'];
                                             <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= $class['class_name'] . ' ' . $class['arm_name'] ?></td>
                                             <td class="px-6 py-4 text-sm text-slate-600">
                                                 <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xm font-medium">
-                                                    <?= $class['class_teacher_name'] ?>
+                                                    <?= $class['class_teacher_name'] ?? 'No teacher assigned' ?>
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 text-sm text-slate-600">

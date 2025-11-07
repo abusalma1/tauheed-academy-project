@@ -6,35 +6,33 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// All classes for multi-select
+
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $statement = $connection->prepare('SELECT * FROM subjects WHERE id=?');
+    $statement->bind_param('i', $id);
+    $statement->execute();
+    $result = $statement->get_result();
+    if ($result->num_rows > 0) {
+        $subject = $result->fetch_assoc();
+    } else {
+        header('Location: ' .  route('back'));
+    }
+} else {
+    header('Location: ' .  route('back'));
+}
+
+    $subject_id = $subject['id'];
+
+
+    $statement = $connection->prepare('SELECT * FROM class_subjects WHERE subject_id = ?');
+$statement->bind_param('i', $subject['id']);
+$statement->execute();
+$result = $statement->get_result();
+$class_subjects = $result->fetch_all(MYSQLI_ASSOC);
+
 $classes = selectAllData('classes');
-
-// Validate subject id
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header('Location: ' . route('back'));
-}
-$subject_id = intval($_GET['id']);
-
-// Fetch subject
-$subjectStmt = $connection->prepare("SELECT * FROM subjects WHERE id = ?");
-$subjectStmt->bind_param('i', $subject_id);
-$subjectStmt->execute();
-$subjectResult = $subjectStmt->get_result();
-if ($subjectResult->num_rows === 0) {
-    die('<p class="text-red-600 font-semibold">Subject not found.</p>');
-}
-$current_subject = $subjectResult->fetch_assoc();
-
-// Fetch associated classes
-$selected_classes = [];
-$csStmt = $connection->prepare("SELECT class_id FROM class_subjects WHERE subject_id = ?");
-$csStmt->bind_param('i', $subject_id);
-$csStmt->execute();
-$csRes = $csStmt->get_result();
-while ($r = $csRes->fetch_assoc()) {
-    $selected_classes[] = (int)$r['class_id'];
-}
-$csStmt->close();
+$subjects = selectAllData('subjects', null, $subject['id']);
 
 // Handle POST (update)
 $errors = [];
@@ -55,15 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['classes'] = "Please select at least one class.";
     }
 
-    // Optionally ensure unique name (exclude current subject)
-    $uniqueStmt = $connection->prepare("SELECT id FROM subjects WHERE name = ? AND id != ?");
-    $uniqueStmt->bind_param('si', $name, $subject_id);
-    $uniqueStmt->execute();
-    $uniqueRes = $uniqueStmt->get_result();
-    if ($uniqueRes->num_rows > 0) {
-        $errors['name'] = "A subject with this name already exists.";
-    }
-    $uniqueStmt->close();
 
     if (empty($errors)) {
         // Update subject name
@@ -98,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <script>
-    const selectedClasses = <?= json_encode($selected_classes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const subjects = <?= json_encode($subjects, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>
 
 <body class="bg-gray-50">
@@ -142,35 +131,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     type="text"
                                     id="name"
                                     name="name"
-                                    value="<?= htmlspecialchars($current_subject['name'] ?? '') ?>"
+                                    value="<?= htmlspecialchars($subject['name'] ?? '') ?>"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900"
                                     placeholder="Enter Subject name">
                                 <span class="text-red-500 text-sm <?= isset($errors['name']) ? '' : 'hidden' ?>" id="nameError"><?= htmlspecialchars($errors['name'] ?? '') ?></span>
                             </div>
-
-                            <!-- classes -->
-                            <div class="relative w-full" id="multi-select-wrapper">
+                            <div>
                                 <label for="classes" class="block text-sm font-semibold text-gray-700 mb-2">Classes</label>
-
-                                <!-- Input / Display -->
-                                <div id="multi-select-input" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-900">
-                                    <span id="multi-select-placeholder" class="text-gray-500 w-full <?= count($selected_classes) ? 'hidden' : '' ?>">Select classes... </span>
-                                    <span id="multi-select-selected" class="text-gray-800 <?= count($selected_classes) ? '' : 'hidden' ?>"></span>
-                                </div>
-
-                                <!-- Dropdown List -->
-                                <div id="multi-select-options" class="absolute w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-scroll z-10 hidden">
-                                    <?php foreach ($classes as $class): ?>
-                                        <label class="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                            <input type="checkbox" value="<?= $class['id'] ?>" class="form-checkbox text-blue-900" />
-                                            <span class="ml-2"><?= htmlspecialchars($class['name']) ?></span>
-                                        </label>
-                                    <?php endforeach ?>
-                                </div>
-
-                                <!-- Hidden inputs to submit selection -->
-                                <div id="multi-select-hidden"></div>
-                                <span class="text-red-500 text-sm <?= isset($errors['classes']) ? '' : 'hidden' ?>" id="classesError"><?= htmlspecialchars($errors['classes'] ?? '') ?></span>
+                                <select id="classes" name="classes[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" multiple>
+                                    <option value="">Select Classes</option>
+                                    <?php
+                                    // Collect all linked class IDs for easier checking
+                                    $linked_class_ids = array_column($class_subjects, 'class_id');
+                                    foreach ($classes as $class):
+                                        $selected = in_array($class['id'], $linked_class_ids) ? 'selected' : '';
+                                    ?>
+                                        <option value="<?= $class['id'] ?>" <?= $selected ?>><?= htmlspecialchars($class['name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="classesError"></span>
                             </div>
 
                             <!-- Submit Button -->
@@ -185,6 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </form>
                     </div>
                 </div>
+
 
                 <!-- Info Section -->
                 <div class="md:col-span-1">
@@ -212,95 +192,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
-        // Multi-select UI wiring
-        const input = document.getElementById('multi-select-input');
-        const dropdown = document.getElementById('multi-select-options');
-        const placeholder = document.getElementById('multi-select-placeholder');
-        const selectedDisplay = document.getElementById('multi-select-selected');
-        const hiddenContainer = document.getElementById('multi-select-hidden');
-        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
-
-        function rebuildHiddenInputs() {
-            const checked = Array.from(checkboxes).filter(i => i.checked).map(i => i.value);
-            hiddenContainer.innerHTML = '';
-            if (checked.length > 0) {
-                placeholder.classList.add('hidden');
-                selectedDisplay.classList.remove('hidden');
-                selectedDisplay.textContent = checked.join(', ');
-            } else {
-                placeholder.classList.remove('hidden');
-                selectedDisplay.classList.add('hidden');
-                selectedDisplay.textContent = '';
-            }
-            checked.forEach(value => {
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'classes[]';
-                hiddenInput.value = value;
-                hiddenContainer.appendChild(hiddenInput);
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect("#classes", {
+                plugins: ['remove_button'], // allows removing selected items
+                placeholder: "Select classes...",
+                persist: false,
+                create: false,
             });
-        }
-
-        input.addEventListener('click', () => {
-            dropdown.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!document.getElementById('multi-select-wrapper').contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', rebuildHiddenInputs);
-        });
-
-        // Preselect classes (from PHP selectedClasses)
-        window.addEventListener('DOMContentLoaded', () => {
-            if (Array.isArray(selectedClasses) && selectedClasses.length > 0) {
-                checkboxes.forEach(cb => {
-                    if (selectedClasses.includes(parseInt(cb.value))) {
-                        cb.checked = true;
-                    }
-                });
-                rebuildHiddenInputs();
-            }
         });
 
         // Form validation and submission (client-side)
         const subjectFrom = document.getElementById('subjectFrom');
         subjectFrom.addEventListener('submit', (e) => {
+
             e.preventDefault();
 
             let isValid = true;
 
-            // Clear previous visible errors
+            // Clear previous errors
             document.querySelectorAll('[id$="Error"]').forEach(el => {
                 el.classList.add('hidden');
                 el.textContent = '';
             });
 
             const name = document.getElementById('name').value.trim();
-            const classInputs = document.querySelectorAll('input[name="classes[]"]');
+            const classes = document.getElementById('classes').value.trim();
+
 
             // Validate name
             if (!name) {
-                const nameError = document.getElementById('nameError');
-                nameError.textContent = 'Subject name is required.';
-                nameError.classList.remove('hidden');
+                document.getElementById('nameError').textContent = 'Subject name is required.';
+                document.getElementById('nameError').classList.remove('hidden');
                 isValid = false;
             }
 
-            // Validate classes
-            const classesErrorEl = document.getElementById('classesError');
-            if (classInputs.length === 0) {
-                classesErrorEl.textContent = 'Please select at least one class.';
-                classesErrorEl.classList.remove('hidden');
+            if (subjects.some(t => t.name === name)) {
+                document.getElementById('nameError').textContent = 'Subject already exists';
+                document.getElementById('nameError').classList.remove('hidden');
                 isValid = false;
-            } else {
-                classesErrorEl.classList.add('hidden');
-                classesErrorEl.textContent = '';
             }
+
+
+            if (!classes) {
+                document.getElementById('classesError').textContent = 'Choose atleast 1 class';
+                document.getElementById('classesError').classList.remove('hidden');
+                isValid = false;
+            }
+
+
 
             if (isValid) {
                 window.scrollTo({

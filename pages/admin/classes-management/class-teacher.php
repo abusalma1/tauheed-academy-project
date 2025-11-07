@@ -12,10 +12,12 @@ $statement = $connection->prepare("
     SELECT 
         classes.id AS id,
         classes.name AS name,
+        teachers.name AS teacher_name,
         sections.name AS section_name,
         GROUP_CONCAT(class_arms.name SEPARATOR ', ') AS arm_names
     FROM classes
     LEFT JOIN class_class_arms ON classes.id = class_class_arms.class_id
+    LEFT JOIN teachers ON class_class_arms.teacher_id = teachers.id
     LEFT JOIN sections ON classes.section_id = sections.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
     GROUP BY classes.id
@@ -25,14 +27,23 @@ $result = $statement->get_result();
 $classes = $result->fetch_all(MYSQLI_ASSOC);
 
 
-$sections = selectAllData('sections');
-$class_arms = selectAllData('class_arms');
+$statement = $connection->prepare("SELECT * FROM sections");
+$statement->execute();
+$result = $statement->get_result();
+$sections = $result->fetch_all(MYSQLI_ASSOC);
+
+$statement = $connection->prepare("SELECT * FROM teachers");
+$statement->execute();
+$result = $statement->get_result();
+$teachers = $result->fetch_all(MYSQLI_ASSOC);
+
+$statement = $connection->prepare("SELECT * FROM class_arms");
+$statement->execute();
+$result = $statement->get_result();
+$class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
 
-
-$studentsCount  = countDataTotal('students')['total'];
 $classesCount = countDataTotal('classes')['total'];
-
 $errors  = [];
 
 $name = $section = $teacher = $arm =  '';
@@ -48,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $name = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
     $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES);
+    $teacher = htmlspecialchars(trim($_POST['classTeacher'] ?? ''), ENT_QUOTES, 'UTF-8');
     $arms = $_POST['classArm'] ?? [];
 
 
@@ -72,6 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['sectionError'] = "Section is required";
     }
 
+    if (empty($teacher)) {
+        $errors['teacherError'] = "Teacher is required";
+    }
+
     if (empty($arms)) {
         $errors['armError'] = "Arm is required";
     }
@@ -79,9 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $statement = $connection->prepare(
-            "INSERT INTO classes (name, section_id) VALUES (?, ?)"
+            "INSERT INTO classes (name, section_id, teacher_id) VALUES (?, ?, ?)"
         );
-        $statement->bind_param('si', $name, $section);
+        $statement->bind_param('sii', $name, $section, $teacher);
 
         if ($statement->execute()) {
             $class_id = $statement->insert_id;
@@ -180,6 +196,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="classSectionError"></span>
                             </div>
 
+                            <!-- Class Teacher -->
+                            <div>
+                                <label for="classTeacher" class="block text-sm font-semibold text-gray-700 mb-2">Class Teacher *</label>
+                                <select id="classTeacher" name="classTeacher" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
+                                    <option value="">Select class teacher </option>
+
+                                    <?php foreach ($teachers as $teacher): ?>
+                                        <option value="<?= $teacher['id'] ?>"><?= $teacher['name']; ?></option>
+                                    <?php endforeach ?>
+
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="classTeacherError"></span>
+                            </div>
+
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
                                 <button type="submit" class="flex-1 bg-green-900 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition">
@@ -203,6 +233,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-green-600 mt-1"></i>
                                 <span>Class name must be unique</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Assign a qualified class teacher</span>
                             </li>
                         </ul>
                     </div>
@@ -235,7 +269,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <thead class="bg-green-900 text-white">
                             <tr>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Class Name</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Arms</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Arm</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Teacher</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Section</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
                             </tr>
@@ -246,11 +281,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 text-sm font-semibold text-gray-900"> <?= $class['name'] ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $class['arm_names'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $class['arm_name'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $class['teacher_name'] ?></td>
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= $class['section_name'] ?></td>
 
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <a href="<?= route('update-class'); ?>?id=<?= $class['id'] ?>">
+                                            <a href="<?= route('update-class'); ?>?id=<?= $class['class_id'] ?>">
                                                 <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
@@ -305,6 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             const className = document.getElementById('className').value.trim();
             const classSection = document.getElementById('classSection').value.trim();
+            const classTeacher = document.getElementById('classTeacher').value.trim();
             const classArm = document.getElementById('classArm').value.trim();
 
             let isValid = true;
@@ -328,6 +365,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('classSectionError').classList.remove('hidden');
                 isValid = false;
             }
+
+            if (!classTeacher) {
+                document.getElementById('classTeacherError').textContent = 'Class teacher is required';
+                document.getElementById('classTeacherError').classList.remove('hidden');
+                isValid = false;
+            }
+
             if (!classArm) {
                 document.getElementById('classArmError').textContent = 'Class arm is required';
                 document.getElementById('classArmError').classList.remove('hidden');

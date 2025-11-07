@@ -9,7 +9,21 @@ if (empty($_SESSION['csrf_token'])) {
 
 
 $classes = selectAllData('classes');
-$subjects = selectAllData('subjects');
+
+$statement = $connection->prepare("
+    SELECT 
+        subjects.id AS id,
+        subjects.name AS name,
+        GROUP_CONCAT(classes.name SEPARATOR ', ') AS class_names
+    FROM subjects
+    LEFT JOIN class_subjects ON class_subjects.subject_id = subjects.id
+    LEFT JOIN classes ON classes.id = class_subjects.class_id
+    GROUP BY subjects.id
+");
+$statement->execute();
+$result = $statement->get_result();
+$subjects = $result->fetch_all(MYSQLI_ASSOC);
+
 
 
 
@@ -109,8 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
 
-
-
                             <!-- Name -->
                             <div>
                                 <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Subject name *</label>
@@ -119,37 +131,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
 
 
-
-                            <!-- classes -->
-                            <div class="relative w-full" id="multi-select-wrapper">
+                            <div>
                                 <label for="classes" class="block text-sm font-semibold text-gray-700 mb-2">Classes</label>
-
-                                <!-- Input / Display -->
-                                <div id="multi-select-input"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-900">
-                                    <span id="multi-select-placeholder" class="text-gray-500 w-full ">Select classes... </span>
-
-                                    <span id="multi-select-selected" class="text-gray-800 hidden"></span>
-                                </div>
-
-                                <!-- Dropdown List -->
-                                <div id="multi-select-options"
-                                    class="absolute w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-scroll z-10 hidden">
+                                <select id="classes" name="classes[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" multiple>
+                                    <option value="">Select Classes</option>
                                     <?php foreach ($classes as $class): ?>
-                                        <label class="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                            <input type="checkbox" value="<?= $class['id'] ?>" class="form-checkbox text-blue-900" />
-                                            <span class="ml-2"><?= $class['name'] ?></span>
-                                        </label>
-                                    <?php endforeach ?>
-                                </div>
 
-                                <!-- Hidden inputs to submit selection -->
-                                <div id="multi-select-hidden"></div>
+                                        <option value="<?= $class['id'] ?>"><?= $class['name'] ?></option>
+                                    <?php endforeach ?>
+                                </select>
                                 <span class="text-red-500 text-sm hidden" id="classesError"></span>
 
                             </div>
-
-
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
                                 <button type="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
@@ -207,34 +200,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="mt-12 bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="p-6 border-b border-gray-200">
-                    <h2 class="text-2xl font-bold text-gray-900">Teacher Accounts</h2>
+                    <h2 class="text-2xl font-bold text-gray-900">All Subjects</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead class="bg-blue-900 text-white">
                             <tr>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Email</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Staff No</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Qualification</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">classes</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="teachersTableBody" class="divide-y divide-gray-200">
-                            <?php if (count($classes) > 0) : ?>
-                                <?php foreach ($classes as $class): ?>
+                            <?php if (count($subjects) > 0) : ?>
+                                <?php foreach ($subjects as $subject): ?>
 
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 text-sm text-gray-900"><?= $class['name'] ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $teacher['email'] ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $class['staff_no'] ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $class['qualification'] ?></td>
-                                        <td class="px-6 py-4 text-sm">
-                                            <span class="px-3 py-1 <?= $class['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $class['status'] ?></span>
-                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-900"><?= $subject['name'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $subject['class_names'] ?></td>
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <a href="<?= route('teacher-update') . '?id=' . $teacher['id'] ?>">
+                                            <a href="<?= route('update-subject') . '?id=' . $subject['id'] ?>">
                                                 <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
@@ -275,46 +260,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mobileMenu.classList.toggle('hidden');
         });
 
-        const input = document.getElementById('multi-select-input');
-        const dropdown = document.getElementById('multi-select-options');
-        const placeholder = document.getElementById('multi-select-placeholder');
-        const selectedDisplay = document.getElementById('multi-select-selected');
-        const hiddenContainer = document.getElementById('multi-select-hidden');
-        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
-
-        input.addEventListener('click', () => {
-            dropdown.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!document.getElementById('multi-select-wrapper').contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                const selected = Array.from(checkboxes)
-                    .filter(i => i.checked)
-                    .map(i => i.value);
-
-                if (selected.length > 0) {
-                    placeholder.classList.add('hidden');
-                    selectedDisplay.textContent = selected.join(', ');
-                    selectedDisplay.classList.remove('hidden');
-                } else {
-                    placeholder.classList.remove('hidden');
-                    selectedDisplay.classList.add('hidden');
-                }
-
-                hiddenContainer.innerHTML = '';
-                selected.forEach(value => {
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'classes[]';
-                    hiddenInput.value = value;
-                    hiddenContainer.appendChild(hiddenInput);
-                });
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect("#classes", {
+                plugins: ['remove_button'], // allows removing selected items
+                placeholder: "Select classes...",
+                persist: false,
+                create: false,
             });
         });
 
@@ -334,7 +285,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
 
             const name = document.getElementById('name').value.trim();
-            const classInputs = document.querySelectorAll('input[name="classes[]"]');
+            const classes = document.getElementById('classes').value.trim();
+
 
             // Validate name
             if (!name) {
@@ -349,16 +301,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
-            // Validate at least one class selected
-            const classesErrorEl = document.getElementById('classesError');
-            if (classInputs.length === 0) {
-                classesErrorEl.textContent = 'Please select at least one class.';
-                classesErrorEl.classList.remove('hidden');
+
+            if (!classes) {
+                document.getElementById('classesError').textContent = 'Choose atleast 1 class';
+                document.getElementById('classesError').classList.remove('hidden');
                 isValid = false;
-            } else {
-                classesErrorEl.classList.add('hidden');
-                classesErrorEl.textContent = '';
             }
+
 
 
             if (isValid) {
