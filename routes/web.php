@@ -134,7 +134,7 @@ $routes = [
         'url' => "$baseUrl/pages/admin/term-session-management/term-create.php"
     ],
     'update-term' => [
-        'url' => "$baseUrl/pages/admin/term-session-management/edit-term.php"
+        'url' => "$baseUrl/pages/admin/term-session-management/term-update.php"
     ],
     'session-terms' => [
         'url' => "$baseUrl/pages/admin/term-session-management/subject-teacher.php"
