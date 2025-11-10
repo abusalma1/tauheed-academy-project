@@ -14,8 +14,7 @@ $class_arms = selectAllData('class_arms');
 
 
 
-$studentsCount  = countDataTotal('students')['total'];
-$classesCount = countDataTotal('classes')['total'];
+$sessionsCount  = countDataTotal('sessions')['total'];
 
 $errors  = [];
 
@@ -127,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
                                 <button type="submit" class="flex-1 bg-green-900 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition">
-                                    <i class="fas fa-plus mr-2"></i>Add Class
+                                    <i class="fas fa-plus mr-2"></i>Create Session
                                 </button>
                                 <button type="reset" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
                                     Clear Form
@@ -148,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <i class="fas fa-check text-green-600 mt-1"></i>
                                 <span>Session name must be unique</span>
                             </li>
-                            
+
                         </ul>
                     </div>
 
@@ -157,23 +156,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h3 class="text-lg font-bold text-gray-900 mb-4">Session Statistics</h3>
                         <div class="space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b">
-                                <span class="text-gray-600">Total Classes</span>
-                                <span class="text-2xl font-bold text-green-900" id="totalClasses"><?= $classesCount; ?></span>
-                            </div>
-
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600">Total Students</span>
-                                <span class="text-2xl font-bold text-blue-600" id="totalStudents"><?= $studentsCount; ?></span>
+                                <span class="text-gray-600">Total Sessions</span>
+                                <span class="text-2xl font-bold text-green-900" id="totalClasses"><?= $sessionsCount; ?></span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Classes Table -->
+            <!-- Session Table -->
             <div class="mt-12 bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="p-6 border-b border-gray-200">
-                    <h2 class="text-2xl font-bold text-gray-900">All Classes</h2>
+                    <h2 class="text-2xl font-bold text-gray-900">All Sessions</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -256,14 +250,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             let isValid = true;
 
             if (!sessionName) {
-                document.getElementById('sessionNameError').textContent = 'Class name is required';
+                document.getElementById('sessionNameError').textContent = 'Session name is required';
                 document.getElementById('sessionNameError').classList.remove('hidden');
                 isValid = false;
             }
 
 
             if (sessions.some(s => s.name === sessionName)) {
-                document.getElementById('sessionNameError').textContent = 'Class already exists';
+                document.getElementById('sessionNameError').textContent = 'Session already exists';
                 document.getElementById('sessionNameError').classList.remove('hidden');
                 isValid = false;
             }

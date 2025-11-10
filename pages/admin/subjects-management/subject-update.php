@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     placeholder="Enter Subject name">
                                 <span class="text-red-500 text-sm <?= isset($errors['name']) ? '' : 'hidden' ?>" id="nameError"><?= htmlspecialchars($errors['name'] ?? '') ?></span>
                             </div>
-                            
+
                             <div>
                                 <label for="classes" class="block text-sm font-semibold text-gray-700 mb-2">Classes</label>
                                 <select id="classes" name="classes[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" multiple>
@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            new TomSelect("#classArm", {
+            new TomSelect("#classes", {
                 plugins: ['remove_button'], // allows removing selected items
                 placeholder: "Select class arms...",
                 persist: false,

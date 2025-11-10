@@ -122,13 +122,21 @@ $termsCount = countDataTotal('terms')['total'];
             <div id="sessionsContainer" class="space-y-8">
                 <?php foreach ($sessions as $session): ?>
                     <div class="session-container bg-white rounded-lg shadow-lg overflow-hidden" data-section="<?= $session['session_name'] ?>">
-                        <div class="bg-blue-900 text-white p-6 flex items-center gap-3">
+                        <div class="bg-blue-900 text-white p-4 flex items-center gap-3 flex items-center justify-between mb-4">
                             <!-- <i class="fas fa-quran text-3xl opacity-80"></i> -->
                             <div>
                                 <h2 class="text-2xl font-bold"><small>Session: </small><?= $session['session_name'] ?></h2>
                                 <p> <span class="text-sm opacity-90"> Start Date:</span> <span class=""><?= date('D d M, Y', strtotime($session['session_start_date']))  ?> </span></p>
                                 <p><span class="text-sm opacity-90"> End Date: </span> <span class=""><?= date('D d M, Y', strtotime($session['session_end_date'])) ?></span></p>
 
+                            </div>
+                            <div class="flex flex-col items-center gap-3">
+                                <a href="<?= route('update-session'); ?>?id=<?= $session['session_id'] ?>" class="bg-white text-indigo-900 px-4 py-2 rounded-lg font-semibold hover:bg-indigo-100 transition">
+                                    <i class="fas fa-pen mr-2"></i>Edit Session
+                                </a>
+                                <a href="<?= route('create-term') . '?id=' . $session['session_id'] ?>" class="bg-white text-indigo-900 px-4 py-2 rounded-lg font-semibold hover:bg-indigo-100 transition">
+                                    <i class="fas fa-plus mr-2"></i>Create Term
+                                </a>
                             </div>
                         </div>
 
@@ -149,9 +157,11 @@ $termsCount = countDataTotal('terms')['total'];
                                             class="class-item border-b border-slate-100 hover:bg-blue-50 transition subject-row whitespace-nowrap"
                                             data-class-name="<?= $term['term_name'] ?>">
 
-                                            <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= $term['term_start_date'] ?></td>
+                                            <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= $term['term_name'] ?></td>
 
-                                            <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= $term['term_end_date'] ?></td>
+                                            <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= date('D d M, Y', strtotime($term['term_start_date'])) ?></td>
+
+                                            <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= date('D d M, Y', strtotime($term['term_end_date'])) ?></td>
 
 
                                             <td class="px-6 py-4 text-sm text-slate-600">
