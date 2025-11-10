@@ -1,5 +1,5 @@
 <?php
-$title = "Update Subject Teacher";
+$title = "Subject Teacher Assignment";
 include(__DIR__ . '/../../../includes/header.php');
 
 if (empty($_SESSION['csrf_token'])) {
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Teacher for Subject</h1>
+            <h1 class="text-4xl md:texupdatet-5xl font-bold mb-4">Update Teacher for Subject</h1>
             <p class="text-xl text-blue-200">Assign or update the teacher for this subject and class</p>
         </div>
     </section>

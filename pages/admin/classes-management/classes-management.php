@@ -49,7 +49,9 @@ foreach ($rows as $row) {
             'class_id' => $row['class_id'],
             'class_name' => $row['class_name'],
             'class_teacher_name' => $row['class_teacher_name'],
-            'arm_name' => $row['arm_name']
+            'arm_name' => $row['arm_name'],
+            'arm_id' => $row['arm_id']
+
         ];
     }
 }
@@ -187,7 +189,8 @@ $studentsCount = countDataTotal('students')['total'];
 
                                             <td class="px-6 py-4 text-sm text-slate-600">
                                                 <div class="flex items-center justify-center gap-4">
-                                                    <a href="<?= route('class-teacher') . '?id=' . $class['class_id'] ?>">
+                                                    <a href="<?= route('assing-class-teacher') . '?class_id=' . $class['class_id'] . '&arm_id=' .  $class['arm_id']; ?>">
+
                                                         <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
                                                             <i class="fas fa-user-plus"></i> Add/Edit Teacher
                                                         </button>

@@ -91,6 +91,9 @@ $routes = [
     'create-class' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-create-form.php"
     ],
+    'assing-class-teacher' => [
+        'url' => "$baseUrl/pages/admin/classes-management/class-teacher.php"
+    ],
     'arms-management' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-arm-management.php"
     ],
