@@ -20,11 +20,6 @@ $totalInactiveUsers = $adminsCount['inactive'] + $teachersCount['inactive'] + $g
 
 $statement = $connection->prepare("
 SELECT 
-    sections.id AS section_id,
-    sections.name AS section_name,
-    head_teachers.id AS head_teacher_id,
-    head_teachers.name AS head_teacher_name,
-
     classes.id AS class_id,
     classes.name AS class_name,
 
@@ -37,51 +32,45 @@ SELECT
     students.gender,
     students.status
 
-FROM sections
-LEFT JOIN teachers AS head_teachers 
-    ON sections.head_teacher_id = head_teachers.id
-LEFT JOIN classes 
-    ON classes.section_id = sections.id
+FROM classes
 LEFT JOIN student_class_records 
     ON classes.id = student_class_records.class_id
-    AND student_class_records.is_current = 1   -- <-- only current class
+    AND student_class_records.is_current = 1
 LEFT JOIN class_arms 
     ON class_arms.id = student_class_records.arm_id
 LEFT JOIN students 
     ON students.id = student_class_records.student_id
+ORDER BY classes.id, class_arms.id, students.name
 ");
 $statement->execute();
 $result = $statement->get_result();
 $rows = $result->fetch_all(MYSQLI_ASSOC);
 
-$sections = [];
+$classes = [];
 
 foreach ($rows as $row) {
-    $sectionId = $row['section_id'];
+    $classId = $row['class_id'];
 
-    // Create section entry if not yet created
-    if (!isset($sections[$sectionId])) {
-        $sections[$sectionId] = [
-            'section_id' => $row['section_id'],
-            'section_name' => $row['section_name'],
-            'head_teacher_name' => $row['head_teacher_name'],
+    if (!isset($classes[$classId])) {
+        $classes[$classId] = [
+            'class_id' => $row['class_id'],
+            'class_name' => $row['class_name'],
             'students' => []
         ];
     }
 
-    // Add students belonging to that section
     if (!empty($row['student_id'])) {
-        $sections[$sectionId]['students'][] = [
-            'student_id'   => $row['student_id'],
+        $classes[$classId]['students'][] = [
+            'student_id' => $row['student_id'],
             'student_name' => $row['student_name'],
-            'gender'       => $row['gender'],
-            'status'       => $row['status'],
+            'gender' => $row['gender'],
+            'status' => $row['status'],
             'admission_number' => $row['admission_number'],
-            'class_name'   => $row['class_name'],
-            'arm_name'     => $row['arm_name'] // Will now properly show multiple arms per class
+            'arm_name' => $row['arm_name']
         ];
     }
 }
+
 
 
 $classesCount = countDataTotal('classes')['total'];
@@ -242,13 +231,13 @@ $studentsCount = countDataTotal('students')['total'];
             });
         });
 
-        document.getElementById('sectionFilter').addEventListener('change', function() {
-            const selectedSection = this.value.toLowerCase().replace(/\s+/g, '-');
-            const groups = document.querySelectorAll('.student-section-group');
+        document.getElementById('classFilter').addEventListener('change', function() {
+            const selectedClass = this.value.toLowerCase().replace(/\s+/g, '-');
+            const groups = document.querySelectorAll('.student-class-group');
 
             groups.forEach(group => {
-                const groupSection = group.dataset.section;
-                if (selectedSection === '' || groupSection === selectedSection) {
+                const groupClass = group.dataset.class;
+                if (selectedClass === '' || groupClass === selectedClass) {
                     group.style.display = '';
                 } else {
                     group.style.display = 'none';

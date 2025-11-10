@@ -10,19 +10,21 @@ if (empty($_SESSION['csrf_token'])) {
 
 
 $statement = $connection->prepare("SELECT 
-        students.id AS id,
-        students.name AS name,
-        students.admission_number AS admission_number,
-        students.status AS status,
-        classes.id AS class_id,
-        classes.name AS class_name,
-        class_arms.name AS class_arm_name
-        
-    FROM students
-    LEFT JOIN student_class_records ON students.id = student_class_records.student_id
-    LEFT JOIN classes ON student_class_records.class_id = classes.id
-    LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
-    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+    students.id AS id,
+    students.name AS name,
+    students.admission_number AS admission_number,
+    students.status AS status,
+    classes.id AS class_id,
+    classes.name AS class_name,
+    class_arms.name AS class_arm_name
+FROM students
+LEFT JOIN student_class_records 
+    ON students.id = student_class_records.student_id
+LEFT JOIN classes 
+    ON student_class_records.class_id = classes.id
+LEFT JOIN class_arms 
+    ON student_class_records.arm_id = class_arms.id
+WHERE student_class_records.is_current = 1
 
 ");
 
@@ -120,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($class)) {
         $errors['class'] = "Please select a class.";
-    }else{
+    } else {
         list($class_id, $arm_id) = explode('|', $class);
     }
 
@@ -202,8 +204,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             $student_id = $stmt->insert_id;
-            $statement = $connection->prepare("INSERT into student_class_records (student_id, class_id, arm_id, term_id) values (?, ?, ? ,?)");
-            $statement->bind_param('iiii', $student_id, $class_id, $arm_id, $term);
+            $statement = $connection->prepare("INSERT into student_class_records (student_id, class_id, arm_id, term_id, is_current) values (?, ?, ? ,?, ?)");
+            $statement->bind_param('iiiii', $student_id, $class_id, $arm_id, $term, true);
             $statement->execute();
             $_SESSION['success'] = "Student account created successfully!";
 
