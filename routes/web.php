@@ -86,10 +86,10 @@ $routes = [
         'url' => "$baseUrl/pages/admin/classes-management/classes-management.php"
     ],
     'update-class' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-update-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/class-update.php"
     ],
     'create-class' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-create-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/class-create.php"
     ],
     'assing-class-teacher' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-teacher.php"
@@ -98,19 +98,19 @@ $routes = [
         'url' => "$baseUrl/pages/admin/classes-management/class-arm-management.php"
     ],
     'create-class-arm' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-arm-create-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/class-arm-create.php"
     ],
     'update-class-arm' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-arm-update-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/class-arm-update.php"
     ],
     'sections-management' => [
         'url' => "$baseUrl/pages/admin/classes-management/sections-management.php"
     ],
     'create-section' => [
-        'url' => "$baseUrl/pages/admin/classes-management/section-create-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/section-create.php"
     ],
     'update-section' => [
-        'url' => "$baseUrl/pages/admin/classes-management/section-update-form.php"
+        'url' => "$baseUrl/pages/admin/classes-management/section-update.php"
     ],
     'subjects-management' => [
         'url' => "$baseUrl/pages/admin/subjects-management/"

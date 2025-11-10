@@ -199,6 +199,7 @@ CREATE TABLE sessions (
     name VARCHAR(100) NOT NULL, -- e.g., '2023/2024'
     start_date DATE,
     end_date DATE,
+    status ENUM('pending', 'ongoing', 'finished') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -211,6 +212,7 @@ CREATE TABLE terms (
     session_id INT NOT NULL,
     start_date DATE,
     end_date DATE,
+    status ENUM('pending', 'ongoing', 'finished') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
@@ -222,15 +224,16 @@ CREATE TABLE student_class_records (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     class_id INT NOT NULL,
-    session_id INT NOT NULL,
+    arm_id INT NOT NULL,
     term_id INT NULL,
     date_assigned TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     remarks VARCHAR(255),
+    is_current TINYINT(1) DEFAULT 0,
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE,
     FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE SET NULL,
-    UNIQUE (student_id, class_id, session_id, term_id)
+    UNIQUE (student_id, class_id, arm_id, term_id)
 ) ENGINE=InnoDB;
 
 -- ===========================================================

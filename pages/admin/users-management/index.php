@@ -19,39 +19,37 @@ $totalInactiveUsers = $adminsCount['inactive'] + $teachersCount['inactive'] + $g
 
 
 $statement = $connection->prepare("
-    SELECT 
-        sections.id AS section_id,
-        sections.name AS section_name,
-        head_teachers.id AS head_teacher_id,
-        head_teachers.name AS head_teacher_name,
+SELECT 
+    sections.id AS section_id,
+    sections.name AS section_name,
+    head_teachers.id AS head_teacher_id,
+    head_teachers.name AS head_teacher_name,
 
-        classes.id AS class_id,
-        classes.name AS class_name,
+    classes.id AS class_id,
+    classes.name AS class_name,
 
-        class_arms.id AS arm_id,
-        class_arms.name AS arm_name,
+    class_arms.id AS arm_id,
+    class_arms.name AS arm_name,
 
-        students.id AS student_id,
-        students.name AS student_name,
-        students.admission_number,
-        students.gender,
-        students.status
+    students.id AS student_id,
+    students.name AS student_name,
+    students.admission_number,
+    students.gender,
+    students.status
 
-    FROM sections
-    LEFT JOIN teachers AS head_teachers 
-        ON sections.head_teacher_id = head_teachers.id
-    LEFT JOIN classes 
-        ON classes.section_id = sections.id
-    LEFT JOIN class_class_arms 
-        ON class_class_arms.class_id = classes.id
-    LEFT JOIN class_arms 
-        ON class_class_arms.arm_id = class_arms.id
-    LEFT JOIN student_class_records 
-        ON classes.id = student_class_records.class_id
-    LEFT JOIN students 
-        ON students.id = student_class_records.student_id
+FROM sections
+LEFT JOIN teachers AS head_teachers 
+    ON sections.head_teacher_id = head_teachers.id
+LEFT JOIN classes 
+    ON classes.section_id = sections.id
+LEFT JOIN student_class_records 
+    ON classes.id = student_class_records.class_id
+    AND student_class_records.is_current = 1   -- <-- only current class
+LEFT JOIN class_arms 
+    ON class_arms.id = student_class_records.arm_id
+LEFT JOIN students 
+    ON students.id = student_class_records.student_id
 ");
-
 $statement->execute();
 $result = $statement->get_result();
 $rows = $result->fetch_all(MYSQLI_ASSOC);
