@@ -632,7 +632,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
 
-            if (students.some(s => s.admissionNumber === admissionNumber)) {
+            if (students.some(s => s.admission_number === admissionNumber)) {
                 document.getElementById('admissionNumberError').textContent = 'Admission number already exists';
                 document.getElementById('admissionNumberError').classList.remove('hidden');
                 isValid = false;
