@@ -204,8 +204,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             $student_id = $stmt->insert_id;
+            $is_current = true;
             $statement = $connection->prepare("INSERT into student_class_records (student_id, class_id, arm_id, term_id, is_current) values (?, ?, ? ,?, ?)");
-            $statement->bind_param('iiiii', $student_id, $class_id, $arm_id, $term, true);
+            $statement->bind_param('iiiii', $student_id, $class_id, $arm_id, $term, $is_current);
             $statement->execute();
             $_SESSION['success'] = "Student account created successfully!";
 

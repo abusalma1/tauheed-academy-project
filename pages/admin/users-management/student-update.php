@@ -10,23 +10,59 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM students WHERE id=?');
+
+    $statement = $connection->prepare("  SELECT 
+        s.*, 
+        g.id AS guardian_id, 
+        g.name AS guardian_name,
+
+        scr.id as student_class_record_id,
+        scr.class_id,
+        c.name AS class_name,
+        scr.arm_id,
+        ca.name AS arm_name,
+        scr.term_id,
+        t.name AS term_name,
+        t.session_id,
+        se.name AS session_name,
+        se.start_date AS session_start,
+        se.end_date AS session_end,
+        
+        c.section_id,
+        sec.name AS section_name,
+        
+        cca.teacher_id,
+        tea.name AS teacher_name
+
+    FROM students s
+    LEFT JOIN guardians g ON s.guardian_id = g.id
+    LEFT JOIN student_class_records scr ON s.id = scr.student_id AND scr.is_current = 1
+    LEFT JOIN classes c ON scr.class_id = c.id
+    LEFT JOIN class_arms ca ON scr.arm_id = ca.id
+    LEFT JOIN terms t ON scr.term_id = t.id
+    LEFT JOIN sessions se ON t.session_id = se.id
+    LEFT JOIN sections sec ON c.section_id = sec.id
+    LEFT JOIN class_class_arms cca ON cca.class_id = scr.class_id AND cca.arm_id = scr.arm_id
+    LEFT JOIN teachers tea ON cca.teacher_id = tea.id
+    WHERE s.id = ?
+    ");
+
     $statement->bind_param('i', $id);
     $statement->execute();
     $result = $statement->get_result();
+
     if ($result->num_rows > 0) {
         $student = $result->fetch_assoc();
     } else {
         header('Location: ' . route('back'));
+        exit;
     }
-} else {
-    header('Location: ' .  route('back'));
 }
+
 
 
 $guardians = selectAllData('guardians');
 $students = selectAllData('students', null, $id);
-
 
 $statement = $connection->prepare(" SELECT 
         classes.id AS class_id,
@@ -39,18 +75,37 @@ $statement = $connection->prepare(" SELECT
         class_arms.name as arm_name
 
     FROM classes
+     LEFT JOIN class_class_arms 
+    ON class_class_arms.class_id = classes.id
     LEFT JOIN teachers 
-    ON classes.teacher_id = teachers.id
+    ON class_class_arms.teacher_id = teachers.id
      LEFT JOIN sections 
     ON classes.section_id = sections.id
      LEFT JOIN class_arms 
-    ON classes.class_arm_id = class_arms.id
+    ON class_class_arms.arm_id = class_arms.id
 ");
 $statement->execute();
 $result = $statement->get_result();
 $classes = $result->fetch_all(MYSQLI_ASSOC);
 
 
+$statement = $connection->prepare("SELECT 
+        sessions.id as session_id,
+        sessions.name as session_name,
+        sessions.start_date as session_start_date,
+        sessions.end_date as session_end_date,
+
+        terms.id as id,
+        terms.name as name,
+        terms.start_date as start_date,
+        terms.end_date as end_date
+
+    FROM terms
+    LEFT JOIN sessions on sessions.id = terms.session_id
+");
+$statement->execute();
+$result = $statement->get_result();
+$terms = $result->fetch_all(MYSQLI_ASSOC);
 
 
 // Count total students
@@ -71,17 +126,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = trim($_POST['phone'] ?? '');
     $admissionNumber = trim($_POST['admissionNumber'] ?? '');
     $class = trim($_POST['class'] ?? '');
+    $term = trim($_POST['term'] ?? '');
     $dob = trim($_POST['dob'] ?? '');
     $gender = trim($_POST['gender'] ?? '');
     $guardian = trim($_POST['guardian'] ?? '');
     $status = trim($_POST['status'] ?? 'inactive');
 
-    // Initialize error variables
+
     $errors = [];
 
-    // --- VALIDATION RULES ---
-
-    // Required fields
     if (empty($name)) {
         $errors['name'] = "Full name is required.";
     }
@@ -92,7 +145,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($class)) {
         $errors['class'] = "Please select a class.";
+    } else {
+        list($class_id, $arm_id) = explode('|', $class);
     }
+
+    if (empty($term)) {
+        $errors['term'] = "Please select a term.";
+    }
+
 
     if (empty($dob)) {
         $errors['dob'] = "Date of birth is required.";
@@ -134,9 +194,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
 
         $stmt = $connection->prepare("UPDATE students set
-           name = ?, email = ?, phone = ?, admission_number = ?,  dob = ?, gender = ?, status = ?, guardian_id = ?, class_id = ? where id = ?");
+           name = ?, email = ?, phone = ?, admission_number = ?,  dob = ?, gender = ?, status = ?, guardian_id = ?  where id = ?");
         $stmt->bind_param(
-            "sssssssiii",
+            "sssssssii",
             $name,
             $email,
             $phone,
@@ -145,15 +205,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $gender,
             $status,
             $guardian,
-            $class,
             $id
 
         );
 
         if ($stmt->execute()) {
+            $statement = $connection->prepare("
+        UPDATE student_class_records 
+        SET class_id = ?, arm_id = ?, term_id = ? 
+        WHERE id = ?
+    ");
+            $statement->bind_param(
+                'iiii',
+                $class_id,
+                $arm_id,
+                $term,
+                $student['student_class_record_id']
+            );
+            $statement->execute();
             $_SESSION['success'] = "Student account updated successfully!";
-            header("Location: " .  route('back'));
 
+            header("Location: " . route('back'));
             exit;
         } else {
             echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($stmt->error) . "</p>";
@@ -241,11 +313,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">Class *</label>
                                 <select id="class" name="class" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                     <option value="">Select class</option>
-                                    <?php foreach ($classes as $class): ?>
-                                        <option value="<?= $class['class_id'] ?>" <?= $class['class_id'] === $student['class_id'] ? 'selected' : '' ?>><?= $class['class_name'] . $class['arm_name'] ?></option>
+                                    <?php foreach ($classes as $classItem): ?>
+                                        <option value="<?= $classItem['class_id'] . '|' . $classItem['arm_id'] ?>"
+                                            <?= ($student && $classItem['class_id'] == $student['class_id'] && $classItem['arm_id'] == $student['arm_id']) ? 'selected' : '' ?>>
+                                            <?= $classItem['class_name'] . ' ' . $classItem['arm_name'] ?>
+                                        </option>
                                     <?php endforeach; ?>
+
                                 </select>
                                 <span class="text-red-500 text-sm hidden" id="classError"></span>
+                            </div>
+
+                            <!-- Term & Session  -->
+                            <div>
+                                <label for="term" class="block text-sm font-semibold text-gray-700 mb-2">Term & Session *</label>
+                                <select id="term" name="term" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select term</option>
+                                    <?php foreach ($terms as $termItem): ?>
+                                        <option value="<?= $termItem['id'] ?>"
+                                            <?= ($student && $termItem['id'] == $student['term_id']) ? 'selected' : '' ?>>
+                                            <?= $termItem['name'] . ' ' . $termItem['session_name'] ?>
+                                        </option>
+                                    <?php endforeach; ?>
+
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="termError"></span>
                             </div>
 
                             <!-- Date of Birth -->
@@ -370,6 +462,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const phone = document.getElementById('phone').value.trim();
             const admissionNumber = document.getElementById('admissionNumber').value.trim();
             const studentClass = document.getElementById('class').value;
+            const studentTerm = document.getElementById('term').value;
+
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
             const guardian = document.getElementById('guardian').value.trim();
@@ -430,6 +524,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!studentClass) {
                 document.getElementById('classError').textContent = 'Please select a class';
                 document.getElementById('classError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!studentTerm) {
+                document.getElementById('termError').textContent = 'Please select a term';
+                document.getElementById('termError').classList.remove('hidden');
                 isValid = false;
             }
 
