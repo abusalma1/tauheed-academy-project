@@ -135,7 +135,7 @@ $sectionsCount = countDataTotal('sections')['total'];
                         </div>
                     </a>
 
-                    <a href="<?= route('create-section') ?>" class="flex items-center gap-3 p-4 border-2 border-indigo-200 rounded-lg hover:bg-indigo-50 transition">
+                    <a href="<?= route('classes-management') ?>" class="flex items-center gap-3 p-4 border-2 border-indigo-200 rounded-lg hover:bg-indigo-50 transition">
                         <i class="fas fa-eye text-indigo-600 text-xl"></i>
                         <div>
                             <p class="font-semibold text-gray-900">View Classes</p>
@@ -143,7 +143,7 @@ $sectionsCount = countDataTotal('sections')['total'];
                         </div>
                     </a>
 
-                    <a href="teachers-by-section.html" class="flex items-center gap-3 p-4 border-2 border-cyan-200 rounded-lg hover:bg-cyan-50 transition">
+                    <a href="<?= route('users-management') ?>" class="flex items-center gap-3 p-4 border-2 border-cyan-200 rounded-lg hover:bg-cyan-50 transition">
                         <i class="fas fa-eye text-cyan-600 text-xl"></i>
                         <div>
                             <p class="font-semibold text-gray-900">View Teachers</p>
@@ -151,7 +151,7 @@ $sectionsCount = countDataTotal('sections')['total'];
                         </div>
                     </a>
 
-                    <a href="students-by-class.html" class="flex items-center gap-3 p-4 border-2 border-teal-200 rounded-lg hover:bg-teal-50 transition">
+                    <a href="<?= route('users-management') ?>" class="flex items-center gap-3 p-4 border-2 border-teal-200 rounded-lg hover:bg-teal-50 transition">
                         <i class="fas fa-eye text-teal-600 text-xl"></i>
                         <div>
                             <p class="font-semibold text-gray-900">View Students</p>

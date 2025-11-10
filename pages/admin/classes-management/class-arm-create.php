@@ -17,8 +17,7 @@ $armsCount = countDataTotal('class_arms')['total'];
 
 
 $name = $description = '';
-$nameError = '';
-
+$errors = [];
 
 
 
@@ -35,12 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($name)) {
-        $nameError = "Name is required";
+        $errors['nameError'] = "Name is required";
     }
 
 
 
-    if (empty($nameError)) {
+    if (empty($errors)) {
         $statement = $connection->prepare(
             "INSERT INTO class_arms (name, description)
              VALUES (?, ?)"
@@ -48,10 +47,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ss', $name, $description);
 
         if ($statement->execute()) {
-            header("Location: " .  route('back') . "?success=1");
+            $_SESSION['success'] = "Arm created successfully!";
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Failed to create class arm : " . $statement->error . "');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
         }
     }
 }

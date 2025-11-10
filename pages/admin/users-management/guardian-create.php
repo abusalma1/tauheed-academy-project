@@ -68,7 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssssssss', $name, $email, $phone, $occupation, $address, $relationship, $status, $hashed_password);
 
         if ($statement->execute()) {
-            header("Location: " .  route('back') . "?success=1");
+            $_SESSION['success'] = "Guardian account created successfully!";
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Failed to create guardian user account: " . $statement->error . "');</script>";

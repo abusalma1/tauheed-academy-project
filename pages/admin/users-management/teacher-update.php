@@ -71,7 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('sssssssi', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $id);
 
         if ($statement->execute()) {
-            header("Location: " .  route('back') . "?success=1");
+            $_SESSION['success'] = "Teacher account updated successfully!";
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Database error: " . $statement->error . "');</script>";

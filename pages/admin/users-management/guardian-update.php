@@ -66,7 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('sssssssi', $name, $email, $phone, $occupation, $address, $relationship, $status, $id);
 
         if ($statement->execute()) {
-            header("Location: " .  route('back') . "?success=1");
+            $_SESSION['success'] = "Guardian account updated successfully!";
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>

@@ -70,7 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssi', $name, $description, $headTeacher);
 
         if ($statement->execute()) {
-            header("Location: " .  route('back') . "?success=1");
+            $_SESSION['success'] = "Section created successfully!";
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";

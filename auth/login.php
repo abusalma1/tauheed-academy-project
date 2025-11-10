@@ -41,7 +41,8 @@ if (isset($_SESSION['user_session'])) {
                         'user_type' => $user_type
                     ];
 
-                    header('Location: ../index.php');
+                    $_SESSION['success'] = "Logged in successfully!";
+                    header('Location:  ' . route('home'));
                 } else {
                     $error = "Incorrect email Or password";
                 }

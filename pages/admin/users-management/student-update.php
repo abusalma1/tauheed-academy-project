@@ -151,7 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($stmt->execute()) {
-            header("Location: " .  route('back') . '?success=1');
+            $_SESSION['success'] = "Student account updated successfully!";
+            header("Location: " .  route('back'));
 
             exit;
         } else {

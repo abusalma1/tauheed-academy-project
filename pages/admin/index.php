@@ -114,7 +114,7 @@ include(__DIR__ . '/../../includes/header.php');
                                 <i class="fas fa-plus"></i>Create Class
                             </a>
                         </div>
-                        <a href="<?= route('classes-management') ?>">
+                        <a href="<?= route('class-arm-section-management') ?>">
                             <button class="w-full mt-6 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
                                 <i class="fas fa-arrow-right mr-2"></i>Manage
                             </button>

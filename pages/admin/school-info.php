@@ -36,11 +36,9 @@ if (isset($_POST['submit'])) {
     );
 
     if ($statement->execute()) {
-        echo "<script>
-    window.addEventListener('DOMContentLoaded', () => showSuccessMessage());
-</script>";
+        $_SESSION['success'] = "School info updated successfully!";
+        header('Location: ' . route('back'));
 
-        // refresh the data
         $result = $connection->query("SELECT * FROM schools WHERE id = $id");
         $school = $result->fetch_assoc();
     } else {
@@ -263,7 +261,7 @@ if (isset($_POST['submit'])) {
     </section>
 
     <?php include(__DIR__  . '/../../includes/footer.php') ?>
- 
+
     <script>
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');

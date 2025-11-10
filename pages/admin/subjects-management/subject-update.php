@@ -16,6 +16,7 @@ if (isset($_GET['id'])) {
     if ($result->num_rows > 0) {
         $subject = $result->fetch_assoc();
     } else {
+        $_SESSION['success'] = "Subject added successfully!";
         header('Location: ' .  route('back'));
     }
 } else {

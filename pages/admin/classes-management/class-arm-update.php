@@ -31,10 +31,7 @@ $armsCount = countDataTotal('class_arms')['total'];
 
 
 $name = $description = '';
-$nameError = '';
-
-
-
+$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (
@@ -45,28 +42,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $name = htmlspecialchars(trim($_POST['armName'] ?? ''), ENT_QUOTES, 'UTF-8');
     $id = htmlspecialchars(trim($_POST['armId'] ?? ''), ENT_QUOTES, 'UTF-8');
-
     $description = filter_var(trim($_POST['armDescription'] ?? ''), ENT_QUOTES);
 
 
-
     if (empty($name)) {
-        $nameError = "Name is required";
+        $errors['nameError'] = "Name is required";
     }
 
 
-
-    if (empty($nameError)) {
+    if (empty($errors)) {
         $statement = $connection->prepare(
             "UPDATE class_arms SET name = ?, description = ? WHERE id = ? "
         );
         $statement->bind_param('ssi', $name, $description, $id);
 
         if ($statement->execute()) {
+            $_SESSION['success'] = "Arm Updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Failed to create class arm : " . $statement->error . "');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
         }
     }
 }
@@ -99,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Update Arm Details</h2>
                         <form id="updateArmForm" class="space-y-6" method="post">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <input type="hidden" name="armId" value="<?= htmlspecialchars($arm['id']); ?>">
 
 
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>

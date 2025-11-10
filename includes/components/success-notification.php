@@ -1,6 +1,6 @@
 <?php if (isset($_SESSION['success'])): ?>
     <div id="successAlert"
-        class="fixed top-0 left-1/2 transform -translate-x-1/2 mt-4 px-6 py-3 bg-green-600 text-white rounded-lg shadow-lg opacity-0 translate-y-[-100%] transition-all duration-500 ease-in-out z-50">
+        class="fixed top-4 left-1/2 transform -translate-x-1/2 mt-4 px-6 py-3 bg-green-600 text-white rounded-full shadow-lg opacity-0 translate-y-[-100%] transition-all duration-500 ease-in-out z-[9999]">
         <?= htmlspecialchars($_SESSION['success']); ?>
     </div>
     <?php unset($_SESSION['success']); ?>

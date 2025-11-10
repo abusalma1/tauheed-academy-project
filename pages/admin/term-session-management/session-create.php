@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('sss', $name, $start_date, $end_date);
 
         if ($statement->execute()) {
+            $_SESSION['success'] = "Session created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {

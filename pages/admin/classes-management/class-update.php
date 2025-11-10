@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $insert_stmt->bind_param('ii', $id, $arm_id);
                 $insert_stmt->execute();
             }
-
+            $_SESSION['success'] = "Class updated successfully!";
             header("Location: " . route('back'));
             exit();
         } else {

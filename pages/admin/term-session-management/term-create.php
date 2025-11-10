@@ -73,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('sssi', $name, $start_date, $end_date, $session_id);
 
         if ($statement->execute()) {
+            $_SESSION['success'] = "Term created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {

@@ -69,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssii', $name, $description, $headTeacher, $id);
 
         if ($statement->execute()) {
+            $_SESSION['success'] = "Section Updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {

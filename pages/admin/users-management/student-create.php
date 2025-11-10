@@ -205,7 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $statement = $connection->prepare("INSERT into student_class_records (student_id, class_id, arm_id, term_id) values (?, ?, ? ,?)");
             $statement->bind_param('iiii', $student_id, $class_id, $arm_id, $term);
             $statement->execute();
-            
+            $_SESSION['success'] = "Student account created successfully!";
+
             header("Location: " . route('back'));
             exit;
         } else {

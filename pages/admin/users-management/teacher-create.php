@@ -72,7 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->bind_param('ssssssss', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $hashed_password);
 
         if ($statement->execute()) {
-            header("Location: " .  route('back') . "?success=1");
+            $_SESSION['success'] = "Teacher account created successfully!";
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Database error: " . $statement->error . "');</script>";

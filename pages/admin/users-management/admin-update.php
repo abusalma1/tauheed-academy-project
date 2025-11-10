@@ -106,6 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $connection->prepare("UPDATE admins set name = ?, email = ?, phone = ?, department = ?, address = ?, staff_no = ?, status = ?, type = ? where id = ? ");
         $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $id);
         if ($statement->execute()) {
+            $_SESSION['success'] = "Admin/Super User updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {

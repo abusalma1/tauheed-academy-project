@@ -94,8 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $statement_pivot->bind_param('ii', $arm_id, $class_id);
                 $statement_pivot->execute();
             }
-
-            header("Location: " .  route('back') . "?success=1");
+            $_SESSION['success'] = "Class created successfully!";
+            header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";

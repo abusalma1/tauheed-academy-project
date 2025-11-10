@@ -110,6 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $connection->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $hashed_password);
         if ($statement->execute()) {
+            $_SESSION['success'] = "Admin/Super User created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
