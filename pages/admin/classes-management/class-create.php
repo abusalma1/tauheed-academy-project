@@ -8,7 +8,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-$statement = $connection->prepare("
+$stmt = $conn->prepare("
     SELECT 
         classes.id AS id,
         classes.name AS name,
@@ -20,8 +20,8 @@ $statement = $connection->prepare("
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
     GROUP BY classes.id
 ");
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $classes = $result->fetch_all(MYSQLI_ASSOC);
 
 
@@ -78,27 +78,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($errors)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "INSERT INTO classes (name, section_id) VALUES (?, ?)"
         );
-        $statement->bind_param('si', $name, $section);
+        $stmt->bind_param('si', $name, $section);
 
-        if ($statement->execute()) {
-            $class_id = $statement->insert_id;
-            $statement->close();
+        if ($stmt->execute()) {
+            $class_id = $stmt->insert_id;
+            $stmt->close();
 
             $pivot_query = "INSERT INTO class_class_arms (arm_id, class_id) VALUES (?, ?)";
-            $statement_pivot = $connection->prepare($pivot_query);
+            $stmt_pivot = $conn->prepare($pivot_query);
 
             foreach ($arms as $arm_id) {
-                $statement_pivot->bind_param('ii', $arm_id, $class_id);
-                $statement_pivot->execute();
+                $stmt_pivot->bind_param('ii', $arm_id, $class_id);
+                $stmt_pivot->execute();
             }
             $_SESSION['success'] = "Class created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

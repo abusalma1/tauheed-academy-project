@@ -10,10 +10,10 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM sessions WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt = $conn->prepare('SELECT * FROM sessions WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $session = $result->fetch_assoc();
@@ -28,10 +28,10 @@ if (isset($_GET['id'])) {
 }
 
 
-$statement = $connection->prepare('SELECT * FROM terms WHERE session_id = ?');
-$statement->bind_param('i', $session_id);
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare('SELECT * FROM terms WHERE session_id = ?');
+$stmt->bind_param('i', $session_id);
+$stmt->execute();
+$result = $stmt->get_result();
 $terms = $result->fetch_all(MYSQLI_ASSOC);
 
 
@@ -67,17 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($errors)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "INSERT INTO terms (name, start_date, end_date, session_id) VALUES (?, ?, ?, ?)"
         );
-        $statement->bind_param('sssi', $name, $start_date, $end_date, $session_id);
+        $stmt->bind_param('sssi', $name, $start_date, $end_date, $session_id);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Term created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

@@ -8,9 +8,9 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-$statement = $connection->prepare("SELECT * FROM class_arms");
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare("SELECT * FROM class_arms");
+$stmt->execute();
+$result = $stmt->get_result();
 $class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
 $armsCount = countDataTotal('class_arms')['total'];
@@ -40,18 +40,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($errors)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "INSERT INTO class_arms (name, description)
              VALUES (?, ?)"
         );
-        $statement->bind_param('ss', $name, $description);
+        $stmt->bind_param('ss', $name, $description);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Arm created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create class arm : " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create class arm : " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

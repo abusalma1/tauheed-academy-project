@@ -7,7 +7,7 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$statement = $connection->prepare("
+$stmt = $conn->prepare("
     SELECT 
         sections.id AS section_id,
         sections.name as section_name,
@@ -18,13 +18,13 @@ $statement = $connection->prepare("
     LEFT JOIN teachers 
     ON sections.head_teacher_id = teachers.id
 ");
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $sections = $result->fetch_all(MYSQLI_ASSOC);
 
-$statement = $connection->prepare("SELECT * FROM teachers");
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare("SELECT * FROM teachers");
+$stmt->execute();
+$result = $stmt->get_result();
 $teachers = $result->fetch_all(MYSQLI_ASSOC);
 
 
@@ -63,18 +63,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($nameError)  && empty($descriptionError) && empty($headTeacherError)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "INSERT INTO sections (name, description, head_teacher_id)
              VALUES (?, ?, ?)"
         );
-        $statement->bind_param('ssi', $name, $description, $headTeacher);
+        $stmt->bind_param('ssi', $name, $description, $headTeacher);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Section created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
         }
     }
 }

@@ -31,17 +31,17 @@ function validatePhone($phone)
 
 function emailExist($email, $table, $whereIdIsNot = 0)
 {
-    global $connection;
+    global $conn;
 
     if ($whereIdIsNot > 0) {
         // Check if email exists for others excluding this ID
         $query = "SELECT id FROM $table WHERE email = ? AND id != ? LIMIT 1";
-        $stmt = $connection->prepare($query);
+        $stmt = $conn->prepare($query);
         $stmt->bind_param('si', $email, $whereIdIsNot);
     } else {
         // Normal check for email existence
         $query = "SELECT id FROM $table WHERE email = ? LIMIT 1";
-        $stmt = $connection->prepare($query);
+        $stmt = $conn->prepare($query);
         $stmt->bind_param('s', $email);
     }
 
@@ -54,17 +54,17 @@ function emailExist($email, $table, $whereIdIsNot = 0)
 
 function staffNumberExist($staff_no, $table, $whereIdIsNot = 0)
 {
-    global $connection;
+    global $conn;
 
     if ($whereIdIsNot > 0) {
         // Check if staff number exists for others excluding this ID
         $query = "SELECT id FROM $table WHERE staff_no = ? AND id != ? LIMIT 1";
-        $stmt = $connection->prepare($query);
+        $stmt = $conn->prepare($query);
         $stmt->bind_param('si', $staff_no, $whereIdIsNot);
     } else {
         // Normal check for staff number existence
         $query = "SELECT id FROM $table WHERE staff_no = ? LIMIT 1";
-        $stmt = $connection->prepare($query);
+        $stmt = $conn->prepare($query);
         $stmt->bind_param('s', $staff_no);
     }
 
@@ -77,36 +77,36 @@ function staffNumberExist($staff_no, $table, $whereIdIsNot = 0)
 
 function countDataTotal($table, $haveActivity = false)
 {
-    global $connection;
+    global $conn;
 
     // Count total users
-    $totalQuery = $connection->query("SELECT COUNT(*) AS total FROM $table");
+    $totalQuery = $conn->query("SELECT COUNT(*) AS total FROM $table");
     $total = $totalQuery->fetch_assoc()['total'];
     $total = number_format($total);
 
 
     if ($haveActivity) {
         // Count active users
-        $activeQuery = $connection->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active'");
+        $activeQuery = $conn->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active'");
         $active = $activeQuery->fetch_assoc()['active'];
         $active = number_format($active);
 
 
         // Count inactive users
-        $inactiveQuery = $connection->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive'");
+        $inactiveQuery = $conn->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive'");
         $inactive = $inactiveQuery->fetch_assoc()['inactive'];
         $inactive = number_format($inactive);
 
 
         if ($table === 'admins') {
             // Count active admins
-            $activeQuery = $connection->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin'");
+            $activeQuery = $conn->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin'");
             $admin = $activeQuery->fetch_assoc()['admin'];
             $admin = number_format($admin);
 
 
             // Count inactive superadmins
-            $inactiveQuery = $connection->query("SELECT COUNT(*) AS superAdmin FROM $table WHERE type = 'superAdmin'");
+            $inactiveQuery = $conn->query("SELECT COUNT(*) AS superAdmin FROM $table WHERE type = 'superAdmin'");
             $superAdmin = $inactiveQuery->fetch_assoc()['superAdmin'];
             $superAdmin = number_format($superAdmin);
 
@@ -122,19 +122,19 @@ function countDataTotal($table, $haveActivity = false)
 
 function selectAllData($table, $whereIdIs = null, $whereIdIsNot = null)
 {
-    global $connection;
+    global $conn;
 
     if ($whereIdIs) {
-        $statement = $connection->prepare("SELECT * FROM $table WHERE id =  ?");
-        $statement->bind_param('i', $whereIdIs);
+        $stmt = $conn->prepare("SELECT * FROM $table WHERE id =  ?");
+        $stmt->bind_param('i', $whereIdIs);
     } else if ($whereIdIsNot) {
-        $statement = $connection->prepare("SELECT * FROM $table WHERE id != ?");
-        $statement->bind_param('i', $whereIdIsNot);
+        $stmt = $conn->prepare("SELECT * FROM $table WHERE id != ?");
+        $stmt->bind_param('i', $whereIdIsNot);
     } else {
-        $statement = $connection->prepare("SELECT * FROM $table");
+        $stmt = $conn->prepare("SELECT * FROM $table");
     }
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt->execute();
+    $result = $stmt->get_result();
     $data = $result->fetch_all(MYSQLI_ASSOC);
 
     return $data;

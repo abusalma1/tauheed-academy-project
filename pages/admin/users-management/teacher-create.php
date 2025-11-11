@@ -65,18 +65,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $statement = $connection->prepare("
+        $stmt = $conn->prepare("
             INSERT INTO teachers (name, email, phone, address, staff_no, qualification,  status, password)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $statement->bind_param('ssssssss', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $hashed_password);
+        $stmt->bind_param('ssssssss', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $hashed_password);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Teacher account created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Database error: " . $statement->error . "');</script>";
+            echo "<script>alert('Database error: " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

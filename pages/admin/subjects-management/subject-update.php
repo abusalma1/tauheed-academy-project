@@ -9,10 +9,10 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM subjects WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt = $conn->prepare('SELECT * FROM subjects WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $subject = $result->fetch_assoc();
     } else {
@@ -26,10 +26,10 @@ if (isset($_GET['id'])) {
 $subject_id = $subject['id'];
 
 
-$statement = $connection->prepare('SELECT * FROM class_subjects WHERE subject_id = ?');
-$statement->bind_param('i', $subject['id']);
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare('SELECT * FROM class_subjects WHERE subject_id = ?');
+$stmt->bind_param('i', $subject['id']);
+$stmt->execute();
+$result = $stmt->get_result();
 $class_subjects = $result->fetch_all(MYSQLI_ASSOC);
 
 $classes = selectAllData('classes');
@@ -57,17 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         // Update subject name
-        $updateStmt = $connection->prepare("UPDATE subjects SET name = ? WHERE id = ?");
+        $updateStmt = $conn->prepare("UPDATE subjects SET name = ? WHERE id = ?");
         $updateStmt->bind_param('si', $name, $subject_id);
 
         if ($updateStmt->execute()) {
             // Replace pivot rows: delete old, insert new
-            $delStmt = $connection->prepare("DELETE FROM class_subjects WHERE subject_id = ?");
+            $delStmt = $conn->prepare("DELETE FROM class_subjects WHERE subject_id = ?");
             $delStmt->bind_param('i', $subject_id);
             $delStmt->execute();
             $delStmt->close();
 
-            $insertPivot = $connection->prepare("INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)");
+            $insertPivot = $conn->prepare("INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)");
             foreach ($class_ids as $cid) {
                 $cid = intval($cid);
                 $insertPivot->bind_param('ii', $cid, $subject_id);

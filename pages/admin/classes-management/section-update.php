@@ -10,10 +10,10 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM sections WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt = $conn->prepare('SELECT * FROM sections WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $section = $result->fetch_assoc();
     }
@@ -21,15 +21,15 @@ if (isset($_GET['id'])) {
     header('Location: ' .  route('back'));
 }
 
-$statement = $connection->prepare("SELECT * FROM sections WHERE id != ?");
-$statement->bind_param('i', $id);
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare("SELECT * FROM sections WHERE id != ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$result = $stmt->get_result();
 $sections = $result->fetch_all(MYSQLI_ASSOC);
 
-$statement = $connection->prepare("SELECT * FROM teachers");
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare("SELECT * FROM teachers");
+$stmt->execute();
+$result = $stmt->get_result();
 $teachers = $result->fetch_all(MYSQLI_ASSOC);
 
 
@@ -62,18 +62,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($nameError)  && empty($descriptionError) && empty($headTeacherError)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "UPDATE sections SET name =? , description = ?, head_teacher_id = ?
              WHERE id = ?"
         );
-        $statement->bind_param('ssii', $name, $description, $headTeacher, $id);
+        $stmt->bind_param('ssii', $name, $description, $headTeacher, $id);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Section Updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
         }
     }
 }

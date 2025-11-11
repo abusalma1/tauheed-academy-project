@@ -10,10 +10,10 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM guardians WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt = $conn->prepare('SELECT * FROM guardians WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $guardian = $result->fetch_assoc();
     } else {
@@ -60,18 +60,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($status)) $errors['statusError'] = "Status is required";
 
     if (empty($errors)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "UPDATE guardians  SET name = ?, email = ? , phone = ? , occupation = ?, address = ?, relationship = ?, status = ? WHERE id = ?"
         );
-        $statement->bind_param('sssssssi', $name, $email, $phone, $occupation, $address, $relationship, $status, $id);
+        $stmt->bind_param('sssssssi', $name, $email, $phone, $occupation, $address, $relationship, $status, $id);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Guardian account updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
             echo "<script>
-                alert('Failed to create guardian user account: " . $statement->error . "');
+                alert('Failed to create guardian user account: " . $stmt->error . "');
             </scrip>";
         }
     } else {

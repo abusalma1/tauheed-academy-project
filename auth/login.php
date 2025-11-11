@@ -15,20 +15,20 @@ if (isset($_SESSION['user_session'])) {
         if (!empty($email) && !empty($password) && !empty($user_type)) {
 
             if ($user_type === 'student') {
-                $statement = $connection->prepare("SELECT * from students where email = ?");
+                $stmt = $conn->prepare("SELECT * from students where email = ?");
             } else if ($user_type === 'teacher') {
-                $statement = $connection->prepare("SELECT * from teachers where email = ?");
+                $stmt = $conn->prepare("SELECT * from teachers where email = ?");
             } else if ($user_type === 'guardian') {
-                $statement = $connection->prepare("SELECT * from guardians where email = ?");
+                $stmt = $conn->prepare("SELECT * from guardians where email = ?");
             } else if ($user_type === 'admin') {
-                $statement = $connection->prepare("SELECT * from admins where email = ?");
+                $stmt = $conn->prepare("SELECT * from admins where email = ?");
             }
 
 
 
-            $statement->bind_param("s", $email);
-            $statement->execute();
-            $result = $statement->get_result();
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
             if ($result->num_rows == 1) {
                 $user = $result->fetch_assoc();

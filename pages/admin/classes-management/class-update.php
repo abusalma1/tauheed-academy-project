@@ -9,10 +9,10 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM classes WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt = $conn->prepare('SELECT * FROM classes WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $class = $result->fetch_assoc();
@@ -30,10 +30,10 @@ $sections = selectAllData('sections');
 $classes = selectAllData('classes', null, $class_id);
 $class_arms = selectAllData('class_arms');
 
-$statement = $connection->prepare("SELECT * FROM class_class_arms WHERE class_id = ?");
-$statement->bind_param('i', $class_id);
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare("SELECT * FROM class_class_arms WHERE class_id = ?");
+$stmt->bind_param('i', $class_id);
+$stmt->execute();
+$result = $stmt->get_result();
 $selected_class_arms = $result->fetch_all(MYSQLI_ASSOC);
 $linked_class_arms = array_column($selected_class_arms, 'arm_id');
 
@@ -74,18 +74,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $updateStmt = $connection->prepare(
+        $updateStmt = $conn->prepare(
             "UPDATE classes SET name = ?, section_id = ? WHERE id = ?"
         );
         $updateStmt->bind_param('sii', $name, $section, $id);
         if ($updateStmt->execute()) {
 
-            $delStmt = $connection->prepare("DELETE FROM class_class_arms WHERE class_id = ?");
+            $delStmt = $conn->prepare("DELETE FROM class_class_arms WHERE class_id = ?");
             $delStmt->bind_param('i', $id);
             $delStmt->execute();
 
 
-            $insert_stmt = $connection->prepare("INSERT INTO class_class_arms (class_id, arm_id) VALUES (?, ?)");
+            $insert_stmt = $conn->prepare("INSERT INTO class_class_arms (class_id, arm_id) VALUES (?, ?)");
             foreach ($arms as $arm_id) {
                 $insert_stmt->bind_param('ii', $id, $arm_id);
                 $insert_stmt->execute();

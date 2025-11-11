@@ -6,10 +6,10 @@ include(__DIR__ . '/../../../includes/header.php');
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM admins WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt = $conn->prepare('SELECT * FROM admins WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $admin = $result->fetch_assoc();
     } else {
@@ -24,10 +24,10 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-$statement = $connection->prepare("SELECT * FROM admins where id != ?");
-$statement->bind_param('i', $id);
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare("SELECT * FROM admins where id != ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$result = $stmt->get_result();
 $admins = $result->fetch_all(MYSQLI_ASSOC);
 
 // Count total admins
@@ -103,14 +103,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
 
-        $statement = $connection->prepare("UPDATE admins set name = ?, email = ?, phone = ?, department = ?, address = ?, staff_no = ?, status = ?, type = ? where id = ? ");
-        $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $id);
-        if ($statement->execute()) {
+        $stmt = $conn->prepare("UPDATE admins set name = ?, email = ?, phone = ?, department = ?, address = ?, staff_no = ?, status = ?, type = ? where id = ? ");
+        $stmt->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $id);
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Admin/Super User updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create admin/super user account: " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create admin/super user account: " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

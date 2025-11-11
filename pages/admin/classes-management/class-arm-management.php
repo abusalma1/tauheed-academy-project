@@ -2,9 +2,9 @@
 $title = "Sections Management";
 include(__DIR__ . '/../../../includes/header.php');
 
-$statement = $connection->prepare("SELECT * FROM class_arms");
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare("SELECT * FROM class_arms");
+$stmt->execute();
+$result = $stmt->get_result();
 $arms = $result->fetch_all(MYSQLI_ASSOC);
 
 $armsCount = countDataTotal('class_arms')['total'];

@@ -33,6 +33,9 @@ $routes = [
     'uniform' => [
         'url' => "$baseUrl/pages/uniform.php"
     ],
+
+    // auth 
+
     'login' => [
         'url' => "$baseUrl/auth/login.php"
     ],
@@ -45,33 +48,51 @@ $routes = [
     'logout' => [
         'url' => "$baseUrl/auth/logout.php"
     ],
+
+    // admin section 
+
     'school-info' => [
         'url' => "$baseUrl/pages/admin/school-info.php"
     ],
     'admin-section' => [
         'url' => "$baseUrl/pages/admin/"
     ],
+
+    // users 
+
     'users-management' => [
         'url' => "$baseUrl/pages/admin/users-management/"
     ],
+
+    // admin 
+
     'admin-create' => [
         'url' => "$baseUrl/pages/admin/users-management/admin-create.php"
     ],
     'admin-update' => [
         'url' => "$baseUrl/pages/admin/users-management/admin-update.php"
     ],
+
+    // guardian
+
     'guardian-create' => [
         'url' => "$baseUrl/pages/admin/users-management/guardian-create.php"
     ],
     'guardian-update' => [
         'url' => "$baseUrl/pages/admin/users-management/guardian-update.php"
     ],
+
+    // teachers
+
     'teacher-create' => [
         'url' => "$baseUrl/pages/admin/users-management/teacher-create.php"
     ],
     'teacher-update' => [
         'url' => "$baseUrl/pages/admin/users-management/teacher-update.php"
     ],
+
+    // students
+
     'student-create' => [
         'url' => "$baseUrl/pages/admin/users-management/student-create.php"
     ],
@@ -79,9 +100,13 @@ $routes = [
         'url' => "$baseUrl/pages/admin/users-management/student-update.php"
     ],
 
+    // classes, sections & class arms 
+
     'class-arm-section-management' => [
         'url' => "$baseUrl/pages/admin/classes-management/"
     ],
+
+    // classes
     'classes-management' => [
         'url' => "$baseUrl/pages/admin/classes-management/classes-management.php"
     ],
@@ -94,6 +119,9 @@ $routes = [
     'assing-class-teacher' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-teacher.php"
     ],
+
+    // class arms
+
     'arms-management' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-arm-management.php"
     ],
@@ -103,6 +131,9 @@ $routes = [
     'update-class-arm' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-arm-update.php"
     ],
+
+    // sections
+
     'sections-management' => [
         'url' => "$baseUrl/pages/admin/classes-management/sections-management.php"
     ],
@@ -112,6 +143,9 @@ $routes = [
     'update-section' => [
         'url' => "$baseUrl/pages/admin/classes-management/section-update.php"
     ],
+
+    // subjects
+
     'subjects-management' => [
         'url' => "$baseUrl/pages/admin/subjects-management/"
     ],
@@ -124,6 +158,9 @@ $routes = [
     'assing-subject-teacher' => [
         'url' => "$baseUrl/pages/admin/subjects-management/subject-teacher.php"
     ],
+
+    // Terms & Sessions
+
     'term-session-management' => [
         'url' => "$baseUrl/pages/admin/term-session-management/"
     ],
@@ -139,14 +176,14 @@ $routes = [
     'update-term' => [
         'url' => "$baseUrl/pages/admin/term-session-management/term-update.php"
     ],
-    'session-terms' => [
-        'url' => "$baseUrl/pages/admin/term-session-management/subject-teacher.php"
+
+    // results
+    'upload-results' => [
+        'url' => "$baseUrl/pages/results-management/upload-results.php"
     ],
-    'sessions' => [
-        'url' => "$baseUrl/pages/admin/term-session-management/sessions.php"
+    'student-result' => [
+        'url' => "$baseUrl/pages/results-management/student-view-results.php"
     ],
-    'terms' => [
-        'url' => "$baseUrl/pages/admin/term-session-management/terms.php"
-    ],
+
 
 ];

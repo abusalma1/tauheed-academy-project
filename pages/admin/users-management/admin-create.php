@@ -7,9 +7,9 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$statement = $connection->prepare("SELECT * FROM admins");
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare("SELECT * FROM admins");
+$stmt->execute();
+$result = $stmt->get_result();
 $admins = $result->fetch_all(MYSQLI_ASSOC);
 
 // Count total admins
@@ -107,14 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         && empty($roleTypeError) && empty($passwordError) && empty($confirmPasswordError)
     ) {
 
-        $statement = $connection->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $statement->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $hashed_password);
-        if ($statement->execute()) {
+        $stmt = $conn->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $hashed_password);
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Admin/Super User created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create admin/super user account: " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create admin/super user account: " . $stmt->error . "');</script>";
         }
     }
 }

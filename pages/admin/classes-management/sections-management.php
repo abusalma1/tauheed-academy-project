@@ -2,7 +2,7 @@
 $title = "Sections Management";
 include(__DIR__ . '/../../../includes/header.php');
 
-$statement = $connection->prepare("
+$stmt = $conn->prepare("
     SELECT 
         sections.id AS section_id,
         sections.name AS section_name,
@@ -23,8 +23,8 @@ $statement = $connection->prepare("
         teachers.name
 ");
 
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $sections = $result->fetch_all(MYSQLI_ASSOC);
 
 $classesCount = countDataTotal('classes')['total'];

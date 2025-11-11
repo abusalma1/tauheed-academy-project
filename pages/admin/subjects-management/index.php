@@ -4,7 +4,7 @@ $title = "Subjects Management";
 include(__DIR__ . '/../../../includes/header.php');
 
 
-$statement = $connection->prepare("
+$stmt = $conn->prepare("
     SELECT 
         classes.id AS class_id,
         classes.name AS class_name,
@@ -24,8 +24,8 @@ $statement = $connection->prepare("
 
 
 
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 
 $classes = [];
 

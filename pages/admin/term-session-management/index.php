@@ -3,7 +3,7 @@
 $title = "Terms & Sessions";
 include(__DIR__ . '/../../../includes/header.php');
 
-$statement = $connection->prepare("SELECT 
+$stmt = $conn->prepare("SELECT 
         sessions.id as session_id,
         sessions.name as session_name,
         sessions.start_date as session_start_date,
@@ -18,8 +18,8 @@ $statement = $connection->prepare("SELECT
     LEFT JOIN terms on sessions.id = terms.session_id
 ");
 
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $rows = $result->fetch_all(MYSQLI_ASSOC);
 
 

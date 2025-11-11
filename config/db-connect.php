@@ -23,8 +23,8 @@ define('DB_PASSWORD', '');
 define('DB_NAME', 'tauheed_academy_database');
 
 
-$connection = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
-if ($connection->connect_error) {
-    die('Connection Failed' . $connection->connect_error);
+if ($conn->connect_error) {
+    die('Connection Failed' . $conn->connect_error);
 }

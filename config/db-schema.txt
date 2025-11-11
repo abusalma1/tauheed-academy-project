@@ -237,17 +237,20 @@ CREATE TABLE student_class_records (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 11. ASSESSMENTS TABLE
+-- 11. RESULTS TABLE
 -- ===========================================================
-CREATE TABLE assessments (
+CREATE TABLE results (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT NOT NULL,
+    student_record_id INT NOT NULL, -- link to student_class_records
     subject_id INT NOT NULL,
-    test DECIMAL(5,2) DEFAULT 0.00,
+    ca DECIMAL(5,2) DEFAULT 0.00,
     exam DECIMAL(5,2) DEFAULT 0.00,
-    grade VARCHAR(5),
+    total DECIMAL(5,2) GENERATED ALWAYS AS (ca + exam) STORED,
+    grade VARCHAR(2),
+    remark VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+    FOREIGN KEY (student_record_id) REFERENCES student_class_records(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+    UNIQUE(student_record_id, subject_id) -- only one result per subject per term/session
+);

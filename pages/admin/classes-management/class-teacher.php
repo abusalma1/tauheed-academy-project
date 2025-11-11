@@ -9,7 +9,7 @@ if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
     $class_id = $_GET['class_id'];
     $arm_id = $_GET['arm_id'];
 
-    $statement = $connection->prepare('SELECT
+    $stmt = $conn->prepare('SELECT
         classes.name as class_name,
         class_arms.name as arm_name,
         class_class_arms.class_id as class_id,
@@ -24,9 +24,9 @@ if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
             class_arms.id = class_class_arms.arm_id
         WHERE class_class_arms.class_id = ? and class_class_arms.arm_id = ?
          ');
-    $statement->bind_param('ii', $class_id, $arm_id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt->bind_param('ii', $class_id, $arm_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $class = $result->fetch_assoc();
@@ -42,30 +42,30 @@ $current_teacher_id = $class['teacher_id'] ?? '';
 $teachers = selectAllData('teachers');
 
 $errors = [];
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-            die('CSRF validation failed. Please refresh and try again.');
-        }
-
-        $teacher_id = $_POST['teacher_id'] ? intval($_POST['teacher_id']) : null;
-
-        if ($teacher_id === null) {
-            $errors['general'] = "Please select a teacher.";
-        } else {
-            $updateStmt = $connection->prepare("UPDATE class_class_arms SET teacher_id = ? WHERE class_id = ? AND arm_id = ?");
-            $updateStmt->bind_param('iii', $teacher_id, $class['class_id'], $class['arm_id']);
-
-            if ($updateStmt->execute()) {
-                $_SESSION['success'] = "Teacher updated successfully!";
-                header("Location: " . route('back'));
-                exit();
-            } else {
-                $errors['general'] = "Failed to update the teacher. Try again.";
-            }
-        }
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
     }
 
-    ?>
+    $teacher_id = $_POST['teacher_id'] ? intval($_POST['teacher_id']) : null;
+
+    if ($teacher_id === null) {
+        $errors['general'] = "Please select a teacher.";
+    } else {
+        $updateStmt = $conn->prepare("UPDATE class_class_arms SET teacher_id = ? WHERE class_id = ? AND arm_id = ?");
+        $updateStmt->bind_param('iii', $teacher_id, $class['class_id'], $class['arm_id']);
+
+        if ($updateStmt->execute()) {
+            $_SESSION['success'] = "Teacher updated successfully!";
+            header("Location: " . route('back'));
+            exit();
+        } else {
+            $errors['general'] = "Failed to update the teacher. Try again.";
+        }
+    }
+}
+
+?>
 
 <body class="bg-gray-50">
     <!-- Navigation -->

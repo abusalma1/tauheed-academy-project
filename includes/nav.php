@@ -21,6 +21,8 @@
                 <a href="<?= route('staff'); ?>" class="hover:text-blue-300 transition">Staff</a>
                 <a href="<?= route('uniform'); ?>" class="hover:text-blue-300 transition">Uniform</a>
                 <a href="<?= route('gallery'); ?>" class="hover:text-blue-300 transition">Gallery</a>
+                <a href="<?= route('upload-results'); ?>" class="hover:text-blue-300 transition">Results</a>
+
                 <?php if (isset($_SESSION['user_session'])): ?>
                     <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Section</a>
                     <a href="<?= route('logout'); ?>"> <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button></a>
@@ -50,6 +52,10 @@
         <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
         <a href="<?= route('gallery'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Gallery</a>
         <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
+        <a href="<?= route('upload-results'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
+
+
+        
 
         <?php if (isset($_SESSION['user_session'])): ?>
             <a href="<?= route('admin-section'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Section</a>

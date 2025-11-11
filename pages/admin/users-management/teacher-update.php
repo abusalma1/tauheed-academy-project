@@ -10,10 +10,10 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM teachers WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt = $conn->prepare('SELECT * FROM teachers WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $teacher = $result->fetch_assoc();
     } else {
@@ -67,15 +67,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($errors)) {
-        $statement = $connection->prepare("UPDATE teachers SET name = ? , email = ?, phone = ?, address = ?, staff_no = ?, qualification = ?,  status = ? WHERE id = ?");
-        $statement->bind_param('sssssssi', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $id);
+        $stmt = $conn->prepare("UPDATE teachers SET name = ? , email = ?, phone = ?, address = ?, staff_no = ?, qualification = ?,  status = ? WHERE id = ?");
+        $stmt->bind_param('sssssssi', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $id);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Teacher account updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Database error: " . $statement->error . "');</script>";
+            echo "<script>alert('Database error: " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

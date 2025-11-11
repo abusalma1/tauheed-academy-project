@@ -15,13 +15,13 @@ if (isset($_POST['submit'])) {
     $instagram = htmlspecialchars($_POST['instagram']);
     $twitter = htmlspecialchars($_POST['twitter']);
 
-    $statement = $connection->prepare("
+    $stmt = $conn->prepare("
         UPDATE schools 
         SET name = ?, motto =?, address = ?, email = ?, phone = ?, whatsapp_number = ?, facebook = ?, instagram = ?, twitter = ?, updated_at = NOW() 
         WHERE id = ?
     ");
 
-    $statement->bind_param(
+    $stmt->bind_param(
         'sssssssssi',
         $name,
         $motto,
@@ -35,14 +35,14 @@ if (isset($_POST['submit'])) {
         $id
     );
 
-    if ($statement->execute()) {
+    if ($stmt->execute()) {
         $_SESSION['success'] = "School info updated successfully!";
         header('Location: ' . route('back'));
 
-        $result = $connection->query("SELECT * FROM schools WHERE id = $id");
+        $result = $conn->query("SELECT * FROM schools WHERE id = $id");
         $school = $result->fetch_assoc();
     } else {
-        echo "<script>alert('Failed to update school info: " . $statement->error . "');</script>";
+        echo "<script>alert('Failed to update school info: " . $stmt->error . "');</script>";
     }
 }
 

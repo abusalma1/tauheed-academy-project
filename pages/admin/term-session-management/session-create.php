@@ -45,17 +45,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($errors)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "INSERT INTO sessions (name, start_date, end_date) VALUES (?, ?, ?)"
         );
-        $statement->bind_param('sss', $name, $start_date, $end_date);
+        $stmt->bind_param('sss', $name, $start_date, $end_date);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Session created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

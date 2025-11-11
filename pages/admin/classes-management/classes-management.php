@@ -3,7 +3,7 @@
 $title = "Classes Management";
 include(__DIR__ . '/../../../includes/header.php');
 
-$statement = $connection->prepare("SELECT 
+$stmt = $conn->prepare("SELECT 
         sections.id AS section_id,
         sections.name AS section_name,
         head_teachers.id AS head_teacher_id,
@@ -25,8 +25,8 @@ $statement = $connection->prepare("SELECT
 
 ");
 
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $rows = $result->fetch_all(MYSQLI_ASSOC);
 
 

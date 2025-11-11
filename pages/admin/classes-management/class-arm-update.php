@@ -10,10 +10,10 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM class_arms WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt = $conn->prepare('SELECT * FROM class_arms WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $arm = $result->fetch_assoc();
     }
@@ -21,10 +21,10 @@ if (isset($_GET['id'])) {
     header('Location: ' .  route('back'));
 }
 
-$statement = $connection->prepare("SELECT * FROM class_arms WHERE id != ?");
-$statement->bind_param('i', $id);
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare("SELECT * FROM class_arms WHERE id != ?");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$result = $stmt->get_result();
 $class_arms = $result->fetch_all(MYSQLI_ASSOC);
 
 $armsCount = countDataTotal('class_arms')['total'];
@@ -51,17 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($errors)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "UPDATE class_arms SET name = ?, description = ? WHERE id = ? "
         );
-        $statement->bind_param('ssi', $name, $description, $id);
+        $stmt->bind_param('ssi', $name, $description, $id);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Arm Updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create class arm : " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create class arm : " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

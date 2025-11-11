@@ -10,7 +10,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 $classes = selectAllData('classes');
 
-$statement = $connection->prepare("
+$stmt = $conn->prepare("
     SELECT 
         subjects.id AS id,
         subjects.name AS name,
@@ -20,8 +20,8 @@ $statement = $connection->prepare("
     LEFT JOIN classes ON classes.id = class_subjects.class_id
     GROUP BY subjects.id
 ");
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $subjects = $result->fetch_all(MYSQLI_ASSOC);
 
 
@@ -47,37 +47,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
 
-        $statement = $connection->prepare("INSERT INTO subjects (name) VALUES (?)");
+        $stmt = $conn->prepare("INSERT INTO subjects (name) VALUES (?)");
 
-        if ($statement) {
-            $statement->bind_param('s', $name);
+        if ($stmt) {
+            $stmt->bind_param('s', $name);
 
-            if ($statement->execute()) {
-                $subject_id = $statement->insert_id;
-                $statement->close();
+            if ($stmt->execute()) {
+                $subject_id = $stmt->insert_id;
+                $stmt->close();
 
                 $pivot_query = "INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)";
-                $statement_pivot = $connection->prepare($pivot_query);
+                $stmt_pivot = $conn->prepare($pivot_query);
 
                 foreach (
                     $class_ids as
                     $class_id
                 ) {
 
-                    $statement_pivot->bind_param('ii', $class_id, $subject_id);
-                    $statement_pivot->execute();
+                    $stmt_pivot->bind_param('ii', $class_id, $subject_id);
+                    $stmt_pivot->execute();
                 }
 
-                $statement_pivot->close();
+                $stmt_pivot->close();
 
                 $_SESSION['success'] = "Subject added successfully!";
                 header("Location: " .  route('back'));
                 exit();
             } else {
-                echo "<script>alert('Failed to insert subject into database.: " . $statement->error . "');</script>";
+                echo "<script>alert('Failed to insert subject into database.: " . $stmt->error . "');</script>";
             }
         } else {
-            echo "<script>alert('Error preparing subject insertion.: " . $statement->error . "');</script>";
+            echo "<script>alert('Error preparing subject insertion.: " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

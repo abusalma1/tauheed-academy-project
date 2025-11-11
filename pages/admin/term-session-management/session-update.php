@@ -9,10 +9,10 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT * FROM sessions WHERE id=?');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt = $conn->prepare('SELECT * FROM sessions WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $session = $result->fetch_assoc();
@@ -58,17 +58,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($errors)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "UPDATE sessions SET name = ? , start_date = ?, end_date = ? WHERE id = ?"
         );
-        $statement->bind_param('sssi', $name, $start_date, $end_date, $id);
+        $stmt->bind_param('sssi', $name, $start_date, $end_date, $id);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Session updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -92,8 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <section class="bg-green-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Class Information</h1>
-            <p class="text-xl text-green-200">Modify class details and settings</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Session Information</h1>
+            <p class="text-xl text-green-200">Modify session details and settings</p>
         </div>
     </section>
 
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Form Section -->
                 <div class="md:col-span-2">
                     <div class="bg-white rounded-lg shadow-lg p-8">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Class Details</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Session Details</h2>
 
                         <form id="updatesessionFrom" class="space-y-6" method="post">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">

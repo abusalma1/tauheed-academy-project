@@ -9,7 +9,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-$statement = $connection->prepare("SELECT 
+$stmt = $conn->prepare("SELECT 
     students.id AS id,
     students.name AS name,
     students.admission_number AS admission_number,
@@ -29,14 +29,14 @@ WHERE student_class_records.is_current = 1
 ");
 
 
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $students = $result->fetch_all(MYSQLI_ASSOC);
 
 
 $guardians = selectAllData('guardians');
 
-$statement = $connection->prepare(" SELECT 
+$stmt = $conn->prepare(" SELECT 
         classes.id AS class_id,
         classes.name as class_name,
         teachers.id AS teacher_id,
@@ -56,12 +56,12 @@ $statement = $connection->prepare(" SELECT
      LEFT JOIN class_arms 
     ON class_class_arms.arm_id = class_arms.id
 ");
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $classes = $result->fetch_all(MYSQLI_ASSOC);
 
 
-$statement = $connection->prepare("SELECT 
+$stmt = $conn->prepare("SELECT 
         sessions.id as session_id,
         sessions.name as session_name,
         sessions.start_date as session_start_date,
@@ -75,8 +75,8 @@ $statement = $connection->prepare("SELECT
     FROM terms
     LEFT JOIN sessions on sessions.id = terms.session_id
 ");
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $terms = $result->fetch_all(MYSQLI_ASSOC);
 
 
@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Admission number uniqueness
-    $checkAdmission = $connection->prepare("SELECT id FROM students WHERE admission_number = ?");
+    $checkAdmission = $conn->prepare("SELECT id FROM students WHERE admission_number = ?");
     $checkAdmission->bind_param("s", $admissionNumber);
     $checkAdmission->execute();
     $checkAdmission->store_result();
@@ -186,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        $stmt = $connection->prepare("INSERT INTO students 
+        $stmt = $conn->prepare("INSERT INTO students 
             (name, email, phone, admission_number,  dob, gender,  password, status, guardian_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param(
@@ -205,9 +205,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->execute()) {
             $student_id = $stmt->insert_id;
             $is_current = true;
-            $statement = $connection->prepare("INSERT into student_class_records (student_id, class_id, arm_id, term_id, is_current) values (?, ?, ? ,?, ?)");
-            $statement->bind_param('iiiii', $student_id, $class_id, $arm_id, $term, $is_current);
-            $statement->execute();
+            $stmt = $conn->prepare("INSERT into student_class_records (student_id, class_id, arm_id, term_id, is_current) values (?, ?, ? ,?, ?)");
+            $stmt->bind_param('iiiii', $student_id, $class_id, $arm_id, $term, $is_current);
+            $stmt->execute();
             $_SESSION['success'] = "Student account created successfully!";
 
             header("Location: " . route('back'));

@@ -11,7 +11,7 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    $statement = $connection->prepare("  SELECT 
+    $stmt = $conn->prepare("  SELECT 
         s.*, 
         g.id AS guardian_id, 
         g.name AS guardian_name,
@@ -47,9 +47,9 @@ if (isset($_GET['id'])) {
     WHERE s.id = ?
     ");
 
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $student = $result->fetch_assoc();
@@ -64,7 +64,7 @@ if (isset($_GET['id'])) {
 $guardians = selectAllData('guardians');
 $students = selectAllData('students', null, $id);
 
-$statement = $connection->prepare(" SELECT 
+$stmt = $conn->prepare(" SELECT 
         classes.id AS class_id,
         classes.name as class_name,
         teachers.id AS teacher_id,
@@ -84,12 +84,12 @@ $statement = $connection->prepare(" SELECT
      LEFT JOIN class_arms 
     ON class_class_arms.arm_id = class_arms.id
 ");
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $classes = $result->fetch_all(MYSQLI_ASSOC);
 
 
-$statement = $connection->prepare("SELECT 
+$stmt = $conn->prepare("SELECT 
         sessions.id as session_id,
         sessions.name as session_name,
         sessions.start_date as session_start_date,
@@ -103,8 +103,8 @@ $statement = $connection->prepare("SELECT
     FROM terms
     LEFT JOIN sessions on sessions.id = terms.session_id
 ");
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $terms = $result->fetch_all(MYSQLI_ASSOC);
 
 
@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Admission number uniqueness
-    $checkAdmission = $connection->prepare("SELECT id FROM students WHERE admission_number = ? and id != ?");
+    $checkAdmission = $conn->prepare("SELECT id FROM students WHERE admission_number = ? and id != ?");
     $checkAdmission->bind_param("si", $admissionNumber, $id);
     $checkAdmission->execute();
     $checkAdmission->store_result();
@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- FINAL DECISION ---
     if (empty($errors)) {
 
-        $stmt = $connection->prepare("UPDATE students set
+        $stmt = $conn->prepare("UPDATE students set
            name = ?, email = ?, phone = ?, admission_number = ?,  dob = ?, gender = ?, status = ?, guardian_id = ?  where id = ?");
         $stmt->bind_param(
             "sssssssii",
@@ -210,19 +210,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($stmt->execute()) {
-            $statement = $connection->prepare("
+            $stmt = $conn->prepare("
         UPDATE student_class_records 
         SET class_id = ?, arm_id = ?, term_id = ? 
         WHERE id = ?
     ");
-            $statement->bind_param(
+            $stmt->bind_param(
                 'iiii',
                 $class_id,
                 $arm_id,
                 $term,
                 $student['student_class_record_id']
             );
-            $statement->execute();
+            $stmt->execute();
             $_SESSION['success'] = "Student account updated successfully!";
 
             header("Location: " . route('back'));

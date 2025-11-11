@@ -61,18 +61,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($status)) $errors['statusError'] = "Status is required";
 
     if (empty($errors)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "INSERT INTO guardians (name, email, phone, occupation, address, relationship, status, password)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         );
-        $statement->bind_param('ssssssss', $name, $email, $phone, $occupation, $address, $relationship, $status, $hashed_password);
+        $stmt->bind_param('ssssssss', $name, $email, $phone, $occupation, $address, $relationship, $status, $hashed_password);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Guardian account created successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create guardian user account: " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create guardian user account: " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

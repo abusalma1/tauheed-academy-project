@@ -9,7 +9,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $statement = $connection->prepare('SELECT
+    $stmt = $conn->prepare('SELECT
         terms.id as id, 
         terms.name as name,
         terms.start_date as start_date,
@@ -24,9 +24,9 @@ if (isset($_GET['id'])) {
         left join sessions
              on terms.session_id = sessions.id
         WHERE terms.id = ? ');
-    $statement->bind_param('i', $id);
-    $statement->execute();
-    $result = $statement->get_result();
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $term = $result->fetch_assoc();
@@ -42,10 +42,10 @@ if (isset($_GET['id'])) {
 
 $terms = selectAllData('terms', null, $term_id);
 
-$statement = $connection->prepare('SELECT * FROM terms WHERE session_id = ? and id != ?');
-$statement->bind_param('ii', $term['session_id'], $term_id);
-$statement->execute();
-$result = $statement->get_result();
+$stmt = $conn->prepare('SELECT * FROM terms WHERE session_id = ? and id != ?');
+$stmt->bind_param('ii', $term['session_id'], $term_id);
+$stmt->execute();
+$result = $stmt->get_result();
 $terms = $result->fetch_all(MYSQLI_ASSOC);
 
 
@@ -79,17 +79,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($errors)) {
-        $statement = $connection->prepare(
+        $stmt = $conn->prepare(
             "UPDATE terms SET name = ? , start_date = ?, end_date = ? WHERE id = ?"
         );
-        $statement->bind_param('sssi', $name, $start_date, $end_date, $id);
+        $stmt->bind_param('sssi', $name, $start_date, $end_date, $id);
 
-        if ($statement->execute()) {
+        if ($stmt->execute()) {
             $_SESSION['success'] = "Term updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $statement->error . "');</script>";
+            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -113,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <section class="bg-green-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Class Information</h1>
-            <p class="text-xl text-green-200">Modify class details and settings</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Term Information</h1>
+            <p class="text-xl text-green-200">Modify Term details and settings</p>
         </div>
     </section>
 
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Form Section -->
                 <div class="md:col-span-2">
                     <div class="bg-white rounded-lg shadow-lg p-8">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Class Details</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Term Details</h2>
 
                         <form id="updatetermFrom" class="space-y-6" method="post">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
@@ -215,17 +215,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            new TomSelect("#classArm", {
-                plugins: ['remove_button'], // allows removing selected items
-                placeholder: "Select class arms...",
-                persist: false,
-                create: false,
-            });
-        });
-
 
         const updatetermFrom = document.getElementById('updatetermFrom');
 

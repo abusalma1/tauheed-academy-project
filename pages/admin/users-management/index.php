@@ -18,7 +18,7 @@ $totalActiveUsers = $adminsCount['active'] + $teachersCount['active'] + $guardia
 $totalInactiveUsers = $adminsCount['inactive'] + $teachersCount['inactive'] + $guardiansCount['inactive'] + $studentsCount['inactive'];
 
 
-$statement = $connection->prepare("
+$stmt = $conn->prepare("
 SELECT 
     classes.id AS class_id,
     classes.name AS class_name,
@@ -42,8 +42,8 @@ LEFT JOIN students
     ON students.id = student_class_records.student_id
 ORDER BY classes.id, class_arms.id, students.name
 ");
-$statement->execute();
-$result = $statement->get_result();
+$stmt->execute();
+$result = $stmt->get_result();
 $rows = $result->fetch_all(MYSQLI_ASSOC);
 
 $classes = [];

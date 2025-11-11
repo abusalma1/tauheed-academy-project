@@ -24,7 +24,7 @@ $query = "
     INNER JOIN classes c ON cs.class_id = c.id
     WHERE cs.id = ?
 ";
-$stmt = $connection->prepare($query);
+$stmt = $conn->prepare($query);
 $stmt->bind_param('i', $class_subject_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $teacher_id = $_POST['teacher_id'] ? intval($_POST['teacher_id']) : null;
 
     // Update class_subjects table
-    $updateStmt = $connection->prepare("UPDATE class_subjects SET teacher_id = ? WHERE id = ?");
+    $updateStmt = $conn->prepare("UPDATE class_subjects SET teacher_id = ? WHERE id = ?");
     $updateStmt->bind_param('ii', $teacher_id, $class_subject_id);
 
     if ($updateStmt->execute()) {
