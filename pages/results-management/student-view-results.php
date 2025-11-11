@@ -3,7 +3,7 @@ $title = "My Results";
 
 include(__DIR__ . '/../../includes/header.php');
 
-$student_id = 1;   // The ID of the student whose results you want
+$student_id = 3;   // The ID of the student whose results you want
 $term_id = 1;      // The term ID (optional: can be dynamic from filter)
 $is_current = 1;   // If you want to filter by current record
 

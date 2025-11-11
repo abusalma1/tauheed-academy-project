@@ -33,7 +33,7 @@
         <a href="<?= route('school-info') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Schoool Info</a>
         <a href="<?= route('subjects-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Subjects</a>
         <a href="<?= route('users-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Users</a>
-        <a href="<?= route('classes-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Classes</a>
+        <a href="<?= route('class-arm-section-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Classes</a>
 
         <a href="<?= route('home') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">back to Site</a>
         <a href="<?= route('logout') ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button></a>
