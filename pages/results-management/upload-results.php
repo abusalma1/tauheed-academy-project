@@ -2,6 +2,13 @@
 $title = "Upload Results";
 include(__DIR__ . '/../../includes/header.php');
 
+if(!$is_logged_in){
+    $_SESSION['failure'] = "Login is Required!";
+   header("Location: " . route('home'));
+    exit();
+}
+
+
 $subjects = selectAllData('subjects');
 $classes = selectAllData('classes');
 $terms = selectAllData('terms');
@@ -14,8 +21,7 @@ if (isset($_GET['class_id']) && isset($_GET['term_id'])) {
     $term_id = intval($_GET['term_id']);
     $subject_id = intval($_GET['subject_id']);
 
-    $stmt = $conn->prepare("
-        SELECT id, name, admission_number
+    $stmt = $conn->prepare("SELECT *
         FROM students
         WHERE class_id = ? AND term_id = ?
         ORDER BY name ASC
@@ -30,13 +36,14 @@ if (isset($_GET['class_id']) && isset($_GET['term_id'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $class_id = intval($_POST['class_id']);
-    $arm_id = intval($_POST['arm_id']);
     $term_id = intval($_POST['term_id']);
     $session_id = intval($_POST['session_id']);
     $subject_id = intval($_POST['subject_id']);
 
     $ca_scores = $_POST['ca'] ?? [];
     $exam_scores = $_POST['exam'] ?? [];
+    $arm_ids = $_POST['arm'] ?? [];
+
 
     foreach ($ca_scores as $student_id => $ca_value) {
 
@@ -44,6 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ca = max(0, min(40, intval($ca_value)));
         $exam = max(0, min(60, intval($exam_scores[$student_id] ?? 0)));
         $total = $ca + $exam;
+        $arm_id = intval($arm_ids[$student_id]);
+
 
         // Determine grade
         if ($total >= 70) $grade = 'A';
@@ -78,10 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // STEP 2: Create new student_class_record
             $insert = $conn->prepare("
-                INSERT INTO student_class_records (student_id, class_id, arm_id, term_id, session_id)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO student_class_records (student_id, class_id, arm_id, term_id)
+                VALUES (?, ?, ?, ?)
             ");
-            $insert->bind_param("iiiii", $student_id, $class_id, $arm_id, $term_id, $session_id);
+            $insert->bind_param("iiii", $student_id, $class_id, $arm_id, $term_id);
             $insert->execute();
             $student_record_id = $conn->insert_id;
         }
@@ -211,14 +220,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <tbody id="resultsBody" class="divide-y divide-gray-200">
                                 <?php if (!empty($students)) : ?>
                                     <?php foreach ($students as $index => $student) : ?>
+                                        <input type="hidden" value="<?= $student['arm_id'] ?>" name="arm[<?= $student['id'] ?>]">
                                         <tr class="hover:bg-blue-50">
                                             <td class="px-6 py-4"><?= htmlspecialchars($student['name']) ?></td>
                                             <td class="px-6 py-4"><?= htmlspecialchars($student['admission_number']) ?></td>
                                             <td class="px-6 py-4 text-center">
-                                                <input type="number" min="0" max="40" name="ca[<?= $student['student_record_id'] ?>]" data-index="<?= $index ?>" class="ca-input w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                                <input type="number" min="0" max="40" name="ca[<?= $student['id'] ?>]" data-index="<?= $index ?>" class="ca-input w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                                             </td>
                                             <td class="px-6 py-4 text-center">
-                                                <input type="number" min="0" max="60" name="exam[<?= $student['student_record_id'] ?>]" data-index="<?= $index ?>" class="exam-input w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                                <input type="number" min="0" max="60" name="exam[<?= $student['id'] ?>]" data-index="<?= $index ?>" class="exam-input w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                                             </td>
                                             <td class="px-6 py-4 text-center font-bold">
                                                 <span class="total-score" data-index="<?= $index ?>">0</span>
