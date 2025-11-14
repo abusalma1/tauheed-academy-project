@@ -55,3 +55,12 @@
         </div>
     </div>
 </footer>
+
+<script>
+    document.querySelectorAll(".mobile-dropdown-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let dropdown = btn.nextElementSibling;
+            dropdown.classList.toggle("hidden");
+        });
+    });
+</script>

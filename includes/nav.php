@@ -13,14 +13,48 @@
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center gap-6">
                 <a href="<?= route('home') ?>" class="hover:text-blue-300 transition">Home</a>
-                <a href="<?= route('about'); ?>" class="hover:text-blue-300 transition">About</a>
-                <a href="<?= route('admission'); ?>" class="hover:text-blue-300 transition">Admissions</a>
-                <a href="<?= route('fees'); ?>" class="hover:text-blue-300 transition">Fees</a>
-                <a href="<?= route('timetable'); ?>" class="hover:text-blue-300 transition">Timetable</a>
-                <a href="<?= route('academics'); ?>" class="hover:text-blue-300 transition">Academics</a>
-                <a href="<?= route('staff'); ?>" class="hover:text-blue-300 transition">Staff</a>
-                <a href="<?= route('uniform'); ?>" class="hover:text-blue-300 transition">Uniform</a>
-                <a href="<?= route('gallery'); ?>" class="hover:text-blue-300 transition">Gallery</a>
+
+                <div class="relative group">
+                    <!-- Hover Button -->
+                    <div class="hover:text-blue-300 transition flex items-center gap-1">
+                        School Info
+                        <span class="text-sm">▾</span>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible 
+                                group-hover:opacity-100 group-hover:visible transition-all duration-200">
+
+                        <ul class="flex flex-col py-2">
+                            <li> <a href="<?= route('about'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> About </a> </li>
+                            <li> <a href="<?= route('admission'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Admissions </a> </li>
+                            <li> <a href="<?= route('fees'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Fees </a> </li>
+                            <li> <a href="<?= route('uniform'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Uniform </a> </li>
+                            <li> <a href="<?= route('gallery'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Gallery </a> </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="relative group">
+                    <!-- Hover Button -->
+                    <div class="hover:text-blue-300 transition flex items-center gap-1">
+                        Academics
+                        <span class="text-sm">▾</span>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+
+                        <ul class="flex flex-col py-2">
+                            <li> <a href="<?= route('timetable'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Timetable </a> </li>
+                            <li> <a href="<?= route('academics'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Academics </a> </li>
+                            <li> <a href="<?= route('staff'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Staff </a> </li>
+
+                        </ul>
+                    </div>
+                </div>
+
+
+
 
                 <?php if ($is_logged_in): ?>
                     <?php if ($user_type === 'teacher') : ?>
@@ -51,37 +85,48 @@
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
         <a href="<?= route('home'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Home</a>
-        <a href="<?= route('about'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">About</a>
-        <a href="<?= route('admission'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admissions</a>
-        <a href="<?= route('fees'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Fees</a>
-        <a href="<?= route('timetable'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Timetable</a>
-        <a href="<?= route('academics'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Academics</a>
-        <a href="<?= route('staff'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Staff</a>
-        <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
-        <a href="<?= route('gallery'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Gallery</a>
-        <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
 
-            <?php if ($is_logged_in): ?>
-                    <?php if ($user_type === 'student') : ?>
-                                <a href="<?= route('student-result'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Results</a>
-                    <?php elseif ($user_type === 'teacher'): ?>
+        <!-- School Info Mobile -->
+        <div class="py-2 px-3 rounded bg-blue-800">
+            <button class="w-full flex justify-between items-center mobile-dropdown-btn">
+                <span>School Info</span>
+                <span>▾</span>
+            </button>
 
-        <a href="<?= route('upload-results'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
+            <div class="mobile-dropdown hidden flex-col mt-2 bg-blue-700 rounded-lg">
+                <a href="<?= route('about'); ?>" class="block px-4 py-2 hover:bg-blue-600">About</a>
+                <a href="<?= route('admission'); ?>" class="block px-4 py-2 hover:bg-blue-600">Admissions</a>
+                <a href="<?= route('fees'); ?>" class="block px-4 py-2 hover:bg-blue-600">Fees</a>
+                <a href="<?= route('uniform'); ?>" class="block px-4 py-2 hover:bg-blue-600">Uniform</a>
+                <a href="<?= route('gallery'); ?>" class="block px-4 py-2 hover:bg-blue-600">Gallery</a>
+            </div>
+        </div>
+        <div class="py-2 px-3 rounded bg-blue-800">
+            <button class="w-full flex justify-between items-center mobile-dropdown-btn">
+                <span>Academics</span>
+                <span>▾</span>
+            </button>
 
-                    <?php elseif ($user_type === 'guardian'): ?>
-        <a href="" class="block py-2 hover:bg-blue-700 px-3 rounded">My Children</a>
+            <div class="mobile-dropdown hidden flex-col mt-2 bg-blue-700 rounded-lg">
+                <a href="<?= route('timetable'); ?>" class="block px-4 py-2 hover:bg-blue-600">Timetable</a>
+                <a href="<?= route('academics'); ?>" class="block px-4 py-2 hover:bg-blue-600">Academics</a>
+                <a href="<?= route('staff'); ?>" class="block px-4 py-2 hover:bg-blue-600">Staff</a>
+            </div>
+        </div>
 
 
-                    <?php elseif ($user_type === 'admin'): ?>
 
-        
-
-
-
-            <a href="<?= route('admin-section'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Section</a>
-
+        <?php if ($is_logged_in): ?>
+            <?php if ($user_type === 'student') : ?>
+                <a href="<?= route('student-result'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Results</a>
+            <?php elseif ($user_type === 'teacher'): ?>
+                <a href="<?= route('upload-results'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
+            <?php elseif ($user_type === 'guardian'): ?>
+                <a href="" class="block py-2 hover:bg-blue-700 px-3 rounded">My Children</a>
+            <?php elseif ($user_type === 'admin'): ?>
+                <a href="<?= route('admin-section'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Section</a>
+            <?php endif; ?>
             <a href="<?= route('logout'); ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button></a>
-                        <?php endif: ?>
         <?php else: ?>
             <a href="<?= route('login'); ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Login</button></a>
 
@@ -89,3 +134,4 @@
 
     </div>
 </nav>
+

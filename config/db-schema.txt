@@ -239,7 +239,12 @@ CREATE TABLE student_class_records (
     term_id INT NULL,
     date_assigned TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     remarks VARCHAR(255),
-    
+    total_marks DECIMAL(8,2) DEFAULT 0,
+    average_marks DECIMAL(5,2) DEFAULT 0,
+    position_in_class INT DEFAULT NULL,
+    class_size INT DEFAULT NULL;
+    overall_grade VARCHAR(5) NULL,
+    promotion_status ENUM('promoted', 'repeat', 'pending') DEFAULT 'pending';
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
     FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE,
