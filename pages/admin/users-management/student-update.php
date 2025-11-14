@@ -11,41 +11,20 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    $stmt = $conn->prepare("  SELECT 
-        s.*, 
-        g.id AS guardian_id, 
-        g.name AS guardian_name,
+    $stmt = $conn->prepare("SELECT 
+    students.*,
+    classes.name AS class_name,
+    class_arms.name AS class_arm_name
+FROM students
+LEFT JOIN classes 
+    ON students.class_id = classes.id
+LEFT JOIN class_arms 
+    ON students.arm_id = class_arms.id
 
-        scr.id as student_class_record_id,
-        scr.class_id,
-        c.name AS class_name,
-        scr.arm_id,
-        ca.name AS arm_name,
-        scr.term_id,
-        t.name AS term_name,
-        t.session_id,
-        se.name AS session_name,
-        se.start_date AS session_start,
-        se.end_date AS session_end,
-        
-        c.section_id,
-        sec.name AS section_name,
-        
-        cca.teacher_id,
-        tea.name AS teacher_name
+    where students.id = ?
+");
 
-    FROM students s
-    LEFT JOIN guardians g ON s.guardian_id = g.id
-    LEFT JOIN student_class_records scr ON s.id = scr.student_id AND scr.is_current = 1
-    LEFT JOIN classes c ON scr.class_id = c.id
-    LEFT JOIN class_arms ca ON scr.arm_id = ca.id
-    LEFT JOIN terms t ON scr.term_id = t.id
-    LEFT JOIN sessions se ON t.session_id = se.id
-    LEFT JOIN sections sec ON c.section_id = sec.id
-    LEFT JOIN class_class_arms cca ON cca.class_id = scr.class_id AND cca.arm_id = scr.arm_id
-    LEFT JOIN teachers tea ON cca.teacher_id = tea.id
-    WHERE s.id = ?
-    ");
+
 
     $stmt->bind_param('i', $id);
     $stmt->execute();
@@ -62,6 +41,20 @@ if (isset($_GET['id'])) {
 
 
 $guardians = selectAllData('guardians');
+$terms = selectAllData('terms');
+function getSessionIdFromTerm($termId, $terms)
+{
+    foreach ($terms as $t) {
+        if ($t['id'] == $termId) {
+            return $t['session_id'];
+        }
+    }
+    return null;
+}
+$studentSessionId = getSessionIdFromTerm($student['term_id'], $terms);
+
+$sessions = selectAllData('sessions');
+
 $students = selectAllData('students', null, $id);
 
 $stmt = $conn->prepare(" SELECT 
@@ -87,25 +80,6 @@ $stmt = $conn->prepare(" SELECT
 $stmt->execute();
 $result = $stmt->get_result();
 $classes = $result->fetch_all(MYSQLI_ASSOC);
-
-
-$stmt = $conn->prepare("SELECT 
-        sessions.id as session_id,
-        sessions.name as session_name,
-        sessions.start_date as session_start_date,
-        sessions.end_date as session_end_date,
-
-        terms.id as id,
-        terms.name as name,
-        terms.start_date as start_date,
-        terms.end_date as end_date
-
-    FROM terms
-    LEFT JOIN sessions on sessions.id = terms.session_id
-");
-$stmt->execute();
-$result = $stmt->get_result();
-$terms = $result->fetch_all(MYSQLI_ASSOC);
 
 
 // Count total students
@@ -194,9 +168,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
 
         $stmt = $conn->prepare("UPDATE students set
-           name = ?, email = ?, phone = ?, admission_number = ?,  dob = ?, gender = ?, status = ?, guardian_id = ?  where id = ?");
+           name = ?, email = ?, phone = ?, admission_number = ?,  dob = ?, gender = ?, status = ?, class_id = ?, arm_id = ? , term_id = ? , guardian_id = ?  where id = ?");
         $stmt->bind_param(
-            "sssssssii",
+            "sssssssiiiii",
             $name,
             $email,
             $phone,
@@ -204,23 +178,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dob,
             $gender,
             $status,
+            $class_id,
+            $arm_id,
+            $term,
             $guardian,
             $id
 
         );
 
         if ($stmt->execute()) {
+            $stmt = $conn->prepare("SELECT * FROM student_class_records where student_id = ? and class_id = ? and arm_id = ? and term_id = ? ");
+            $stmt->bind_param('iiii', $student['id'], $student['class_id'], $student['arm_id'], $student['term_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $student_record = $result->fetch_assoc();
+
+
             $stmt = $conn->prepare("
-        UPDATE student_class_records 
-        SET class_id = ?, arm_id = ?, term_id = ? 
-        WHERE id = ?
-    ");
+                    UPDATE student_class_records 
+                    SET class_id = ?, arm_id = ?, term_id = ? 
+                    WHERE id = ?
+                ");
             $stmt->bind_param(
                 'iiii',
                 $class_id,
                 $arm_id,
                 $term,
-                $student['student_class_record_id']
+                $student_record['id']
             );
             $stmt->execute();
             $_SESSION['success'] = "Student account updated successfully!";
@@ -324,21 +308,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="classError"></span>
                             </div>
 
-                            <!-- Term & Session  -->
-                            <div>
-                                <label for="term" class="block text-sm font-semibold text-gray-700 mb-2">Term & Session *</label>
-                                <select id="term" name="term" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                    <option value="">Select term</option>
-                                    <?php foreach ($terms as $termItem): ?>
-                                        <option value="<?= $termItem['id'] ?>"
-                                            <?= ($student && $termItem['id'] == $student['term_id']) ? 'selected' : '' ?>>
-                                            <?= $termItem['name'] . ' ' . $termItem['session_name'] ?>
+                            <!-- Term & Session -->
+                            <div class="flex gap-4 pt-4 w-full justify-center">
+                                <!-- session -->
+                                <select id="session" name="session" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select session</option>
+                                    <?php foreach ($sessions as $session): ?>
+                                        <option value="<?= $session['id'] ?>"
+                                            <?= ($studentSessionId && $session['id'] == $studentSessionId) ? 'selected' : '' ?>>
+                                            <?= $session['name'] ?>
                                         </option>
                                     <?php endforeach; ?>
-
                                 </select>
-                                <span class="text-red-500 text-sm hidden" id="termError"></span>
+
+
+                                <!-- term -->
+                                <select id="term" name="term" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select term</option>
+                                    <?php foreach ($terms as $term): ?>
+                                        <option value="<?= $term['id'] ?>"
+                                            data-session="<?= $term['session_id'] ?>"
+                                            <?= ($student && $term['id'] == $student['term_id']) ? 'selected' : '' ?>>
+                                            <?= $term['name'] ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+
                             </div>
+
+
 
                             <!-- Date of Birth -->
                             <div>
@@ -442,6 +440,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mobileMenu.classList.toggle('hidden');
         });
 
+        const sessionSelect = document.getElementById('session');
+        const termSelect = document.getElementById('term');
+
+        // Auto-select session & enable term on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const selectedTerm = termSelect.querySelector('option[selected]');
+            if (selectedTerm) {
+                const sessionId = selectedTerm.getAttribute('data-session');
+                if (sessionId) {
+                    sessionSelect.value = sessionId;
+                    termSelect.disabled = false;
+                }
+            }
+        });
+
+        // Filter terms when session changes
+        sessionSelect.addEventListener('change', function() {
+            const selectedSessionId = this.value;
+            const allTerms = termSelect.querySelectorAll('option');
+
+            if (selectedSessionId === '') {
+                termSelect.disabled = true;
+                termSelect.value = '';
+                return;
+            }
+
+            termSelect.disabled = false;
+
+            allTerms.forEach(termOption => {
+                const sessionId = termOption.getAttribute('data-session');
+                if (!sessionId) return; // skip "Select term"
+
+                if (sessionId === selectedSessionId) {
+                    termOption.style.display = ''; // show
+                } else {
+                    termOption.style.display = 'none'; // hide
+                }
+            });
+
+            termSelect.value = ''; // reset term selection
+        });
+
+
         // Form validation and submission
         const updateStudentForm = document.getElementById('updateStudentForm');
         const studentIndex = new URLSearchParams(window.location.search).get('index');
@@ -463,7 +504,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const admissionNumber = document.getElementById('admissionNumber').value.trim();
             const studentClass = document.getElementById('class').value;
             const studentTerm = document.getElementById('term').value;
-
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
             const guardian = document.getElementById('guardian').value.trim();
@@ -476,7 +516,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('fullNameError').classList.remove('hidden');
                 isValid = false;
             }
-
 
 
             if (email) {
@@ -493,6 +532,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     document.getElementById('emailError').classList.remove('hidden');
                     isValid = false;
                 }
+
             }
 
 

@@ -88,9 +88,9 @@ CREATE TABLE class_arms (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+
 -- ===========================================================
--- 6. CLASSES TABLE
--- (updated: removed class_arm_id)
+-- 6. CLASSES TABLE (unchanged except clearer naming comment)
 -- ===========================================================
 CREATE TABLE classes (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -171,7 +171,7 @@ CREATE TABLE guardians (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 10. STUDENTS TABLE (unchanged)
+-- 10. STUDENTS TABLE (UPDATED for hybrid structure)
 -- ===========================================================
 CREATE TABLE students (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -186,9 +186,18 @@ CREATE TABLE students (
     reset_token VARCHAR(50),
     status ENUM('active', 'inactive') DEFAULT 'active',
     gender ENUM('male', 'female') DEFAULT 'male',
+    
+    class_id INT NULL,
+    arm_id INT NULL,
+    term_id INT NULL,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (guardian_id) REFERENCES guardians(id) ON DELETE SET NULL
+
+    FOREIGN KEY (guardian_id) REFERENCES guardians(id) ON DELETE SET NULL,
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL,
+    FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE SET NULL,
+    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ===========================================================
@@ -218,7 +227,7 @@ CREATE TABLE terms (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 10.3 STUDENT_CLASS_RECORDS TABLE
+-- 10.3 STUDENT_CLASS_RECORDS TABLE (UPDATED hybrid)
 -- ===========================================================
 CREATE TABLE student_class_records (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -228,7 +237,7 @@ CREATE TABLE student_class_records (
     term_id INT NULL,
     date_assigned TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     remarks VARCHAR(255),
-    is_current TINYINT(1) DEFAULT 0,
+    
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
     FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE,
@@ -236,12 +245,13 @@ CREATE TABLE student_class_records (
     UNIQUE (student_id, class_id, arm_id, term_id)
 ) ENGINE=InnoDB;
 
+
 -- ===========================================================
 -- 11. RESULTS TABLE
 -- ===========================================================
 CREATE TABLE results (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    student_record_id INT NOT NULL, -- link to student_class_records
+    student_record_id INT NOT NULL, -- links to student, class, arm, term, session indirectly
     subject_id INT NOT NULL,
     ca DECIMAL(5,2) DEFAULT 0.00,
     exam DECIMAL(5,2) DEFAULT 0.00,
@@ -252,5 +262,5 @@ CREATE TABLE results (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (student_record_id) REFERENCES student_class_records(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
-    UNIQUE(student_record_id, subject_id) -- only one result per subject per term/session
-);
+    UNIQUE (student_record_id, subject_id)
+) ENGINE=InnoDB;

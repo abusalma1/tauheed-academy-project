@@ -139,3 +139,90 @@ function selectAllData($table, $whereIdIs = null, $whereIdIsNot = null)
 
     return $data;
 }
+
+
+function getStudentResults($student_id)
+{
+    global $conn;
+
+    // --- Fetch data ---
+    $stmt = $conn->prepare("
+        SELECT 
+            sessions.id AS session_id,
+            sessions.name AS session_name,
+            terms.id AS term_id,
+            terms.name AS term_name,
+            classes.id AS class_id,
+            classes.name AS class_name,
+            class_arms.name AS arm_name,
+            subjects.name AS subject_name,
+            results.ca,
+            results.exam,
+            results.total,
+            results.grade,
+            results.remark
+        FROM results
+        INNER JOIN student_class_records 
+            ON results.student_record_id = student_class_records.id
+        INNER JOIN terms 
+            ON student_class_records.term_id = terms.id
+        INNER JOIN sessions 
+            ON terms.session_id = sessions.id
+        INNER JOIN classes 
+            ON student_class_records.class_id = classes.id
+        INNER JOIN class_arms 
+            ON student_class_records.arm_id = class_arms.id
+        INNER JOIN subjects 
+            ON results.subject_id = subjects.id
+        WHERE student_class_records.student_id = ?
+        ORDER BY sessions.id DESC, classes.id ASC, terms.id ASC, subjects.name ASC
+    ");
+    $stmt->bind_param("i", $student_id);
+    $stmt->execute();
+    $results = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    // --- Group for rendering ---
+    $groupedResults = [];
+
+    foreach ($results as $row) {
+        $classKey = $row['class_name'] . '|' . $row['session_name'] . '|' . $row['arm_name'];
+        $termKey = $row['term_name'];
+
+        // Create class entry if not exists
+        if (!isset($groupedResults[$classKey])) {
+            $groupedResults[$classKey] = [
+                'class_name' => $row['class_name'],
+                'session_name' => $row['session_name'],
+                'arm_name' => $row['arm_name'],
+                'terms' => []
+            ];
+        }
+
+        // Create term entry if not exists
+        if (!isset($groupedResults[$classKey]['terms'][$termKey])) {
+            $groupedResults[$classKey]['terms'][$termKey] = [
+                'term_name' => $row['term_name'],
+                'subjects_results' => []
+            ];
+        }
+
+        // Add subject result
+        $groupedResults[$classKey]['terms'][$termKey]['subjects_results'][] = [
+            'subject_name' => $row['subject_name'],
+            'ca' => $row['ca'] ?? 0,
+            'exam' => $row['exam'] ?? 0,
+            'total' => $row['total'] ?? 0,
+            'grade' => $row['grade'] ?? '-',
+            'remark' => $row['remark'] ?? 'No remark'
+        ];
+    }
+
+    // Convert associative terms → indexed array
+    $finalResults = [];
+    foreach ($groupedResults as $classData) {
+        $classData['terms'] = array_values($classData['terms']);
+        $finalResults[] = $classData;
+    }
+
+    return $finalResults;
+}

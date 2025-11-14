@@ -32,14 +32,11 @@ SELECT
     students.gender,
     students.status
 
-FROM classes
-LEFT JOIN student_class_records 
-    ON classes.id = student_class_records.class_id
-    AND student_class_records.is_current = 1
+FROM students
+LEFT JOIN classes 
+    ON classes.id = students.class_id
 LEFT JOIN class_arms 
-    ON class_arms.id = student_class_records.arm_id
-LEFT JOIN students 
-    ON students.id = student_class_records.student_id
+    ON class_arms.id = students.arm_id
 ORDER BY classes.id, class_arms.id, students.name
 ");
 $stmt->execute();

@@ -21,11 +21,18 @@
                 <a href="<?= route('staff'); ?>" class="hover:text-blue-300 transition">Staff</a>
                 <a href="<?= route('uniform'); ?>" class="hover:text-blue-300 transition">Uniform</a>
                 <a href="<?= route('gallery'); ?>" class="hover:text-blue-300 transition">Gallery</a>
-                <a href="<?= route('upload-results'); ?>" class="hover:text-blue-300 transition">Results</a>
-                <a href="<?= route('student-result'); ?>" class="hover:text-blue-300 transition">My Result</a>
 
-                <?php if (isset($_SESSION['user_session'])): ?>
-                    <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Section</a>
+                <?php if ($is_logged_in): ?>
+                    <?php if ($user_type === 'teacher') : ?>
+                        <a href="<?= route('upload-results'); ?>" class="hover:text-blue-300 transition">Results</a>
+                    <?php elseif ($user_type === 'student') : ?>
+                        <a href="<?= route('student-result'); ?>" class="hover:text-blue-300 transition">My Result</a>
+                    <?php elseif ($user_type === 'guardian') : ?>
+                        <a href="" class="hover:text-blue-300 transition">My Children</a>
+                    <?php elseif ($user_type === 'admin'): ?>
+                        <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Section</a>
+                    <?php endif ?>
+
                     <a href="<?= route('logout'); ?>"> <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button></a>
                 <?php else: ?>
                     <a href="<?= route('login'); ?>"> <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Login</button></a>
@@ -57,7 +64,7 @@
 
         <a href="<?= route('upload-results'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
 
-        <?php if (isset($_SESSION['user_session'])): ?>
+        <?php if ($is_logged_in): ?>
             <a href="<?= route('admin-section'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Section</a>
 
             <a href="<?= route('logout'); ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button></a>

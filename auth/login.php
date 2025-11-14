@@ -10,23 +10,24 @@ if (isset($_SESSION['user_session'])) {
         $password = trim($_POST['password']);
         $user_type = trim($_POST['user_type']);
 
-        // echo "$email - $password - $user_type";
 
         if (!empty($email) && !empty($password) && !empty($user_type)) {
 
             if ($user_type === 'student') {
-                $stmt = $conn->prepare("SELECT * from students where email = ?");
+                // Allow login using either email OR admission_number
+                $stmt = $conn->prepare("SELECT * FROM students WHERE email = ? OR admission_number = ?");
+                $stmt->bind_param("ss", $email, $email);
             } else if ($user_type === 'teacher') {
-                $stmt = $conn->prepare("SELECT * from teachers where email = ?");
+                $stmt = $conn->prepare("SELECT * FROM teachers WHERE email = ?");
+                $stmt->bind_param("s", $email);
             } else if ($user_type === 'guardian') {
-                $stmt = $conn->prepare("SELECT * from guardians where email = ?");
+                $stmt = $conn->prepare("SELECT * FROM guardians WHERE email = ?");
+                $stmt->bind_param("s", $email);
             } else if ($user_type === 'admin') {
-                $stmt = $conn->prepare("SELECT * from admins where email = ?");
+                $stmt = $conn->prepare("SELECT * FROM admins WHERE email = ?");
+                $stmt->bind_param("s", $email);
             }
 
-
-
-            $stmt->bind_param("s", $email);
             $stmt->execute();
             $result = $stmt->get_result();
 
@@ -42,15 +43,16 @@ if (isset($_SESSION['user_session'])) {
                     ];
 
                     $_SESSION['success'] = "Logged in successfully!";
-                    header('Location:  ' . route('home'));
+                    header('Location: ' . route('home'));
+                    exit;
                 } else {
-                    $error = "Incorrect email Or password";
+                    $error = "Incorrect email or password";
                 }
             } else {
-                $error = "Account Does Not Exist";
+                $error = "Account does not exist";
             }
         } else {
-            $error = 'All Fields Are Required!';
+            $error = 'All fields are required!';
         }
     }
 }
@@ -114,7 +116,7 @@ if (isset($_SESSION['user_session'])) {
                             <label class="relative">
                                 <input type="radio" name="user_type" value="admin" class="peer sr-only">
                                 <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
-                                    <i class="fas fa-crown text-2xl text-blue-900 mr-2"></i>
+                                    <i class="fas fa-crown text-2xl text-blue-900 mb-2"></i>
                                     <p class="font-semibold text-sm">Admin</p>
                                 </div>
                             </label>
@@ -123,7 +125,7 @@ if (isset($_SESSION['user_session'])) {
                     <!-- Email/Username -->
                     <div>
                         <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-envelope mr-2 text-blue-900"></i>Email or Username
+                            <i class="fas fa-envelope mr-2 text-blue-900"></i>Email, Admission No. or Staff ID No.
                         </label>
                         <input
                             type="text"

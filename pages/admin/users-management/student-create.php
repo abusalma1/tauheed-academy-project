@@ -18,14 +18,10 @@ $stmt = $conn->prepare("SELECT
     classes.name AS class_name,
     class_arms.name AS class_arm_name
 FROM students
-LEFT JOIN student_class_records 
-    ON students.id = student_class_records.student_id
 LEFT JOIN classes 
-    ON student_class_records.class_id = classes.id
+    ON students.class_id = classes.id
 LEFT JOIN class_arms 
-    ON student_class_records.arm_id = class_arms.id
-WHERE student_class_records.is_current = 1
-
+    ON students.arm_id = class_arms.id
 ");
 
 
@@ -61,24 +57,9 @@ $result = $stmt->get_result();
 $classes = $result->fetch_all(MYSQLI_ASSOC);
 
 
-$stmt = $conn->prepare("SELECT 
-        sessions.id as session_id,
-        sessions.name as session_name,
-        sessions.start_date as session_start_date,
-        sessions.end_date as session_end_date,
 
-        terms.id as id,
-        terms.name as name,
-        terms.start_date as start_date,
-        terms.end_date as end_date
-
-    FROM terms
-    LEFT JOIN sessions on sessions.id = terms.session_id
-");
-$stmt->execute();
-$result = $stmt->get_result();
-$terms = $result->fetch_all(MYSQLI_ASSOC);
-
+$terms = selectAllData('terms');
+$sessions = selectAllData('sessions');
 
 
 // Count total students
@@ -187,10 +168,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         $stmt = $conn->prepare("INSERT INTO students 
-            (name, email, phone, admission_number,  dob, gender,  password, status, guardian_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            (name, email, phone, admission_number,  dob, gender,  password, status, class_id, arm_id, term_id, guardian_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param(
-            "ssssssssi",
+            "ssssssssiiii",
             $name,
             $email,
             $phone,
@@ -199,14 +180,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $gender,
             $hashed_password,
             $status,
+            $class_id,
+            $arm_id,
+            $term,
             $guardian,
         );
 
         if ($stmt->execute()) {
             $student_id = $stmt->insert_id;
-            $is_current = true;
-            $stmt = $conn->prepare("INSERT into student_class_records (student_id, class_id, arm_id, term_id, is_current) values (?, ?, ? ,?, ?)");
-            $stmt->bind_param('iiiii', $student_id, $class_id, $arm_id, $term, $is_current);
+
+            $stmt = $conn->prepare("INSERT into student_class_records (student_id, class_id, arm_id, term_id) values (?, ?, ?, ?)");
+            $stmt->bind_param('iiii', $student_id, $class_id, $arm_id, $term);
             $stmt->execute();
             $_SESSION['success'] = "Student account created successfully!";
 
@@ -303,16 +287,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="classError"></span>
                             </div>
 
-                            <!-- Term & Session  -->
-                            <div>
-                                <label for="term" class="block text-sm font-semibold text-gray-700 mb-2">Term & Session *</label>
-                                <select id="term" name="term" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                    <option value="">Select term</option>
-                                    <?php foreach ($terms as $term): ?>
-                                        <option value="<?= $term['id'] ?>"><?= $term['name'] . ' ' . $term['session_name'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <span class="text-red-500 text-sm hidden" id="termError"></span>
+                            <!-- Term & Session -->
+                            <div class="flex gap-4 pt-4 w-full justify-center">
+                               <!-- session -->
+<div class="flex-1 max-w-md">
+    <label for="session" class="block text-sm font-semibold text-gray-700 mb-2">Session *</label>
+    <select id="session" name="session" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+        <option value="">Select session</option>
+        <?php foreach ($sessions as $session): ?>
+            <option value="<?= $session['id'] ?>">
+                <?= $session['name'] ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
+<!-- term -->
+<div class="flex-1 max-w-md">
+    <label for="term" class="block text-sm font-semibold text-gray-700 mb-2">Term *</label>
+    <select id="term" name="term" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+        <option value="">Select term</option>
+        <?php foreach ($terms as $term): ?>
+            <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>">
+                <?= $term['name'] ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
+
                             </div>
 
                             <!-- Date of Birth -->
@@ -515,6 +518,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const mobileMenu = document.getElementById('mobile-menu');
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
+        });
+
+        // Term selection after session 
+        const sessionSelect = document.getElementById('session');
+        const termSelect = document.getElementById('term');
+
+        sessionSelect.addEventListener('change', function() {
+            const selectedSessionId = this.value;
+            const allTerms = termSelect.querySelectorAll('option');
+
+            if (selectedSessionId === '') {
+                // No session selected → disable term dropdown
+                termSelect.disabled = true;
+                termSelect.value = '';
+                return;
+            }
+
+            // Enable term dropdown
+            termSelect.disabled = false;
+
+            // Filter terms
+            allTerms.forEach(termOption => {
+                const sessionId = termOption.getAttribute('data-session');
+                if (!sessionId) return; // skip the first "Select term" option
+
+                if (sessionId === selectedSessionId) {
+                    termOption.style.display = ''; // show
+                } else {
+                    termOption.style.display = 'none'; // hide
+                }
+            });
+
+            // Reset term selection
+            termSelect.value = '';
         });
 
 

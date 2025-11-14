@@ -9,76 +9,102 @@ $sessions = selectAllData('sessions');
 
 $students = [];
 
-if (isset($_GET['class_id'])) {
+if (isset($_GET['class_id']) && isset($_GET['term_id'])) {
     $class_id = intval($_GET['class_id']);
-    $one = 1;
+    $term_id = intval($_GET['term_id']);
+    $subject_id = intval($_GET['subject_id']);
 
-    $stmt = $conn->prepare("SELECT 
-        students.id AS student_id,
-        students.name,
-        students.admission_number,
-        scr.id AS student_record_id
+    $stmt = $conn->prepare("
+        SELECT id, name, admission_number
         FROM students
-        INNER JOIN student_class_records scr ON scr.student_id = students.id
-        WHERE scr.class_id = ?
-        AND scr.is_current = ?
+        WHERE class_id = ? AND term_id = ?
+        ORDER BY name ASC
     ");
 
-    $stmt->bind_param('ii', $class_id, $one);
+    $stmt->bind_param("ii", $class_id, $term_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $students = $result->fetch_all(MYSQLI_ASSOC);
+    $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $class_id = intval($_POST['class_id']);
-    $subject_id = intval($_POST['subject_id']);
+    $arm_id = intval($_POST['arm_id']);
     $term_id = intval($_POST['term_id']);
     $session_id = intval($_POST['session_id']);
+    $subject_id = intval($_POST['subject_id']);
 
     $ca_scores = $_POST['ca'] ?? [];
     $exam_scores = $_POST['exam'] ?? [];
 
-    $ca = max(0, min(40, intval($ca)));
-    $exam = max(0, min(60, intval($exam)));
+    foreach ($ca_scores as $student_id => $ca_value) {
 
+        // Validate scores
+        $ca = max(0, min(40, intval($ca_value)));
+        $exam = max(0, min(60, intval($exam_scores[$student_id] ?? 0)));
+        $total = $ca + $exam;
 
-    foreach ($ca_scores as $student_record_id => $ca) {
-        $exam = $exam_scores[$student_record_id] ?? 0;
-
-        // Calculate grade
-        $total = intval($ca) + intval($exam);
+        // Determine grade
         if ($total >= 70) $grade = 'A';
         elseif ($total >= 60) $grade = 'B';
         elseif ($total >= 50) $grade = 'C';
         elseif ($total >= 45) $grade = 'D';
         else $grade = 'F';
 
-        $remarks = ['A' => 'Excellent', 'B' => 'Very Good', 'C' => 'Good', 'D' => 'Pass', 'F' => 'Fail'];
-        $remark = $remarks[$grade];
+        $remark_map = [
+            'A' => 'Excellent',
+            'B' => 'Very Good',
+            'C' => 'Good',
+            'D' => 'Pass',
+            'F' => 'Fail'
+        ];
+        $remark = $remark_map[$grade];
 
-        // Use student_record_id for the results table
-        $stmt = $conn->prepare("
-        INSERT INTO results (student_record_id, subject_id, ca, exam, grade, remark)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-            ca = VALUES(ca),
-            exam = VALUES(exam),
-            grade = VALUES(grade),
-            remark = VALUES(remark)
-    ");
-        $stmt->bind_param("iiiiss", $student_record_id, $subject_id, $ca, $exam, $grade, $remark);
-        $stmt->execute();
+        // STEP 1: Check if student_class_record exists
+        $check = $conn->prepare("
+            SELECT id 
+            FROM student_class_records 
+            WHERE student_id = ? AND class_id = ? AND arm_id = ? AND term_id = ?
+            LIMIT 1
+        ");
+        $check->bind_param("iiii", $student_id, $class_id, $arm_id, $term_id);
+        $check->execute();
+        $record = $check->get_result()->fetch_assoc();
+
+        if ($record) {
+            // Use existing record
+            $student_record_id = $record['id'];
+        } else {
+            // STEP 2: Create new student_class_record
+            $insert = $conn->prepare("
+                INSERT INTO student_class_records (student_id, class_id, arm_id, term_id, session_id)
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $insert->bind_param("iiiii", $student_id, $class_id, $arm_id, $term_id, $session_id);
+            $insert->execute();
+            $student_record_id = $conn->insert_id;
+        }
+
+        // STEP 3: Insert or update result
+        $save = $conn->prepare("
+            INSERT INTO results (student_record_id, subject_id, ca, exam, grade, remark)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                ca = VALUES(ca),
+                exam = VALUES(exam),
+                grade = VALUES(grade),
+                remark = VALUES(remark)
+        ");
+        $save->bind_param("iiiiss", $student_record_id, $subject_id, $ca, $exam, $grade, $remark);
+        $save->execute();
     }
 
-
-    echo "Results saved successfully!";
-    // redirect back if needed
-
-    $_SESSION['success'] = "Result Uploaded successfully!";
-    header("Location:  " . route('upload-results') . "?class_id=$class_id&subject_id=$subject_id&term_id=$term_id&session_id=$session_id");
+    $_SESSION['success'] = "Results uploaded successfully!";
+    header("Location: " . route('upload-results'));
     exit;
 }
+
 
 
 ?>

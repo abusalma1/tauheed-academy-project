@@ -1,6 +1,6 @@
 <?php
 include(__DIR__ .  '/../routes/functions.php');
-
+$is_logged_in = false;
 
 // Step 1: Try to get an existing school record
 $stmt = $conn->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
@@ -20,6 +20,31 @@ if (!$school) {
     $stmt->execute();
     $result = $stmt->get_result();
     $school = $result->fetch_assoc();
+}
+
+if (isset($_SESSION['user_session'])) {
+    $is_logged_in = true;
+    $session = $_SESSION['user_session'];
+    $id = $session['id'];
+    $email = $session['email'];
+    $user_type = $session['user_type'];
+
+    if ($id) {
+        if ($user_type === 'student') {
+            $stmt = $conn->prepare("SELECT * from students where id = ?");
+        } else if ($user_type === 'teacher') {
+            $stmt = $conn->prepare("SELECT * from teachers where id = ?");
+        } else if ($user_type === 'guardian') {
+            $stmt = $conn->prepare("SELECT * from guardians where id = ?");
+        } else if ($user_type === 'admin') {
+            $stmt = $conn->prepare("SELECT * from admins where id = ?");
+        }
+
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+    }
 }
 
 ?>
