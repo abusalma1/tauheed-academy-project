@@ -23,7 +23,7 @@ if (!$school) {
 }
 
 if (isset($_SESSION['user_session'])) {
-    $is_logged_in = true;
+    
     $session = $_SESSION['user_session'];
     $id = $session['id'];
     $email = $session['email'];
@@ -44,8 +44,10 @@ if (isset($_SESSION['user_session'])) {
         $stmt->execute();
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
+        $is_logged_in = true;
     }
 }
+
 
 ?>
 
@@ -93,4 +95,6 @@ if (isset($_SESSION['user_session'])) {
 
 <?php
 include(__DIR__ . '/./components/success-notification.php');
+include(__DIR__ . '/./components/failure-notification.php');
+
 ?>

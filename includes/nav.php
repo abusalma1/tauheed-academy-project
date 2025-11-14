@@ -60,14 +60,28 @@
         <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
         <a href="<?= route('gallery'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Gallery</a>
         <a href="<?= route('uniform'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
-        <a href="<?= route('student-result'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Results</a>
+
+            <?php if ($is_logged_in): ?>
+                    <?php if ($user_type === 'student') : ?>
+                                <a href="<?= route('student-result'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Results</a>
+                    <?php elseif ($user_type === 'teacher'): ?>
 
         <a href="<?= route('upload-results'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
 
-        <?php if ($is_logged_in): ?>
+                    <?php elseif ($user_type === 'guardian'): ?>
+        <a href="" class="block py-2 hover:bg-blue-700 px-3 rounded">My Children</a>
+
+
+                    <?php elseif ($user_type === 'admin'): ?>
+
+        
+
+
+
             <a href="<?= route('admin-section'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Section</a>
 
             <a href="<?= route('logout'); ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button></a>
+                        <?php endif: ?>
         <?php else: ?>
             <a href="<?= route('login'); ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Login</button></a>
 

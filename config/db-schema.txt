@@ -171,8 +171,36 @@ CREATE TABLE guardians (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 10. STUDENTS TABLE (UPDATED for hybrid structure)
+-- 10 SESSIONS TABLE
 -- ===========================================================
+CREATE TABLE sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL, -- e.g., '2023/2024'
+    start_date DATE,
+    end_date DATE,
+    status ENUM('pending', 'ongoing', 'finished') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 10.1 TERMS TABLE
+-- ===========================================================
+CREATE TABLE terms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL, -- e.g., 'First Term'
+    session_id INT NOT NULL,
+    start_date DATE,
+    end_date DATE,
+    status ENUM('pending', 'ongoing', 'finished') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+
+-- ===========================================================
+-- 10.2 STUDENTS TABLE (UPDATED for hybrid structure)
+-- ===========================================================
+
 CREATE TABLE students (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -198,32 +226,6 @@ CREATE TABLE students (
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL,
     FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE SET NULL,
     FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
-
--- ===========================================================
--- 10.1 SESSIONS TABLE
--- ===========================================================
-CREATE TABLE sessions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL, -- e.g., '2023/2024'
-    start_date DATE,
-    end_date DATE,
-    status ENUM('pending', 'ongoing', 'finished') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
--- ===========================================================
--- 10.2 TERMS TABLE
--- ===========================================================
-CREATE TABLE terms (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL, -- e.g., 'First Term'
-    session_id INT NOT NULL,
-    start_date DATE,
-    end_date DATE,
-    status ENUM('pending', 'ongoing', 'finished') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- ===========================================================

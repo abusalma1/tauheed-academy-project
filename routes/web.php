@@ -182,7 +182,7 @@ $routes = [
         'url' => "$baseUrl/pages/results-management/upload-results.php"
     ],
     'student-result' => [
-        'url' => "$baseUrl/pages/results-management/student-view-results.php"
+        'url' => "$baseUrl/pages/results-management/student-results.php"
     ],
 
 
