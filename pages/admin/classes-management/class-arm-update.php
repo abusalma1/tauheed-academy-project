@@ -163,15 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-
-        const updateArmForm = document.getElementById('updateArmForm');
+               const updateArmForm = document.getElementById('updateArmForm');
 
         updateArmForm.addEventListener('submit', (e) => {
             e.preventDefault();

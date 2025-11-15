@@ -127,7 +127,6 @@ include(__DIR__ .  '/../includes/header.php');
 
     <?php include(__DIR__ . '/../includes/footer.php') ?>
 
-    <script src="<?= BASE_URL ?>/static/js/main.js"></script>
 
 </body>
 

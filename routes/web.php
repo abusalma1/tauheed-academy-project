@@ -186,4 +186,12 @@ $routes = [
     ],
 
 
+    // 
+    'my-children' => [
+        'url' => "$baseUrl/pages/guardian/"
+    ],
+    'my-childs-result' => [
+        'url' => "$baseUrl/pages/guardian/guardian-view-child-results.php"
+    ],
+
 ];

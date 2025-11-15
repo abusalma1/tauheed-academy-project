@@ -223,12 +223,6 @@ $studentsCount = countDataTotal('students')['total'];
     <?php include(__DIR__ . '/../../../includes/footer.php');    ?>
 
     <script>
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
         function filterClasses() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const selectedSection = document.getElementById('sectionFilter').value;

@@ -124,14 +124,7 @@ $studentsCount = countDataTotal('students')['total'];
 
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        const searchInput = document.getElementById('searchInput');
+              const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
         const armRows = document.querySelectorAll('.arm-row');
 

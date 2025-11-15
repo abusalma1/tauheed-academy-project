@@ -235,13 +235,7 @@ $totalCapacity = 0;
     <?php include(__DIR__ . '/../../../includes/footer.php') ?>
 
     <script>
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-
+        
         function filterSubjects() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const selectedClass = document.getElementById('subjectFilter').value.toLowerCase();

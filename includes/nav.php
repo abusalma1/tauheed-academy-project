@@ -62,7 +62,7 @@
                     <?php elseif ($user_type === 'student') : ?>
                         <a href="<?= route('student-result'); ?>" class="hover:text-blue-300 transition">My Result</a>
                     <?php elseif ($user_type === 'guardian') : ?>
-                        <a href="" class="hover:text-blue-300 transition">My Children</a>
+                        <a href="<?= route('my-children') ?>" class="hover:text-blue-300 transition">My Children</a>
                     <?php elseif ($user_type === 'admin'): ?>
                         <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Section</a>
                     <?php endif ?>
@@ -122,7 +122,7 @@
             <?php elseif ($user_type === 'teacher'): ?>
                 <a href="<?= route('upload-results'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
             <?php elseif ($user_type === 'guardian'): ?>
-                <a href="" class="block py-2 hover:bg-blue-700 px-3 rounded">My Children</a>
+                <a href="my-children" class="block py-2 hover:bg-blue-700 px-3 rounded">My Children</a>
             <?php elseif ($user_type === 'admin'): ?>
                 <a href="<?= route('admin-section'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Section</a>
             <?php endif; ?>
@@ -134,4 +134,3 @@
 
     </div>
 </nav>
-

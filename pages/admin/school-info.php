@@ -263,14 +263,7 @@ if (isset($_POST['submit'])) {
     <?php include(__DIR__  . '/../../includes/footer.php') ?>
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // Logo preview
+               // Logo preview
         const logoFile = document.getElementById('logoFile');
         const logoPreview = document.getElementById('logoPreview');
         logoFile.addEventListener('change', (e) => {
