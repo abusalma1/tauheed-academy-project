@@ -2,14 +2,13 @@
 $title = 'My Results';
 include __DIR__ . '/../../includes/header.php';
 
-if($is_logged_in === false){
-    $_SESSION['failure'] = "Login is Required!";
-   header("Location: " . route('home'));
-exit();   
-
+if ($is_logged_in === false) {
+  $_SESSION['failure'] = "Login is Required!";
+  header("Location: " . route('home'));
+  exit();
 }
 
-$student_id = $user['id']; 
+$student_id = $user['id'];
 
 // 1. Get basic student info
 $stmt = $conn->prepare("
@@ -57,26 +56,26 @@ $records = [];
 // Rearrange data: CLASS -> TERM -> RECORD ID
 while ($row = $classResult->fetch_assoc()) {
 
-    $classId = $row['class_id'];
-    $termId  = $row['term_id'];
-    $recordId = $row['student_record_id'];
+  $classId = $row['class_id'];
+  $termId  = $row['term_id'];
+  $recordId = $row['student_record_id'];
 
-    if (!isset($records[$classId])) {
-        $records[$classId] = [
-            'class_name' => $row['class_name'],
-            'arm_name' => $row['arm_name'],
-            'session_name' => $row['session_name'],
-            'terms' => []
-        ];
-    }
+  if (!isset($records[$classId])) {
+    $records[$classId] = [
+      'class_name' => $row['class_name'],
+      'arm_name' => $row['arm_name'],
+      'session_name' => $row['session_name'],
+      'terms' => []
+    ];
+  }
 
-    if (!isset($records[$classId]['terms'][$termId])) {
-        $records[$classId]['terms'][$termId] = [
-            'term_name' => $row['term_name'],
-            'record_id' => $recordId,
-            'subjects_results' => []
-        ];
-    }
+  if (!isset($records[$classId]['terms'][$termId])) {
+    $records[$classId]['terms'][$termId] = [
+      'term_name' => $row['term_name'],
+      'record_id' => $recordId,
+      'subjects_results' => []
+    ];
+  }
 }
 
 // 3. Fetch ALL results by student_record_id
@@ -102,17 +101,17 @@ $scoreResult = $stmt->get_result();
 
 // Attach results into $records
 while ($row = $scoreResult->fetch_assoc()) {
-    $classId = $row['class_id'];
-    $termId  = $row['term_id'];
+  $classId = $row['class_id'];
+  $termId  = $row['term_id'];
 
-    $records[$classId]['terms'][$termId]['subjects_results'][] = [
-        'subject_name' => $row['subject_name'],
-        'ca' => $row['ca'],
-        'exam' => $row['exam'],
-        'total' => $row['total'],
-        'grade' => $row['grade'],
-        'remark' => $row['remark']
-    ];
+  $records[$classId]['terms'][$termId]['subjects_results'][] = [
+    'subject_name' => $row['subject_name'],
+    'ca' => $row['ca'],
+    'exam' => $row['exam'],
+    'total' => $row['total'],
+    'grade' => $row['grade'],
+    'remark' => $row['remark']
+  ];
 }
 
 ?>
@@ -171,67 +170,67 @@ while ($row = $scoreResult->fetch_assoc()) {
 
     <!-- All classes and terms hardcoded in HTML with no JavaScript rendering -->
 
-<?php if (!empty($records)): ?>
-    <?php foreach ($records as $class): ?>
+    <?php if (!empty($records)): ?>
+      <?php foreach ($records as $class): ?>
 
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-12">
-      <div class="bg-gradient-to-r from-blue-900 to-blue-800 text-white p-6">
-        <div class="flex justify-between items-center">
-          <div>
-            <h2 class="text-3xl font-bold"><?= htmlspecialchars($class['class_name']) ?></h2>
-            <p class="text-blue-200 text-lg">Session: <?= htmlspecialchars($class['session_name']) ?></p>
-            <p class="text-blue-200 text-sm">Arm: <?= htmlspecialchars($class['arm_name']) ?></p>
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-12">
+          <div class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-6">
+            <div class="flex justify-between items-center">
+              <div>
+                <h2 class="text-3xl font-bold"><?= htmlspecialchars($class['class_name']) ?></h2>
+                <p class="text-blue-200 text-lg">Session: <?= htmlspecialchars($class['session_name']) ?></p>
+                <p class="text-blue-200 text-sm">Arm: <?= htmlspecialchars($class['arm_name']) ?></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-12">
+            <?php foreach ($class['terms'] as $term): ?>
+              <div class="border-l-4 border-blue-900 pl-6 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-2xl font-bold text-gray-800"><?= htmlspecialchars($term['term_name']) ?></h3>
+                </div>
+
+                <div class="overflow-x-auto mb-6">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="bg-blue-900 text-white">
+                        <th class="px-6 py-4 text-left font-semibold">Subject</th>
+                        <th class="px-6 py-4 text-center font-semibold">CA (40)</th>
+                        <th class="px-6 py-4 text-center font-semibold">Exam (60)</th>
+                        <th class="px-6 py-4 text-center font-semibold">Total (100)</th>
+                        <th class="px-6 py-4 text-center font-semibold">Grade</th>
+                        <th class="px-6 py-4 text-center font-semibold">Remark</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($term['subjects_results'] as $result): ?>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                          <td class="px-6 py-4 font-semibold"><?= htmlspecialchars($result['subject_name']) ?></td>
+                          <td class="px-6 py-4 text-center"><?= htmlspecialchars($result['ca']) ?></td>
+                          <td class="px-6 py-4 text-center"><?= htmlspecialchars($result['exam']) ?></td>
+                          <td class="px-6 py-4 text-center font-bold"><?= htmlspecialchars($result['total']) ?></td>
+                          <td class="px-6 py-4 text-center"><?= htmlspecialchars($result['grade']) ?></td>
+                          <td class="px-6 py-4 text-center"><?= htmlspecialchars($result['remark']) ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p class="text-sm text-gray-700">
+                    <span class="font-semibold">Teacher's Remark:</span>
+                    <?= htmlspecialchars($result['remark']) ?>
+                  </p>
+                </div>
+              </div>
+            <?php endforeach; ?>
           </div>
         </div>
-      </div>
-
-      <div class="p-6 space-y-12">
-        <?php foreach ($class['terms'] as $term): ?>
-        <div class="border-l-4 border-blue-900 pl-6 mb-8">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-2xl font-bold text-gray-800"><?= htmlspecialchars($term['term_name']) ?></h3>
-          </div>
-
-          <div class="overflow-x-auto mb-6">
-            <table class="w-full">
-              <thead>
-                <tr class="bg-blue-900 text-white">
-                  <th class="px-6 py-4 text-left font-semibold">Subject</th>
-                  <th class="px-6 py-4 text-center font-semibold">CA (40)</th>
-                  <th class="px-6 py-4 text-center font-semibold">Exam (60)</th>
-                  <th class="px-6 py-4 text-center font-semibold">Total (100)</th>
-                  <th class="px-6 py-4 text-center font-semibold">Grade</th>
-                  <th class="px-6 py-4 text-center font-semibold">Remark</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach ($term['subjects_results'] as $result): ?>
-                <tr class="border-b border-gray-200 hover:bg-gray-50">
-                  <td class="px-6 py-4 font-semibold"><?= htmlspecialchars($result['subject_name']) ?></td>
-                  <td class="px-6 py-4 text-center"><?= htmlspecialchars($result['ca']) ?></td>
-                  <td class="px-6 py-4 text-center"><?= htmlspecialchars($result['exam']) ?></td>
-                  <td class="px-6 py-4 text-center font-bold"><?= htmlspecialchars($result['total']) ?></td>
-                  <td class="px-6 py-4 text-center"><?= htmlspecialchars($result['grade']) ?></td>
-                  <td class="px-6 py-4 text-center"><?= htmlspecialchars($result['remark']) ?></td>
-                </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p class="text-sm text-gray-700">
-              <span class="font-semibold">Teacher's Remark:</span>
-              <?= htmlspecialchars($result['remark']) ?>
-            </p>
-          </div>
-        </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
-    <?php endforeach; ?>
+      <?php endforeach; ?>
     <?php else: ?>
-    <p class="text-center text-gray-600">No results found.</p>
+      <p class="text-center text-gray-600">No results found.</p>
     <?php endif; ?>
 
 

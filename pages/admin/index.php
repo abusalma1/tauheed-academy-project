@@ -9,7 +9,7 @@ include(__DIR__ . '/../../includes/header.php');
     <?php include(__DIR__ . "/./includes/admins-section-nav.php") ?>
 
     <!-- Page Header -->
-    <section class="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
+    <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Admin Dashboard</h1>
             <p class="text-xl text-blue-200">Welcome back! Manage your school operations</p>

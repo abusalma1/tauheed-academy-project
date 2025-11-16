@@ -13,7 +13,7 @@
             <div class="hidden md:flex items-center gap-6">
                 <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Dashboard</a>
                 <a href="<?= route('term-session-management'); ?>" class="hover:text-blue-300 transition">Terms & Sessions</a>
-
+                <a href="<?= route('promotion'); ?>" class="hover:text-blue-300 transition">Promotion</a>
                 <a href="<?= route('school-info') ?>" class="hover:text-blue-300 transition">School Info</a>
                 <a href="<?= route('subjects-management') ?>" class="hover:text-blue-300 transition">Subjects</a>
                 <a href="<?= route('users-management') ?>" class="hover:text-blue-300 transition">Users</a>

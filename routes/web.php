@@ -177,6 +177,13 @@ $routes = [
         'url' => "$baseUrl/pages/admin/term-session-management/term-update.php"
     ],
 
+
+    // session & terms transistions
+
+    'promotion' => [
+        'url' => "$baseUrl/pages/admin/session-term-transtion.php"
+    ],
+
     // results
     'upload-results' => [
         'url' => "$baseUrl/pages/results-management/upload-results.php"

@@ -2,9 +2,9 @@
 $title = "Upload Results";
 include(__DIR__ . '/../../includes/header.php');
 
-if(!$is_logged_in){
+if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
-   header("Location: " . route('home'));
+    header("Location: " . route('home'));
     exit();
 }
 
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // STEP 1: Check if student_class_record exists
         $check = $conn->prepare("
             SELECT id 
-            FROM student_class_records 
+            FROM student_term_records 
             WHERE student_id = ? AND class_id = ? AND arm_id = ? AND term_id = ?
             LIMIT 1
         ");
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // STEP 2: Create new student_class_record
             $insert = $conn->prepare("
-                INSERT INTO student_class_records (student_id, class_id, arm_id, term_id)
+                INSERT INTO student_term_records (student_id, class_id, arm_id, term_id)
                 VALUES (?, ?, ?, ?)
             ");
             $insert->bind_param("iiii", $student_id, $class_id, $arm_id, $term_id);
@@ -282,7 +282,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . '/../../includes/footer.php'); ?>
 
     <script>
-       
         // Filter terms based on selected session
         document.getElementById('sessionSelect').addEventListener('change', function() {
             const selectedSessionId = this.value;

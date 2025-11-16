@@ -27,7 +27,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <?php include(__DIR__ . '/../../includes/nav.php') ?>
 
     <!-- Page Header -->
-    <section class="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
+    <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Guardian Dashboard</h1>
             <p class="text-xl text-blue-200">Welcome, Mr./Mrs. <?= $user['name']; ?>. View your children's academic progress</p>
@@ -97,11 +97,11 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <?php foreach ($children as $child): ?>
                         <!-- Child 1 -->
                         <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition overflow-hidden">
-                            <div class="bg-gradient-to-r from-blue-900 to-blue-800 h-32"></div>
+                            <div class="bg-gradient-to-r from-blue-900 to-blue-700 h-32"></div>
                             <div class="relative px-6 pb-6">
                                 <img src="/placeholder.svg?height=100&width=100" alt="Child Photo" class="h-24 w-24 rounded-full border-4 border-white -mt-16 mx-auto mb-4">
                                 <h3 class="text-xl font-bold text-center text-gray-900"><?= $child['name'] ?></h3>
-                                <p class="text-gray-600 text-center text-sm mb-4"><?= $child['class_name'] .' - ' .  $child['arm_name'] ?></p>
+                                <p class="text-gray-600 text-center text-sm mb-4"><?= $child['class_name'] . ' - ' .  $child['arm_name'] ?></p>
                                 <div class="bg-blue-50 p-3 rounded-lg mb-4">
                                     <div class="flex justify-between text-sm mb-2">
                                         <span class="text-gray-600">Admission No:</span>

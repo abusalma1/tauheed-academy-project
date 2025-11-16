@@ -148,7 +148,7 @@ $totalCapacity = 0;
                     </div>
 
                     <div class="flex items-end">
-                        <a href="<?= route('create-subject') ?>" class="bg-gradient-to-r from-blue-900 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium px-8 py-2 rounded-lg transition shadow-md">
+                        <a href="<?= route('create-subject') ?>" class="bg-gradient-to-r from-blue-900 to-blue-700 hover:from-blue-700 hover:to-blue-700 text-white font-medium px-8 py-2 rounded-lg transition shadow-md">
                             <i class="fas fa-plus"></i> Create Subject
                         </a>
                     </div>
@@ -235,7 +235,6 @@ $totalCapacity = 0;
     <?php include(__DIR__ . '/../../../includes/footer.php') ?>
 
     <script>
-        
         function filterSubjects() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const selectedClass = document.getElementById('subjectFilter').value.toLowerCase();

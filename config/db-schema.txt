@@ -231,43 +231,72 @@ CREATE TABLE students (
 -- ===========================================================
 -- 10.3 STUDENT_CLASS_RECORDS TABLE (UPDATED hybrid)
 -- ===========================================================
+
 CREATE TABLE student_class_records (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
+    session_id INT NOT NULL,
     class_id INT NOT NULL,
     arm_id INT NOT NULL,
-    term_id INT NULL,
-    date_assigned TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    remarks VARCHAR(255),
+
+    overall_total DECIMAL(8,2) DEFAULT 0,
+    overall_average DECIMAL(5,2) DEFAULT 0,
+    overall_position INT DEFAULT NULL,
+    promotion_status ENUM('promoted', 'repeat', 'pending') DEFAULT 'pending',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
+    FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE,
+
+    UNIQUE (student_id, session_id)
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 10.4 STUDENT_TERM_RECORDS TABLE (UPDATED hybrid)
+-- ===========================================================
+CREATE TABLE student_term_records (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_class_record_id INT NOT NULL,
+    term_id INT NOT NULL,
+
     total_marks DECIMAL(8,2) DEFAULT 0,
     average_marks DECIMAL(5,2) DEFAULT 0,
     position_in_class INT DEFAULT NULL,
-    class_size INT DEFAULT NULL;
+    class_size INT DEFAULT NULL,
     overall_grade VARCHAR(5) NULL,
-    promotion_status ENUM('promoted', 'repeat', 'pending') DEFAULT 'pending';
-    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
-    FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE,
-    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE SET NULL,
-    UNIQUE (student_id, class_id, arm_id, term_id)
-) ENGINE=InnoDB;
 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_class_record_id) REFERENCES student_class_records(id) ON DELETE CASCADE,
+    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE,
+
+    UNIQUE (student_class_record_id, term_id)
+) ENGINE=InnoDB;
 
 -- ===========================================================
 -- 11. RESULTS TABLE
 -- ===========================================================
 CREATE TABLE results (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    student_record_id INT NOT NULL, -- links to student, class, arm, term, session indirectly
+    student_term_record_id INT NOT NULL,
     subject_id INT NOT NULL,
+
     ca DECIMAL(5,2) DEFAULT 0.00,
     exam DECIMAL(5,2) DEFAULT 0.00,
-    total DECIMAL(5,2) GENERATED ALWAYS AS (ca + exam) STORED,
+    total DECIMAL(6,2) GENERATED ALWAYS AS (ca + exam) STORED,
     grade VARCHAR(2),
-    remark VARCHAR(20),
+    remark VARCHAR(50),
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_record_id) REFERENCES student_class_records(id) ON DELETE CASCADE,
+
+    FOREIGN KEY (student_term_record_id) REFERENCES student_term_records(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
-    UNIQUE (student_record_id, subject_id)
+
+    UNIQUE (student_term_record_id, subject_id)
 ) ENGINE=InnoDB;
