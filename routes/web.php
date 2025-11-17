@@ -184,7 +184,13 @@ $routes = [
         'url' => "$baseUrl/pages/admin/session-term-transtion.php"
     ],
 
+
+
+
     // results
+    'results-management' => [
+        'url' => "$baseUrl/pages/results-management/"
+    ],
     'upload-results' => [
         'url' => "$baseUrl/pages/results-management/upload-results.php"
     ],

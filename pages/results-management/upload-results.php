@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="grid md:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-sm font-semibold mb-2">Class</label>
-                        <select name="class_id" id="classSelect" class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+                        <select name="class_id" id="classSelect" class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400" required disabled>
                             <option value="">-- Select Class --</option>
                             <?php foreach ($classes as $class) : ?>
                                 <option value="<?= $class['id'] ?>" <?= (isset($_GET['class_id']) && $_GET['class_id'] == $class['id']) ? 'selected' : '' ?>>
@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div>
                         <label class="block text-sm font-semibold mb-2">Subject</label>
-                        <select name="subject_id" id="subjectSelect" class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+                        <select name="subject_id" id="subjectSelect" class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400" required disabled>
                             <option value="">-- Select Subject --</option>
                             <?php foreach ($subjects as $subject) : ?>
                                 <option value="<?= $subject['id'] ?>" <?= (isset($_GET['subject_id']) && $_GET['subject_id'] == $subject['id']) ? 'selected' : '' ?>>
@@ -165,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div>
                         <label class="block text-sm font-semibold mb-2">Session</label>
-                        <select name="session_id" id="sessionSelect" class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+                        <select name="session_id" id="sessionSelect" class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400" required disabled>
                             <option value="">-- Select Session --</option>
                             <?php foreach ($sessions as $session) : ?>
                                 <option value="<?= $session['id'] ?>" <?= (isset($_GET['session_id']) && $_GET['session_id'] == $session['id']) ? 'selected' : '' ?>>
@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div>
                         <label class="block text-sm font-semibold mb-2">Term</label>
-                        <select name="term_id" id="termSelect" class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+                        <select name="term_id" id="termSelect" class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400" required disabled>
                             <option value="">-- Select Term --</option>
                             <?php foreach ($terms as $term) : ?>
                                 <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>" <?= (isset($_GET['term_id']) && $_GET['term_id'] == $term['id']) ? 'selected' : '' ?>>
@@ -188,11 +188,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <div class="flex justify-center mt-6">
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
-                        <i class="fas fa-search"></i> Load Students
-                    </button>
-                </div>
             </form>
 
 

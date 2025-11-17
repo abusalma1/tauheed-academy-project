@@ -3,7 +3,6 @@
 $title = "Subjects Management";
 include(__DIR__ . '/../../../includes/header.php');
 
-
 $stmt = $conn->prepare("
     SELECT 
         classes.id AS class_id,
@@ -21,8 +20,6 @@ $stmt = $conn->prepare("
     LEFT JOIN sections ON classes.section_id = sections.id
     ORDER BY classes.id, subjects.name
 ");
-
-
 
 $stmt->execute();
 $result = $stmt->get_result();

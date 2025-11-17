@@ -289,31 +289,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <!-- Term & Session -->
                             <div class="flex gap-4 pt-4 w-full justify-center">
-                               <!-- session -->
-<div class="flex-1 max-w-md">
-    <label for="session" class="block text-sm font-semibold text-gray-700 mb-2">Session *</label>
-    <select id="session" name="session" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-        <option value="">Select session</option>
-        <?php foreach ($sessions as $session): ?>
-            <option value="<?= $session['id'] ?>">
-                <?= $session['name'] ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
+                                <!-- session -->
+                                <div class="flex-1 max-w-md">
+                                    <label for="session" class="block text-sm font-semibold text-gray-700 mb-2">Session *</label>
+                                    <select id="session" name="session" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select session</option>
+                                        <?php foreach ($sessions as $session): ?>
+                                            <option value="<?= $session['id'] ?>">
+                                                <?= $session['name'] ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
 
-<!-- term -->
-<div class="flex-1 max-w-md">
-    <label for="term" class="block text-sm font-semibold text-gray-700 mb-2">Term *</label>
-    <select id="term" name="term" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-        <option value="">Select term</option>
-        <?php foreach ($terms as $term): ?>
-            <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>">
-                <?= $term['name'] ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
+                                <!-- term -->
+                                <div class="flex-1 max-w-md">
+                                    <label for="term" class="block text-sm font-semibold text-gray-700 mb-2">Term *</label>
+                                    <select id="term" name="term" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select term</option>
+                                        <?php foreach ($terms as $term): ?>
+                                            <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>">
+                                                <?= $term['name'] ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
 
 
                             </div>
@@ -513,7 +513,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <script>
-               // Term selection after session 
+        // Term selection after session 
         const sessionSelect = document.getElementById('session');
         const termSelect = document.getElementById('term');
 

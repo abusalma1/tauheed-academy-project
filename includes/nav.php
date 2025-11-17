@@ -1,5 +1,5 @@
 <!-- Navigation -->
-<nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
+<nav class="bg-gradient-to-r from-blue-900 to-blue-800 text-white sticky top-0 z-50 shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <!-- Logo and School Name -->
@@ -58,7 +58,7 @@
 
                 <?php if ($is_logged_in): ?>
                     <?php if ($user_type === 'teacher') : ?>
-                        <a href="<?= route('upload-results'); ?>" class="hover:text-blue-300 transition">Results</a>
+                        <a href="<?= route('results-management'); ?>" class="hover:text-blue-300 transition">Results</a>
                     <?php elseif ($user_type === 'student') : ?>
                         <a href="<?= route('student-result'); ?>" class="hover:text-blue-300 transition">My Result</a>
                     <?php elseif ($user_type === 'guardian') : ?>
@@ -120,7 +120,7 @@
             <?php if ($user_type === 'student') : ?>
                 <a href="<?= route('student-result'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Results</a>
             <?php elseif ($user_type === 'teacher'): ?>
-                <a href="<?= route('upload-results'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
+                <a href="<?= route('results-management'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
             <?php elseif ($user_type === 'guardian'): ?>
                 <a href="my-children" class="block py-2 hover:bg-blue-700 px-3 rounded">My Children</a>
             <?php elseif ($user_type === 'admin'): ?>
