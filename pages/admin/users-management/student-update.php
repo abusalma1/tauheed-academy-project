@@ -14,17 +14,22 @@ if (isset($_GET['id'])) {
     $stmt = $conn->prepare("SELECT 
     students.*,
     classes.name AS class_name,
+    sessions.id AS session_id,
+      sessions.name AS session_name,
+    terms.id AS term_id,
+    terms.name AS term_name,
     class_arms.name AS class_arm_name
 FROM students
 LEFT JOIN classes 
     ON students.class_id = classes.id
 LEFT JOIN class_arms 
     ON students.arm_id = class_arms.id
-
+LEFT JOIN terms 
+    ON terms.id = students.term_id
+    LEFT JOIN sessions 
+    ON sessions.id = terms.session_id
     where students.id = ?
 ");
-
-
 
     $stmt->bind_param('i', $id);
     $stmt->execute();
@@ -86,7 +91,6 @@ $classes = $result->fetch_all(MYSQLI_ASSOC);
 $studentsCount =  countDataTotal('students', true);
 
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF validation
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -101,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $admissionNumber = trim($_POST['admissionNumber'] ?? '');
     $class = trim($_POST['class'] ?? '');
     $term = trim($_POST['term'] ?? '');
+    $session = trim($_POST['session'] ?? '');
     $dob = trim($_POST['dob'] ?? '');
     $gender = trim($_POST['gender'] ?? '');
     $guardian = trim($_POST['guardian'] ?? '');
@@ -127,6 +132,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['term'] = "Please select a term.";
     }
 
+
+    if (empty($session)) {
+        $errors['session'] = "Please select a term.";
+    }
 
     if (empty($dob)) {
         $errors['dob'] = "Date of birth is required.";
@@ -187,28 +196,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($stmt->execute()) {
-            $stmt = $conn->prepare("SELECT * FROM student_class_records where student_id = ? and class_id = ? and arm_id = ? and term_id = ? ");
-            $stmt->bind_param('iiii', $student['id'], $student['class_id'], $student['arm_id'], $student['term_id']);
+            $term_id = (int)$term;
+            $session_id = (int)$session;
+
+            $stmt = $conn->prepare("SELECT * FROM student_class_records 
+    WHERE student_id = ? 
+    AND class_id = ? 
+    AND arm_id = ? 
+    AND session_id = ?
+");
+            $stmt->bind_param('iiii', $student['id'], $class_id, $arm_id, $session_id);
             $stmt->execute();
             $result = $stmt->get_result();
-            $student_record = $result->fetch_assoc();
-
+            $student_class_record = $result->fetch_assoc();
+            $student_class_record_id = $student_class_record['id'];
 
             $stmt = $conn->prepare("
-                    UPDATE student_class_records 
-                    SET class_id = ?, arm_id = ?, term_id = ? 
-                    WHERE id = ?
-                ");
-            $stmt->bind_param(
-                'iiii',
-                $class_id,
-                $arm_id,
-                $term,
-                $student_record['id']
-            );
+    UPDATE student_class_records 
+    SET class_id = ?, arm_id = ?, session_id = ? 
+    WHERE id = ?
+");
+            $stmt->bind_param('iiii', $class_id, $arm_id, $session_id, $student_class_record_id);
             $stmt->execute();
-            $_SESSION['success'] = "Student account updated successfully!";
 
+            $stmt = $conn->prepare("SELECT * FROM student_term_records 
+    WHERE student_class_record_id = ? 
+    AND term_id = ?
+");
+            $stmt->bind_param('ii', $student_class_record_id, $student['term_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $student_term_record = $result->fetch_assoc();
+
+            $stmt = $conn->prepare("
+    UPDATE student_term_records 
+    SET student_class_record_id = ?, term_id = ?
+    WHERE id = ?
+");
+            $stmt->bind_param('iii', $student_class_record_id, $term, $student_term_record['id']);
+            $stmt->execute();
+
+
+            $_SESSION['success'] = "Student account updated successfully!";
             header("Location: " . route('back'));
             exit;
         } else {
@@ -273,14 +302,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Email -->
                             <div>
                                 <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address (optional)</label>
-                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter email address" value="<?= $student['phone'] ?>">
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter email address" value="<?= $student['email'] ?>">
                                 <span class="text-red-500 text-sm hidden" id="emailError"></span>
                             </div>
 
                             <!-- Phone Number -->
                             <div>
                                 <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number (optional)</label>
-                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter phone number" value="<?= $student['email'] ?>">
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter phone number" value="<?= $student['phone'] ?>">
                                 <span class="text-red-500 text-sm hidden" id="phoneError"></span>
                             </div>
 
@@ -433,7 +462,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
-           const sessionSelect = document.getElementById('session');
+        const sessionSelect = document.getElementById('session');
         const termSelect = document.getElementById('term');
 
         // Auto-select session & enable term on page load

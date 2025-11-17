@@ -80,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $admissionNumber = trim($_POST['admissionNumber'] ?? '');
     $class = trim($_POST['class'] ?? '');
     $term = trim($_POST['term'] ?? '');
+    $session = trim($_POST['session'] ?? '');
     $dob = trim($_POST['dob'] ?? '');
     $gender = trim($_POST['gender'] ?? '');
     $guardian = trim($_POST['guardian'] ?? '');
@@ -189,9 +190,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->execute()) {
             $student_id = $stmt->insert_id;
 
-            $stmt = $conn->prepare("INSERT into student_class_records (student_id, class_id, arm_id, term_id) values (?, ?, ?, ?)");
-            $stmt->bind_param('iiii', $student_id, $class_id, $arm_id, $term);
+
+            $stmt2 = $conn->prepare("INSERT into student_class_records (student_id, class_id, arm_id, session_id) values (?, ?, ?, ?)");
+            $stmt2->bind_param('iiii', $student_id, $class_id, $arm_id, $session);
+            $stmt2->execute();
+
+            $student_class_record_id = $stmt2->insert_id;
+
+
+            $stmt = $conn->prepare("INSERT into student_term_records (student_class_record_id, term_id) values (?, ?)");
+            $stmt->bind_param('ii', $student_class_record_id,  $term_id);
             $stmt->execute();
+
             $_SESSION['success'] = "Student account created successfully!";
 
             header("Location: " . route('back'));
