@@ -112,7 +112,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                         <span class="font-semibold text-green-600">87.67%</span>
                                     </div>
                                 </div>
-                                <a href="<?= route('my-childs-result') . '?id=' . $child['id'] ?>" class="block w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded-lg font-semibold text-center transition">
+                                <a href="<?= route('student-result') . '?id=' . $child['id'] ?>" class="block w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded-lg font-semibold text-center transition">
                                     <i class="fas fa-eye mr-2"></i>View Results
                                 </a>
                             </div>
@@ -123,43 +123,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 </div>
             </div>
 
-            <!-- Quick Links -->
-            <div class="bg-white rounded-lg shadow-lg p-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <a href="guardian-view-child-results.html?child=chioma-eze" class="flex items-center gap-3 p-4 border-2 border-blue-200 rounded-lg hover:bg-blue-50 transition">
-                        <i class="fas fa-file-alt text-blue-600 text-xl"></i>
-                        <div>
-                            <p class="font-semibold text-gray-900">Chioma's Results</p>
-                            <p class="text-xs text-gray-600">View & print</p>
-                        </div>
-                    </a>
 
-                    <a href="guardian-view-child-results.html?child=obinna-eze" class="flex items-center gap-3 p-4 border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition">
-                        <i class="fas fa-file-alt text-purple-600 text-xl"></i>
-                        <div>
-                            <p class="font-semibold text-gray-900">Obinna's Results</p>
-                            <p class="text-xs text-gray-600">View & print</p>
-                        </div>
-                    </a>
-
-                    <a href="guardian-view-child-results.html?child=amara-eze" class="flex items-center gap-3 p-4 border-2 border-green-200 rounded-lg hover:bg-green-50 transition">
-                        <i class="fas fa-file-alt text-green-600 text-xl"></i>
-                        <div>
-                            <p class="font-semibold text-gray-900">Amara's Results</p>
-                            <p class="text-xs text-gray-600">View & print</p>
-                        </div>
-                    </a>
-
-                    <button class="flex items-center gap-3 p-4 border-2 border-orange-200 rounded-lg hover:bg-orange-50 transition">
-                        <i class="fas fa-bell text-orange-600 text-xl"></i>
-                        <div>
-                            <p class="font-semibold text-gray-900">Notifications</p>
-                            <p class="text-xs text-gray-600">2 new messages</p>
-                        </div>
-                    </button>
-                </div>
-            </div>
         </div>
     </section>
 
