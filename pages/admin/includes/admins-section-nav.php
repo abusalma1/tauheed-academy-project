@@ -30,6 +30,8 @@
     <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
         <a href="<?= route('admin-section') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Dashboard</a>
         <a href="<?= route('term-session-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Terms & Sessions</a>
+        <a href="<?= route('promotion'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Promotion</a>
+
         <a href="<?= route('school-info') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Schoool Info</a>
         <a href="<?= route('subjects-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Subjects</a>
         <a href="<?= route('users-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Manage Users</a>

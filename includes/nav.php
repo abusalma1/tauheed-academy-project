@@ -122,7 +122,7 @@
             <?php elseif ($user_type === 'teacher'): ?>
                 <a href="<?= route('results-management'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
             <?php elseif ($user_type === 'guardian'): ?>
-                <a href="my-children" class="block py-2 hover:bg-blue-700 px-3 rounded">My Children</a>
+                <a href="<?= route('my-children') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Children</a>
             <?php elseif ($user_type === 'admin'): ?>
                 <a href="<?= route('admin-section'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Section</a>
             <?php endif; ?>
