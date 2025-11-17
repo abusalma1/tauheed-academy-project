@@ -30,7 +30,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Guardian Dashboard</h1>
-            <p class="text-xl text-blue-200">Welcome, Mr./Mrs. <?= $user['name']; ?>. View your children's academic progress</p>
+            <p class="text-xl text-blue-200">Welcome, <?= ($user['relationship'] === 'mother' || $user['relationship']  === 'aunt') ? 'Mrs.' : 'Mr.' ?> <?= $user['name']; ?>. View your children's academic progress</p>
         </div>
     </section>
 
@@ -112,7 +112,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                         <span class="font-semibold text-green-600">87.67%</span>
                                     </div>
                                 </div>
-                                <a href="guardian-view-child-results.html?child=chioma-eze" class="block w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded-lg font-semibold text-center transition">
+                                <a href="<?= route('my-childs-result') . '?id=' . $child['id'] ?>" class="block w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded-lg font-semibold text-center transition">
                                     <i class="fas fa-eye mr-2"></i>View Results
                                 </a>
                             </div>
