@@ -55,10 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
         // Determine grade
-        if ($total >= 70) $grade = 'A';
+        if ($total >= 75) $grade = 'A';
         elseif ($total >= 60) $grade = 'B';
         elseif ($total >= 50) $grade = 'C';
-        elseif ($total >= 45) $grade = 'D';
+        elseif ($total >= 40) $grade = 'D';
         else $grade = 'F';
 
         $remark_map = [
@@ -132,6 +132,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $save->bind_param("iiiiss", $student_term_record_id, $subject_id, $ca, $exam, $grade, $remark);
         $save->execute();
     }
+
+    // ===========================================
+    // CALCULATE TERM TOTALS, AVERAGES, AND POSITIONS
+    // ===========================================
+
+    // 1. Get all students in this class for this term
+    $students_query = "
+    SELECT str.id AS student_term_record_id
+    FROM student_term_records str
+    JOIN student_class_records scr ON str.student_class_record_id = scr.id
+    WHERE str.term_id = ? AND scr.class_id = ?
+";
+    $stmt = $conn->prepare($students_query);
+    $stmt->bind_param('ii', $term_id, $class_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $student_term_records = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    // 2. Loop through each student to calculate total and average
+    foreach ($student_term_records as $str) {
+        $student_term_id = $str['student_term_record_id'];
+
+        $calc_query = "
+        SELECT SUM(total) AS total_marks, AVG(total) AS average_marks
+        FROM results
+        WHERE student_term_record_id = ?
+    ";
+        $stmt2 = $conn->prepare($calc_query);
+        $stmt2->bind_param('i', $student_term_id);
+        $stmt2->execute();
+        $res = $stmt2->get_result()->fetch_assoc();
+        $stmt2->close();
+
+        $total_marks = floatval($res['total_marks'] ?? 0);
+        $average_marks = floatval($res['average_marks'] ?? 0);
+
+        $update_query = "
+        UPDATE student_term_records
+        SET total_marks = ?, average_marks = ?
+        WHERE id = ?
+    ";
+        $stmt3 = $conn->prepare($update_query);
+        $stmt3->bind_param('ddi', $total_marks, $average_marks, $student_term_id);
+        $stmt3->execute();
+        $stmt3->close();
+    }
+
+    // 3. Update positions in class for this term (handling ties correctly)
+    $position_query = "
+    SELECT str.id, str.total_marks
+    FROM student_term_records str
+    JOIN student_class_records scr ON str.student_class_record_id = scr.id
+    WHERE str.term_id = ? AND scr.class_id = ?
+    ORDER BY str.total_marks DESC
+";
+    $stmt4 = $conn->prepare($position_query);
+    $stmt4->bind_param('ii', $term_id, $class_id);
+    $stmt4->execute();
+    $result4 = $stmt4->get_result();
+    $students_ordered = $result4->fetch_all(MYSQLI_ASSOC);
+    $stmt4->close();
+
+    $position = 0;
+    $previous_total = null;
+    $same_rank_count = 0;
+    $class_size = count($students_ordered);
+
+    foreach ($students_ordered as $i => $student) {
+        $student_term_id = $student['id'];
+        $total = floatval($student['total_marks']);
+
+        if ($previous_total !== null && $total == $previous_total) {
+            // same total, same position
+            $same_rank_count++;
+        } else {
+            $position += $same_rank_count + 1;
+            $same_rank_count = 0;
+        }
+        $previous_total = $total;
+
+        $update_pos = "
+        UPDATE student_term_records
+        SET position_in_class = ?, class_size = ?
+        WHERE id = ?
+    ";
+        $stmt5 = $conn->prepare($update_pos);
+        $stmt5->bind_param('iii', $position, $class_size, $student_term_id);
+        $stmt5->execute();
+        $stmt5->close();
+    }
+
 
     $_SESSION['success'] = "Results uploaded successfully!";
     header("Location: " . route('back'));
@@ -324,10 +416,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function getGrade(score) {
             if (score > 100) return 'Over';
-            if (score >= 70) return 'A';
+            if (score >= 75) return 'A';
             if (score >= 60) return 'B';
             if (score >= 50) return 'C';
-            if (score >= 45) return 'D';
+            if (score >= 40) return 'D';
             return 'F';
         }
 
@@ -336,7 +428,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'A': 'Excellent',
                 'B': 'Very Good',
                 'C': 'Good',
-                'D': 'Pass',
+                'D': 'Fair',
                 'F': 'Fail',
                 'Over': 'Over Marking'
 

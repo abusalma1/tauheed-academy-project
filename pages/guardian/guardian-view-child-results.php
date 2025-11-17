@@ -56,9 +56,19 @@ $stmt = $conn->prepare("
         scr.class_id,
         scr.arm_id,
         scr.session_id,
+        scr.overall_total ,
+        scr.overall_average,
+        scr.overall_position ,
+        scr.promotion_status,
         
         str.id AS student_term_record_id,
         str.term_id,
+        str.id AS student_term_record_id,
+        str.total_marks,
+        str.average_marks,
+        str.position_in_class,
+        str.class_size,
+        str.overall_grade,   
 
         c.name AS class_name,
         a.name AS arm_name,
@@ -104,6 +114,11 @@ while ($row = $classResult->fetch_assoc()) {
     if ($termId) {
         $records[$session][$classId]['terms'][$termId] = [
             'term_name'   => $row['term_name'],
+            'total_marks'   => $row['total_marks'],
+            'average_marks'   => $row['average_marks'],
+            'position_in_class'   => $row['position_in_class'],
+            'class_size'   => $row['class_size'],
+            'overall_grade'   => $row['overall_grade'],
             'str_id'      => $strId,
             'subjects_results' => []
         ];
@@ -179,14 +194,6 @@ while ($row = $scoreResult->fetch_assoc()) {
                             <p class="text-blue-200"><?= $studentInfo['class_name']  . ' - ' . $studentInfo['arm_name'] ?></p>
                             <p class="text-blue-200">Admission: <?= $studentInfo['admission_number'] ?></p>
                         </div>
-                    </div>
-                    <div class="bg-white bg-opacity-20 p-4 rounded-lg">
-                        <p class="text-sm text-blue-200">Overall Average</p>
-                        <p class="text-3xl font-bold">82.5%</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 p-4 rounded-lg">
-                        <p class="text-sm text-blue-200">Class Position</p>
-                        <p class="text-3xl font-bold">3rd of 35</p>
                     </div>
                 </div>
             </div>
@@ -274,8 +281,8 @@ while ($row = $scoreResult->fetch_assoc()) {
                                             <?php endforeach;  ?>
                                             <tr class="bg-blue-50 font-bold text-sm">
                                                 <td class="px-4 py-3" colspan="2">Total Score</td>
-                                                <td class="px-4 py-3 text-center" colspan="2">526/600</td>
-                                                <td class="px-4 py-3 text-center" colspan="2">Average: 87.67%</td>
+                                                <td class="px-4 py-3 text-center" colspan="2"><?= $term['total_marks'] ?>/<?= count($term['subjects_results']) * 100 ?></td>
+                                                <td class="px-4 py-3 text-center" colspan="2">Average: <?= $term['average_marks'] ?>%</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -291,11 +298,11 @@ while ($row = $scoreResult->fetch_assoc()) {
                                     </div>
                                     <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-600">
                                         <p class="text-gray-600 text-sm font-semibold">Position in Class</p>
-                                        <p class="text-2xl font-bold text-yellow-600">3rd of 35</p>
+                                        <p class="text-2xl font-bold text-yellow-600"><?= $term['position_in_class'] ?? 'N/A' ?> of <?= $term['class_size'] ?? 'N/A' ?></p>
                                     </div>
                                     <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-600">
                                         <p class="text-gray-600 text-sm font-semibold">Class Average</p>
-                                        <p class="text-2xl font-bold text-purple-600">73.2%</p>
+                                        <p class="text-2xl font-bold text-purple-600"><?= $term['average_marks'] ?? 'N/A' ?>%</p>
                                     </div>
                                 </div>
 
@@ -304,13 +311,39 @@ while ($row = $scoreResult->fetch_assoc()) {
                                         <h3 class="font-bold text-blue-900 mb-2">
                                             <i class="fas fa-user-tie text-blue-900 mr-2"></i>Class Teacher's Remark
                                         </h3>
-                                        <p class="text-gray-700 text-sm leading-relaxed">Chioma is an exceptionally bright student who demonstrates outstanding dedication to her studies. She actively participates in class discussions, shows excellent problem-solving skills, and maintains a positive attitude towards learning. Her consistent performance across all subjects is commendable. Continue to maintain this excellent standard.</p>
+                                        <p class="text-gray-700 text-sm leading-relaxed">
+                                            <?php if ($term['average_marks'] >= 75) : ?>
+                                                Excellent performance! Keep up the outstanding work.
+                                            <?php elseif (($term['average_marks'] >= 60) && ($term['average_marks'] <= 74)) : ?>
+                                                Very good! You can achieve even more with consistent effort.
+                                            <?php elseif (($term['average_marks'] >= 50) && ($term['average_marks'] <= 59)) : ?>
+                                                Good effort. Focus on your weaker areas to improve further.
+                                            <?php elseif (($term['average_marks'] >= 40) && ($term['average_marks'] <= 49)) : ?>
+                                                Fair performance. Needs improvement in some subjects.
+                                            <?php elseif (($term['average_marks'] >= 0) && ($term['average_marks'] <= 39)) : ?>
+                                                Below average. Extra practice and attention required.
+                                                Poor performance. Needs serious improvement and guidance.
+                                            <?php endif ?>
+                                        </p>
                                     </div>
                                     <div>
                                         <h3 class="font-bold text-blue-900 mb-2">
-                                            <i class="fas fa-medal text-blue-900 mr-2"></i>Principal's Remark
+                                            <i class="fas fa-medal text-blue-900 mr-2"></i>Principal's/Headteacher's Remark
                                         </h3>
-                                        <p class="text-gray-700 text-sm leading-relaxed">Exceptional performance across all subjects! Chioma's consistency, discipline, and exemplary conduct make her an outstanding role model for her peers. We are delighted with your achievements and encourage you to maintain this excellent standard as you progress to the next level.</p>
+                                        <p class="text-gray-700 text-sm leading-relaxed">
+                                            <?php if ($term['average_marks'] >= 75) : ?>
+                                                Keep striving for excellence. Very proud of your achievement!
+                                            <?php elseif (($term['average_marks'] >= 60) && ($term['average_marks'] <= 74)) : ?>
+                                                Good work. Maintain this standard and aim higher.
+                                            <?php elseif (($term['average_marks'] >= 50) && ($term['average_marks'] <= 59)) : ?>
+                                                Encouraging progress. With more effort, better results are possible.
+                                            <?php elseif (($term['average_marks'] >= 40) && ($term['average_marks'] <= 49)) : ?>
+                                                Needs improvement. Focus on studies to reach higher grades.
+                                            <?php elseif (($term['average_marks'] >= 0) && ($term['average_marks'] <= 39)) : ?>
+                                                Unsatisfactory performance. Immediate action and commitment required
+                                                Work harder and seek guidance. Improvement is necessary.
+                                            <?php endif ?>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
