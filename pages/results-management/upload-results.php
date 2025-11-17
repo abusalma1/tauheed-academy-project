@@ -23,11 +23,11 @@ if (isset($_GET['class_id']) && isset($_GET['term_id'])) {
 
     $stmt = $conn->prepare("SELECT *
         FROM students
-        WHERE class_id = ? AND term_id = ?
+        WHERE class_id = ?
         ORDER BY name ASC
     ");
 
-    $stmt->bind_param("ii", $class_id, $term_id);
+    $stmt->bind_param("i", $class_id);
     $stmt->execute();
     $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
@@ -73,31 +73,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // STEP 1: Check if student_class_record exists
         $check = $conn->prepare("
             SELECT id 
-            FROM student_term_records 
-            WHERE student_id = ? AND class_id = ? AND arm_id = ? AND term_id = ?
+            FROM student_class_records 
+            WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?
             LIMIT 1
         ");
-        $check->bind_param("iiii", $student_id, $class_id, $arm_id, $term_id);
+        $check->bind_param("iiii", $student_id, $class_id, $arm_id, $session_id);
         $check->execute();
-        $record = $check->get_result()->fetch_assoc();
+        $class_record = $check->get_result()->fetch_assoc();
 
-        if ($record) {
+        if ($class_record) {
             // Use existing record
-            $student_record_id = $record['id'];
+            $student_class_record_id = $class_record['id'];
         } else {
             // STEP 2: Create new student_class_record
             $insert = $conn->prepare("
-                INSERT INTO student_term_records (student_id, class_id, arm_id, term_id)
+                INSERT INTO student_class_records (student_id, class_id, arm_id, session_id)
                 VALUES (?, ?, ?, ?)
             ");
-            $insert->bind_param("iiii", $student_id, $class_id, $arm_id, $term_id);
+            $insert->bind_param("iiii", $student_id, $class_id, $arm_id, $session_id);
             $insert->execute();
-            $student_record_id = $conn->insert_id;
+            $student_class_record_id = $conn->insert_id;
+        }
+
+        // STEP 1: Check if student_term_record exists
+        $check = $conn->prepare("
+            SELECT id 
+            FROM student_term_records 
+            WHERE student_class_record_id = ? AND term_id = ?
+            LIMIT 1
+        ");
+        $check->bind_param("ii", $student_class_record_id,  $term_id);
+        $check->execute();
+        $term_record = $check->get_result()->fetch_assoc();
+
+        if ($term_record) {
+            // Use existing record student_term_record_id
+            $student_term_record_id = $term_record['id'];
+        } else {
+            // STEP 2: Create new student_term_record
+            $insert = $conn->prepare("INSERT INTO student_term_records (student_class_record_id,  term_id)
+                VALUES (?, ?)
+            ");
+            $insert->bind_param("ii", $student_class_record_id, $term_id);
+            $insert->execute();
+            $student_term_record_id = $conn->insert_id;
         }
 
         // STEP 3: Insert or update result
         $save = $conn->prepare("
-            INSERT INTO results (student_record_id, subject_id, ca, exam, grade, remark)
+            INSERT INTO results (student_term_record_id, subject_id, ca, exam, grade, remark)
             VALUES (?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
                 ca = VALUES(ca),
@@ -105,12 +129,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 grade = VALUES(grade),
                 remark = VALUES(remark)
         ");
-        $save->bind_param("iiiiss", $student_record_id, $subject_id, $ca, $exam, $grade, $remark);
+        $save->bind_param("iiiiss", $student_term_record_id, $subject_id, $ca, $exam, $grade, $remark);
         $save->execute();
     }
 
     $_SESSION['success'] = "Results uploaded successfully!";
-    header("Location: " . route('upload-results'));
+    header("Location: " . route('back'));
     exit;
 }
 
