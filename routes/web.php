@@ -63,6 +63,9 @@ $routes = [
     'users-management' => [
         'url' => "$baseUrl/pages/admin/users-management/"
     ],
+    'update-user-password' => [
+        'url' => "$baseUrl/pages/admin/users-management/update-user-password.php"
+    ],
 
     // admin 
 

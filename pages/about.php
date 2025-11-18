@@ -5,11 +5,11 @@ include(__DIR__ .  '/../includes/header.php');
 ?>
 
 <body class="bg-gray-50">
-    <?php include(__DIR__ .  '/../includes/nav.php'); ?>
+<?php include(__DIR__ .  '/../includes/nav.php'); ?>
 
-    <!-- Page Header -->
-    <section class="bg-blue-900 text-white py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+<!-- Page Header -->
+<section class="bg-blue-900 text-white py-16">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">About & Contact Us</h1>
             <p class="text-xl text-blue-200">Get in touch with <?= $school['name'] ?? 'Tauheed Academy' ?></p>
         </div>
