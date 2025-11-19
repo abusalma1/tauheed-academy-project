@@ -202,10 +202,22 @@ $routes = [
     ],
 
 
-    // 
+    //  guardians
     'my-children' => [
         'url' => "$baseUrl/pages/guardian/"
+    ],
+
+
+    //  profile
+    'profile' => [
+        'url' => "$baseUrl/pages/profile/index.php"
+    ],
+    'update-profile' => [
+        'url' => "$baseUrl/pages/profile/user-update-profile.php"
+    ],
+    'update-profile-password' => [
+        'url' => "$baseUrl/pages/profile/user-change-password.php"
     ]
-  
+
 
 ];

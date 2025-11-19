@@ -57,6 +57,8 @@
 
 
                 <?php if ($is_logged_in): ?>
+                    <a href="<?= route('profile') ?>" class="hover:text-blue-300 transition">Profile</a>
+
                     <?php if ($user_type === 'teacher') : ?>
                         <a href="<?= route('results-management'); ?>" class="hover:text-blue-300 transition">Results</a>
                     <?php elseif ($user_type === 'student') : ?>
@@ -117,6 +119,8 @@
 
 
         <?php if ($is_logged_in): ?>
+            <a href="<?= route('profile'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Profile</a>
+
             <?php if ($user_type === 'student') : ?>
                 <a href="<?= route('student-result'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Results</a>
             <?php elseif ($user_type === 'teacher'): ?>
