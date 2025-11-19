@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Excellence Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
+                    <div>
+                        <h1 class="text-xl font-bold">Excellence Academy</h1>
+                        <p class="text-xs text-blue-200">My Profile</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
+                    <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
+            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
+            <button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">My Profile</h1>
+            <p class="text-xl text-blue-200">View and manage your personal information</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <!-- Profile Header -->
+                <div class="bg-gradient-to-r from-blue-900 to-blue-700 h-32"></div>
+
+                <!-- Profile Content -->
+                <div class="px-6 pb-6">
+                    <!-- Profile Picture -->
+                    <div class="flex flex-col md:flex-row gap-8 -mt-16 mb-8">
+                        <div class="flex justify-center md:justify-start">
+                            <img id="profilePic" src="/placeholder.svg?height=150&width=150" alt="Profile Picture" class="w-32 h-32 rounded-full border-4 border-white shadow-lg">
+                        </div>
+
+                        <!-- Basic Info -->
+                        <div class="flex-1 pt-4">
+                            <h2 id="fullName" class="text-3xl font-bold text-gray-900 mb-2">Loading...</h2>
+                            <p id="userType" class="text-lg text-gray-600 mb-4">
+                                <span class="px-4 py-2 bg-blue-100 text-blue-900 rounded-full font-semibold">Student</span>
+                            </p>
+                            <div class="flex flex-wrap gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">Status</p>
+                                    <p class="text-lg font-semibold text-gray-900">Active</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Member Since</p>
+                                    <p class="text-lg font-semibold text-gray-900">2024</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pb-8 border-b border-gray-200">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Contact Information</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">Email Address</p>
+                                    <p id="email" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Phone Number</p>
+                                    <p id="phone" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Additional Information</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">Class/Department</p>
+                                    <p id="classInfo" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">User ID</p>
+                                    <p id="userId" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <a href="user-update-profile.html" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition text-center font-semibold">
+                            <i class="fas fa-edit mr-2"></i>Update Profile
+                        </a>
+                        <a href="user-change-password.html" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
+                            <i class="fas fa-lock mr-2"></i>Change Password
+                        </a>
+                        <a href="../index.html" class="flex-1 bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition text-center font-semibold">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Committed to providing quality education and nurturing future leaders.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="user-profile.html" class="text-gray-400 hover:text-white transition">My Profile</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
+                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
+                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+                    <div class="flex gap-4">
+                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Load current user profile (from localStorage - example data)
+        const currentUser = {
+            fullName: 'John Ade Okafor',
+            email: 'john.okafor@email.com',
+            phone: '+234 803 456 7890',
+            userType: 'Student',
+            classInfo: 'Primary 4 - Orange Arm',
+            userId: 'STU-2024-001',
+            status: 'Active'
+        };
+
+        document.getElementById('fullName').textContent = currentUser.fullName;
+        document.getElementById('email').textContent = currentUser.email;
+        document.getElementById('phone').textContent = currentUser.phone;
+        document.getElementById('classInfo').textContent = currentUser.classInfo;
+        document.getElementById('userId').textContent = currentUser.userId;
+        document.getElementById('userType').innerHTML = `<span class="px-4 py-2 bg-blue-100 text-blue-900 rounded-full font-semibold">${currentUser.userType}</span>`;
+    </script>
+</body>
+</html>
