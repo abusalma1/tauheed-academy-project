@@ -65,11 +65,11 @@ if ($is_logged_in === false) {
                             <div class="space-y-4">
                                 <div>
                                     <p class="text-sm text-gray-600">Email Address</p>
-                                    <p id="email" class="text-lg font-semibold text-gray-900"><?= $user['email'] ?? 'Nill' ?></p>
+                                    <p id="email" class="text-lg font-semibold text-gray-900"><?= $user['email'] != '' ? $user['email'] : 'Nill' ?></p>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-600">Phone Number</p>
-                                    <p id="phone" class="text-lg font-semibold text-gray-900"><?= $user['phone'] ?? 'nill' ?></p>
+                                    <p id="phone" class="text-lg font-semibold text-gray-900"><?= $user['phone'] != '' ? $user['phone'] : 'Nill' ?></p>
                                 </div>
                             </div>
                         </div>
@@ -77,18 +77,18 @@ if ($is_logged_in === false) {
                         <div>
                             <h3 class="text-lg font-bold text-gray-900 mb-4">Additional Information</h3>
                             <div class="space-y-4">
-                                <?php if($user_type === "admin" || $user_type === 'student'): ?>
-                                <div>
-                                    <p class="text-sm text-gray-600">Class/Department</p>
-                                    <p id="classInfo" class="text-lg font-semibold text-gray-900"><?= $user_type === 'student' ? $user['class_name'] . " " . $user['arm_name'] : $user['deparment'] ?></p>
-                                </div>
+                                <?php if ($user_type === "admin" || $user_type === 'student'): ?>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Class/Department</p>
+                                        <p id="classInfo" class="text-lg font-semibold text-gray-900"><?= $user_type === 'student' ? $user['class_name'] . " " . $user['arm_name'] : $user['department'] ?></p>
+                                    </div>
                                 <?php endif ?>
-                                <?php if($user_type !== "guardian"): ?>
+                                <?php if ($user_type !== "guardian"): ?>
 
-                                <div>
-                                    <p class="text-sm text-gray-600">User ID <?= $user_typeAdmission Number/ Staff Id)</p>
-                                    <p id="userId" class="text-lg font-semibold text-gray-900"><?= ?></p>
-                                </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">User ID <?= $user_type === 'student' ? "Admission Number" : " Staff Id" ?></p>
+                                        <p id="userId" class="text-lg font-semibold text-gray-900"><?= $user_type === 'student' ? $user['admission_number'] : $user['staff_no'] ?></p>
+                                    </div>
                                 <?php endif ?>
 
                             </div>
@@ -114,26 +114,6 @@ if ($is_logged_in === false) {
 
     <!-- Footer -->
     <?php include(__DIR__ . '/../../includes/footer.php'); ?>
-
-    <script>
-        // Load current user profile (from localStorage - example data)
-        const currentUser = {
-            fullName: 'John Ade Okafor',
-            email: 'john.okafor@email.com',
-            phone: '+234 803 456 7890',
-            userType: 'Student',
-            classInfo: 'Primary 4 - Orange Arm',
-            userId: 'STU-2024-001',
-            status: 'Active'
-        };
-
-        document.getElementById('fullName').textContent = currentUser.fullName;
-        document.getElementById('email').textContent = currentUser.email;
-        document.getElementById('phone').textContent = currentUser.phone;
-        document.getElementById('classInfo').textContent = currentUser.classInfo;
-        document.getElementById('userId').textContent = currentUser.userId;
-        document.getElementById('userType').innerHTML = `<span class="px-4 py-2 bg-blue-100 text-blue-900 rounded-full font-semibold">${currentUser.userType}</span>`;
-    </script>
 </body>
 
 </html>

@@ -31,7 +31,7 @@ if (isset($_SESSION['user_session'])) {
 
     if ($id) {
         if ($user_type === 'student') {
-            $stmt = $conn->prepare("SELECT students.*, classes.name as class_name, class_arms.name as arm_name  from students left join classes on classes.id = students.id left join class_arms on class_arms.id = students.arm_id where id = ?");
+            $stmt = $conn->prepare("SELECT students.*, classes.name as class_name, class_arms.name as arm_name  from students left join classes on classes.id = students.id left join class_arms on class_arms.id = students.arm_id where students.id = ?");
         } else if ($user_type === 'teacher') {
             $stmt = $conn->prepare("SELECT * from teachers where id = ?");
         } else if ($user_type === 'guardian') {
