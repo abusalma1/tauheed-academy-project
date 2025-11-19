@@ -11,13 +11,13 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['id'])  && isset($_GET['user_type'])) {
     $id = $_GET['id'];
     $user_type = $_GET['user_type'];
-    if($user_type === 'admin'){
+    if ($user_type === 'admin') {
         $query = "SELECT id, name FROM admins WHERE id=?";
-    }elseif($user_type === 'teacher'){
+    } elseif ($user_type === 'teacher') {
         $query = "SELECT id, name FROM teachers WHERE id=?";
-    }elseif($user_type === 'guardian'){
+    } elseif ($user_type === 'guardian') {
         $query = "SELECT id, name FROM guardians WHERE id=?";
-    }elseif($user_type === 'student'){
+    } elseif ($user_type === 'student') {
         $query = "SELECT id, name FROM students WHERE id=?";
     }
     $stmt = $conn->prepare($query);
@@ -30,7 +30,7 @@ if (isset($_GET['id'])  && isset($_GET['user_type'])) {
         header('Location: ' .  route('back'));
     }
 } else {
-            $_SESSION['failure'] = "User and user type are required";
+    $_SESSION['failure'] = "User and user type are required";
     header('Location: ' .  route('back'));
 }
 
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password'] ?? '');
     $confirmPassword = trim($_POST['confirmPassword'] ?? '');
 
-if (empty($password)) {
+    if (empty($password)) {
 
         $errors['passwordError'] = 'Password is required';
     } elseif (strlen($password) < 8) {
@@ -61,17 +61,18 @@ if (empty($password)) {
     }
 
     if (empty($errors)) {
-        if($user_type === 'admin'){   
-            $query = "UPDATE students SET password = ? WHERE id = ?";
-        }elseif($user_type === 'teacher'){
-            $query = "UPDATE students SET password = ? WHERE id = ?";
-        }elseif($user_type === 'guardian'){
-            $query = "UPDATE students SET password = ? WHERE id = ?";
-        }elseif($user_type === 'student'){
+        if ($user_type === 'admin') {
+            $query = "UPDATE admins SET password = ? WHERE id = ?";
+        } elseif ($user_type === 'teacher') {
+            $query = "UPDATE teachers SET password = ? WHERE id = ?";
+        } elseif ($user_type === 'guardian') {
+            $query = "UPDATE guardians SET password = ? WHERE id = ?";
+        } elseif ($user_type === 'student') {
             $query = "UPDATE students SET password = ? WHERE id = ?";
         }
+
         $stmt = $conn->prepare($query);
-        $stmt->bind_param('si',  $password ,$id);
+        $stmt->bind_param('si',  $hashed_password, $id);
 
         if ($stmt->execute()) {
             $_SESSION['success'] = "User Password Reset successfully!";
@@ -111,7 +112,7 @@ if (empty($password)) {
                 <div class="md:col-span-2">
                     <div class="bg-white rounded-lg shadow-lg p-8">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Reset Users Password</h2>
-                        <form id="updateTeacherForm" class="space-y-6" method="POST">
+                        <form id="updatePasswordForm" class="space-y-6" method="POST">
 
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <input type="hidden" name="id" value="<?= $user['id'] ?>">
@@ -120,12 +121,12 @@ if (empty($password)) {
                             <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
                             <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
-                             <!-- Full Name -->
+                            <!-- Full Name -->
                             <div>
                                 <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name <small>(Read Only)</small>*</label>
                                 <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter full name" value="<?= $user['name'] ?>">
                             </div>
-                       
+
                             <!-- Password -->
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
@@ -211,8 +212,6 @@ if (empty($password)) {
 
 
     <script>
-
-        
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
@@ -269,8 +268,8 @@ if (empty($password)) {
         });
 
         // Form validation and submission
-        const updateTeacherForm = document.getElementById('updateTeacherForm');
-        updateTeacherForm.addEventListener('submit', (e) => {
+        const updatePasswordForm = document.getElementById('updatePasswordForm');
+        updatePasswordForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
             // Clear previous errors
@@ -294,14 +293,14 @@ if (empty($password)) {
                 isValid = false;
             }
 
-       
+
             if (isValid) {
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
                 showLoader();
-                updateTeacherForm.submit();
+                updatePasswordForm.submit();
             } else {
                 window.scrollTo({
                     top: 0,

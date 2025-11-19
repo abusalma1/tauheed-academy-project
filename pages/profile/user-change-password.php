@@ -1,38 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Change Password - Excellence Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+<?php
+
+$title = 'Change Profile Password';
+include(__DIR__ . '/../../includes/header.php');
+
+if ($is_logged_in === false) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+
+if (isset($_GET['id'])  && isset($_GET['user_type'])) {
+    $id = $_GET['id'];
+    $user_type = $_GET['user_type'];
+    if ($user_type === 'admin') {
+        $query = "SELECT id, name, password FROM admins WHERE id=?";
+    } elseif ($user_type === 'teacher') {
+        $query = "SELECT id, name, password FROM teachers WHERE id=?";
+    } elseif ($user_type === 'guardian') {
+        $query = "SELECT id, name, password FROM guardians WHERE id=?";
+    } elseif ($user_type === 'student') {
+        $query = "SELECT id, name, password FROM students WHERE id=?";
+    }
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+    } else {
+        header('Location: ' .  route('back'));
+    }
+} else {
+    $_SESSION['failure'] = "User and user type are required";
+    header('Location: ' .  route('back'));
+}
+
+
+$errors = [];
+$currentPasswordError = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (
+        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+    ) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }
+
+    $id = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+    $currentPassword = trim($_POST['currentPassword'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $confirmPassword = trim($_POST['confirmPassword'] ?? '');
+
+    if (empty($currentPassword)) {
+        $errors['currentPasswordError'] = 'Current Password is required';
+    }
+
+    if (empty($password)) {
+        $errors['passwordError'] = 'Password is required';
+    } elseif (strlen($password) < 8) {
+        $errors['passwordError'] = 'Password must be at least 8 characters';
+    } elseif ($password !== $confirmPassword) {
+        $errors['confirmPasswordError'] = 'Passwords do not match';
+    } else {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    if (empty($errors)) {
+        if (password_verify($currentPassword, $user["password"])) {
+            if ($user_type === 'admin') {
+                $query = "UPDATE admins SET password = ? WHERE id = ?";
+            } elseif ($user_type === 'teacher') {
+                $query = "UPDATE teachers SET password = ? WHERE id = ?";
+            } elseif ($user_type === 'guardian') {
+                $query = "UPDATE guardians SET password = ? WHERE id = ?";
+            } elseif ($user_type === 'student') {
+                $query = "UPDATE students SET password = ? WHERE id = ?";
+            }
+
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param('si',  $hashed_password, $id);
+
+            if ($stmt->execute()) {
+                $_SESSION['success'] = "User Password Reset successfully!";
+                header("Location: " .  route('back'));
+                exit();
+            } else {
+                echo "<script>alert('Database error: " . $stmt->error . "');</script>";
+            }
+        } else {
+            $currentPasswordError = "Incorrect password";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+
+
+?>
+
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Change Password</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="user-profile.html" class="hover:text-blue-300 transition">Back to Profile</a>
-                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="user-profile.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Profile</a>
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
-        </div>
-    </nav>
+    <?php include(__DIR__ . '/../../includes/nav.php'); ?>
 
     <!-- Page Header -->
     <section class="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
@@ -48,70 +124,78 @@
             <div class="bg-white rounded-lg shadow-lg p-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Password Security</h2>
                 <p class="text-gray-600 mb-8">For your security, please provide your current password and then enter a new password.</p>
-                
-                <form id="changePasswordForm" class="space-y-6">
+                <form id="updatePasswordForm" class="space-y-6" method="POST">
+
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <input type="hidden" name="id" value="<?= $user['id'] ?>">
+
+
+                    <?php include(__DIR__ . '/../../includes/components/success-message.php'); ?>
+                    <?php include(__DIR__ . '/../../includes/components/error-message.php'); ?>
+                    <?php include(__DIR__ . '/../../includes/components/form-loader.php'); ?>
                     <!-- Current Password -->
                     <div>
                         <label for="currentPassword" class="block text-sm font-semibold text-gray-700 mb-2">Current Password *</label>
                         <div class="relative">
-                            <input type="password" id="currentPassword" name="currentPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter your current password">
-                            <button type="button" class="toggle-password absolute right-3 top-2.5 text-gray-500" data-target="currentPassword">
+                            <input type="password" id="currentPassword" name="currentPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 " placeholder="Enter current password">
+
+                            <button type="button" id="toggleCurrentPassword" class="absolute right-3 top-2.5 text-gray-600">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <span class="text-red-500 text-sm hidden" id="currentPasswordError"></span>
+
+                        <span class="text-red-500 text-sm <?= $currentPasswordError != '' ? 'hidden' : '' ?>" id="currentPasswordError"><?= $currentPasswordError ?></span>
                     </div>
 
-                    <!-- New Password -->
+
+                    <!-- Password -->
                     <div>
-                        <label for="newPassword" class="block text-sm font-semibold text-gray-700 mb-2">New Password *</label>
+                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
                         <div class="relative">
-                            <input type="password" id="newPassword" name="newPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter your new password">
-                            <button type="button" class="toggle-password absolute right-3 top-2.5 text-gray-500" data-target="newPassword">
+                            <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 " placeholder="Enter password">
+
+                            <button type="button" id="toggleNewPassword" class="absolute right-3 top-2.5 text-gray-600">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <span class="text-red-500 text-sm hidden" id="newPasswordError"></span>
-
-                        <!-- Password Strength Indicators -->
-                        <div class="mt-4 space-y-2">
-                            <div class="flex items-center gap-2">
-                                <div id="length-check" class="w-3 h-3 rounded-full bg-gray-300"></div>
-                                <span class="text-sm text-gray-600">At least 8 characters</span>
+                        <div id="passwordStrength" class="mt-2 space-y-1">
+                            <div class="flex gap-1">
+                                <div id="strength1" class="h-1 w-1/4 bg-gray-300 rounded"></div>
+                                <div id="strength2" class="h-1 w-1/4 bg-gray-300 rounded"></div>
+                                <div id="strength3" class="h-1 w-1/4 bg-gray-300 rounded"></div>
+                                <div id="strength4" class="h-1 w-1/4 bg-gray-300 rounded"></div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <div id="uppercase-check" class="w-3 h-3 rounded-full bg-gray-300"></div>
-                                <span class="text-sm text-gray-600">At least one uppercase letter</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div id="number-check" class="w-3 h-3 rounded-full bg-gray-300"></div>
-                                <span class="text-sm text-gray-600">At least one number</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div id="special-check" class="w-3 h-3 rounded-full bg-gray-300"></div>
-                                <span class="text-sm text-gray-600">At least one special character (!@#$%)</span>
-                            </div>
+                            <p id="strengthText" class="text-xs text-gray-600">Password strength: Weak</p>
                         </div>
+                        <span class="text-red-500 text-sm hidden" id="passwordError"></span>
                     </div>
 
-                    <!-- Confirm New Password -->
+                    <!-- Confirm Password -->
                     <div>
-                        <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password *</label>
+                        <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password *</label>
+
                         <div class="relative">
-                            <input type="password" id="confirmPassword" name="confirmPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Confirm your new password">
-                            <button type="button" class="toggle-password absolute right-3 top-2.5 text-gray-500" data-target="confirmPassword">
+                            <input type="password" id="confirmPassword" name="confirmPassword"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900"
+                                placeholder="Confirm password">
+
+                            <button type="button" id="toggleConfirmPassword"
+                                class="absolute right-3 top-2.5 text-gray-600">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
+
                         <span class="text-red-500 text-sm hidden" id="confirmPasswordError"></span>
                     </div>
+
+
 
                     <!-- Submit Button -->
                     <div class="flex gap-4 pt-4">
                         <button type="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
-                            <i class="fas fa-lock mr-2"></i>Change Password
+                            <i class="fas fa-save mr-2"></i>Update User Account Password
                         </button>
-                        <a href="user-profile.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                        <a href="<?= route('back') ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
                             Cancel
                         </a>
                     </div>
@@ -121,164 +205,123 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">Committed to providing quality education and nurturing future leaders.</p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="user-profile.html" class="text-gray-400 hover:text-white transition">My Profile</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
+
 
     <script>
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        function setupToggle(toggleId, inputId) {
+            const toggleBtn = document.getElementById(toggleId);
+            const input = document.getElementById(inputId);
 
-        // Toggle password visibility
-        document.querySelectorAll('.toggle-password').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.getElementById(this.dataset.target);
-                const icon = this.querySelector('i');
-                if (target.type === 'password') {
-                    target.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    target.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
+            toggleBtn.addEventListener("click", () => {
+                const isHidden = input.type === "password";
+                input.type = isHidden ? "text" : "password";
+
+                toggleBtn.innerHTML = isHidden ?
+                    '<i class="fas fa-eye-slash"></i>' :
+                    '<i class="fas fa-eye"></i>';
             });
-        });
+        }
+
+        setupToggle("toggleCurrentPassword", "currentPassword");
+        setupToggle("toggleNewPassword", "password");
+        setupToggle("toggleConfirmPassword", "confirmPassword");
+
 
         // Password strength checker
-        const newPasswordInput = document.getElementById('newPassword');
-        
-        newPasswordInput.addEventListener('input', function() {
-            const password = this.value;
-            
-            // Check length
-            const lengthCheck = document.getElementById('length-check');
-            if (password.length >= 8) {
-                lengthCheck.classList.remove('bg-gray-300');
-                lengthCheck.classList.add('bg-green-500');
-            } else {
-                lengthCheck.classList.add('bg-gray-300');
-                lengthCheck.classList.remove('bg-green-500');
+        // Password strength checker
+        const passwordField = document.getElementById("password");
+        passwordField.addEventListener("input", () => {
+            const password = passwordField.value;
+            let strength = 0;
+
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            const strengthLevels = [
+                "Weak",
+                "Fair",
+                "Good",
+                "Strong",
+                "Very Strong",
+            ];
+            const strengthColors = [
+                "bg-red-500",
+                "bg-orange-500",
+                "bg-yellow-500",
+                "bg-green-500",
+                "bg-green-600",
+            ];
+
+            for (let i = 1; i <= 4; i++) {
+                const element = document.getElementById(`strength${i}`);
+                if (i <= strength) {
+                    element.className = `h-1 w-1/4 ${
+              strengthColors[strength - 1]
+            } rounded`;
+                } else {
+                    element.className = "h-1 w-1/4 bg-gray-300 rounded";
+                }
             }
 
-            // Check uppercase
-            const uppercaseCheck = document.getElementById('uppercase-check');
-            if (/[A-Z]/.test(password)) {
-                uppercaseCheck.classList.remove('bg-gray-300');
-                uppercaseCheck.classList.add('bg-green-500');
-            } else {
-                uppercaseCheck.classList.add('bg-gray-300');
-                uppercaseCheck.classList.remove('bg-green-500');
-            }
-
-            // Check number
-            const numberCheck = document.getElementById('number-check');
-            if (/\d/.test(password)) {
-                numberCheck.classList.remove('bg-gray-300');
-                numberCheck.classList.add('bg-green-500');
-            } else {
-                numberCheck.classList.add('bg-gray-300');
-                numberCheck.classList.remove('bg-green-500');
-            }
-
-            // Check special character
-            const specialCheck = document.getElementById('special-check');
-            if (/[!@#$%^&*]/.test(password)) {
-                specialCheck.classList.remove('bg-gray-300');
-                specialCheck.classList.add('bg-green-500');
-            } else {
-                specialCheck.classList.add('bg-gray-300');
-                specialCheck.classList.remove('bg-green-500');
-            }
+            document.getElementById(
+                "strengthText"
+            ).textContent = `Password strength: ${
+          strengthLevels[strength - 1] || "Weak"
+        }`;
         });
 
-        // Form submission
-        const changePasswordForm = document.getElementById('changePasswordForm');
-
-        changePasswordForm.addEventListener('submit', (e) => {
+        // Form validation and submission
+        const updatePasswordForm = document.getElementById('updatePasswordForm');
+        updatePasswordForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
+            // Clear previous errors
             document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
 
             const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
+            const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
             let isValid = true;
-
             if (!currentPassword) {
-                document.getElementById('currentPasswordError').textContent = 'Current password is required';
+                document.getElementById('currentPasswordError').textContent = 'Current Passwords is required';
                 document.getElementById('currentPasswordError').classList.remove('hidden');
                 isValid = false;
             }
 
-            if (newPassword.length < 8) {
-                document.getElementById('newPasswordError').textContent = 'Password must be at least 8 characters';
-                document.getElementById('newPasswordError').classList.remove('hidden');
+            if (password.length < 8) {
+                document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
+                document.getElementById('passwordError').classList.remove('hidden');
                 isValid = false;
             }
 
-            if (!/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || !/[!@#$%^&*]/.test(newPassword)) {
-                document.getElementById('newPasswordError').textContent = 'Password must contain uppercase, number, and special character';
-                document.getElementById('newPasswordError').classList.remove('hidden');
-                isValid = false;
-            }
-
-            if (newPassword !== confirmPassword) {
+            if (password !== confirmPassword) {
                 document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
                 document.getElementById('confirmPasswordError').classList.remove('hidden');
                 isValid = false;
             }
 
+
             if (isValid) {
-                alert('Password changed successfully!');
-                window.location.href = 'user-profile.html';
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                showLoader();
+                updatePasswordForm.submit();
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                showErrorMessage()
             }
         });
     </script>
 </body>
+
 </html>

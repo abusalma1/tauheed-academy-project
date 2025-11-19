@@ -97,13 +97,13 @@ if ($is_logged_in === false) {
 
                     <!-- Action Buttons -->
                     <div class="flex flex-col md:flex-row gap-4">
-                        <a href="user-update-profile.html" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition text-center font-semibold">
+                        <a href="<?= route('update-profile')  . '?id=' . $user['id'] . '&user_type=' . $user_type ?>" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition text-center font-semibold">
                             <i class="fas fa-edit mr-2"></i>Update Profile
                         </a>
-                        <a href="user-change-password.html" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
+                        <a href="<?= route('update-profile-password')  . '?id=' . $user['id'] . '&user_type=' . $user_type ?>" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
                             <i class="fas fa-lock mr-2"></i>Change Password
                         </a>
-                        <a href="../index.html" class="flex-1 bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition text-center font-semibold">
+                        <a href="<?= route('home') ?>" class="flex-1 bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition text-center font-semibold">
                             <i class="fas fa-arrow-left mr-2"></i>Back to Home
                         </a>
                     </div>
