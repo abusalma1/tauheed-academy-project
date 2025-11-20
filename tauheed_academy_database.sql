@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 17, 2025 at 03:55 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: Nov 20, 2025 at 06:45 AM
+-- Server version: 10.4.25-MariaDB
+-- PHP Version: 8.1.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -42,14 +42,14 @@ CREATE TABLE `admins` (
   `picture_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `admins`
 --
 
 INSERT INTO `admins` (`id`, `name`, `email`, `password`, `reset_token`, `type`, `staff_no`, `address`, `department`, `status`, `phone`, `picture_path`, `created_at`, `updated_at`) VALUES
-(1, 'Abubakar Ahmad Adili', 'superadmin@email.com', '$2y$10$TDnqjeR0wzvlaI3TLIYBiewsjVljhGrlcXTEwQbn4Pwf7JBt/sU4q', NULL, 'superAdmin', 'ST/2025/001', 'Maniru Road', 'Academics', 'active', '09061893504', NULL, '2025-11-05 14:33:05', '2025-11-17 13:49:42'),
+(1, 'Abubakar Ahmad Adili', 'superadmin@email.com', '$2y$10$CWSA8wZpIm.29G7UUqjabeQQ2e5sDSGgg7wmS/reLHUlPWjykolAa', NULL, 'superAdmin', 'ST/2025/001', 'Maniru Road', 'Academics', 'active', '09061893504', NULL, '2025-11-05 14:33:05', '2025-11-20 05:20:04'),
 (2, 'Aminu Ahmad Adili', 'admin@email.com', '$2y$10$TDnqjeR0wzvlaI3TLIYBiewsjVljhGrlcXTEwQbn4Pwf7JBt/sU4q', NULL, 'admin', 'ST/2025/002', 'Kofar Marke Area', 'Development', 'active', '09061893504', NULL, '2025-11-10 12:28:17', '2025-11-17 13:50:15');
 
 -- --------------------------------------------------------
@@ -64,7 +64,7 @@ CREATE TABLE `classes` (
   `name` varchar(100) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `classes`
@@ -93,7 +93,7 @@ CREATE TABLE `class_arms` (
   `description` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `class_arms`
@@ -116,7 +116,7 @@ CREATE TABLE `class_class_arms` (
   `class_id` int(11) NOT NULL,
   `arm_id` int(11) NOT NULL,
   `teacher_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `class_class_arms`
@@ -158,7 +158,7 @@ CREATE TABLE `class_subjects` (
   `subject_id` int(11) NOT NULL,
   `teacher_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `class_subjects`
@@ -213,20 +213,20 @@ CREATE TABLE `guardians` (
   `reset_token` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `guardians`
 --
 
 INSERT INTO `guardians` (`id`, `name`, `email`, `phone`, `address`, `picture_path`, `relationship`, `occupation`, `password`, `status`, `reset_token`, `created_at`, `updated_at`) VALUES
-(1, 'Yusuf Kaoje', 'guardian@email.com', '09061893504', 'Arkilla Fire Service', NULL, 'father', 'Physician', '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', 'active', NULL, '2025-11-06 09:46:29', '2025-11-17 13:50:34'),
-(2, 'Yahya Kamar', 'yahya@email.com', '08012345678', 'Emir Yahya', NULL, 'father', 'Lecture', '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', 'active', NULL, '2025-11-06 09:47:39', '2025-11-17 13:43:48'),
-(3, 'Tijjani kware', 'tijjani@email.com', '090 1934 4018', 'kware LG', NULL, 'father', 'Business Man', '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', 'active', NULL, '2025-11-10 12:33:37', '2025-11-17 13:43:48'),
-(4, 'Faruk Kalgo', 'kalgo@email.com', '09061893504', 'Runjin Sambo', NULL, 'father', 'Lecuture', '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', 'active', NULL, '2025-11-11 10:35:02', '2025-11-17 13:43:48'),
-(5, 'Sanusi Gandu', 'sanusi@email.com', '09061893504', 'Gandu Area', NULL, 'father', 'Business', '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', 'active', NULL, '2025-11-11 10:36:16', '2025-11-17 13:43:48'),
-(6, 'Hassan Musa Kebbeh', 'kebbeh@email.com', '09061893504', 'Gidan Igwai', NULL, 'father', 'Civil Servant', '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', 'active', NULL, '2025-11-11 10:37:30', '2025-11-17 13:43:48'),
-(7, 'Bello Inga', 'bello@email.com', '09012345652', 'Binanchi Area', NULL, 'father', 'Business', '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', 'active', NULL, '2025-11-11 10:38:32', '2025-11-17 13:43:48');
+(1, 'Yusuf Kaoje', 'guardian@email.com', '09061893504', 'Arkilla Fire Service', NULL, 'father', 'Physician', '$2y$10$oF/M3BFvfwc3jPCL.b5JY.2JNHwbzdBprVYCtYeXZGwSVXTEWIbMC', 'active', NULL, '2025-11-06 09:46:29', '2025-11-20 05:40:26'),
+(2, 'Yahya Kamar', 'yahya@email.com', '08012345678', 'Emir Yahya', NULL, 'father', 'Lecture', '$2y$10$daEH3qJkX30oe/jS3/0g5uk51ylsINpdn0I3qR8WktBe8rutOErly', 'active', NULL, '2025-11-06 09:47:39', '2025-11-18 11:10:26'),
+(3, 'Tijjani kware', 'tijjani@email.com', '090 1934 4018', 'kware LG', NULL, 'father', 'Business Man', '$2y$10$daEH3qJkX30oe/jS3/0g5uk51ylsINpdn0I3qR8WktBe8rutOErly', 'active', NULL, '2025-11-10 12:33:37', '2025-11-18 11:10:26'),
+(4, 'Faruk Kalgo', 'kalgo@email.com', '09061893504', 'Runjin Sambo', NULL, 'father', 'Lecuture', '$2y$10$daEH3qJkX30oe/jS3/0g5uk51ylsINpdn0I3qR8WktBe8rutOErly', 'active', NULL, '2025-11-11 10:35:02', '2025-11-18 11:10:26'),
+(5, 'Sanusi Gandu', 'sanusi@email.com', '09061893504', 'Gandu Area', NULL, 'father', 'Business', '$2y$10$daEH3qJkX30oe/jS3/0g5uk51ylsINpdn0I3qR8WktBe8rutOErly', 'active', NULL, '2025-11-11 10:36:16', '2025-11-18 11:10:26'),
+(6, 'Hassan Musa Kebbeh', 'kebbeh@email.com', '09061893504', 'Gidan Igwai', NULL, 'father', 'Civil Servant', '$2y$10$daEH3qJkX30oe/jS3/0g5uk51ylsINpdn0I3qR8WktBe8rutOErly', 'active', NULL, '2025-11-11 10:37:30', '2025-11-18 11:10:26'),
+(7, 'Bello Inga', 'bello@email.com', '09012345652', 'Binanchi Area', NULL, 'father', 'Business', '$2y$10$daEH3qJkX30oe/jS3/0g5uk51ylsINpdn0I3qR8WktBe8rutOErly', 'active', NULL, '2025-11-11 10:38:32', '2025-11-18 11:10:26');
 
 -- --------------------------------------------------------
 
@@ -245,19 +245,19 @@ CREATE TABLE `results` (
   `remark` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `results`
 --
 
 INSERT INTO `results` (`id`, `student_term_record_id`, `subject_id`, `ca`, `exam`, `grade`, `remark`, `created_at`, `updated_at`) VALUES
-(1, 1, 8, 5.00, 50.00, 'C', 'Good', '2025-11-17 07:49:27', '2025-11-17 11:34:39'),
-(2, 2, 8, 19.00, 18.00, 'F', 'Fail', '2025-11-17 07:49:28', '2025-11-17 11:34:39'),
-(3, 3, 8, 35.00, 34.00, 'B', 'Very Good', '2025-11-17 07:52:45', '2025-11-17 07:52:45'),
-(4, 4, 8, 30.00, 50.00, 'A', 'Excellent', '2025-11-17 07:52:46', '2025-11-17 07:52:46'),
-(9, 3, 4, 20.00, 50.00, 'A', 'Excellent', '2025-11-17 12:32:13', '2025-11-17 12:32:13'),
-(10, 4, 4, 35.00, 60.00, 'A', 'Excellent', '2025-11-17 12:32:14', '2025-11-17 12:32:14');
+(1, 1, 8, '5.00', '50.00', 'C', 'Good', '2025-11-17 07:49:27', '2025-11-17 11:34:39'),
+(2, 2, 8, '19.00', '18.00', 'F', 'Fail', '2025-11-17 07:49:28', '2025-11-17 11:34:39'),
+(3, 3, 8, '35.00', '34.00', 'B', 'Very Good', '2025-11-17 07:52:45', '2025-11-17 07:52:45'),
+(4, 4, 8, '30.00', '50.00', 'A', 'Excellent', '2025-11-17 07:52:46', '2025-11-17 07:52:46'),
+(9, 3, 4, '20.00', '50.00', 'A', 'Excellent', '2025-11-17 12:32:13', '2025-11-17 12:32:13'),
+(10, 4, 4, '35.00', '60.00', 'A', 'Excellent', '2025-11-17 12:32:14', '2025-11-17 12:32:14');
 
 -- --------------------------------------------------------
 
@@ -279,7 +279,7 @@ CREATE TABLE `schools` (
   `logo_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `schools`
@@ -301,7 +301,7 @@ CREATE TABLE `sections` (
   `head_teacher_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `sections`
@@ -327,7 +327,7 @@ CREATE TABLE `sessions` (
   `end_date` date DEFAULT NULL,
   `status` enum('pending','ongoing','finished') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `sessions`
@@ -364,18 +364,18 @@ CREATE TABLE `students` (
   `term_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `students`
 --
 
 INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `guardian_id`, `dob`, `picture`, `password`, `reset_token`, `status`, `gender`, `class_id`, `arm_id`, `term_id`, `created_at`, `updated_at`) VALUES
-(1, 'Abdulrahman Faruk Kalgo', '25/04/001', 'student@email.com', '', 4, '2005-01-01', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, 'active', 'male', 1, 1, 1, '2025-11-13 09:49:29', '2025-11-17 13:51:00'),
-(2, 'Sagir yusuf Kaoje', '25/04/002', '', '', 1, '2022-12-12', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, 'active', 'male', 1, 2, 1, '2025-11-13 11:54:58', '2025-11-17 13:43:48'),
-(3, 'Samir Yusuf', '25/04/003', '', '', 1, '2018-01-01', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, 'active', 'male', 2, 1, 1, '2025-11-15 00:26:26', '2025-11-17 13:43:48'),
-(4, 'Kabir Ysusf kaoje', '25/04/004', 'student2@email.com', '', 1, '2018-01-01', NULL, '$2y$10$5OeZJ7iON/58jNIvrnEOsOtlhTI7BMBOJ9TmSM9aeA45YLAa/2XFK', NULL, 'active', 'female', 4, 1, 2, '2025-11-17 14:08:23', '2025-11-17 13:23:51'),
-(5, 'Sadiaya F K', '25/04/005', '', '', 4, '2002-12-12', NULL, '$2y$10$0etdvV65XrPhpqE63eF2lezzAFYmGjd3fFiAIfj31Qdwp6Q4IMmpa', NULL, 'active', 'female', 4, 1, 1, '2025-11-17 13:07:23', '2025-11-17 13:07:23');
+(1, 'Abdulrahman Faruk Kalgo', '25/04/001', 'student@email.com', '09061893504', 4, '2005-01-01', NULL, '$2y$10$ocPaYzJd91p9wDzMYHrJ5uQ0aZmNTzFhcfTzFUmoWX01wd18e/Nb2', NULL, 'active', 'male', 1, 1, 1, '2025-11-13 09:49:29', '2025-11-20 05:39:31'),
+(2, 'Sagir yusuf Kaoje', '25/04/002', '', '', 1, '2022-12-12', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'male', 1, 2, 1, '2025-11-13 11:54:58', '2025-11-19 15:25:39'),
+(3, 'Samir Yusuf', '25/04/003', '', '', 1, '2018-01-01', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'male', 2, 1, 1, '2025-11-15 00:26:26', '2025-11-19 15:25:39'),
+(4, 'Kabir Ysusf kaoje', '25/04/004', 'student2@email.com', '', 1, '2018-01-01', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'female', 4, 1, 2, '2025-11-17 14:08:23', '2025-11-19 15:25:39'),
+(5, 'Sadiaya F K', '25/04/005', '', '', 4, '2002-12-12', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'female', 4, 1, 1, '2025-11-17 13:07:23', '2025-11-19 15:25:39');
 
 -- --------------------------------------------------------
 
@@ -395,17 +395,17 @@ CREATE TABLE `student_class_records` (
   `promotion_status` enum('promoted','repeat','pending') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `student_class_records`
 --
 
 INSERT INTO `student_class_records` (`id`, `student_id`, `session_id`, `class_id`, `arm_id`, `overall_total`, `overall_average`, `overall_position`, `promotion_status`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 1, 1, 0.00, 0.00, NULL, 'pending', '2025-11-17 07:47:32', '2025-11-17 07:47:32'),
-(2, 2, 1, 1, 2, 0.00, 0.00, NULL, 'pending', '2025-11-17 07:49:27', '2025-11-17 07:49:27'),
-(3, 4, 1, 4, 1, 0.00, 0.00, NULL, 'pending', '2025-11-17 14:08:25', '2025-11-17 14:08:25'),
-(4, 5, 1, 4, 1, 0.00, 0.00, NULL, 'pending', '2025-11-17 13:07:23', '2025-11-17 13:07:23');
+(1, 1, 1, 1, 1, '0.00', '0.00', NULL, 'pending', '2025-11-17 07:47:32', '2025-11-17 07:47:32'),
+(2, 2, 1, 1, 2, '0.00', '0.00', NULL, 'pending', '2025-11-17 07:49:27', '2025-11-17 07:49:27'),
+(3, 4, 1, 4, 1, '0.00', '0.00', NULL, 'pending', '2025-11-17 14:08:25', '2025-11-17 14:08:25'),
+(4, 5, 1, 4, 1, '0.00', '0.00', NULL, 'pending', '2025-11-17 13:07:23', '2025-11-17 13:07:23');
 
 -- --------------------------------------------------------
 
@@ -424,17 +424,17 @@ CREATE TABLE `student_term_records` (
   `overall_grade` varchar(5) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `student_term_records`
 --
 
 INSERT INTO `student_term_records` (`id`, `student_class_record_id`, `term_id`, `total_marks`, `average_marks`, `position_in_class`, `class_size`, `overall_grade`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 55.00, 55.00, 1, 2, NULL, '2025-11-17 07:49:25', '2025-11-17 11:34:40'),
-(2, 2, 1, 37.00, 37.00, 2, 2, NULL, '2025-11-17 07:49:28', '2025-11-17 11:34:40'),
-(3, 1, 2, 139.00, 69.50, 2, 2, NULL, '2025-11-17 07:52:44', '2025-11-17 12:32:18'),
-(4, 2, 2, 175.00, 87.50, 1, 2, NULL, '2025-11-17 07:52:45', '2025-11-17 12:32:18');
+(1, 1, 1, '55.00', '55.00', 1, 2, NULL, '2025-11-17 07:49:25', '2025-11-17 11:34:40'),
+(2, 2, 1, '37.00', '37.00', 2, 2, NULL, '2025-11-17 07:49:28', '2025-11-17 11:34:40'),
+(3, 1, 2, '139.00', '69.50', 2, 2, NULL, '2025-11-17 07:52:44', '2025-11-17 12:32:18'),
+(4, 2, 2, '175.00', '87.50', 1, 2, NULL, '2025-11-17 07:52:45', '2025-11-17 12:32:18');
 
 -- --------------------------------------------------------
 
@@ -447,7 +447,7 @@ CREATE TABLE `subjects` (
   `name` varchar(100) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `subjects`
@@ -483,14 +483,14 @@ CREATE TABLE `teachers` (
   `reset_token` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `teachers`
 --
 
 INSERT INTO `teachers` (`id`, `name`, `email`, `phone`, `address`, `qualification`, `staff_no`, `status`, `picture_path`, `password`, `reset_token`, `created_at`, `updated_at`) VALUES
-(1, 'Mudassir Ahmad Adili', 'teacher@email.com', '09061893504', 'Maniru Road', 'B.Sc Mathematics', 'ST/2025/002', 'active', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, '2025-11-06 07:43:31', '2025-11-17 13:50:02'),
+(1, 'Mudassir Ahmad Adili', 'teacher@email.com', '09061893504', 'Maniru Road sokoto', 'B.Sc Mathematics', 'ST/2025/002', 'active', NULL, '$2y$10$70rAPv9uUi9pKQrFeZpUwexTtTc.sBq3RJ8U8MpibMYefRjKU/CDK', NULL, '2025-11-06 07:43:31', '2025-11-20 05:40:57'),
 (2, 'Nasir Ahmad Adili', 'nasir@email.com', '09061893504', 'Maniru Road', 'B.Sc Computer Science', 'ST/2025/001', 'active', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, '2025-11-06 09:26:51', '2025-11-17 13:43:48'),
 (3, 'Abdullahi Ahmad Adili', 'abdullahi@email.com', '08012345678', 'Maniru Road', 'B.Sc Mathematics', 'ST/2025/003', 'active', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, '2025-11-06 09:28:47', '2025-11-17 13:43:48'),
 (4, 'Mubarak Ahmad Adili', 'mk@email.com', '09061893504', 'Arkilla', 'B.Sc Accouting', 'ST/2025/005', 'active', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, '2025-11-10 12:29:49', '2025-11-17 13:43:48'),
@@ -507,7 +507,7 @@ CREATE TABLE `teacher_section` (
   `teacher_id` int(11) NOT NULL,
   `section_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -523,7 +523,7 @@ CREATE TABLE `terms` (
   `end_date` date DEFAULT NULL,
   `status` enum('pending','ongoing','finished') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `terms`
