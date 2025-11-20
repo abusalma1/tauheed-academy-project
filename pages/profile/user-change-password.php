@@ -143,8 +143,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-
-                        <span class="text-red-500 text-sm <?= $currentPasswordError != '' ? 'hidden' : '' ?>" id="currentPasswordError"><?= $currentPasswordError ?></span>
+                        <span class="text-red-500 text-sm hidden" id="currentPasswordError"></span>
+                        <?php if (!empty($currentPasswordError)) : ?>
+                            <span class="text-red-500 text-sm" id="currentPasswordError"><?= $currentPasswordError ?></span>
+                            <script>
+                                showErrorMessage();
+                            </script>
+                        <?php endif ?>
                     </div>
 
 
@@ -168,6 +173,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p id="strengthText" class="text-xs text-gray-600">Password strength: Weak</p>
                         </div>
                         <span class="text-red-500 text-sm hidden" id="passwordError"></span>
+                        <?php if (!empty($passwordError)) : ?>
+                            <span class="text-red-500 text-sm" id="passwordError"><?= $passwordError ?></span>
+                            <script>
+                                showErrorMessage();
+                            </script>
+                        <?php endif ?>
                     </div>
 
                     <!-- Confirm Password -->
@@ -186,6 +197,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <span class="text-red-500 text-sm hidden" id="confirmPasswordError"></span>
+                        <?php if (!empty($confirmPasswordError)) : ?>
+                            <span class="text-red-500 text-sm" id="confirmPasswordError"><?= $confirmPasswordError ?></span>
+                            <script>
+                                showErrorMessage();
+                            </script>
+                        <?php endif ?>
                     </div>
 
 
@@ -228,7 +245,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setupToggle("toggleConfirmPassword", "confirmPassword");
 
 
-        // Password strength checker
         // Password strength checker
         const passwordField = document.getElementById("password");
         passwordField.addEventListener("input", () => {
