@@ -87,24 +87,19 @@ if ($_SERVER['REQUEST_METHOD']  === 'POST') {
                 <div class="bg-white rounded-lg shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Promotion Rules</h2>
 
-                    <div class="space-y-3">
-                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50">
-                            <input type="checkbox" class="w-4 h-4 text-blue-900" checked>
-                            <span class="ml-3 text-gray-700">Auto-promote all passing students</span>
-                        </label>
-                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50">
-                            <input type="checkbox" class="w-4 h-4 text-blue-900" checked>
-                            <span class="ml-3 text-gray-700">Retain failed subjects students</span>
-                        </label>
-                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50">
-                            <input type="checkbox" class="w-4 h-4 text-blue-900">
-                            <span class="ml-3 text-gray-700">Manual review required</span>
-                        </label>
-                    </div>
+                    <form action="" method="get">
+                        <div class="space-y-3">
+                            <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50">
+                                <input type="checkbox" class="w-4 h-4 text-blue-900" name="repetition">
+                                <span class="ml-3 text-gray-700">Enable Class Repetition</span>
+                            </label>
 
-                    <button class="w-full mt-6 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-                        Save Rules
-                    </button>
+                        </div>
+
+                        <button type="submit" class="w-full mt-6 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            Save Rules
+                        </button>
+                    </form>
                 </div>
             </div>
 

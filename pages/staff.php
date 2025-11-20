@@ -2,6 +2,35 @@
 $title = 'About & Contact';
 
 include(__DIR__ .  '/../includes/header.php');
+
+$stmt = $conn->prepare("
+  SELECT 
+    t.id,
+    t.name,
+    t.qualification,
+    t.email,
+    GROUP_CONCAT(sc.subject_classes SEPARATOR '<br>') AS subjects
+  FROM teachers t
+  LEFT JOIN (
+    SELECT 
+      cs.teacher_id,
+      CONCAT(
+        s.name, ' (', 
+        GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', '), 
+        ')'
+      ) AS subject_classes
+    FROM class_subjects cs
+    LEFT JOIN subjects s ON cs.subject_id = s.id
+    LEFT JOIN classes c ON cs.class_id = c.id
+    GROUP BY cs.teacher_id, s.id, s.name
+  ) sc ON sc.teacher_id = t.id
+  GROUP BY t.id, t.name, t.qualification, t.email
+  ORDER BY t.name
+");
+$stmt->execute();
+$teachers = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+
 ?>
 
 <body class="bg-gray-50">
@@ -61,137 +90,19 @@ include(__DIR__ .  '/../includes/header.php');
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Teaching Staff</h2>
             <div class="grid md:grid-cols-4 gap-6">
-                Teacher 1
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mrs. Elizabeth Okonkwo</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Mathematics Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.Sc. Mathematics, PGDE</p>
-                        <p class="text-gray-700 text-xs">Subjects: Mathematics (Primary 4-6)</p>
+                <?php foreach ($teachers as $teacher) : ?>
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+                        <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1"><?= $teacher['name'] ?></h3>
+                            <h4>Teachers</h4>
+                            <p class="text-blue-900 font-semibold text-sm mb-2"><?= $teacher['subjects'] ?></p>
+                            <p class="text-gray-600 text-xs mb-2"><?= $teacher['qualification'] ?></p>
+                            <p class="text-gray-700 text-xs">Subjects: Mathematics (Primary 4-6)</p>
+                        </div>
                     </div>
-                </div>
+                <?php endforeach ?>
 
-                Teacher 2
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mr. James Adekunle</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">English Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.A. English Language, M.Ed.</p>
-                        <p class="text-gray-700 text-xs">Subjects: English Language (JSS 1-3)</p>
-                    </div>
-                </div>
-
-                Teacher 3
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Dr. Chioma Nwosu</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Science Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">Ph.D. Biology, B.Sc. Biochemistry</p>
-                        <p class="text-gray-700 text-xs">Subjects: Biology, Chemistry (SSS 1-3)</p>
-                    </div>
-                </div>
-
-                Teacher 4
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mr. Ahmed Ibrahim</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Physics Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.Sc. Physics, PGDE</p>
-                        <p class="text-gray-700 text-xs">Subjects: Physics, Mathematics (SSS 1-3)</p>
-                    </div>
-                </div>
-
-                Teacher 5
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mrs. Fatima Bello</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Computer Studies Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.Sc. Computer Science, M.Sc. IT</p>
-                        <p class="text-gray-700 text-xs">Subjects: Computer Studies (All Classes)</p>
-                    </div>
-                </div>
-
-                Teacher 6
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mr. Peter Obi</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Social Studies Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.A. History, PGDE</p>
-                        <p class="text-gray-700 text-xs">Subjects: Social Studies, Government</p>
-                    </div>
-                </div>
-
-                Teacher 7
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mrs. Blessing Okoro</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Home Economics Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.Sc. Home Economics, PGDE</p>
-                        <p class="text-gray-700 text-xs">Subjects: Home Economics, Food & Nutrition</p>
-                    </div>
-                </div>
-
-                Teacher 8
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mr. Samuel Eze</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Physical Education Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.Ed. Physical Education</p>
-                        <p class="text-gray-700 text-xs">Subjects: Physical Education, Sports</p>
-                    </div>
-                </div>
-
-                Teacher 9
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mrs. Mary Akinola</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Creative Arts Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.A. Fine Arts, PGDE</p>
-                        <p class="text-gray-700 text-xs">Subjects: Creative Arts, Music</p>
-                    </div>
-                </div>
-
-                Teacher 10
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mr. Daniel Chukwu</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Economics Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.Sc. Economics, M.Sc. Economics</p>
-                        <p class="text-gray-700 text-xs">Subjects: Economics, Commerce</p>
-                    </div>
-                </div>
-
-                Teacher 11
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mrs. Ngozi Uche</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Literature Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.A. English Literature, M.A.</p>
-                        <p class="text-gray-700 text-xs">Subjects: Literature in English</p>
-                    </div>
-                </div>
-
-                Teacher 12
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Mr. Tunde Adebayo</h3>
-                        <p class="text-blue-900 font-semibold text-sm mb-2">Agricultural Science Teacher</p>
-                        <p class="text-gray-600 text-xs mb-2">B.Agric., PGDE</p>
-                        <p class="text-gray-700 text-xs">Subjects: Agricultural Science</p>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
