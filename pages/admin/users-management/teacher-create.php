@@ -34,6 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password'] ?? '');
     $confirmPassword = trim($_POST['confirmPassword'] ?? '');
     $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender = trim($_POST['gender'] ?? '');
+    $experience = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
+
 
     // validations...
     if (empty($name)) $errors['nameError'] = 'Full name is required';
@@ -54,6 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['staffNumberError'] = 'Staff No already exists';
     }
     if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
+
+    if (empty($gender)) $errors['gender'] = "Gender is required.";
+    if (empty($experience)) $errors['experienceError'] = 'Experience is required';
+
+
     if (empty($password)) {
         $errors['passwordError'] = 'Password is required';
     } elseif (strlen($password) < 8) {
@@ -66,10 +74,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $stmt = $conn->prepare("
-            INSERT INTO teachers (name, email, phone, address, staff_no, qualification,  status, password)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO teachers (name, email, phone, address, staff_no, qualification,  gender, experience,  status, password)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->bind_param('ssssssss', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $hashed_password);
+        $stmt->bind_param('ssssssssss', $name, $email, $phone, $address, $staffNumber, $qualification, $gender, $experience, $status, $hashed_password);
 
         if ($stmt->execute()) {
             $_SESSION['success'] = "Teacher account created successfully!";
@@ -140,6 +148,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="phoneError"></span>
                             </div>
 
+                            <!-- Gender -->
+                            <div>
+                                <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender *</label>
+                                <select id="gender" name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="genderError"></span>
+                            </div>
+
                             <!-- Subject/Department -->
                             <div>
                                 <label for="subject" class="block text-sm font-semibold text-gray-700 mb-2">Subject/Department *</label>
@@ -170,7 +189,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="addressError"></span>
                             </div>
 
+                            <!-- experience -->
+                            <div>
+                                <label for="experience" class="block text-sm font-semibold text-gray-700 mb-2">experience</label>
+                                <textarea type="text" id="experience" name="experience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Academic, Finance, Operations"></textarea>
+                                <span class="text-red-500 text-sm hidden" id="experienceError"></span>
 
+                            </div>
 
                             <!-- Password -->
                             <div>
@@ -335,7 +360,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Footer -->
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
     <script>
-    
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
@@ -420,6 +444,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const status = document.getElementById('status').value;
+            const experience = document.getElementById('experience').value.trim();
+            const gender = document.getElementById('gender').value;
+
 
             let isValid = true;
 
@@ -457,6 +484,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!validatePhone(phone)) {
                 document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
                 document.getElementById('phoneError').classList.remove('hidden');
+                isValid = false;
+            }
+
+
+            if (!gender) {
+                document.getElementById('genderError').textContent = 'Please select a gender';
+                document.getElementById('genderError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!experience) {
+                document.getElementById('experienceError').textContent = 'experience is required';
+                document.getElementById('experienceError').classList.remove('hidden');
                 isValid = false;
             }
 

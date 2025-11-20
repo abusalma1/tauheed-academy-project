@@ -67,10 +67,12 @@
                         <a href="<?= route('admin-update')  . '?id=' . $admin['id']  ?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
                             <i class="fas fa-edit mr-1"></i>Edit
                         </a>
-                       
-                                <a href="<?= route('update-user-password') . '?id=' . $admin['id']  . '&user_type=admin'?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
-                                                            <i class="fas fa-edit mr-1"></i>Edit Password
+
+                        <a href="<?= route('update-user-password') . '?id=' . $admin['id']  . '&user_type=admin' ?>" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
+                            <i class="fas fa-lock mr-2"></i>Edit Password
                         </a>
+
+
 
                         <a href="" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
                             <i class="fas fa-trash mr-1"></i>Delete

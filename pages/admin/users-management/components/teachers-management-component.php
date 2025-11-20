@@ -42,20 +42,20 @@
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-gray-600">Qualification:</span>
                             <span class="font-semibold text-gray-900"><?= $teacher['qualification'] ?></span>
-            </div>
-            <div class="flex justify-between items-center text-sm">
-                <span class="text-gray-600">Activity:</span>
-                <span class="px-3 py-1 <?= $teacher['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $teacher['status'] ?></span>
-            </div>
-        </div>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Activity:</span>
+                            <span class="px-3 py-1 <?= $teacher['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $teacher['status'] ?></span>
+                        </div>
+                    </div>
 
-                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-4">
 
                         <a href="<?= route('teacher-update') . '?id=' . $teacher['id'] ?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
                             <i class="fas fa-edit mr-1"></i>Edit
                         </a>
-                            <a href="<?= route('update-user-password') . '?id=' . $teacher['id']  . '&user_type=teacher'?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
-                                                            <i class="fas fa-edit mr-1"></i>Edit Password
+                        <a href="<?= route('update-user-password') . '?id=' . $teacher['id']  . '&user_type=teacher' ?>" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
+                            <i class="fas fa-lock mr-2"></i>Edit Password
                         </a>
                         <a href="" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
                             <i class="fas fa-trash mr-1"></i>Delete

@@ -45,6 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $staffNumber = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
     $qualification = htmlspecialchars(trim($_POST['qualification'] ?? ''), ENT_QUOTES, 'UTF-8');
     $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender = trim($_POST['gender'] ?? '');
+    $experience = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
+
 
     // validations...
     if (empty($name)) $errors['nameError'] = 'Full name is required';
@@ -64,11 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['staffNumberError'] = 'Staff No already exists';
     }
     if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
-
+    if (empty($gender)) $errors['gender'] = "Gender is required.";
+    if (empty($experience)) $errors['experienceError'] = 'Experience is required';
 
     if (empty($errors)) {
-        $stmt = $conn->prepare("UPDATE teachers SET name = ? , email = ?, phone = ?, address = ?, staff_no = ?, qualification = ?,  status = ? WHERE id = ?");
-        $stmt->bind_param('sssssssi', $name, $email, $phone, $address, $staffNumber, $qualification, $status, $id);
+        $stmt = $conn->prepare("UPDATE teachers SET name = ? , email = ?, phone = ?, address = ?, staff_no = ?, qualification = ?,  gender = ?, experience = ?, status = ? WHERE id = ?");
+        $stmt->bind_param('sssssssssi', $name, $email, $phone, $address, $staffNumber, $qualification, $gender, $experience, $status, $id);
 
         if ($stmt->execute()) {
             $_SESSION['success'] = "Teacher account updated successfully!";
@@ -142,12 +146,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="phoneError"></span>
                             </div>
 
+                            <!-- Gender -->
+                            <div>
+                                <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender *</label>
+                                <select id="gender" name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select gender</option>
+                                    <option value="male" <?= $teacher['gender'] === 'male' ? 'selected'  : '' ?>>Male</option>
+                                    <option value="female" <?= $teacher['gender'] === 'female' ? 'selected' : '' ?>>Female</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="genderError"></span>
+                            </div>
 
                             <!-- Qualification -->
                             <div>
                                 <label for="qualification" class="block text-sm font-semibold text-gray-700 mb-2">Qualification *</label>
                                 <input type="text" id="qualification" name="qualification" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., B.Sc Education, M.A" value="<?= $teacher['qualification'] ?>">
                                 <span class="text-red-500 text-sm hidden" id="qualificationError"></span>
+                            </div>
+
+
+                            <!-- experience -->
+                            <div>
+                                <label for="experience" class="block text-sm font-semibold text-gray-700 mb-2">experience</label>
+                                <textarea type="text" id="experience" name="experience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Academic, Finance, Operations"><?= $teacher['experience'] ?></textarea>
+                                <span class="text-red-500 text-sm hidden" id="experienceError"></span>
+
                             </div>
 
                             <!-- Staff Number -->
@@ -256,6 +279,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const address = document.getElementById('address').value.trim();
             const staffNumber = document.getElementById('staffNumber').value;
             const status = document.getElementById('status').value;
+            const experience = document.getElementById('experience').value.trim();
+            const gender = document.getElementById('gender').value;
 
             let isValid = true;
 
@@ -288,6 +313,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('staffNumberError').classList.remove('hidden');
                 isValid = false;
             }
+
+
+            if (!experience) {
+                document.getElementById('experienceError').textContent = 'experience is required';
+                document.getElementById('experienceError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!gender) {
+                document.getElementById('genderError').textContent = 'Please select a gender';
+                document.getElementById('genderError').classList.remove('hidden');
+                isValid = false;
+            }
+
 
 
             if (!validatePhone(phone)) {

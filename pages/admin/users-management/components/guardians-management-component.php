@@ -49,14 +49,14 @@
                             </div>
                         </div>
 
-                                           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-4">
 
                             <a href="<?= route('guardian-update') . '?id=' .  $guardian['id'] ?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
                                 <i class="fas fa-edit mr-1"></i>Edit
                             </a>
-                            <a href="<?= route('update-user-password') . '?id=' . $guardian['id']  . '&user_type=guardian'?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
-                                                            <i class="fas fa-edit mr-1"></i>Edit Password
-                        </a>
+                            <a href="<?= route('update-user-password') . '?id=' . $guardian['id']  . '&user_type=guardian' ?>" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
+                                <i class="fas fa-lock mr-2"></i>Edit Password
+                            </a>
 
                             <a href="delete-confirmation.html?type=guardian&id=1" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
                                 <i class="fas fa-trash mr-1"></i>Delete
