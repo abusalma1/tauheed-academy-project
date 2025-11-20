@@ -16,8 +16,8 @@ $admins = $result->fetch_all(MYSQLI_ASSOC);
 $adminsCount =  countDataTotal('admins', true);
 
 
-$name =  $email  = $phone  =  $address = $staffNumber  = $status =  $roleTypeError = $department = $hashed_password = '';
-$nameError =  $emailError  = $phoneError  =  $addressError = $staffNumberError  = $statusError  = $departmentError =  $roleTypeError = $passwordError = $confirmPasswordError = '';
+$name =  $email  = $phone  =  $address = $staffNumber  = $status =  $roleTypeError = $gender = $qualification = $experience = $department = $hashed_password = '';
+$errors = '';
 
 
 
@@ -34,6 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
     $staffNumber = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
     $roleType = htmlspecialchars(trim($_POST['roleType'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $gender = trim($_POST['gender'] ?? '');
+    $qualification = htmlspecialchars(trim($_POST['qualification'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $experience = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
     $department = htmlspecialchars(trim($_POST['department'] ?? ''), ENT_QUOTES, 'UTF-8');
     $password = htmlspecialchars(trim($_POST['password'] ?? ''), ENT_QUOTES, 'UTF-8');
     $confirmPassword = htmlspecialchars(trim($_POST['confirmPassword'] ?? ''), ENT_QUOTES, 'UTF-8');
@@ -41,39 +44,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($name)) {
-        $nameError = 'Full name is required';
+        $errors['nameError'] = 'Full name is required';
     }
 
     if (empty($email)) {
-        $emailError = 'Email is required';
+        $errors['emailError'] = 'Email is required';
     } else {
         if (!validateEmail($email)) {
-            $emailError = 'Please enter a valid email address';
+            $errors['emailError'] = 'Please enter a valid email address';
         } else {
             if (emailExist($email, 'admins')) {
-                $emailError = "Email already exists!";
+                $errors['emailError'] = "Email already exists!";
             }
         }
     }
 
 
     if (empty($phone)) {
-        $phoneError =  'Phone number is required';
+        $errors['phoneError'] =  'Phone number is required';
     }
 
     if (empty($roleType)) {
-        $roleTypeError =  'Subject/Department is required';
+        $errors['roleTypeError'] =  'Subject/Department is required';
     }
 
     if (empty($address)) {
-        $addressError = 'Please enter address';
+        $errors['addressError'] = 'Please enter address';
     }
 
+    if (empty($gender)) {
+        $errors['gender'] = "Gender is required.";
+    }
+    if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
+    if (empty($experience)) $errors['experienceError'] = 'Experience is required';
+
+
     if (empty($staffNumber)) {
-        $staffNumberError = 'Please insert staff ID number';
+        $errors['staffNumberError'] = 'Please insert staff ID number';
     } else {
         if (staffNumberExist($staffNumber, 'admins')) {
-            $staffNumberError = "Staff No already exists!";
+            $errors['staffNumberError'] = "Staff No already exists!";
         }
     }
 
@@ -82,14 +92,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($password)) {
-        $passwordError = "Password field is required";
+        $errors['passwordError'] = "Password field is required";
         $password = '';
     } else {
         if (strlen($password) < 8) {
-            $passwordError = 'Password must be at least 8 characters';
+            $errors['passwordError'] = 'Password must be at least 8 characters';
         } else {
             if ($password !== $confirmPassword) {
-                $confirmPasswordError = 'Passwords do not match';
+                $errors['confirmPasswordError'] = 'Passwords do not match';
             } else {
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             }
@@ -98,17 +108,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     if (empty($status)) {
-        $statusError = "Status is required";
+        $errors['statusError'] = "Status is required";
     }
 
-    if (
-        empty($nameError) && empty($emailError) && empty($phoneError) && empty($addressError)
-        && empty($staffNumberError) && empty($departmentError) && empty($statusError)
-        && empty($roleTypeError) && empty($passwordError) && empty($confirmPasswordError)
-    ) {
-
-        $stmt = $conn->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('sssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $hashed_password);
+    if (empty($errors)) {
+        $stmt = $conn->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, gender, qualification,     experience, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('ssssssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $gender, $qualification, $experience, $hashed_password);
         if ($stmt->execute()) {
             $_SESSION['success'] = "Admin/Super User created successfully!";
             header("Location: " .  route('back'));
@@ -169,6 +174,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="emailError"></span>
                             </div>
 
+                            <!-- Gender -->
+                            <div>
+                                <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender *</label>
+                                <select id="gender" name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="genderError"></span>
+                            </div>
+
                             <!-- Phone Number -->
                             <div>
                                 <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
@@ -210,6 +226,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="departmentError"></span>
 
                             </div>
+
+                            <!-- Qualification -->
+                            <div>
+                                <label for="qualification" class="block text-sm font-semibold text-gray-700 mb-2">Qualification</label>
+                                <textarea type="text" id="qualification" name="qualification" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Academic, Finance, Operations"></textarea>
+                                <span class="text-red-500 text-sm hidden" id="qualificationError"></span>
+
+                            </div>
+
+
+                            <!-- experience -->
+                            <div>
+                                <label for="experience" class="block text-sm font-semibold text-gray-700 mb-2">experience</label>
+                                <textarea type="text" id="experience" name="experience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="e.g., Academic, Finance, Operations"></textarea>
+                                <span class="text-red-500 text-sm hidden" id="experienceError"></span>
+
+                            </div>
+
 
                             <!-- Password -->
                             <div>
@@ -441,7 +475,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const status = document.getElementById('status').value;
             const address = document.getElementById('address').value;
             const staffNumber = document.getElementById('staffNumber').value;
-
+            const qualification = document.getElementById('qualification').value.trim();
+            const experience = document.getElementById('experience').value.trim();
+            const gender = document.getElementById('gender').value;
 
             let isValid = true;
 
@@ -462,6 +498,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('emailError').classList.remove('hidden');
                 isValid = false;
             }
+
+
+            if (!qualification) {
+                document.getElementById('qualificationError').textContent = 'Qualification is required';
+                document.getElementById('qualificationError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!experience) {
+                document.getElementById('experienceError').textContent = 'experience is required';
+                document.getElementById('experienceError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!gender) {
+                document.getElementById('genderError').textContent = 'Please select a gender';
+                document.getElementById('genderError').classList.remove('hidden');
+                isValid = false;
+            }
+
 
 
             if (!validatePhone(phone)) {
