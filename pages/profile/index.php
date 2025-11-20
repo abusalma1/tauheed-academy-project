@@ -71,6 +71,12 @@ if ($is_logged_in === false) {
                                     <p class="text-sm text-gray-600">Phone Number</p>
                                     <p id="phone" class="text-lg font-semibold text-gray-900"><?= $user['phone'] != '' ? $user['phone'] : 'Nill' ?></p>
                                 </div>
+                                <?php if ($user_type !== 'student') : ?>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Address</p>
+                                        <p id="phone" class="text-lg font-semibold text-gray-900"><?= $user['address'] != '' ? $user['address'] : 'Nill' ?></p>
+                                    </div>
+                                <?php endif ?>
                             </div>
                         </div>
 

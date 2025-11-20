@@ -24,11 +24,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-$stmt = $conn->prepare("SELECT * FROM admins where id != ?");
-$stmt->bind_param('i', $id);
-$stmt->execute();
-$result = $stmt->get_result();
-$admins = $result->fetch_all(MYSQLI_ASSOC);
+$admins = selectAllData('admins', null, $id);
 
 // Count total admins
 $adminsCount =  countDataTotal('admins', true);
