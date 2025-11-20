@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.1.1deb5ubuntu1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Nov 20, 2025 at 01:35 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost
+-- Generation Time: Nov 20, 2025 at 03:03 PM
+-- Server version: 8.0.43-0ubuntu0.22.04.2
+-- PHP Version: 8.4.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,23 +28,23 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `admins` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `reset_token` varchar(50) DEFAULT NULL,
-  `type` enum('admin','superAdmin') DEFAULT 'admin',
-  `staff_no` varchar(50) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `department` varchar(255) DEFAULT NULL,
-  `status` enum('active','inactive') DEFAULT 'active',
-  `phone` varchar(20) DEFAULT NULL,
-  `picture_path` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `qualification` varchar(255) DEFAULT NULL,
-  `gender` enum('male','female') DEFAULT 'male',
-  `experience` varchar(255) DEFAULT NULL
+  `id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `reset_token` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `type` enum('admin','superAdmin') COLLATE utf8mb4_general_ci DEFAULT 'admin',
+  `staff_no` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `address` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `department` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `status` enum('active','inactive') COLLATE utf8mb4_general_ci DEFAULT 'active',
+  `phone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `picture_path` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `qualification` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `gender` enum('male','female') COLLATE utf8mb4_general_ci DEFAULT 'male',
+  `experience` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -53,7 +53,8 @@ CREATE TABLE `admins` (
 
 INSERT INTO `admins` (`id`, `name`, `email`, `password`, `reset_token`, `type`, `staff_no`, `address`, `department`, `status`, `phone`, `picture_path`, `created_at`, `updated_at`, `qualification`, `gender`, `experience`) VALUES
 (1, 'Abubakar Ahmad Adili', 'superadmin@email.com', '$2y$10$CWSA8wZpIm.29G7UUqjabeQQ2e5sDSGgg7wmS/reLHUlPWjykolAa', NULL, 'superAdmin', 'ST/2025/001', 'Maniru Road', 'Director/CEO', 'active', '09061893504', NULL, '2025-11-05 14:33:05', '2025-11-20 12:03:54', NULL, 'male', NULL),
-(2, 'Aminu Ahmad Adili', 'admin@email.com', '$2y$10$TDnqjeR0wzvlaI3TLIYBiewsjVljhGrlcXTEwQbn4Pwf7JBt/sU4q', NULL, 'admin', 'ST/2025/002', 'Kofar Marke Area', 'Development', 'active', '09061893504', NULL, '2025-11-10 12:28:17', '2025-11-17 13:50:15', NULL, 'male', NULL);
+(2, 'Aminu Ahmad Adili', 'admin@email.com', '$2y$10$TDnqjeR0wzvlaI3TLIYBiewsjVljhGrlcXTEwQbn4Pwf7JBt/sU4q', NULL, 'admin', 'ST/2025/002', 'Kofar Marke Area', 'Development', 'active', '09061893504', NULL, '2025-11-10 12:28:17', '2025-11-17 13:50:15', NULL, 'male', NULL),
+(3, 'Abusalma', 'abusalma@email.com', '$2y$12$cwHfSjrOQke1NebbuPwSLOjUE1A0G7QZ6nA2Mqa/2AfwOFvYQqBbS', NULL, 'admin', 'ST/2025/003', 'Mabera', 'FInance', 'active', '09071465325', NULL, '2025-11-20 14:46:54', '2025-11-20 14:46:54', 'B.sc Public Admin', 'male', 'iconic Open University (10 years fince officer)');
 
 -- --------------------------------------------------------
 
@@ -62,11 +63,11 @@ INSERT INTO `admins` (`id`, `name`, `email`, `password`, `reset_token`, `type`, 
 --
 
 CREATE TABLE `classes` (
-  `id` int(11) NOT NULL,
-  `section_id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `section_id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -91,11 +92,11 @@ INSERT INTO `classes` (`id`, `section_id`, `name`, `created_at`, `updated_at`) V
 --
 
 CREATE TABLE `class_arms` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -116,9 +117,9 @@ INSERT INTO `class_arms` (`id`, `name`, `description`, `created_at`, `updated_at
 --
 
 CREATE TABLE `class_class_arms` (
-  `class_id` int(11) NOT NULL,
-  `arm_id` int(11) NOT NULL,
-  `teacher_id` int(11) DEFAULT NULL
+  `class_id` int NOT NULL,
+  `arm_id` int NOT NULL,
+  `teacher_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -156,11 +157,11 @@ INSERT INTO `class_class_arms` (`class_id`, `arm_id`, `teacher_id`) VALUES
 --
 
 CREATE TABLE `class_subjects` (
-  `id` int(11) NOT NULL,
-  `class_id` int(11) NOT NULL,
-  `subject_id` int(11) NOT NULL,
-  `teacher_id` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `class_id` int NOT NULL,
+  `subject_id` int NOT NULL,
+  `teacher_id` int DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -203,20 +204,20 @@ INSERT INTO `class_subjects` (`id`, `class_id`, `subject_id`, `teacher_id`, `cre
 --
 
 CREATE TABLE `guardians` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `picture_path` varchar(255) DEFAULT NULL,
-  `relationship` varchar(255) DEFAULT NULL,
-  `occupation` varchar(255) DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
-  `status` enum('active','inactive') DEFAULT 'active',
-  `reset_token` varchar(50) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `gender` enum('male','female') DEFAULT 'male'
+  `id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `address` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `picture_path` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `relationship` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `occupation` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `status` enum('active','inactive') COLLATE utf8mb4_general_ci DEFAULT 'active',
+  `reset_token` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gender` enum('male','female') COLLATE utf8mb4_general_ci DEFAULT 'male'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -239,16 +240,16 @@ INSERT INTO `guardians` (`id`, `name`, `email`, `phone`, `address`, `picture_pat
 --
 
 CREATE TABLE `results` (
-  `id` int(11) NOT NULL,
-  `student_term_record_id` int(11) NOT NULL,
-  `subject_id` int(11) NOT NULL,
-  `ca` decimal(5,2) DEFAULT 0.00,
-  `exam` decimal(5,2) DEFAULT 0.00,
-  `total` decimal(6,2) GENERATED ALWAYS AS (`ca` + `exam`) STORED,
-  `grade` varchar(2) DEFAULT NULL,
-  `remark` varchar(50) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `student_term_record_id` int NOT NULL,
+  `subject_id` int NOT NULL,
+  `ca` decimal(5,2) DEFAULT '0.00',
+  `exam` decimal(5,2) DEFAULT '0.00',
+  `total` decimal(6,2) GENERATED ALWAYS AS ((`ca` + `exam`)) STORED,
+  `grade` varchar(2) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `remark` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -256,12 +257,12 @@ CREATE TABLE `results` (
 --
 
 INSERT INTO `results` (`id`, `student_term_record_id`, `subject_id`, `ca`, `exam`, `grade`, `remark`, `created_at`, `updated_at`) VALUES
-(1, 1, 8, 5.00, 50.00, 'C', 'Good', '2025-11-17 07:49:27', '2025-11-17 11:34:39'),
-(2, 2, 8, 19.00, 18.00, 'F', 'Fail', '2025-11-17 07:49:28', '2025-11-17 11:34:39'),
-(3, 3, 8, 35.00, 34.00, 'B', 'Very Good', '2025-11-17 07:52:45', '2025-11-17 07:52:45'),
-(4, 4, 8, 30.00, 50.00, 'A', 'Excellent', '2025-11-17 07:52:46', '2025-11-17 07:52:46'),
-(9, 3, 4, 20.00, 50.00, 'A', 'Excellent', '2025-11-17 12:32:13', '2025-11-17 12:32:13'),
-(10, 4, 4, 35.00, 60.00, 'A', 'Excellent', '2025-11-17 12:32:14', '2025-11-17 12:32:14');
+(1, 1, 8, '5.00', '50.00', 'C', 'Good', '2025-11-17 07:49:27', '2025-11-17 11:34:39'),
+(2, 2, 8, '19.00', '18.00', 'F', 'Fail', '2025-11-17 07:49:28', '2025-11-17 11:34:39'),
+(3, 3, 8, '35.00', '34.00', 'B', 'Very Good', '2025-11-17 07:52:45', '2025-11-17 07:52:45'),
+(4, 4, 8, '30.00', '50.00', 'A', 'Excellent', '2025-11-17 07:52:46', '2025-11-17 07:52:46'),
+(9, 3, 4, '20.00', '50.00', 'A', 'Excellent', '2025-11-17 12:32:13', '2025-11-17 12:32:13'),
+(10, 4, 4, '35.00', '60.00', 'A', 'Excellent', '2025-11-17 12:32:14', '2025-11-17 12:32:14');
 
 -- --------------------------------------------------------
 
@@ -270,19 +271,19 @@ INSERT INTO `results` (`id`, `student_term_record_id`, `subject_id`, `ca`, `exam
 --
 
 CREATE TABLE `schools` (
-  `id` int(11) NOT NULL,
-  `name` varchar(150) NOT NULL,
-  `motto` varchar(255) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `whatsapp_number` varchar(20) DEFAULT NULL,
-  `facebook` varchar(255) DEFAULT NULL,
-  `twitter` varchar(255) DEFAULT NULL,
-  `instagram` varchar(255) DEFAULT NULL,
-  `logo_path` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `name` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
+  `motto` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `address` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `whatsapp_number` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `facebook` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `twitter` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `instagram` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `logo_path` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -299,12 +300,12 @@ INSERT INTO `schools` (`id`, `name`, `motto`, `address`, `phone`, `email`, `what
 --
 
 CREATE TABLE `sections` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `description` text DEFAULT NULL,
-  `head_teacher_id` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `description` text COLLATE utf8mb4_general_ci,
+  `head_teacher_id` int DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -325,12 +326,12 @@ INSERT INTO `sections` (`id`, `name`, `description`, `head_teacher_id`, `created
 --
 
 CREATE TABLE `sessions` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
+  `id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
-  `status` enum('pending','ongoing','finished') DEFAULT 'pending',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `status` enum('pending','ongoing','finished') COLLATE utf8mb4_general_ci DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -351,23 +352,23 @@ INSERT INTO `sessions` (`id`, `name`, `start_date`, `end_date`, `status`, `creat
 --
 
 CREATE TABLE `students` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `admission_number` varchar(50) NOT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `guardian_id` int(11) DEFAULT NULL,
+  `id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `admission_number` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `guardian_id` int DEFAULT NULL,
   `dob` date DEFAULT NULL,
-  `picture` varchar(255) DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
-  `reset_token` varchar(50) DEFAULT NULL,
-  `status` enum('active','inactive') DEFAULT 'active',
-  `gender` enum('male','female') DEFAULT 'male',
-  `class_id` int(11) DEFAULT NULL,
-  `arm_id` int(11) DEFAULT NULL,
-  `term_id` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `picture` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `reset_token` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `status` enum('active','inactive') COLLATE utf8mb4_general_ci DEFAULT 'active',
+  `gender` enum('male','female') COLLATE utf8mb4_general_ci DEFAULT 'male',
+  `class_id` int DEFAULT NULL,
+  `arm_id` int DEFAULT NULL,
+  `term_id` int DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -388,17 +389,17 @@ INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `gua
 --
 
 CREATE TABLE `student_class_records` (
-  `id` int(11) NOT NULL,
-  `student_id` int(11) NOT NULL,
-  `session_id` int(11) NOT NULL,
-  `class_id` int(11) NOT NULL,
-  `arm_id` int(11) NOT NULL,
-  `overall_total` decimal(8,2) DEFAULT 0.00,
-  `overall_average` decimal(5,2) DEFAULT 0.00,
-  `overall_position` int(11) DEFAULT NULL,
-  `promotion_status` enum('promoted','repeat','pending') DEFAULT 'pending',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `student_id` int NOT NULL,
+  `session_id` int NOT NULL,
+  `class_id` int NOT NULL,
+  `arm_id` int NOT NULL,
+  `overall_total` decimal(8,2) DEFAULT '0.00',
+  `overall_average` decimal(5,2) DEFAULT '0.00',
+  `overall_position` int DEFAULT NULL,
+  `promotion_status` enum('promoted','repeat','pending') COLLATE utf8mb4_general_ci DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -406,10 +407,10 @@ CREATE TABLE `student_class_records` (
 --
 
 INSERT INTO `student_class_records` (`id`, `student_id`, `session_id`, `class_id`, `arm_id`, `overall_total`, `overall_average`, `overall_position`, `promotion_status`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 1, 1, 0.00, 0.00, NULL, 'pending', '2025-11-17 07:47:32', '2025-11-17 07:47:32'),
-(2, 2, 1, 1, 2, 0.00, 0.00, NULL, 'pending', '2025-11-17 07:49:27', '2025-11-17 07:49:27'),
-(3, 4, 1, 4, 1, 0.00, 0.00, NULL, 'pending', '2025-11-17 14:08:25', '2025-11-17 14:08:25'),
-(4, 5, 1, 4, 1, 0.00, 0.00, NULL, 'pending', '2025-11-17 13:07:23', '2025-11-17 13:07:23');
+(1, 1, 1, 1, 1, '0.00', '0.00', NULL, 'pending', '2025-11-17 07:47:32', '2025-11-17 07:47:32'),
+(2, 2, 1, 1, 2, '0.00', '0.00', NULL, 'pending', '2025-11-17 07:49:27', '2025-11-17 07:49:27'),
+(3, 4, 1, 4, 1, '0.00', '0.00', NULL, 'pending', '2025-11-17 14:08:25', '2025-11-17 14:08:25'),
+(4, 5, 1, 4, 1, '0.00', '0.00', NULL, 'pending', '2025-11-17 13:07:23', '2025-11-17 13:07:23');
 
 -- --------------------------------------------------------
 
@@ -418,16 +419,16 @@ INSERT INTO `student_class_records` (`id`, `student_id`, `session_id`, `class_id
 --
 
 CREATE TABLE `student_term_records` (
-  `id` int(11) NOT NULL,
-  `student_class_record_id` int(11) NOT NULL,
-  `term_id` int(11) NOT NULL,
-  `total_marks` decimal(8,2) DEFAULT 0.00,
-  `average_marks` decimal(5,2) DEFAULT 0.00,
-  `position_in_class` int(11) DEFAULT NULL,
-  `class_size` int(11) DEFAULT NULL,
-  `overall_grade` varchar(5) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `student_class_record_id` int NOT NULL,
+  `term_id` int NOT NULL,
+  `total_marks` decimal(8,2) DEFAULT '0.00',
+  `average_marks` decimal(5,2) DEFAULT '0.00',
+  `position_in_class` int DEFAULT NULL,
+  `class_size` int DEFAULT NULL,
+  `overall_grade` varchar(5) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -435,10 +436,10 @@ CREATE TABLE `student_term_records` (
 --
 
 INSERT INTO `student_term_records` (`id`, `student_class_record_id`, `term_id`, `total_marks`, `average_marks`, `position_in_class`, `class_size`, `overall_grade`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 55.00, 55.00, 1, 2, NULL, '2025-11-17 07:49:25', '2025-11-17 11:34:40'),
-(2, 2, 1, 37.00, 37.00, 2, 2, NULL, '2025-11-17 07:49:28', '2025-11-17 11:34:40'),
-(3, 1, 2, 139.00, 69.50, 2, 2, NULL, '2025-11-17 07:52:44', '2025-11-17 12:32:18'),
-(4, 2, 2, 175.00, 87.50, 1, 2, NULL, '2025-11-17 07:52:45', '2025-11-17 12:32:18');
+(1, 1, 1, '55.00', '55.00', 1, 2, NULL, '2025-11-17 07:49:25', '2025-11-17 11:34:40'),
+(2, 2, 1, '37.00', '37.00', 2, 2, NULL, '2025-11-17 07:49:28', '2025-11-17 11:34:40'),
+(3, 1, 2, '139.00', '69.50', 2, 2, NULL, '2025-11-17 07:52:44', '2025-11-17 12:32:18'),
+(4, 2, 2, '175.00', '87.50', 1, 2, NULL, '2025-11-17 07:52:45', '2025-11-17 12:32:18');
 
 -- --------------------------------------------------------
 
@@ -447,10 +448,10 @@ INSERT INTO `student_term_records` (`id`, `student_class_record_id`, `term_id`, 
 --
 
 CREATE TABLE `subjects` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -474,21 +475,21 @@ INSERT INTO `subjects` (`id`, `name`, `created_at`, `updated_at`) VALUES
 --
 
 CREATE TABLE `teachers` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `qualification` varchar(150) DEFAULT NULL,
-  `staff_no` varchar(50) DEFAULT NULL,
-  `status` enum('active','inactive') DEFAULT 'active',
-  `picture_path` varchar(255) DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
-  `reset_token` varchar(50) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `gender` enum('male','female') DEFAULT 'male',
-  `experience` varchar(255) DEFAULT NULL
+  `id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `address` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `qualification` varchar(150) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `staff_no` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `status` enum('active','inactive') COLLATE utf8mb4_general_ci DEFAULT 'active',
+  `picture_path` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `reset_token` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gender` enum('male','female') COLLATE utf8mb4_general_ci DEFAULT 'male',
+  `experience` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -509,10 +510,10 @@ INSERT INTO `teachers` (`id`, `name`, `email`, `phone`, `address`, `qualificatio
 --
 
 CREATE TABLE `teacher_section` (
-  `id` int(11) NOT NULL,
-  `teacher_id` int(11) NOT NULL,
-  `section_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `teacher_id` int NOT NULL,
+  `section_id` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -522,13 +523,13 @@ CREATE TABLE `teacher_section` (
 --
 
 CREATE TABLE `terms` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `session_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `session_id` int NOT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
-  `status` enum('pending','ongoing','finished') DEFAULT 'pending',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `status` enum('pending','ongoing','finished') COLLATE utf8mb4_general_ci DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -684,97 +685,97 @@ ALTER TABLE `terms`
 -- AUTO_INCREMENT for table `admins`
 --
 ALTER TABLE `admins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `classes`
 --
 ALTER TABLE `classes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `class_arms`
 --
 ALTER TABLE `class_arms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `class_subjects`
 --
 ALTER TABLE `class_subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `guardians`
 --
 ALTER TABLE `guardians`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `results`
 --
 ALTER TABLE `results`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `schools`
 --
 ALTER TABLE `schools`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `student_class_records`
 --
 ALTER TABLE `student_class_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `student_term_records`
 --
 ALTER TABLE `student_term_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `teachers`
 --
 ALTER TABLE `teachers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `teacher_section`
 --
 ALTER TABLE `teacher_section`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `terms`
 --
 ALTER TABLE `terms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
