@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = htmlspecialchars(trim($_POST['password'] ?? ''), ENT_QUOTES, 'UTF-8');
     $confirmPassword = htmlspecialchars(trim($_POST['confirmPassword'] ?? ''), ENT_QUOTES, 'UTF-8');
     $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender = trim($_POST['gender'] ?? '');
 
     if (empty($name)) $errors['nameError'] = 'Full name is required';
 
@@ -43,6 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['emailError '] = 'Please enter a valid email address';
     } elseif (emailExist($email, 'guardians')) {
         $errors['emailError'] = "Email already exists!";
+    }
+    if (empty($gender)) {
+        $errors['gender'] = "Gender is required.";
     }
 
     if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
@@ -62,10 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $stmt = $conn->prepare(
-            "INSERT INTO guardians (name, email, phone, occupation, address, relationship, status, password)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO guardians (name, email, gender, phone, occupation, address, relationship, status, password)
+             VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)"
         );
-        $stmt->bind_param('ssssssss', $name, $email, $phone, $occupation, $address, $relationship, $status, $hashed_password);
+        $stmt->bind_param('sssssssss', $name, $email, $gender, $phone, $occupation, $address, $relationship, $status, $hashed_password);
 
         if ($stmt->execute()) {
             $_SESSION['success'] = "Guardian account created successfully!";
@@ -135,6 +139,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="emailError"></span>
                             </div>
 
+                            <!-- Gender -->
+                            <div>
+                                <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender *</label>
+                                <select id="gender" name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="genderError"></span>
+                            </div>
                             <!-- Phone Number -->
                             <div>
                                 <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
@@ -397,6 +411,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const status = document.getElementById('status').value;
+            const gender = document.getElementById('gender').value;
+
             let isValid = true;
 
             if (!fullName) {
@@ -420,6 +436,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!validatePhone(phone)) {
                 document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
                 document.getElementById('phoneError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (!gender) {
+                document.getElementById('genderError').textContent = 'Please select a gender';
+                document.getElementById('genderError').classList.remove('hidden');
                 isValid = false;
             }
 

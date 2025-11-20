@@ -17,7 +17,7 @@ $adminsCount =  countDataTotal('admins', true);
 
 
 $name =  $email  = $phone  =  $address = $staffNumber  = $status =  $roleTypeError = $gender = $qualification = $experience = $department = $hashed_password = '';
-$errors = '';
+$errors = [];
 
 
 
@@ -120,6 +120,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             echo "<script>alert('Failed to create admin/super user account: " . $stmt->error . "');</script>";
+        }
+    } else {
+        // Display all validation errors
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
         }
     }
 }

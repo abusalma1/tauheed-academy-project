@@ -44,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $relationship = htmlspecialchars(trim($_POST['relationship'] ?? ''), ENT_QUOTES, 'UTF-8');
     $occupation = htmlspecialchars(trim($_POST['occupation'] ?? ''), ENT_QUOTES, 'UTF-8');
     $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender = trim($_POST['gender'] ?? '');
+
 
     if (empty($name)) $errors['nameError'] = 'Full name is required';
 
@@ -56,14 +58,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['emailError'] = "Email already exists!";
     }
     if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
+    if (empty($gender))        $errors['gender'] = "Gender is required.";
+
+
     if (empty($relationship)) $errors['relationshipError'] = 'Relationship is required ';
     if (empty($status)) $errors['statusError'] = "Status is required";
 
     if (empty($errors)) {
         $stmt = $conn->prepare(
-            "UPDATE guardians  SET name = ?, email = ? , phone = ? , occupation = ?, address = ?, relationship = ?, status = ? WHERE id = ?"
+            "UPDATE guardians  SET name = ?, email = ? , phone = ? , occupation = ?, address = ?, relationship = ?, status = ?, gender = ? WHERE id = ?"
         );
-        $stmt->bind_param('sssssssi', $name, $email, $phone, $occupation, $address, $relationship, $status, $id);
+        $stmt->bind_param('ssssssssi', $name, $email, $phone, $occupation, $address, $relationship, $status, $gender, $id);
 
         if ($stmt->execute()) {
             $_SESSION['success'] = "Guardian account updated successfully!";
@@ -136,6 +141,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="Enter email address" value="<?= $guardian['email'] ?>">
                                 <span class="text-red-500 text-sm hidden" id="emailError"></span>
                             </div>
+
+                            <!-- Gender -->
+                            <div>
+                                <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender *</label>
+                                <select id="gender" name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <option value="">Select gender</option>
+                                    <option value="male" <?= $guardian['gender'] === 'male' ? 'selected'  : '' ?>>Male</option>
+                                    <option value="female" <?= $guardian['gender'] === 'female' ? 'selected' : '' ?>>Female</option>
+                                </select>
+                                <span class="text-red-500 text-sm hidden" id="genderError"></span>
+                            </div>
+
 
                             <!-- Phone Number -->
                             <div>
@@ -267,6 +284,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const occupation = document.getElementById('occupation').value.trim();
             const address = document.getElementById('address').value.trim();
             const status = document.getElementById('status').value;
+            const gender = document.getElementById('gender').value;
+
             let isValid = true;
 
             if (!fullName) {
@@ -290,6 +309,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!validatePhone(phone)) {
                 document.getElementById('phoneError').textContent = 'Please enter a valid phone number';
                 document.getElementById('phoneError').classList.remove('hidden');
+                isValid = false;
+            }
+            if (!gender) {
+                document.getElementById('genderError').textContent = 'Please select a gender';
+                document.getElementById('genderError').classList.remove('hidden');
                 isValid = false;
             }
 
