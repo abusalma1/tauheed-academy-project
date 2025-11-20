@@ -30,7 +30,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Guardian Dashboard</h1>
-            <p class="text-xl text-blue-200">Welcome, <?= ($user['relationship'] === 'mother' || $user['relationship']  === 'aunt') ? 'Mrs.' : 'Mr.' ?> <?= $user['name']; ?>. View your children's academic progress</p>
+            <p class="text-xl text-blue-200">Welcome, <?= $user['gender'] === 'male' ? "Mr. " : 'Mrs.' ?> <?= $user['name']; ?>. View your children's academic progress</p>
         </div>
     </section>
 
@@ -43,7 +43,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <img src="/placeholder.svg?height=120&width=120" alt="Guardian Photo" class="h-28 w-28 rounded-full border-4 border-blue-900">
                     <div class="flex-1">
                         <h2 class="text-2xl font-bold text-gray-900">
-                            <?= ($user['relationship'] === 'mother' || $user['relationship']  === 'aunt') ? 'Mrs.' : 'Mr.' ?>
+                            <?= $user['gender'] === 'male' ? "Mr. " : 'Mrs.' ?>
                             <?= $user['name'] ?>
                         </h2>
                         <p class="text-gray-600">Email: <?= $user['email'] ?></p>
@@ -95,7 +95,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                     <?php foreach ($children as $child): ?>
-                        <!-- Child 1 -->
+        
                         <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition overflow-hidden">
                             <div class="bg-gradient-to-r from-blue-900 to-blue-700 h-32"></div>
                             <div class="relative px-6 pb-6">
