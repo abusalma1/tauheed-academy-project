@@ -56,19 +56,5 @@
     </div>
 </footer>
 
-<script>
-    document.querySelectorAll(".mobile-dropdown-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            let dropdown = btn.nextElementSibling;
-            dropdown.classList.toggle("hidden");
-        });
-    });
 
-    // // Mobile menu toggle
-    // const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    // const mobileMenu = document.getElementById('mobile-menu');
-    // mobileMenuBtn.addEventListener('click', () => {
-    //     mobileMenu.classList.toggle('hidden');
-    // });
-</script>
-<script src="<?= BASE_URL ?>/static/js/main.js"></script>
+<script src="<?= asset('js/mobile-menu.js') ?>"></script>
