@@ -50,6 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
     $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES, 'UTF-8');
     $level = htmlspecialchars(trim($_POST['classLevel'] ?? ''), ENT_QUOTES);
+    $shiftLevels = $_POST['shiftLevels'] ?? null;
+
 
     $id = htmlspecialchars(trim($_POST['classId'] ?? ''), ENT_QUOTES, 'UTF-8');
     $arms = $_POST['classArm'] ?? [];
@@ -70,6 +72,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
+    } else {
+        $stmt = $conn->prepare("SELECT id, name FROM classes WHERE level = ? and id != ?");
+        $stmt->bind_param("ii", $level, $class_id);
+        $stmt->execute();
+        $exist = $stmt->get_result()->fetch_assoc(); // fetch single row
+        $stmt->close();
+
+        if ($exist) {
+            // If checkbox "shiftLevels" is checked and level exists
+            if (isset($shiftLevels)) {
+                $conn->begin_transaction();
+
+                // Shift levels forward
+                $shiftStmt = $conn->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
+                $shiftStmt->bind_param('i', $level);
+                $shiftStmt->execute();
+                $shiftStmt->close();
+
+                $conn->commit();
+            } else {
+                $errors['levelError'] = "Given Level is already taken by " . $exist['name'];
+            }
+        }
     }
 
     if (empty($section)) {
@@ -163,6 +188,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
 
 
+                            <!-- Shift Levels -->
+                            <div class="flex items-center hidden" id="shiftLevelsMain">
+                                <input
+                                    type="checkbox"
+                                    id="shiftLevels"
+                                    name="shiftLevels"
+                                    value="1"
+                                    class="h-4 w-4 text-green-900 border-gray-300 rounded focus:ring-green-900">
+                                <label for="shiftLevels" class="ml-2 block text-sm font-semibold text-gray-700">
+                                    Shift existing levels forward if this level already exists
+                                </label>
+                            </div>
+
                             <!-- Class Arm -->
                             <div>
                                 <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arms *</label>
@@ -253,6 +291,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const classSection = document.getElementById('classSection').value.trim();
             const classArm = document.getElementById('classArm').value.trim();
             const classLevel = document.getElementById('classLevel').value.trim();
+            const shiftLevelsChecked = document.getElementById('shiftLevels').checked;
+
 
 
             let isValid = true;
@@ -273,14 +313,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!classLevel) {
                 document.getElementById('classLevelError').textContent = 'Class level is required';
                 document.getElementById('classLevelError').classList.remove('hidden');
+                document.getElementById('shiftLevels').classList.remove('hidden');
+
                 isValid = false;
             }
 
+
             if (classes.some(s => s.level == classLevel)) {
-                document.getElementById('classLevelError').textContent = 'Given Level already exists';
-                document.getElementById('classLevelError').classList.remove('hidden');
-                isValid = false;
+                document.getElementById('shiftLevelsMain').classList.remove('hidden');
+
+                if (!shiftLevelsChecked) {
+                    const matchedClass = classes.find(s => s.level == classLevel);
+                    document.getElementById('classLevelError').textContent =
+                        'Level is already given to ' + matchedClass.name + '. Check "Shift Levels" below to adjust (Move ' + matchedClass.name + ' down to allow inserted class to have the level).';
+                    document.getElementById('classLevelError').classList.remove('hidden');
+                    isValid = false;
+                }
+                // else: allow submission, backend will handle shifting
             }
+
 
 
             if (!classSection) {

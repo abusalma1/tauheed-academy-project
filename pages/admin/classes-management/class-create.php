@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $level = htmlspecialchars(trim($_POST['classLevel'] ?? ''), ENT_QUOTES);
     $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES);
     $arms = $_POST['classArm'] ?? [];
-    $shiftLevels = $_POST['shiftLevels'];
+    $shiftLevels = $_POST['shiftLevels'] ?? null;
 
 
     if (!is_array($arms)) {
@@ -74,26 +74,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
     } else {
-        // Check if level exists
-        $checkStmt = $conn->prepare("SELECT COUNT(*) as cnt FROM classes WHERE level = ?");
-        $checkStmt->bind_param('i', $level);
-        $checkStmt->execute();
-        $exists = $checkStmt->get_result()->fetch_assoc()['cnt'];
-        $checkStmt->close();
+        $stmt = $conn->prepare("SELECT id, name FROM classes WHERE level = ?");
+        $stmt->bind_param("i", $level);
+        $stmt->execute();
+        $exist = $stmt->get_result()->fetch_assoc(); // fetch single row
+        $stmt->close();
 
-        // If checkbox "shiftLevels" is checked and level exists
-        if ($exists > 0 && isset($shiftLevels)) {
-            $conn->begin_transaction();
+        if ($exist) {
+            // If checkbox "shiftLevels" is checked and level exists
+            if (isset($shiftLevels)) {
+                $conn->begin_transaction();
 
-            // Shift levels forward
-            $shiftStmt = $conn->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
-            $shiftStmt->bind_param('i', $level);
-            $shiftStmt->execute();
-            $shiftStmt->close();
-        } else {
-            $errors['levelError'] = "Given Level is already taken " . $exist['name'];
+                // Shift levels forward
+                $shiftStmt = $conn->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
+                $shiftStmt->bind_param('i', $level);
+                $shiftStmt->execute();
+                $shiftStmt->close();
+
+                $conn->commit();
+            } else {
+                $errors['levelError'] = "Given Level is already taken by " . $exist['name'];
+            }
         }
     }
+
 
     if (empty($section)) {
         $errors['sectionError'] = "Section is required";
@@ -116,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $pivot_query = "INSERT INTO class_class_arms (arm_id, class_id) VALUES (?, ?)";
             $stmt_pivot = $conn->prepare($pivot_query);
+
 
             foreach ($arms as $arm_id) {
                 $stmt_pivot->bind_param('ii', $arm_id, $class_id);
@@ -187,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
 
                             <!-- Shift Levels -->
-                            <div class="flex items-center">
+                            <div class="flex items-center hidden" id="shiftLevelsMain">
                                 <input
                                     type="checkbox"
                                     id="shiftLevels"
@@ -373,11 +378,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!classLevel) {
                 document.getElementById('classLevelError').textContent = 'Class level is required';
                 document.getElementById('classLevelError').classList.remove('hidden');
+
                 isValid = false;
             }
 
 
             if (classes.some(s => s.level == classLevel)) {
+                document.getElementById('shiftLevelsMain').classList.remove('hidden');
                 if (!shiftLevelsChecked) {
                     const matchedClass = classes.find(s => s.level == classLevel);
                     document.getElementById('classLevelError').textContent =
