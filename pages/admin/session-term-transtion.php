@@ -141,14 +141,20 @@ if ($_SERVER['REQUEST_METHOD']  === 'POST') {
                                         <input type="hidden" name="term_id" value="<?= $term['id'] ?>">
 
                                         <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 mb-3">
-                                            <input type="checkbox" class="w-4 h-4 text-blue-900 border-gray-800 " name="allow_demotion" value="1">
+                                            <input type="checkbox" class="w-4 h-4 text-blue-900" name="allow_demotion" value="1">
                                             <span class="ml-3 text-gray-700">Allow Demotion</span>
                                         </label>
 
-                                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 mb-3">
-                                            <input type="number" class="w-7 h-6 text-blue-900" name="average_required" value="1">
+                                        <label for="average_required" class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 mb-3">
+                                            <input
+                                                type="number"
+                                                id="average_required"
+                                                name="average_required"
+                                                value="1"
+                                                class="w-20 h-10 text-blue-900 border border-gray-200 rounded-md px-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                                             <span class="ml-3 text-gray-700">Average Required For Promotion</span>
                                         </label>
+
                                         <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-sm">
                                             <i class="fas fa-play mr-1"></i>Activate
                                         </button>
