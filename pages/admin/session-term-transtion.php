@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD']  === 'POST') {
     $term_id = $_POST['term_id'];
     $ongoing = 'ongoing';
     $finished = 'finished';
+    $allow_demotion = isset($_POST['allow_demotion']) ? 1 : 0;
 
 
     if ($action === 'activate') {
@@ -25,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD']  === 'POST') {
         $stmt = $conn->prepare("UPDATE terms set status = ? where id = ?");
         $stmt->bind_param('si', $ongoing, $term_id);
         $stmt->execute();
+        
+        $stmt = $conn->prepare("INSERT into student")
 
         $stmt = $conn->prepare("UPDATE terms set status = ? where status = ? and id != ?");
         $stmt->bind_param('ssi', $finished, $ongoing, $term_id);
@@ -83,24 +86,7 @@ if ($_SERVER['REQUEST_METHOD']  === 'POST') {
                     <?php endif ?>
                 </div>
 
-                <!-- Promotion Rules -->
-                <div class="bg-white rounded-lg shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Promotion Rules</h2>
 
-                    <form action="" method="get">
-                        <div class="space-y-3">
-                            <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50">
-                                <input type="checkbox" class="w-4 h-4 text-blue-900" name="repetition">
-                                <span class="ml-3 text-gray-700">Enable Class Repetition</span>
-                            </label>
-
-                        </div>
-
-                        <button type="submit" class="w-full mt-6 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-                            Save Rules
-                        </button>
-                    </form>
-                </div>
             </div>
 
             <!-- Academic Calendar Timeline -->
@@ -154,6 +140,10 @@ if ($_SERVER['REQUEST_METHOD']  === 'POST') {
                                         <input type="hidden" name="action" value="activate">
                                         <input type="hidden" name="term_id" value="<?= $term['id'] ?>">
 
+                                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 mb-3">
+                                            <input type="checkbox" class="w-4 h-4 text-blue-900" name="allow_demotion" value="1">
+                                            <span class="ml-3 text-gray-700">Allow Demotion</span>
+                                        </label>
 
                                         <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-sm">
                                             <i class="fas fa-play mr-1"></i>Activate

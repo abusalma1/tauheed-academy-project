@@ -97,14 +97,15 @@ CREATE TABLE class_arms (
 -- ===========================================================
 -- 6. CLASSES TABLE (unchanged except clearer naming comment)
 -- ===========================================================
-CREATE TABLE classes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    section_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+    CREATE TABLE classes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        section_id INT NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        level INT UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB;
 
 -- ===========================================================
 -- 6.1 CLASS_CLASS_ARMS TABLE (pivot for many-to-many)

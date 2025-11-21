@@ -47,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $name = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $level = htmlspecialchars(trim($_POST['classLevel'] ?? ''), ENT_QUOTES);
     $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES);
     $arms = $_POST['classArm'] ?? [];
 
@@ -68,6 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['nameError'] = "Name is required";
     }
 
+    if (empty($level)) {
+        $errors['levelError'] = "Level is required";
+    }
+
     if (empty($section)) {
         $errors['sectionError'] = "Section is required";
     }
@@ -79,9 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $stmt = $conn->prepare(
-            "INSERT INTO classes (name, section_id) VALUES (?, ?)"
+            "INSERT INTO classes (name, level, section_id) VALUES (?, ?, ?)"
         );
-        $stmt->bind_param('si', $name, $section);
+        $stmt->bind_param('sii', $name, $level, $section);
 
         if ($stmt->execute()) {
             $class_id = $stmt->insert_id;
@@ -148,8 +153,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Class Name -->
                             <div>
                                 <label for="className" class="block text-sm font-semibold text-gray-700 mb-2">Class Name *</label>
-                                <input type="text" id="className" name="className" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., JSS 1A, SSS 3B">
+                                <input type="text" id="className" name="className" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., JSS 1, SSS 3">
                                 <span class="text-red-500 text-sm hidden" id="classNameError"></span>
+                            </div>
+
+                            <!-- Class Level -->
+                            <div>
+                                <label for="classLevel" class="block text-sm font-semibold text-gray-700 mb-2">Class Level *</label>
+                                <input type="number" id="classLevel" name="classLevel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., Nursery 1 = level 1,Nursery 2 = level 2">
+                                <span class="text-red-500 text-sm hidden" id="classLevelError"></span>
                             </div>
 
                             <!-- Class Arm -->
@@ -203,6 +215,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <li class="flex gap-2">
                                 <i class="fas fa-check text-green-600 mt-1"></i>
                                 <span>Class name must be unique</span>
+                            </li>
+                        </ul>
+                        <ul class="space-y-3 text-sm text-gray-700">
+                            <li class="flex gap-2">
+                                <i class="fas fa-check text-green-600 mt-1"></i>
+                                <span>Class level must be unique, it is used to identify classes order</span>
                             </li>
                         </ul>
                     </div>
@@ -277,7 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
     <script>
-                document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#classArm", {
                 plugins: ['remove_button'], // allows removing selected items
                 placeholder: "Select class arms...",
@@ -299,6 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const className = document.getElementById('className').value.trim();
             const classSection = document.getElementById('classSection').value.trim();
             const classArm = document.getElementById('classArm').value.trim();
+            const classLevel = document.getElementById('classLevel').value.trim();
 
             let isValid = true;
 
@@ -308,12 +327,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
-
             if (classes.some(s => s.name === className)) {
                 document.getElementById('classNameError').textContent = 'Class already exists';
                 document.getElementById('classNameError').classList.remove('hidden');
                 isValid = false;
             }
+
+            if (!classLevel) {
+                document.getElementById('classLevelError').textContent = 'Class level is required';
+                document.getElementById('classLevelError').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (classes.some(s => s.level == classLevel)) {
+                document.getElementById('classLevelError').textContent = 'Given Level already exists';
+                document.getElementById('classLevelError').classList.remove('hidden');
+                isValid = false;
+            }
+
+
+
 
 
             if (!classSection) {
