@@ -8,17 +8,18 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-$stmt = $conn->prepare("
-    SELECT 
+$stmt = $conn->prepare("    SELECT 
         classes.id AS id,
         classes.name AS name,
+        classes.level AS level,
         sections.name AS section_name,
         GROUP_CONCAT(class_arms.name SEPARATOR ', ') AS arm_names
     FROM classes
     LEFT JOIN class_class_arms ON classes.id = class_class_arms.class_id
     LEFT JOIN sections ON classes.section_id = sections.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
-    GROUP BY classes.id
+    GROUP BY classes.id 
+     order by classes.level
 ");
 $stmt->execute();
 $result = $stmt->get_result();
@@ -50,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $level = htmlspecialchars(trim($_POST['classLevel'] ?? ''), ENT_QUOTES);
     $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES);
     $arms = $_POST['classArm'] ?? [];
+    $shiftLevels = $_POST['shiftLevels'];
 
 
     if (!is_array($arms)) {
@@ -71,6 +73,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
+    } else {
+        // Check if level exists
+        $checkStmt = $conn->prepare("SELECT COUNT(*) as cnt FROM classes WHERE level = ?");
+        $checkStmt->bind_param('i', $level);
+        $checkStmt->execute();
+        $exists = $checkStmt->get_result()->fetch_assoc()['cnt'];
+        $checkStmt->close();
+
+        // If checkbox "shiftLevels" is checked and level exists
+        if ($exists > 0 && isset($_POST['shiftLevels'])) {
+            $conn->begin_transaction();
+
+            // Shift levels forward
+            $shiftStmt = $conn->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
+            $shiftStmt->bind_param('i', $level);
+            $shiftStmt->execute();
+            $shiftStmt->close();
+        } else {
+            $errors['levelError'] = "Given Level is already taken " . $exist['name'];
+        }
     }
 
     if (empty($section)) {
@@ -318,7 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const classSection = document.getElementById('classSection').value.trim();
             const classArm = document.getElementById('classArm').value.trim();
             const classLevel = document.getElementById('classLevel').value.trim();
-
+            // const shiftLevels = document.getElementById('shiftLevels').value.trim();
             let isValid = true;
 
             if (!className) {
@@ -339,13 +361,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
-            if (classes.some(s => s.level == classLevel)) {
-                document.getElementById('classLevelError').textContent = 'Given Level already exists';
-                document.getElementById('classLevelError').classList.remove('hidden');
-                isValid = false;
-            }
+            // if (!shiftLevels) {
 
-
+                if (classes.some(s => s.level == classLevel)) {
+                    document.getElementById('classLevelError').textContent = 'Level is already given to ' + classes.some(c => c.name);
+                    document.getElementById('classLevelError').classList.remove('hidden');
+                    isValid = false;
+                }
+           // } 
 
 
 
