@@ -13,34 +13,210 @@ $stmt->bind_param('s', $active);
 $stmt->execute();
 $current_term = $stmt->get_result()->fetch_assoc();
 
-if ($_SERVER['REQUEST_METHOD']  === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'];
-    $term_id = $_POST['term_id'];
-    $ongoing = 'ongoing';
-    $finished = 'finished';
-    $allow_demotion = isset($_POST['allow_demotion']) ? 1 : 0;
+    $term_id = intval($_POST['term_id']);
+    $allow_demotion = isset($_POST['allow_demotion']);
+    $required_average = isset($_POST['required_average']) ? floatval($_POST['required_average']) : 0;
+
+    // Get new term details
+    $stmt = $conn->prepare("SELECT * FROM terms WHERE id = ?");
+    $stmt->bind_param("i", $term_id);
+    $stmt->execute();
+    $new_term = $stmt->get_result()->fetch_assoc();
+
+    $new_session_id = $new_term['session_id'];
+
+    // Get current active term
+    $status_ongoing = "ongoing";
+    $stmt = $conn->prepare("SELECT * FROM terms WHERE status = ? LIMIT 1");
+    $stmt->bind_param("s", $status_ongoing);
+    $stmt->execute();
+    $old_term = $stmt->get_result()->fetch_assoc();
+
+    $old_session_id = $old_term ? $old_term['session_id'] : null;
+
+    // Begin transaction
+    $conn->begin_transaction();
+
+    try {
+
+        if ($action === "activate") {
+
+            /** ===========================
+             * 1. Activate new term
+             * =========================== */
+            $stmt = $conn->prepare("UPDATE terms SET status = 'ongoing' WHERE id = ?");
+            $stmt->bind_param("i", $term_id);
+            $stmt->execute();
+
+            // Deactivate others
+            $stmt = $conn->prepare("UPDATE terms SET status = 'finished' WHERE id != ? and status = 
+            'ongoing' ");
+            $stmt->bind_param("i", $term_id);
+            $stmt->execute();
 
 
-    if ($action === 'activate') {
+            /** =========================================================
+             * CASE A: SESSION CHANGED → RUN PROMOTION ROUTINE
+             * ========================================================= */
+            if ($old_session_id != $new_session_id && $old_session_id !== null) {
 
-        $stmt = $conn->prepare("UPDATE terms set status = ? where id = ?");
-        $stmt->bind_param('si', $ongoing, $term_id);
-        $stmt->execute();
+                // Fetch all students with class records in the old session
+                $stmt = $conn->prepare("
+                    SELECT scr.*, s.class_id, s.arm_id
+                    FROM student_class_records scr
+                    JOIN students s ON scr.student_id = s.id
+                    WHERE scr.session_id = ?
+                ");
+                $stmt->bind_param("i", $old_session_id);
+                $stmt->execute();
+                $records = $stmt->get_result();
 
-        $stmt = $conn->prepare("INSERT into student_term_records ");
+                while ($rec = $records->fetch_assoc()) {
+                    $student_id = $rec['student_id'];
+                    $old_class_id = $rec['class_id'];
+                    $old_arm_id = $rec['arm_id'];
+                    $overall_average = floatval($rec['overall_average']);
 
-        $stmt = $conn->prepare("UPDATE terms set status = ? where status = ? and id != ?");
-        $stmt->bind_param('ssi', $finished, $ongoing, $term_id);
-        $stmt->execute();
-    } elseif ($action === 'deactivate') {
+                    /** LOAD CURRENT CLASS LEVEL */
+                    $stmt2 = $conn->prepare("SELECT * FROM classes WHERE id = ?");
+                    $stmt2->bind_param("i", $old_class_id);
+                    $stmt2->execute();
+                    $class = $stmt2->get_result()->fetch_assoc();
 
-        $stmt = $conn->prepare("UPDATE terms set status = ? where id = ?");
-        $stmt->bind_param('si', $finished, $term_id);
-        $stmt->execute();
+                    /** ==========================
+                     *  DEMOTION CHECK
+                     * ========================== */
+                    if ($allow_demotion && $overall_average < $required_average) {
+                        // Demoted → remain in same class but new session
+                        $new_class_id = $old_class_id;
+                        $new_arm_id = $old_arm_id;
+                        $promotion_status = "repeat";
+                    } else {
+                        /** ==========================
+                         *  NORMAL PROMOTION
+                         * ========================== */
+                        $next_level = $class['level'] + 1;
+
+                        // Check if next class exists
+                        $stmt2 = $conn->prepare("SELECT * FROM classes WHERE level = ?");
+                        $stmt2->bind_param("i", $next_level);
+                        $stmt2->execute();
+                        $next_class = $stmt2->get_result()->fetch_assoc();
+
+                        if ($next_class) {
+                            // Promote
+                            $new_class_id = $next_class['id'];
+                            $new_arm_id = $old_arm_id;
+                            $promotion_status = "promoted";
+                        } else {
+                            // Graduate student
+                            $new_class_id = null;
+                            $new_arm_id = null;
+                            $promotion_status = "promoted";
+
+                            // Mark student inactive
+                            $stmt3 = $conn->prepare("UPDATE students SET status='inactive' WHERE id=?");
+                            $stmt3->bind_param("i", $student_id);
+                            $stmt3->execute();
+                        }
+                    }
+
+                    /** ==========================
+                     *  UPDATE OLD CLASS RECORD
+                     * ========================== */
+                    $stmt2 = $conn->prepare("
+                        UPDATE student_class_records 
+                        SET promotion_status=?
+                        WHERE student_id=? AND session_id=?
+                    ");
+                    $stmt2->bind_param("sii", $promotion_status, $student_id, $old_session_id);
+                    $stmt2->execute();
+
+
+                    /** ==========================
+                     *  UPDATE STUDENT TABLE
+                     * ========================== */
+                    $stmt2 = $conn->prepare("
+                        UPDATE students SET class_id=?, arm_id=?, term_id=? WHERE id=?
+                    ");
+                    $stmt2->bind_param("iiii", $new_class_id, $new_arm_id, $term_id, $student_id);
+                    $stmt2->execute();
+
+
+                    /** ==========================
+                     *  CREATE NEW student_class_records (NO DUPLICATE)
+                     * ========================== */
+                    if ($new_class_id !== null) {
+                        $stmt2 = $conn->prepare("
+                            INSERT IGNORE INTO student_class_records
+                            (student_id, session_id, class_id, arm_id)
+                            VALUES (?, ?, ?, ?)
+                        ");
+                        $stmt2->bind_param("iiii", $student_id, $new_session_id, $new_class_id, $new_arm_id);
+                        $stmt2->execute();
+
+                        // Get new record ID
+                        $new_class_record_id = $conn->insert_id;
+
+                        /** CREATE student_term_records FOR NEW TERM */
+                        $stmt2 = $conn->prepare("
+                            INSERT IGNORE INTO student_term_records
+                            (student_class_record_id, term_id)
+                            VALUES (?, ?)
+                        ");
+                        $stmt2->bind_param("ii", $new_class_record_id, $term_id);
+                        $stmt2->execute();
+                    }
+                }
+            }
+
+
+            /** =========================================================
+             * CASE B: SAME SESSION → ONLY CREATE TERM RECORDS
+             * ========================================================= */
+            else {
+                // Load all working class_records for this session
+                $stmt = $conn->prepare("SELECT id FROM student_class_records WHERE session_id=?");
+                $stmt->bind_param("i", $new_session_id);
+                $stmt->execute();
+                $classRecords = $stmt->get_result();
+
+                while ($cr = $classRecords->fetch_assoc()) {
+                    $class_record_id = $cr['id'];
+
+                    // Create missing term record
+                    $stmt2 = $conn->prepare("
+                        INSERT IGNORE INTO student_term_records (student_class_record_id, term_id)
+                        VALUES (?, ?)
+                    ");
+                    $stmt2->bind_param("ii", $class_record_id, $term_id);
+                    $stmt2->execute();
+                }
+            }
+        }
+
+
+        /** ============================
+         *  DEACTIVATE TERM
+         * ============================ */
+        if ($action === "deactivate") {
+            $stmt = $conn->prepare("UPDATE terms SET status='finished' WHERE id=?");
+            $stmt->bind_param("i", $term_id);
+            $stmt->execute();
+        }
+
+
+        $conn->commit();
+        $_SESSION['success'] = "Term updated successfully!";
+    } catch (Exception $e) {
+        $conn->rollback();
+        $_SESSION['failure'] = "Error: " . $e->getMessage();
     }
 
-    $_SESSION['success'] = "Term status updated successfully!";
-    header("Location:  " . route('promotion'));
+    header("Location: " . route('promotion'));
+    exit();
 }
 
 ?>
