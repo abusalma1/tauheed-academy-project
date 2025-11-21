@@ -4,7 +4,9 @@
         <div class="flex justify-between items-center h-16">
             <!-- Logo and School Name -->
             <div class="flex items-center gap-3">
-                <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
+                <img src="<?= asset('images/logo.png') ?>" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
+
+
                 <div>
                     <h1 class="text-xl font-bold"><?= $school['name'] ?? 'Tauheed Academy' ?></h1>
                     <p class="text-xs text-blue-200"><?= $school['motto'] ?? '' ?></p>

@@ -11,7 +11,10 @@ include(__DIR__ .  '/./includes/header.php');
     <!-- Hero Section -->
     <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <img src="/placeholder.svg?height=120&width=120" alt="School Logo" class="h-32 w-32 mx-auto mb-6 bg-white rounded-full p-3">
+            <img src="<?= asset('images/logo.png') ?>"
+                alt="School Logo"
+                class="h-32 w-32 mx-auto block mb-6 bg-white rounded-full p-2 object-contain object-center">
+
             <h1 class="text-4xl md:text-6xl font-bold mb-4">Tauheed Academy</h1>
             <p class="text-xl md:text-2xl text-blue-200 mb-8">Nurturing Future Leaders Through Quality Education</p>
             <div class="flex flex-wrap justify-center gap-4">

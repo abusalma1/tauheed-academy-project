@@ -226,3 +226,8 @@ function getStudentResults($student_id)
 
     return $finalResults;
 }
+
+function asset($path)
+{
+    return "/tauheed-academy-project/static/" . $path;
+}
