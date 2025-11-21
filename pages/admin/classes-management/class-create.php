@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $checkStmt->close();
 
         // If checkbox "shiftLevels" is checked and level exists
-        if ($exists > 0 && isset($_POST['shiftLevels'])) {
+        if ($exists > 0 && isset($shiftLevels)) {
             $conn->begin_transaction();
 
             // Shift levels forward
@@ -185,6 +185,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="number" id="classLevel" name="classLevel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., Nursery 1 = level 1,Nursery 2 = level 2">
                                 <span class="text-red-500 text-sm hidden" id="classLevelError"></span>
                             </div>
+
+                            <!-- Shift Levels -->
+                            <div class="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    id="shiftLevels"
+                                    name="shiftLevels"
+                                    value="1"
+                                    class="h-4 w-4 text-green-900 border-gray-300 rounded focus:ring-green-900">
+                                <label for="shiftLevels" class="ml-2 block text-sm font-semibold text-gray-700">
+                                    Shift existing levels forward if this level already exists
+                                </label>
+                            </div>
+
 
                             <!-- Class Arm -->
                             <div>
@@ -329,18 +343,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Form validation and submission
         const classForm = document.getElementById('classForm');
 
-
         classForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            // Clear previous errors
             document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
 
             const className = document.getElementById('className').value.trim();
             const classSection = document.getElementById('classSection').value.trim();
-            const classArm = document.getElementById('classArm').value.trim();
             const classLevel = document.getElementById('classLevel').value.trim();
-            // const shiftLevels = document.getElementById('shiftLevels').value.trim();
+            const classArmSelect = document.getElementById('classArm');
+            const classArms = Array.from(classArmSelect.selectedOptions).map(opt => opt.value);
+            const shiftLevelsChecked = document.getElementById('shiftLevels').checked;
+
+
             let isValid = true;
 
             if (!className) {
@@ -361,15 +376,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
-            // if (!shiftLevels) {
 
-                if (classes.some(s => s.level == classLevel)) {
-                    document.getElementById('classLevelError').textContent = 'Level is already given to ' + classes.some(c => c.name);
+            if (classes.some(s => s.level == classLevel)) {
+                if (!shiftLevelsChecked) {
+                    const matchedClass = classes.find(s => s.level == classLevel);
+                    document.getElementById('classLevelError').textContent =
+                        'Level is already given to ' + matchedClass.name + '. Check "Shift Levels" below to adjust (Move ' + matchedClass.name + ' down to allow inserted class to have the level).';
                     document.getElementById('classLevelError').classList.remove('hidden');
                     isValid = false;
                 }
-           // } 
-
+                // else: allow submission, backend will handle shifting
+            }
 
 
             if (!classSection) {
@@ -377,13 +394,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('classSectionError').classList.remove('hidden');
                 isValid = false;
             }
-            if (!classArm) {
+
+            if (classArms.length === 0) {
                 document.getElementById('classArmError').textContent = 'Class arm is required';
                 document.getElementById('classArmError').classList.remove('hidden');
                 isValid = false;
             }
-
-
             if (isValid) {
                 window.scrollTo({
                     top: 0,

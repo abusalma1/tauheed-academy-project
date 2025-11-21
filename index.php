@@ -9,7 +9,7 @@ include(__DIR__ .  '/./includes/header.php');
 
     <?php include(__DIR__ .  '/./includes/nav.php'); ?>
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
+    <section class="bg-gradient-to-r from-pink-700 to-blue-700 text-white py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <img src="<?= asset('images/logo.png') ?>"
                 alt="School Logo"
