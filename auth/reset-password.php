@@ -1,22 +1,71 @@
 <?php
-
 $title = "Reset Password";
-
 include(__DIR__ . '/./includes/non-auth-header.php');
 
+$token = $_GET['token'] ?? null;
+
+if (!$token) {
+    die("Invalid reset token");
+}
+
+// Tables to check
+$tables = ['admins', 'teachers', 'guardians', 'students'];
+$userTable = null;
+$userId = null;
+
+// Find token
+foreach ($tables as $table) {
+    $stmt = $conn->prepare(
+        "SELECT id, reset_expires FROM $table WHERE reset_token=? LIMIT 1"
+    );
+    $stmt->bind_param("s", $token);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($id, $expires);
+    if ($stmt->fetch()) {
+        if (new DateTime() > new DateTime($expires)) {
+            $errorMessage = "Reset link expired";
+        } else {
+            $userTable = $table;
+            $userId = $id;
+        }
+        break;
+    }
+}
+
+if (!$userTable && !isset($errorMessage)) {
+    $errorMessage = "Invalid or expired reset token";
+}
+
+// Handle POST (password reset)
+if ($_SERVER["REQUEST_METHOD"] === "POST" && $userTable) {
+    $password = $_POST['password'];
+    $confirm = $_POST['confirm_password'];
+
+    if ($password !== $confirm) {
+        $errorMessage = "Passwords do not match";
+    } else {
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+
+        // Update password & clear token
+        $stmt = $conn->prepare(
+            "UPDATE $userTable SET password=?, reset_token=NULL, reset_expires=NULL WHERE id=?"
+        );
+        $stmt->bind_param("si", $hashed, $userId);
+        $stmt->execute();
+
+        $showSuccess = true;
+    }
+}
 ?>
 
-
-
 <body class="bg-gray-50">
-
-
-    <!-- Reset Password Section  -->
+    <!-- Reset Password Section -->
     <section class="py-16 bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen flex items-center">
         <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <!-- Reset Password Card  -->
+            <!-- Reset Password Card -->
             <div class="bg-white rounded-2xl shadow-2xl p-8">
-                <!-- Header  -->
+                <!-- Header -->
                 <div class="text-center mb-8">
                     <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-900 rounded-full mb-4">
                         <i class="fas fa-lock text-white text-2xl"></i>
@@ -25,8 +74,9 @@ include(__DIR__ . '/./includes/non-auth-header.php');
                     <p class="text-gray-600 mt-2">Create a new secure password</p>
                 </div>
 
-                <!-- Success Message (Hidden by default)  -->
-                <div id="success-message" class="hidden mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <!-- Success Message -->
+                <div id="success-message"
+                    class="<?php echo isset($showSuccess) ? '' : 'hidden'; ?> mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div class="flex items-start">
                         <i class="fas fa-check-circle text-green-600 text-xl mr-3 mt-0.5"></i>
                         <div>
@@ -34,94 +84,74 @@ include(__DIR__ . '/./includes/non-auth-header.php');
                             <p class="text-sm text-green-700 mt-1">
                                 Your password has been successfully reset. You can now login with your new password.
                             </p>
-                            <a href="login.html" class="inline-block mt-3 text-sm font-semibold text-green-900 hover:text-green-700">
+                            <a href="<?= route('login') ?>" class="inline-block mt-3 text-sm font-semibold text-green-900 hover:text-green-700">
                                 Go to Login <i class="fas fa-arrow-right ml-1"></i>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Reset Password Form  -->
-                <form id="reset-password-form" class="space-y-6">
-                    <!-- Password Requirements Info  -->
+                <!-- Error Message -->
+                <?php if (isset($errorMessage)): ?>
+                    <div id="error-message"
+                        class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-circle text-red-600 text-xl mr-3 mt-0.5"></i>
+                            <div>
+                                <p class="text-sm text-red-700 mt-1">
+                                    <?= $errorMessage ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif ?>
+
+                <!-- Reset Password Form -->
+                <form id="reset-password-form"
+                    method="POST"
+                    class="space-y-6"
+                    style="<?php echo isset($showSuccess) ? 'display:none;' : ''; ?>">
+                    <!-- Password Requirements Info -->
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <h3 class="font-semibold text-blue-900 text-sm mb-2">
                             <i class="fas fa-info-circle mr-2"></i>Password Requirements:
                         </h3>
                         <ul class="text-xs text-blue-800 space-y-1">
-                            <li id="req-length" class="flex items-center">
-                                <i class="fas fa-circle text-xs mr-2"></i>At least 8 characters long
-                            </li>
-                            <li id="req-uppercase" class="flex items-center">
-                                <i class="fas fa-circle text-xs mr-2"></i>Contains uppercase letter
-                            </li>
-                            <li id="req-lowercase" class="flex items-center">
-                                <i class="fas fa-circle text-xs mr-2"></i>Contains lowercase letter
-                            </li>
-                            <li id="req-number" class="flex items-center">
-                                <i class="fas fa-circle text-xs mr-2"></i>Contains a number
-                            </li>
+                            <li><i class="fas fa-circle text-xs mr-2"></i>At least 8 characters long</li>
+                            <li><i class="fas fa-circle text-xs mr-2"></i>Contains uppercase letter</li>
+                            <li><i class="fas fa-circle text-xs mr-2"></i>Contains lowercase letter</li>
+                            <li><i class="fas fa-circle text-xs mr-2"></i>Contains a number</li>
                         </ul>
                     </div>
 
-                    <!-- New Password  -->
+                    <!-- New Password -->
                     <div>
                         <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-lock mr-2 text-blue-900"></i>New Password
                         </label>
-                        <div class="relative">
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
-                                placeholder="Enter new password">
-                            <button
-                                type="button"
-                                id="toggle-password"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-eye" id="eye-icon"></i>
-                            </button>
-                        </div>
+                        <input type="password" id="password" name="password" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
+                            placeholder="Enter new password">
                     </div>
 
-                    <!-- Confirm Password  -->
+                    <!-- Confirm Password -->
                     <div>
                         <label for="confirm_password" class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-lock mr-2 text-blue-900"></i>Confirm New Password
                         </label>
-                        <div class="relative">
-                            <input
-                                type="password"
-                                id="confirm_password"
-                                name="confirm_password"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
-                                placeholder="Confirm new password">
-                            <button
-                                type="button"
-                                id="toggle-confirm-password"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-eye" id="eye-icon-confirm"></i>
-                            </button>
-                        </div>
+                        <input type="password" id="confirm_password" name="confirm_password" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
+                            placeholder="Confirm new password">
                     </div>
 
-                    <!-- Password Match Indicator  -->
-                    <div id="password-match" class="hidden text-sm">
-                        <p id="match-message"></p>
-                    </div>
-
-                    <!-- Submit Button  -->
-                    <button
-                        type="submit"
+                    <!-- Submit Button -->
+                    <button type="submit"
                         class="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition shadow-lg hover:shadow-xl">
                         <i class="fas fa-check mr-2"></i>Reset Password
                     </button>
                 </form>
 
-                <!-- Divider  -->
+                <!-- Divider -->
                 <div class="relative my-6">
                     <div class="absolute inset-0 flex items-center">
                         <div class="w-full border-t border-gray-300"></div>
@@ -131,7 +161,7 @@ include(__DIR__ . '/./includes/non-auth-header.php');
                     </div>
                 </div>
 
-                <!-- back to Login  -->
+                <!-- Back to Login -->
                 <div class="text-center">
                     <a href="<?= route('login') ?>" class="inline-flex items-center text-blue-900 hover:text-blue-700 font-semibold">
                         <i class="fas fa-arrow-left mr-2"></i>
@@ -140,7 +170,7 @@ include(__DIR__ . '/./includes/non-auth-header.php');
                 </div>
             </div>
 
-            <!-- Security Notice  -->
+            <!-- Security Notice -->
             <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600">
                     <i class="fas fa-shield-alt mr-2 text-blue-900"></i>
@@ -150,9 +180,14 @@ include(__DIR__ . '/./includes/non-auth-header.php');
         </div>
     </section>
 
-    <!-- Scripts  -->
+    <!-- Scripts -->
     <script>
-
+        let error = document.getElementById("error-message");
+        if (error) {
+            setTimeout(() => {
+                error.classList.add("hidden");
+            }, 5000);
+        }
     </script>
 </body>
 
