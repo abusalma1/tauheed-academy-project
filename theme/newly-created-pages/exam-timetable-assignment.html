@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Timetable Assignment - Excellence Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
+                    <div>
+                        <h1 class="text-xl font-bold">Excellence Academy</h1>
+                        <p class="text-xs text-blue-200">Admin Panel</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="admin-dashboard.html" class="hover:text-blue-300 transition">Dashboard</a>
+                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
+            <a href="admin-dashboard.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Dashboard</a>
+            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Examination Timetable Assignment</h1>
+            <p class="text-xl text-purple-100">Assign exam schedules for all classes - First Term 2024/2025</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Search and Filter Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Search Class</label>
+                        <input type="text" id="searchInput" placeholder="Search by class name..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Filter by Section</label>
+                        <select id="sectionFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+                            <option value="">All Sections</option>
+                            <option value="Tahfeez">Tahfeez</option>
+                            <option value="Nursery">Nursery</option>
+                            <option value="Primary">Primary</option>
+                            <option value="Junior Secondary">Junior Secondary</option>
+                            <option value="Senior Secondary">Senior Secondary</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <button onclick="saveAllTimetables()" class="flex-1 bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition">
+                            <i class="fas fa-save mr-2"></i>Save Timetable
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Total Classes</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">16</p>
+                        </div>
+                        <i class="fas fa-book text-4xl text-purple-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-600">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Scheduled</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2" id="scheduledStat">0</p>
+                        </div>
+                        <i class="fas fa-check-circle text-4xl text-green-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-600">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Pending</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2" id="pendingStat">16</p>
+                        </div>
+                        <i class="fas fa-clock text-4xl text-orange-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-600">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Term</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">First</p>
+                        </div>
+                        <i class="fas fa-calendar text-4xl text-blue-200"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Timetable by Sections -->
+            <div class="space-y-8">
+                <!-- Tahfeez Section -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-4">
+                        <h3 class="text-xl font-bold text-white">Tahfeez Section</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100 border-b-2 border-gray-300">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Class</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Subject</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Date</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Start Time</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Duration</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Venue</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-900">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">Tahfeez 1</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Quranic Studies" data-class="Tahfeez 1"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Tahfeez 1"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Tahfeez 1"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="Tahfeez 1"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="Tahfeez 1"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">Tahfeez 2</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Quranic Studies" data-class="Tahfeez 2"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Tahfeez 2"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Tahfeez 2"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="Tahfeez 2"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="Tahfeez 2"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Primary Section -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+                        <h3 class="text-xl font-bold text-white">Primary Section</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100 border-b-2 border-gray-300">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Class</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Subject</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Date</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Start Time</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Duration</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Venue</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-900">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">Primary 1</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="Primary 1"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 1"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 1"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="Primary 1"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="Primary 1"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">Primary 2</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="Primary 2"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 2"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 2"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="Primary 2"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="Primary 2"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">Primary 3</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="Primary 3"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 3"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 3"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="Primary 3"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="Primary 3"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">Primary 4</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="Primary 4"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 4"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 4"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="Primary 4"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="Primary 4"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">Primary 5</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="Primary 5"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 5"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 5"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="Primary 5"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="Primary 5"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">Primary 6</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="Primary 6"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 6"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="Primary 6"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="Primary 6"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="Primary 6"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Junior Secondary Section -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4">
+                        <h3 class="text-xl font-bold text-white">Junior Secondary Section</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100 border-b-2 border-gray-300">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Class</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Subject</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Date</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Start Time</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Duration</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Venue</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-900">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">JSS 1</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="JSS 1"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="JSS 1"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="JSS 1"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="JSS 1"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="JSS 1"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">JSS 2</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="JSS 2"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="JSS 2"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="JSS 2"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="JSS 2"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="JSS 2"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">JSS 3</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="JSS 3"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="JSS 3"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="JSS 3"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="2 hrs" data-class="JSS 3"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="JSS 3"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Senior Secondary Section -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-orange-600 to-orange-700 px-6 py-4">
+                        <h3 class="text-xl font-bold text-white">Senior Secondary Section</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100 border-b-2 border-gray-300">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Class</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Subject</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Date</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Start Time</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Duration</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Venue</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-900">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">SS 1</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="SS 1"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="SS 1"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="SS 1"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="3 hrs" data-class="SS 1"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="SS 1"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">SS 2</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="SS 2"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="SS 2"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="SS 2"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="3 hrs" data-class="SS 2"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="SS 2"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-gray-900">SS 3</td>
+                                    <td class="px-4 py-3"><input type="text" class="subject w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Mathematics" data-class="SS 3"></td>
+                                    <td class="px-4 py-3"><input type="date" class="date w-32 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="SS 3"></td>
+                                    <td class="px-4 py-3"><input type="time" class="time w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" data-class="SS 3"></td>
+                                    <td class="px-4 py-3"><input type="text" class="duration w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="3 hrs" data-class="SS 3"></td>
+                                    <td class="px-4 py-3"><input type="text" class="venue w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="Hall A" data-class="SS 3"></td>
+                                    <td class="px-4 py-3 text-center"><button onclick="updateRowTimetable(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-check"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex justify-center gap-4">
+                <button onclick="saveAllTimetables()" class="bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
+                    <i class="fas fa-save mr-2"></i>Save Timetable
+                </button>
+                <button onclick="resetForm()" class="bg-gray-300 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
+                    <i class="fas fa-redo mr-2"></i>Reset
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-lg font-bold mb-4">About Us</h4>
+                    <p class="text-gray-400 text-sm">Excellence Academy is committed to providing quality education and holistic development.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="admin-dashboard.html" class="hover:text-white">Dashboard</a></li>
+                        <li><a href="admin-management.html" class="hover:text-white">Users</a></li>
+                        <li><a href="classes-by-section.html" class="hover:text-white">Classes</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Contact</h4>
+                    <p class="text-gray-400 text-sm">Phone: +234 901 234 5678</p>
+                    <p class="text-gray-400 text-sm">Email: info@excellenceacademy.com</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Follow Us</h4>
+                    <div class="flex gap-3">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        function updateRowTimetable(btn) {
+            const row = btn.closest('tr');
+            const subject = row.querySelector('.subject').value;
+            const date = row.querySelector('.date').value;
+            const time = row.querySelector('.time').value;
+            const duration = row.querySelector('.duration').value;
+            const venue = row.querySelector('.venue').value;
+
+            if (subject && date && time && duration && venue) {
+                const timetables = JSON.parse(localStorage.getItem('examTimetables')) || [];
+                const className = row.querySelector('.subject').dataset.class;
+                timetables.push({ className, subject, date, time, duration, venue });
+                localStorage.setItem('examTimetables', JSON.stringify(timetables));
+                alert('Exam scheduled successfully!');
+                updateStats();
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        function saveAllTimetables() {
+            const rows = document.querySelectorAll('tbody tr');
+            let count = 0;
+            rows.forEach(row => {
+                const subject = row.querySelector('.subject').value;
+                if (subject) count++;
+            });
+
+            localStorage.setItem('totalScheduled', count);
+            alert(count + ' exam schedules saved successfully!');
+            updateStats();
+        }
+
+        function updateStats() {
+            const scheduled = JSON.parse(localStorage.getItem('totalScheduled')) || 0;
+            document.getElementById('scheduledStat').textContent = scheduled;
+            document.getElementById('pendingStat').textContent = 16 - scheduled;
+        }
+
+        function resetForm() {
+            document.querySelectorAll('input[type="text"], input[type="date"], input[type="time"]').forEach(input => {
+                input.value = '';
+            });
+            localStorage.removeItem('examTimetables');
+            localStorage.removeItem('totalScheduled');
+            updateStats();
+        }
+
+        // Load stats on page load
+        window.addEventListener('load', updateStats);
+    </script>
+</body>
+</html>
