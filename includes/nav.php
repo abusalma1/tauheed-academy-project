@@ -29,9 +29,12 @@
 
                         <ul class="flex flex-col py-2">
                             <li> <a href="<?= route('about'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> About </a> </li>
+                            <li> <a href="<?= route('contact'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Contact Us </a> </li>
+
+
                             <li> <a href="<?= route('admission'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Admissions </a> </li>
                             <li> <a href="<?= route('fees'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Fees </a> </li>
-                            <li> <a href="<?= route('uniform'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Uniform </a> </li>
+
                             <li> <a href="<?= route('gallery'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Gallery </a> </li>
                         </ul>
                     </div>
@@ -99,9 +102,9 @@
 
             <div class="mobile-dropdown hidden flex-col mt-2 bg-blue-700 rounded-lg">
                 <a href="<?= route('about'); ?>" class="block px-4 py-2 hover:bg-blue-600">About</a>
+                <a href="<?= route('contact'); ?>" class="block px-4 py-2 hover:bg-blue-600">Contact Us</a>
                 <a href="<?= route('admission'); ?>" class="block px-4 py-2 hover:bg-blue-600">Admissions</a>
                 <a href="<?= route('fees'); ?>" class="block px-4 py-2 hover:bg-blue-600">Fees</a>
-                <a href="<?= route('uniform'); ?>" class="block px-4 py-2 hover:bg-blue-600">Uniform</a>
                 <a href="<?= route('gallery'); ?>" class="block px-4 py-2 hover:bg-blue-600">Gallery</a>
             </div>
         </div>

@@ -12,6 +12,9 @@ $routes = [
     'about' => [
         'url' => "$baseUrl/pages/about.php"
     ],
+    'contact' => [
+        'url' => "$baseUrl/pages/contact.php"
+    ],
     'academics' => [
         'url' => "$baseUrl/pages/academics.php"
     ],
@@ -29,9 +32,6 @@ $routes = [
     ],
     'timetable' => [
         'url' => "$baseUrl/pages/timetable.php"
-    ],
-    'uniform' => [
-        'url' => "$baseUrl/pages/uniform.php"
     ],
 
     // auth 

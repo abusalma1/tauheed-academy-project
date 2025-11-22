@@ -9,7 +9,7 @@ include(__DIR__ .  '/./includes/header.php');
 
     <?php include(__DIR__ .  '/./includes/nav.php'); ?>
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-pink-700 to-blue-700 text-white py-20">
+    <section class="bg-gradient-to-r from-pink-700 to-blue-600 text-white py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <img src="<?= asset('images/logo.png') ?>"
                 alt="School Logo"
@@ -18,8 +18,8 @@ include(__DIR__ .  '/./includes/header.php');
             <h1 class="text-4xl md:text-6xl font-bold mb-4">Tauheed Academy</h1>
             <p class="text-xl md:text-2xl text-blue-200 mb-8">Nurturing Future Leaders Through Quality Education</p>
             <div class="flex flex-wrap justify-center gap-4">
-                <a href="pages/admissions.html" class="bg-white text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition">Apply Now</a>
-                <a href="pages/about.html" class="bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-900 transition">Learn More</a>
+                <a href="<?= route('admission') ?>" class="bg-white text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition">Apply Now</a>
+                <a href="<?= route('about') ?>" class="bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-900 transition">Learn More</a>
             </div>
         </div>
     </section>
@@ -104,23 +104,35 @@ include(__DIR__ .  '/./includes/header.php');
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Quick Links</h2>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
-                <a href="pages/admissions.html" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
+                <a href="<?= route('admission') ?>" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
                     <i class="fas fa-user-plus text-4xl mb-3"></i>
                     <p class="font-semibold">Admissions</p>
                 </a>
-                <a href="pages/fees.html" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
+                <a href="<?= route('fees') ?>" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
                     <i class="fas fa-money-bill-wave text-4xl mb-3"></i>
                     <p class="font-semibold">Fees</p>
                 </a>
-                <a href="pages/timetable.html" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
+                <a href="<?= route('timetable') ?>" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
                     <i class="fas fa-calendar-alt text-4xl mb-3"></i>
                     <p class="font-semibold">Timetable</p>
                 </a>
-                <a href="pages/academics.html" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
+                <a href="<?php
+                            if ($is_logged_in) {
+                                if ($user_type === 'student') {
+                                    echo (route('student-result'));
+                                } else if ($user_type === 'guardian') {
+                                    echo (route('my-children'));
+                                } else {
+                                    echo((route('results-management')));
+                                }
+                            } else {
+                                echo (route('academics'));
+                            }
+                            ?>" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
                     <i class="fas fa-graduation-cap text-4xl mb-3"></i>
                     <p class="font-semibold">Results</p>
                 </a>
-                <a href="pages/about.html" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
+                <a href="<?= route('about') ?>" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
                     <i class="fas fa-envelope text-4xl mb-3"></i>
                     <p class="font-semibold">Contact</p>
                 </a>
