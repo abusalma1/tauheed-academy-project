@@ -13,7 +13,8 @@ CREATE TABLE admins (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    reset_token VARCHAR(50),
+    reset_token VARCHAR(255) NULL,
+    reset_expires DATETIME NULL,
     type ENUM('admin', 'superAdmin') DEFAULT 'admin',
     staff_no VARCHAR(50) UNIQUE,
     address VARCHAR(255),
@@ -64,7 +65,8 @@ CREATE TABLE teachers (
     status ENUM('active', 'inactive') DEFAULT 'active',
     picture_path VARCHAR(255),
     password VARCHAR(255) NOT NULL,
-    reset_token VARCHAR(50),
+       reset_token VARCHAR(255) NULL,
+    reset_expires DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -172,7 +174,8 @@ CREATE TABLE guardians (
     occupation VARCHAR(255),
     password VARCHAR(255) NOT NULL,
     status ENUM('active', 'inactive') DEFAULT 'active',
-    reset_token VARCHAR(50),
+       reset_token VARCHAR(255) NULL,
+    reset_expires DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -218,7 +221,8 @@ CREATE TABLE students (
     dob DATE,
     picture VARCHAR(255),
     password VARCHAR(255) NOT NULL,
-    reset_token VARCHAR(50),
+        reset_token VARCHAR(255) NULL,
+    reset_expires DATETIME NULL,
     status ENUM('active', 'inactive') DEFAULT 'active',
     gender ENUM('male', 'female') DEFAULT 'male',
     

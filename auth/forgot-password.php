@@ -4,6 +4,48 @@ $title = "Forgot Password";
 
 include(__DIR__ . '/./includes/non-auth-header.php');
 
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $email = trim($_POST['email']);
+
+    // Check if email exists
+    $stmt = $conn->prepare("SELECT id FROM admins WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows === 0) {
+        echo json_encode(["status" => "error", "message" => "Email not found"]);
+        exit;
+    }
+
+    // Generate token
+    $token = bin2hex(random_bytes(32));
+    $expires_at = date("Y-m-d H:i:s", strtotime("+1 hour"));
+
+    // Delete any old tokens
+    $conn->prepare("DELETE FROM password_resets WHERE email=?")
+         ->bind_param("s", $email)
+         ->execute();
+
+    // Insert new token
+    $stmt = $conn->prepare(
+        "INSERT INTO password_resets (email, token, expires_at)
+         VALUES (?, ?, ?)"
+    );
+    $stmt->bind_param("sss", $email, $token, $expires_at);
+    $stmt->execute();
+
+    // Localhost reset URL
+    $resetLink = "http://localhost/tauheed-academy/reset-password.php?token=$token";
+
+    echo json_encode([
+        "status" => "success",
+        "message" => "Reset link generated",
+        "resetLink" => $resetLink // Use this link during local development
+    ]);
+}
+
 ?>
 
 
@@ -116,31 +158,27 @@ include(__DIR__ . '/./includes/non-auth-header.php');
 
   <!-- Scripts -->
   <script>
-    // Mobile Menu Toggle
-    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-    const mobileMenu = document.getElementById("mobile-menu");
-
-    mobileMenuBtn.addEventListener("click", () => {
-      mobileMenu.classList.toggle("hidden");
-    });
-
-    // Form Submission
-    const forgotPasswordForm = document.getElementById(
-      "forgot-password-form"
-    );
-    const successMessage = document.getElementById("success-message");
-
-    forgotPasswordForm.addEventListener("submit", (e) => {
+    forgotPasswordForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      // Show success message
-      successMessage.classList.remove("hidden");
+      const formData = new FormData(forgotPasswordForm);
 
-      // Hide form
-      forgotPasswordForm.style.display = "none";
+      const res = await fetch("forgot-password-process.php", {
+        method: "POST",
+        body: formData
+      });
 
-      // Add your forgot password logic here
-      // In production, this would send a reset email
+      const data = await res.json();
+
+      if (data.status === "success") {
+        successMessage.classList.remove("hidden");
+        forgotPasswordForm.style.display = "none";
+
+        console.log("Localhost Reset Link:", data.resetLink);
+        alert("Localhost reset link:\n" + data.resetLink);
+      } else {
+        alert(data.message);
+      }
     });
   </script>
 </body>
