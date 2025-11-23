@@ -57,6 +57,9 @@ $routes = [
     'admin-section' => [
         'url' => "$baseUrl/pages/admin/"
     ],
+    'post-news' => [
+        'url' => "$baseUrl/pages/admin/post-news.php"
+    ],
 
     // users 
 

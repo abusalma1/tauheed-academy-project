@@ -1,38 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post News - Excellence Academy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+<?php
+$title = "Post News";
+include(__DIR__ . '/../../includes/header.php');
+
+$stmt = $conn->prepare("SELECT * FROM news order by created_at DESC LIMIT 10");
+$stmt->execute();
+$news =  $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+?>
+
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Admin Panel</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="admin-dashboard.html" class="hover:text-blue-300 transition">Dashboard</a>
-                    <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="admin-dashboard.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Dashboard</a>
-            <button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button>
-        </div>
-    </nav>
+    <?php include(__DIR__ . "/./includes/admins-section-nav.php") ?>
+
 
     <!-- Page Header -->
     <section class="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
@@ -137,36 +116,31 @@
                             </tr>
                         </thead>
                         <tbody id="newsTable">
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-6 py-4">End of Term Examination Schedule</td>
-                                <td class="px-6 py-4"><span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Announcement</span></td>
-                                <td class="px-6 py-4">December 1, 2025</td>
-                                <td class="px-6 py-4"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Published</span></td>
-                                <td class="px-6 py-4">
-                                    <button class="text-blue-600 hover:text-blue-800 mr-3"><i class="fas fa-edit"></i></button>
-                                    <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-6 py-4">Annual Sports Day</td>
-                                <td class="px-6 py-4"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Event</span></td>
-                                <td class="px-6 py-4">December 5, 2025</td>
-                                <td class="px-6 py-4"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Published</span></td>
-                                <td class="px-6 py-4">
-                                    <button class="text-blue-600 hover:text-blue-800 mr-3"><i class="fas fa-edit"></i></button>
-                                    <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-6 py-4">Excellence Academy Wins Regional Competition</td>
-                                <td class="px-6 py-4"><span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">Achievement</span></td>
-                                <td class="px-6 py-4">November 28, 2025</td>
-                                <td class="px-6 py-4"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Published</span></td>
-                                <td class="px-6 py-4">
-                                    <button class="text-blue-600 hover:text-blue-800 mr-3"><i class="fas fa-edit"></i></button>
-                                    <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
+                            <?php foreach ($news as $new) : ?>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4">End of Term Examination Schedule</td>
+                                    <td class="px-6 py-4"><span class="
+
+                                <?php if ($row('category') === 'event'): ?>
+                                    bg-green-100 text-green-800
+                                <?php elseif ($row('category') === 'achievement'): ?>
+                                    bg-yellow-100 text-yellow-800
+                                <?php elseif ($row('category') === 'announcement'): ?>
+                                    bg-blue-100 text-blue-800
+                                <?php elseif ($row('category') === 'udate'): ?>
+                                    bg-purple-100 text-purple-800
+                                <?php endif ?>
+
+                                 px-3 py-1 rounded-full text-sm"><?= ucwords($new['category']) ?></span></td>
+                                    <td class="px-6 py-4"><?= date('D d M, Y', strtotime($new['created_at'])); ?></td>
+                                    <td class="px-6 py-4"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"><?= ucwords($newp['status']) ?></span></td>
+                                    <td class="px-6 py-4">
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+
                         </tbody>
                     </table>
                 </div>
@@ -175,59 +149,10 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Admin Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="admin-dashboard.html" class="text-gray-400 hover:text-white transition">Dashboard</a></li>
-                        <li><a href="school-news.html" class="text-gray-400 hover:text-white transition">View News</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include(__DIR__ . "/../../includes/footer.php"); ?>
+
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
         // Image upload handling
         const imageInput = document.getElementById('image');
         const imagePreview = document.getElementById('imagePreview');
@@ -268,4 +193,5 @@
         });
     </script>
 </body>
+
 </html>

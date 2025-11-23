@@ -311,3 +311,18 @@ CREATE TABLE results (
 
     UNIQUE (student_term_record_id, subject_id)
 ) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 12. NEWS TABLE
+-- ===========================================================
+CREATE TABLE news (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    category ENUM('announcement', 'event', 'achievement', 'update') DEFAULT 'announcement',
+    content TEXT,
+    picture_path VARCHAR(255),
+    publication_date TIMESTAMP,
+    status ENUM('draft', 'published') DEFAULT 'draft',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 23, 2025 at 01:52 PM
+-- Generation Time: Nov 23, 2025 at 06:56 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -239,6 +239,24 @@ INSERT INTO `guardians` (`id`, `name`, `email`, `phone`, `address`, `picture_pat
 (5, 'Sanusi Gandu', 'sanusi@email.com', '09061893504', 'Gandu Area', NULL, 'father', 'Business', '$2y$10$daEH3qJkX30oe/jS3/0g5uk51ylsINpdn0I3qR8WktBe8rutOErly', 'active', NULL, '2025-11-11 10:36:16', '2025-11-18 11:10:26', 'male', NULL),
 (6, 'Hassan Musa Kebbeh', 'kebbeh@email.com', '09061893504', 'Gidan Igwai', NULL, 'father', 'Civil Servant', '$2y$10$daEH3qJkX30oe/jS3/0g5uk51ylsINpdn0I3qR8WktBe8rutOErly', 'active', NULL, '2025-11-11 10:37:30', '2025-11-18 11:10:26', 'male', NULL),
 (7, 'Bello Inga', 'bello@email.com', '09012345652', 'Binanchi Area', NULL, 'father', 'Business', '$2y$10$daEH3qJkX30oe/jS3/0g5uk51ylsINpdn0I3qR8WktBe8rutOErly', 'active', NULL, '2025-11-11 10:38:32', '2025-11-18 11:10:26', 'male', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `news`
+--
+
+CREATE TABLE `news` (
+  `id` int(11) NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `category` enum('announcement','event','achievement','update') DEFAULT 'announcement',
+  `content` text DEFAULT NULL,
+  `picture_path` varchar(255) DEFAULT NULL,
+  `publication_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `status` enum('draft','published') DEFAULT 'draft',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -603,6 +621,12 @@ ALTER TABLE `guardians`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `news`
+--
+ALTER TABLE `news`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `results`
 --
 ALTER TABLE `results`
@@ -720,6 +744,12 @@ ALTER TABLE `class_subjects`
 --
 ALTER TABLE `guardians`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `news`
+--
+ALTER TABLE `news`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `results`
