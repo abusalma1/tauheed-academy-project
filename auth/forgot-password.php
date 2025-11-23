@@ -1,40 +1,116 @@
 <?php
+// Hardened Forgot Password (maximum security, error-proof)
+
 $title = "Forgot Password";
 include(__DIR__ . '/./includes/non-auth-header.php');
+include(__DIR__ . '/../config/mailer.php');
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  $email = trim($_POST['email']);
 
-  $tables = ['admins', 'teachers', 'guardians', 'students'];
-  $userTable = null;
+// ===== CONFIG =====
+$DEV_SHOW_EMAIL_NOT_FOUND = false;  // For local testing ONLY. Set to false in production.
 
-  foreach ($tables as $table) {
-    $stmt = $conn->prepare("SELECT id FROM $table WHERE email=? LIMIT 1");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $stmt->store_result();
-    if ($stmt->num_rows > 0) {
-      $userTable = $table;
-      break;
-    }
+// Initialize flags/vars to avoid notices
+$errorMessage = null;
+$userTable = null;
+$showSuccess = null;
+
+// Build base URL (prefer HTTPS in production)
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$isLocalhost = in_array($host, ['localhost', '127.0.0.1']);
+$scheme = $isLocalhost ? 'http' : 'https';
+$baseUrl = $scheme . '://' . $host;
+
+// CSRF: initialize token on GET
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+  if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
+}
 
-  if (!$userTable) {
-    $emailError = "Email not found";
+// Handle POST
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  // CSRF validation
+  if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    $errorMessage = "Invalid request. Please refresh and try again.";
   } else {
-    // Generate token
-    $token = bin2hex(random_bytes(32));
-    $expires_at = date("Y-m-d H:i:s", strtotime("+1 hour"));
+    // Normalize email
+    $email = strtolower(trim($_POST['email'] ?? ''));
 
-    $stmt = $conn->prepare(
-      "UPDATE $userTable SET reset_token=?, reset_expires=? WHERE email=?"
-    );
-    $stmt->bind_param("sss", $token, $expires_at, $email);
-    $stmt->execute();
+    // Basic input validation
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      // In production, avoid detailed errors; show generic by default
+      if ($DEV_SHOW_EMAIL_NOT_FOUND) {
+        $errorMessage = "Invalid email address";
+      }
+    }
 
-    // For now just show success block (later you’ll send email)
-    $showSuccess = true;
-    $resetLink = "http://localhost/tauheed-academy-project/auth/reset-password.php?token=$token";
+    // Tables to check (no user enumeration)
+    $tables = ['admins', 'teachers', 'guardians', 'students'];
+
+    // Find account by email
+    if ($errorMessage === null) {
+      foreach ($tables as $table) {
+        $sql = "SELECT id FROM `$table` WHERE email=? LIMIT 1";
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+          // Log internally, show generic message
+          error_log("Prepare failed (SELECT): " . $conn->error);
+          $errorMessage = "An unexpected error occurred. Please try again.";
+          break;
+        }
+        $stmt->bind_param("s", $email);
+        if (!$stmt->execute()) {
+          error_log("Execute failed (SELECT): " . $stmt->error);
+          $errorMessage = "An unexpected error occurred. Please try again.";
+          $stmt->close();
+          break;
+        }
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+          $userTable = $table;
+          $stmt->close();
+          break;
+        }
+        $stmt->close();
+      }
+
+      // Always respond with a generic success message to prevent enumeration
+      // Only generate and store a token if the account actually exists
+      if ($errorMessage === null) {
+        if (!empty($userTable)) {
+          // Generate secure token and store HASH only
+          $rawToken = bin2hex(random_bytes(32));   // 64 hex chars
+          $tokenHash = hash('sha256', $rawToken);
+          $expires_at = date("Y-m-d H:i:s", strtotime("+1 hour"));
+
+          $updateSql = "UPDATE `$userTable` SET reset_token=?, reset_expires=? WHERE email=?";
+          $stmt = $conn->prepare($updateSql);
+          if (!$stmt) {
+            error_log("Prepare failed (UPDATE): " . $conn->error);
+            $errorMessage = "An unexpected error occurred. Please try again.";
+          } else {
+            $stmt->bind_param("sss", $tokenHash, $expires_at, $email);
+            if (!$stmt->execute()) {
+              error_log("Execute failed (UPDATE): " . $stmt->error);
+              $errorMessage = "An unexpected error occurred. Please try again.";
+            }
+            $stmt->close();
+          }
+
+
+          $projectBase = $isLocalhost ? '/tauheed-academy-project' : '';
+          $resetLink = $baseUrl . $projectBase . "/auth/reset-password.php?token=" . urlencode($rawToken);
+
+
+          sendResetEmail($email, $resetLink);
+        }
+
+        // Show generic success regardless of existence to avoid enumeration
+        if ($errorMessage === null) {
+          $showSuccess = true;
+        }
+      }
+    }
   }
 }
 ?>
@@ -56,41 +132,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           </p>
         </div>
 
-        <!-- Success Message -->
+        <!-- Success Message (generic to prevent enumeration) -->
         <div id="success-message"
           class="<?php echo isset($showSuccess) ? '' : 'hidden'; ?> mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <div class="flex items-start">
             <i class="fas fa-check-circle text-green-600 text-xl mr-3 mt-0.5"></i>
             <div>
-              <h3 class="font-semibold text-green-900">Email Sent!</h3>
+              <h3 class="font-semibold text-green-900">If an account exists, we’ll email you</h3>
               <p class="text-sm text-green-700 mt-1">
-                We've sent password reset instructions to your email address.
+                If the email you entered is associated with an account, a password reset link has been sent.
                 Please check your inbox and spam folder.
               </p>
-              <?php if (isset($resetLink)): ?>
-                <p class="text-xs text-green-600 mt-2">
-                  <strong>Debug Reset Link:</strong>
-                  <a href="<?= $resetLink ?>" class="text-blue-700 underline"><?= $resetLink ?></a>
-                </p>
-              <?php endif; ?>
             </div>
           </div>
         </div>
 
-        <!-- Error Message -->
-        <?php if (isset($emailError)): ?>
+        <!-- Error Message (visible for CSRF or dev mode) -->
+        <?php if (isset($errorMessage) || ($DEV_SHOW_EMAIL_NOT_FOUND && empty($userTable) && $_SERVER["REQUEST_METHOD"] === "POST")): ?>
           <div id="error-message"
             class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div class="flex items-start">
               <i class="fas fa-exclamation-circle text-red-600 text-xl mr-3 mt-0.5"></i>
               <div>
                 <p class="text-sm text-red-700 mt-1">
-                  <?= $emailError ?>
+                  <?php
+                  if (isset($errorMessage)) {
+                    echo htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8');
+                  } elseif ($DEV_SHOW_EMAIL_NOT_FOUND && $_SERVER["REQUEST_METHOD"] === "POST" && empty($userTable)) {
+                    echo "Email not found (dev mode)";
+                  }
+                  ?>
                 </p>
               </div>
             </div>
           </div>
-        <?php endif ?>
+        <?php endif; ?>
 
         <!-- Forgot Password Form -->
         <form id="forgot-password-form"
@@ -101,16 +177,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
               <i class="fas fa-envelope mr-2 text-blue-900"></i>Email Address
             </label>
-            <input type="email"
+            <input
+              type="email"
               id="email"
               name="email"
               required
+              autocomplete="email"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
               placeholder="Enter your registered email" />
             <p class="text-xs text-gray-500 mt-2">
               Enter the email address associated with your account
             </p>
           </div>
+
+          <!-- CSRF token -->
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 
           <!-- Submit Button -->
           <button type="submit"
@@ -149,7 +230,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </p>
         <div class="space-y-1 text-sm text-blue-900">
           <p><i class="fas fa-phone mr-2"></i>+234 800 123 4567</p>
-          <p><i class="fas fa-envelope mr-2"></i>support@excellenceacademy.edu</p>
+          <p><i class="fas a-envelope mr-2"></i>support@excellenceacademy.edu</p>
         </div>
       </div>
     </div>

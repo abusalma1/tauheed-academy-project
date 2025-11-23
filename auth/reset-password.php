@@ -5,8 +5,11 @@ include(__DIR__ . '/./includes/non-auth-header.php');
 $token = $_GET['token'] ?? null;
 
 if (!$token) {
-    die("Invalid reset token");
+    $errorMessage = "Invalid reset token";
 }
+
+// Hash the incoming token to match what was stored
+$tokenHash = $token ? hash('sha256', $token) : null;
 
 // Tables to check
 $tables = ['admins', 'teachers', 'guardians', 'students'];
@@ -14,22 +17,25 @@ $userTable = null;
 $userId = null;
 
 // Find token
-foreach ($tables as $table) {
-    $stmt = $conn->prepare(
-        "SELECT id, reset_expires FROM $table WHERE reset_token=? LIMIT 1"
-    );
-    $stmt->bind_param("s", $token);
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($id, $expires);
-    if ($stmt->fetch()) {
-        if (new DateTime() > new DateTime($expires)) {
-            $errorMessage = "Reset link expired";
-        } else {
-            $userTable = $table;
-            $userId = $id;
+if ($tokenHash) {
+    foreach ($tables as $table) {
+        $stmt = $conn->prepare(
+            "SELECT id, reset_expires FROM $table WHERE reset_token=? LIMIT 1"
+        );
+        $stmt->bind_param("s", $tokenHash);
+        $stmt->execute();
+        $stmt->store_result();
+        $stmt->bind_result($id, $expires);
+        if ($stmt->fetch()) {
+            if (new DateTime() > new DateTime($expires)) {
+                $errorMessage = "Reset link expired";
+            } else {
+                $userTable = $table;
+                $userId = $id;
+            }
+            break;
         }
-        break;
+        $stmt->close();
     }
 }
 
@@ -44,6 +50,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $userTable) {
 
     if ($password !== $confirm) {
         $errorMessage = "Passwords do not match";
+    } elseif (strlen($password) < 8) {
+        $errorMessage = "Password must be at least 8 characters long";
     } else {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
 
@@ -53,11 +61,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $userTable) {
         );
         $stmt->bind_param("si", $hashed, $userId);
         $stmt->execute();
+        $stmt->close();
 
         $showSuccess = true;
     }
 }
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Reset Password Section -->
@@ -84,9 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $userTable) {
                             <p class="text-sm text-green-700 mt-1">
                                 Your password has been successfully reset. You can now login with your new password.
                             </p>
-                            <a href="<?= route('login') ?>" class="inline-block mt-3 text-sm font-semibold text-green-900 hover:text-green-700">
-                                Go to Login <i class="fas fa-arrow-right ml-1"></i>
-                            </a>
+
                         </div>
                     </div>
                 </div>
