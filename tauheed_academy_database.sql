@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 22, 2025 at 07:40 AM
+-- Generation Time: Nov 23, 2025 at 01:52 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -53,8 +53,8 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `name`, `email`, `password`, `reset_token`, `type`, `staff_no`, `address`, `department`, `status`, `phone`, `picture_path`, `created_at`, `updated_at`, `qualification`, `gender`, `experience`, `reset_expires`) VALUES
-(1, 'Abubakar Ahmad Adili', 'superadmin@email.com', '$2y$10$CWSA8wZpIm.29G7UUqjabeQQ2e5sDSGgg7wmS/reLHUlPWjykolAa', NULL, 'superAdmin', 'ST/2025/001', 'Maniru Road', 'Director/CEO', 'active', '09061893504', NULL, '2025-11-05 14:33:05', '2025-11-20 12:03:54', NULL, 'male', NULL, NULL),
-(2, 'Aminu Ahmad Adili', 'admin@email.com', '$2y$10$TDnqjeR0wzvlaI3TLIYBiewsjVljhGrlcXTEwQbn4Pwf7JBt/sU4q', NULL, 'admin', 'ST/2025/002', 'Kofar Marke Area', 'Development', 'active', '09061893504', NULL, '2025-11-10 12:28:17', '2025-11-17 13:50:15', NULL, 'male', NULL, NULL),
+(1, 'Abubakar Ahmad Adili', 'abubakarahmadadili@gmail.com', '$2y$10$VmpoPAOKYaVB4pEfE0h/qepU80Egi/8T4mxIPCGirpA2//ionrL0y', NULL, 'superAdmin', 'ST/2025/001', 'Maniru Road', 'Director/CEO', 'active', '09061893504', NULL, '2025-11-05 14:33:05', '2025-11-23 12:50:50', NULL, 'male', NULL, NULL),
+(2, 'Aminu Ahmad Adili', 'admin@email.com', '$2y$10$n8ei/IxLhOlEcIE8aFHDpemDAnithSjtGFgBeOTXIYM1e4WvThR1C', NULL, 'admin', 'ST/2025/002', 'Kofar Marke Area', 'Development', 'active', '09061893504', NULL, '2025-11-10 12:28:17', '2025-11-22 16:12:52', NULL, 'male', NULL, NULL),
 (3, 'Abusalma', 'abusalma@email.com', '$2y$12$cwHfSjrOQke1NebbuPwSLOjUE1A0G7QZ6nA2Mqa/2AfwOFvYQqBbS', NULL, 'admin', 'ST/2025/003', 'Mabera', 'FInance', 'active', '09071465325', NULL, '2025-11-20 14:46:54', '2025-11-20 14:46:54', 'B.sc Public Admin', 'male', 'iconic Open University (10 years fince officer)', NULL);
 
 -- --------------------------------------------------------
@@ -506,7 +506,7 @@ CREATE TABLE `teachers` (
 --
 
 INSERT INTO `teachers` (`id`, `name`, `email`, `phone`, `address`, `qualification`, `staff_no`, `status`, `picture_path`, `password`, `reset_token`, `created_at`, `updated_at`, `gender`, `experience`, `reset_expires`) VALUES
-(1, 'Mudassir Ahmad Adili', 'teacher@email.com', '09061893504', 'Maniru Road sokoto', 'B.Sc Mathematics', 'ST/2025/002', 'active', NULL, '$2y$10$70rAPv9uUi9pKQrFeZpUwexTtTc.sBq3RJ8U8MpibMYefRjKU/CDK', NULL, '2025-11-06 07:43:31', '2025-11-20 05:40:57', 'male', NULL, NULL),
+(1, 'Mudassir Ahmad Adili', 'teacher@email.com', '09061893504', 'Maniru Road sokoto', 'B.Sc Mathematics', 'ST/2025/002', 'active', NULL, '$2y$10$HSFjpGyvC0kU5gXC5Ke/XOW0YpOc9pT3/8p4HRoQ0Ur5zOGK/2R7.', NULL, '2025-11-06 07:43:31', '2025-11-22 16:14:35', 'male', NULL, NULL),
 (2, 'Nasir Ahmad Adili', 'nasir@email.com', '09061893504', 'Maniru Road', 'B.Sc Computer Science', 'ST/2025/001', 'active', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, '2025-11-06 09:26:51', '2025-11-17 13:43:48', 'male', NULL, NULL),
 (3, 'Abdullahi Ahmad Adili', 'abdullahi@email.com', '08012345678', 'Maniru Road', 'B.Sc Mathematics', 'ST/2025/003', 'active', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, '2025-11-06 09:28:47', '2025-11-17 13:43:48', 'male', NULL, NULL),
 (4, 'Mubarak Ahmad Adili', 'mk@email.com', '09061893504', 'Arkilla', 'B.Sc Accouting', 'ST/2025/005', 'active', NULL, '$2y$10$SRxpNUZjWZ2YOemv54dv1O1iqPAKblCMsSvEbbgvZlv6nqC2J24HS', NULL, '2025-11-10 12:29:49', '2025-11-17 13:43:48', 'male', NULL, NULL),
