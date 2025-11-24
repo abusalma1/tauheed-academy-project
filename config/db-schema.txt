@@ -65,7 +65,7 @@ CREATE TABLE teachers (
     status ENUM('active', 'inactive') DEFAULT 'active',
     picture_path VARCHAR(255),
     password VARCHAR(255) NOT NULL,
-       reset_token VARCHAR(255) NULL,
+    reset_token VARCHAR(255) NULL,
     reset_expires DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
