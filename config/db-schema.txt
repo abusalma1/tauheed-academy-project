@@ -326,3 +326,22 @@ CREATE TABLE news (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
+
+
+-- ===========================================================
+-- 12. FEES TABLE
+-- ===========================================================
+CREATE TABLE fees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    class_id VARCHAR(100) NOT NULL,
+    first_term DECIMAL(10,2),
+    second_term DECIMAL(10,2),
+    third_term DECIMAL(10,2),
+    uniform DECIMAL(10,2),
+    transport DECIMAL(10,2),
+    materials DECIMAL(10,2),
+
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;

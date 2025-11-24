@@ -240,7 +240,18 @@ $routes = [
     ],
     'update-profile-password' => [
         'url' => "$baseUrl/pages/profile/user-change-password.php"
-    ]
+    ],
+
+    //  admin fees
+    'fees-management' => [
+        'url' => "$baseUrl/pages/admin/fees/"
+    ],
+    'admin-fees' => [
+        'url' => "$baseUrl/pages/admin/fees/fees.php"
+    ],
+    'fees-assginment' => [
+        'url' => "$baseUrl/pages/admin/fees/fees-assignment.php"
+    ],
 
 
 ];
