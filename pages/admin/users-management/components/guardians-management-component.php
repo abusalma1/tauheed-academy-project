@@ -61,6 +61,8 @@
                             <a href="delete-confirmation.html?type=guardian&id=1" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
                                 <i class="fas fa-trash mr-1"></i>Delete
                             </a>
+
+                           
                         </div>
                     </div>
                 </div>

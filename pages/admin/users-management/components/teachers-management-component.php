@@ -60,6 +60,11 @@
                         <a href="" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
                             <i class="fas fa-trash mr-1"></i>Delete
                         </a>
+
+                        <a href="<?= route('view-user-details') . '?id=' . $teacher['id'] . '&type=teacher' ?>"
+                            class="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition text-center text-sm font-semibold">
+                            <i class="fas fa-eye mr-1"></i>View Details
+                        </a>
                     </div>
                 </div>
             </div>

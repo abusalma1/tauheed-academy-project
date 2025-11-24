@@ -70,6 +70,9 @@
                                         <a href="<?= route('student-update') . '?id=' . $student['student_id'] ?>" class="text-green-600 hover:text-green-800 font-semibold">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
+                                        <a href="<?= route('view-user-details') . '?id=' . $student['student_id'] .'&type=student' ?>" class="text-purple-600 hover:text-green-800 font-semibold">
+                                            <i class="fas fa-eye"></i>View Details
+                                        </a>
                                         <a href="delete-confirmation.html?type=student&id=<?= $student['student_id'] ?>" class="text-red-600 hover:text-red-800 font-semibold">
                                             <i class="fas fa-trash"></i> Delete
                                         </a>
