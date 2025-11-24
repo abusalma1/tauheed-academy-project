@@ -34,6 +34,14 @@ $routes = [
         'url' => "$baseUrl/pages/timetable.php"
     ],
 
+    // non auth news
+    'news' => [
+        'url' => "$baseUrl/pages/news/"
+    ],
+    'news-detial' => [
+        'url' => "$baseUrl/pages/news/news-detail.php"
+    ],
+
     // auth 
 
     'login' => [
@@ -59,7 +67,7 @@ $routes = [
     ],
 
 
-    // news
+    //admin news
     'admin-news' => [
         'url' => "$baseUrl/pages/admin/news/"
     ],
@@ -67,7 +75,7 @@ $routes = [
     'post-news' => [
         'url' => "$baseUrl/pages/admin/news/post-news.php"
     ],
-    'news-detial' => [
+    'admin-news-detial' => [
         'url' => "$baseUrl/pages/admin/news/news-detail.php"
     ],
 

@@ -15,6 +15,8 @@
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center gap-6">
                 <a href="<?= route('home') ?>" class="hover:text-blue-300 transition">Home</a>
+                <a href="<?= route('news') ?>" class="hover:text-blue-300 transition">News</a>
+
 
                 <div class="relative group">
                     <!-- Hover Button -->
@@ -92,6 +94,8 @@
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
         <a href="<?= route('home'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Home</a>
+        <a href="<?= route('news'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">News</a>
+
 
         <!-- School Info Mobile -->
         <div class="py-2 px-3 rounded bg-blue-800">

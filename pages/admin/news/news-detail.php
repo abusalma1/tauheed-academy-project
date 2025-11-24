@@ -2,6 +2,7 @@
 $title = "News Detail";
 include(__DIR__ . '/../../../includes/header.php');
 
+
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $stmt = $conn->prepare('SELECT * FROM news WHERE id=?');
@@ -87,16 +88,14 @@ if (isset($_GET['id'])) {
                             <span>By Admin</span>
                         </div>
                     </div>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-4"><?= ucwords($story['title']) ?></h1>
-
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4"><?= htmlspecialchars(ucwords($story['title'])) ?></h1>
+                    
                 </div>
 
                 <!-- Article Body -->
                 <div class="p-8 prose prose-lg max-w-none">
                     <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">Article Content</h2>
-                    <p class="text-gray-700 mb-6 leading-relaxed"><?= nl2br(htmlspecialchars($story['content']));
-    ?>
-                    </p>
+                    <p class="text-gray-700 mb-6 leading-relaxed"><?= nl2br(htmlspecialchars($story['content'])); ?></p>
 
 
 
@@ -142,8 +141,8 @@ if (isset($_GET['id'])) {
                             </div>
                             <div class="p-4">
                                 <p class="text-xs text-gray-500 mb-2"><i class="fas fa-calendar mr-1"></i><?= date('D d M, Y', strtotime($previous['created_at'])); ?></p>
-                                <h3 class="text-lg font-bold text-gray-900 mb-2"><?= ucwords($previous['title']) ?></h3>
-                                <a href="<?= route('news-detial') . '?id=' . $previous['id'] ?>" class="text-blue-900 font-semibold text-sm hover:text-blue-700">
+                                <h3 class="text-lg font-bold text-gray-900 mb-2"><?= htmlspecialchars(ucwords($previous['title'])) ?></h3>
+                                <a href="<?= route('admin-news-detial') . '?id=' . $previous['id'] ?>" class="text-blue-900 font-semibold text-sm hover:text-blue-700">
                                     Read Previous <i class="fas fa-arrow-left"></i>
                                 </a>
                             </div>
@@ -160,8 +159,8 @@ if (isset($_GET['id'])) {
                             </div>
                             <div class="p-4">
                                 <p class="text-xs text-gray-500 mb-2"><i class="fas fa-calendar mr-1"></i><?= date('D d M, Y', strtotime($next['created_at'])); ?></p>
-                                <h3 class="text-lg font-bold text-gray-900 mb-2"><?= ucwords($next['title']) ?></h3>
-                                <a href="<?= route('news-detial') . '?id=' . $next['id'] ?>" class="text-blue-900 font-semibold text-sm hover:text-blue-700">
+                                <h3 class="text-lg font-bold text-gray-900 mb-2"><?= htmlspecialchars(ucwords($next['title'])) ?></h3>
+                                <a href="<?= route('admin-news-detial') . '?id=' . $next['id'] ?>" class="text-blue-900 font-semibold text-sm hover:text-blue-700">
                                     Read Next <i class="fas fa-arrow-right"></i>
                                 </a>
                             </div>

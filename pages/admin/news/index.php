@@ -46,14 +46,14 @@ $news = $result->fetch_all(MYSQLI_ASSOC);
 
         </div>
     </section>
-    
+
     <!-- News Grid -->
     <section class="py-16 bg-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="news-grid">
                 <?php foreach ($news as $story) : ?>
                     <!-- Announcement -->
-                    <div class="news-item announcement bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="news-item  <?= $story['category'] ?> bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:scale-105">
                         <div class="relative overflow-hidden h-48">
                             <img src="/placeholder.svg?height=300&width=400" alt="News" class="w-full h-full object-cover">
 
@@ -81,9 +81,9 @@ $news = $result->fetch_all(MYSQLI_ASSOC);
                                 <i class="fas fa-calendar"></i>
                                 <span><?= date('D d M, Y', strtotime($story['created_at'])); ?></span>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-3"><?= $story['title'] ?></h3>
-                            <p class="text-gray-600 mb-4"><?= substr($story['content'], 0, 50) . "..." ?></p>
-                            <a href="<?= route('news-detial') . '?id=' . $story['id']; ?>" class="inline-flex items-center gap-2 text-blue-900 font-semibold hover:text-blue-700">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3"><?= htmlspecialchars($story['title']) ?></h3>
+                            <p class="text-gray-600 mb-4"><?= htmlspecialchars(substr($story['content'], 0, 50) . "...") ?></p>
+                            <a href="<?= route('admin-news-detial') . '?id=' . $story['id']; ?>" class="inline-flex items-center gap-2 text-blue-900 font-semibold hover:text-blue-700">
                                 Read More <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
