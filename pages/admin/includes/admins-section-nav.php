@@ -12,7 +12,7 @@
             </div>
             <div class="hidden md:flex items-center gap-6">
                 <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Dashboard</a>
-                <a href="<?= route('post-news'); ?>" class="hover:text-blue-300 transition">Post News</a>
+                <a href="<?= route('admin-news'); ?>" class="hover:text-blue-300 transition">News</a>
                 <a href="<?= route('term-session-management'); ?>" class="hover:text-blue-300 transition">Terms & Sessions</a>
                 <a href="<?= route('promotion'); ?>" class="hover:text-blue-300 transition">Promotion</a>
                 <a href="<?= route('school-info') ?>" class="hover:text-blue-300 transition">School Info</a>
@@ -30,7 +30,7 @@
     </div>
     <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
         <a href="<?= route('admin-section') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Admin Dashboard</a>
-        <a href="<?= route('post-news') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Post News</a>
+        <a href="<?= route('admin-news') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">News</a>
 
         <a href="<?= route('term-session-management') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Terms & Sessions</a>
         <a href="<?= route('promotion'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Promotion</a>
