@@ -1,407 +1,600 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manage Student Results - Excellence Academy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-50">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gray-50">
     <!-- Navigation -->
     <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
-                    <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
-                        <p class="text-xs text-blue-200">Nurturing Future Leaders</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="../index.html" class="hover:text-blue-300 transition">Home</a>
-                    <a href="about.html" class="hover:text-blue-300 transition">About</a>
-                    <a href="admissions.html" class="hover:text-blue-300 transition">Admissions</a>
-                    <a href="fees.html" class="hover:text-blue-300 transition">Fees</a>
-                    <a href="timetable.html" class="hover:text-blue-300 transition">Timetable</a>
-                    <a href="academics.html" class="hover:text-blue-300 transition">Academics</a>
-                    <a href="staff.html" class="hover:text-blue-300 transition">Staff</a>
-                    <a href="uniform.html" class="hover:text-blue-300 transition">Uniform</a>
-                    <a href="gallery.html" class="hover:text-blue-300 transition">Gallery</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center gap-3">
+            <img
+              src="/placeholder.svg?height=50&width=50"
+              alt="School Logo"
+              class="h-12 w-12 rounded-full bg-white p-1"
+            />
+            <div>
+              <h1 class="text-xl font-bold">Excellence Academy</h1>
+              <p class="text-xs text-blue-200">Nurturing Future Leaders</p>
             </div>
+          </div>
+          <div class="hidden md:flex items-center gap-6">
+            <a href="../index.html" class="hover:text-blue-300 transition"
+              >Home</a
+            >
+            <a href="about.html" class="hover:text-blue-300 transition"
+              >About</a
+            >
+            <a href="admissions.html" class="hover:text-blue-300 transition"
+              >Admissions</a
+            >
+            <a href="fees.html" class="hover:text-blue-300 transition">Fees</a>
+            <a href="timetable.html" class="hover:text-blue-300 transition"
+              >Timetable</a
+            >
+            <a href="academics.html" class="hover:text-blue-300 transition"
+              >Academics</a
+            >
+            <a href="staff.html" class="hover:text-blue-300 transition"
+              >Staff</a
+            >
+            <a href="uniform.html" class="hover:text-blue-300 transition"
+              >Uniform</a
+            >
+            <a href="gallery.html" class="hover:text-blue-300 transition"
+              >Gallery</a
+            >
+          </div>
+          <button
+            id="mobile-menu-btn"
+            class="md:hidden text-white focus:outline-none"
+          >
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
-            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Home</a>
-            <a href="about.html" class="block py-2 hover:bg-blue-700 px-3 rounded">About</a>
-            <a href="admissions.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Admissions</a>
-            <a href="fees.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Fees</a>
-            <a href="timetable.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Timetable</a>
-            <a href="academics.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Academics</a>
-            <a href="staff.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Staff</a>
-            <a href="uniform.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Uniform</a>
-            <a href="gallery.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Gallery</a>
-        </div>
+      </div>
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2"
+      >
+        <a
+          href="../index.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Home</a
+        >
+        <a href="about.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >About</a
+        >
+        <a
+          href="admissions.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Admissions</a
+        >
+        <a href="fees.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Fees</a
+        >
+        <a
+          href="timetable.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Timetable</a
+        >
+        <a
+          href="academics.html"
+          class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Academics</a
+        >
+        <a href="staff.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Staff</a
+        >
+        <a href="uniform.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Uniform</a
+        >
+        <a href="gallery.html" class="block py-2 hover:bg-blue-700 px-3 rounded"
+          >Gallery</a
+        >
+      </div>
     </nav>
 
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Manage Student Results</h1>
-            <p class="text-xl text-blue-200">Input and Update Student Grades</p>
-        </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">
+          Manage Student Results
+        </h1>
+        <p class="text-xl text-blue-200">Input and Update Student Grades</p>
+      </div>
     </section>
 
     <!-- Main Content -->
     <section class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-3 gap-8">
-                <!-- Form Section -->
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-lg shadow-lg p-8 border-2 border-blue-900">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">
-                            <i class="fas fa-edit text-blue-900 mr-3"></i>Enter Student Results
-                        </h2>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-3 gap-8">
+          <!-- Form Section -->
+          <div class="lg:col-span-2">
+            <div
+              class="bg-white rounded-lg shadow-lg p-8 border-2 border-blue-900"
+            >
+              <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-edit text-blue-900 mr-3"></i>Enter Student
+                Results
+              </h2>
 
-                        <form id="resultsForm" class="space-y-6">
-                            <!-- Class Selection -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-graduation-cap mr-2 text-blue-900"></i>Select Class
-                                </label>
-                                <select id="classSelect" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900" required>
-                                    <option value="">-- Choose Class --</option>
-                                    <option value="Primary 1">Primary 1</option>
-                                    <option value="Primary 2">Primary 2</option>
-                                    <option value="Primary 3">Primary 3</option>
-                                    <option value="Primary 4">Primary 4</option>
-                                    <option value="Primary 5">Primary 5</option>
-                                    <option value="Primary 6">Primary 6</option>
-                                    <option value="JSS 1">JSS 1</option>
-                                    <option value="JSS 2">JSS 2</option>
-                                    <option value="JSS 3">JSS 3</option>
-                                    <option value="SSS 1">SSS 1</option>
-                                    <option value="SSS 2">SSS 2</option>
-                                    <option value="SSS 3">SSS 3</option>
-                                </select>
-                            </div>
-
-                            <!-- Student Selection -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-user-circle mr-2 text-blue-900"></i>Select Student
-                                </label>
-                                <select id="studentSelect" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900" required>
-                                    <option value="">-- Choose Student --</option>
-                                </select>
-                            </div>
-
-                            <!-- Term Selection -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-calendar mr-2 text-blue-900"></i>Select Term
-                                </label>
-                                <select id="termSelect" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900" required>
-                                    <option value="">-- Choose Term --</option>
-                                    <option value="First Term">First Term</option>
-                                    <option value="Second Term">Second Term</option>
-                                    <option value="Third Term">Third Term</option>
-                                </select>
-                            </div>
-
-                            <!-- Subject Selection -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-book mr-2 text-blue-900"></i>Select Subject
-                                </label>
-                                <select id="subjectSelect" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900" required>
-                                    <option value="">-- Choose Subject --</option>
-                                    <option value="English Language">English Language</option>
-                                    <option value="Mathematics">Mathematics</option>
-                                    <option value="Basic Science">Basic Science</option>
-                                    <option value="Social Studies">Social Studies</option>
-                                    <option value="Computer Studies">Computer Studies</option>
-                                    <option value="Verbal Reasoning">Verbal Reasoning</option>
-                                    <option value="Quantitative Reasoning">Quantitative Reasoning</option>
-                                    <option value="Creative Arts">Creative Arts</option>
-                                    <option value="Physical Education">Physical Education</option>
-                                </select>
-                            </div>
-
-                            <!-- Scores Input -->
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                        <i class="fas fa-pencil-alt mr-2 text-blue-900"></i>CA Score (out of 40)
-                                    </label>
-                                    <input type="number" id="caScore" min="0" max="40" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900" placeholder="0-40" required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                        <i class="fas fa-pencil-alt mr-2 text-blue-900"></i>Exam Score (out of 60)
-                                    </label>
-                                    <input type="number" id="examScore" min="0" max="60" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900" placeholder="0-60" required>
-                                </div>
-                            </div>
-
-                            <!-- Total Display -->
-                            <div class="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
-                                <p class="text-sm text-gray-600">Total Score (out of 100):</p>
-                                <p class="text-3xl font-bold text-blue-900" id="totalScore">0</p>
-                            </div>
-
-                            <!-- Buttons -->
-                            <div class="flex gap-4">
-                                <button type="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-save"></i>Save Result
-                                </button>
-                                <button type="reset" class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-semibold hover:bg-gray-500 transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-redo"></i>Clear
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+              <form id="resultsForm" class="space-y-6">
+                <!-- Class Selection -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-graduation-cap mr-2 text-blue-900"></i
+                    >Select Class
+                  </label>
+                  <select
+                    id="classSelect"
+                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                    required
+                  >
+                    <option value="">-- Choose Class --</option>
+                    <option value="Primary 1">Primary 1</option>
+                    <option value="Primary 2">Primary 2</option>
+                    <option value="Primary 3">Primary 3</option>
+                    <option value="Primary 4">Primary 4</option>
+                    <option value="Primary 5">Primary 5</option>
+                    <option value="Primary 6">Primary 6</option>
+                    <option value="JSS 1">JSS 1</option>
+                    <option value="JSS 2">JSS 2</option>
+                    <option value="JSS 3">JSS 3</option>
+                    <option value="SSS 1">SSS 1</option>
+                    <option value="SSS 2">SSS 2</option>
+                    <option value="SSS 3">SSS 3</option>
+                  </select>
                 </div>
 
-                <!-- Statistics Section -->
-                <div class="space-y-6">
-                    <div class="bg-gradient-to-br from-blue-900 to-blue-700 text-white rounded-lg shadow-lg p-6">
-                        <h3 class="text-lg font-bold mb-4">
-                            <i class="fas fa-chart-bar mr-2"></i>Statistics
-                        </h3>
-                        <div class="space-y-4">
-                            <div class="bg-white bg-opacity-20 p-4 rounded-lg">
-                                <p class="text-sm text-blue-100">Total Results Entered</p>
-                                <p class="text-3xl font-bold" id="totalResults">0</p>
-                            </div>
-                            <div class="bg-white bg-opacity-20 p-4 rounded-lg">
-                                <p class="text-sm text-blue-100">Today's Entries</p>
-                                <p class="text-3xl font-bold" id="todayResults">0</p>
-                            </div>
-                            <div class="bg-white bg-opacity-20 p-4 rounded-lg">
-                                <p class="text-sm text-blue-100">Average Score</p>
-                                <p class="text-3xl font-bold" id="avgScore">0%</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6">
-                        <h3 class="text-lg font-bold text-gray-900 mb-3">
-                            <i class="fas fa-info-circle text-yellow-600 mr-2"></i>Quick Tips
-                        </h3>
-                        <ul class="space-y-2 text-sm text-gray-700">
-                            <li><i class="fas fa-check text-green-600 mr-2"></i>CA = Continuous Assessment</li>
-                            <li><i class="fas fa-check text-green-600 mr-2"></i>Exam = Examination Score</li>
-                            <li><i class="fas fa-check text-green-600 mr-2"></i>Total = CA + Exam</li>
-                            <li><i class="fas fa-check text-green-600 mr-2"></i>Save each subject separately</li>
-                        </ul>
-                    </div>
+                <!-- Student Selection -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-user-circle mr-2 text-blue-900"></i>Select
+                    Student
+                  </label>
+                  <select
+                    id="studentSelect"
+                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                    required
+                  >
+                    <option value="">-- Choose Student --</option>
+                  </select>
                 </div>
+
+                <!-- Term Selection -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-calendar mr-2 text-blue-900"></i>Select
+                    Term
+                  </label>
+                  <select
+                    id="termSelect"
+                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                    required
+                  >
+                    <option value="">-- Choose Term --</option>
+                    <option value="First Term">First Term</option>
+                    <option value="Second Term">Second Term</option>
+                    <option value="Third Term">Third Term</option>
+                  </select>
+                </div>
+
+                <!-- Subject Selection -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-book mr-2 text-blue-900"></i>Select Subject
+                  </label>
+                  <select
+                    id="subjectSelect"
+                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                    required
+                  >
+                    <option value="">-- Choose Subject --</option>
+                    <option value="English Language">English Language</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Basic Science">Basic Science</option>
+                    <option value="Social Studies">Social Studies</option>
+                    <option value="Computer Studies">Computer Studies</option>
+                    <option value="Verbal Reasoning">Verbal Reasoning</option>
+                    <option value="Quantitative Reasoning">
+                      Quantitative Reasoning
+                    </option>
+                    <option value="Creative Arts">Creative Arts</option>
+                    <option value="Physical Education">
+                      Physical Education
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Scores Input -->
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      class="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      <i class="fas fa-pencil-alt mr-2 text-blue-900"></i>CA
+                      Score (out of 40)
+                    </label>
+                    <input
+                      type="number"
+                      id="caScore"
+                      min="0"
+                      max="40"
+                      class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                      placeholder="0-40"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      <i class="fas fa-pencil-alt mr-2 text-blue-900"></i>Exam
+                      Score (out of 60)
+                    </label>
+                    <input
+                      type="number"
+                      id="examScore"
+                      min="0"
+                      max="60"
+                      class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                      placeholder="0-60"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <!-- Total Display -->
+                <div class="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                  <p class="text-sm text-gray-600">Total Score (out of 100):</p>
+                  <p class="text-3xl font-bold text-blue-900" id="totalScore">
+                    0
+                  </p>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex gap-4">
+                  <button
+                    type="submit"
+                    class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-save"></i>Save Result
+                  </button>
+                  <button
+                    type="reset"
+                    class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-semibold hover:bg-gray-500 transition flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-redo"></i>Clear
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Statistics Section -->
+          <div class="space-y-6">
+            <div
+              class="bg-gradient-to-br from-blue-900 to-blue-700 text-white rounded-lg shadow-lg p-6"
+            >
+              <h3 class="text-lg font-bold mb-4">
+                <i class="fas fa-chart-bar mr-2"></i>Statistics
+              </h3>
+              <div class="space-y-4">
+                <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                  <p class="text-sm text-blue-100">Total Results Entered</p>
+                  <p class="text-3xl font-bold" id="totalResults">0</p>
+                </div>
+                <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                  <p class="text-sm text-blue-100">Today's Entries</p>
+                  <p class="text-3xl font-bold" id="todayResults">0</p>
+                </div>
+                <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                  <p class="text-sm text-blue-100">Average Score</p>
+                  <p class="text-3xl font-bold" id="avgScore">0%</p>
+                </div>
+              </div>
             </div>
 
-            <!-- Recent Results Table -->
-            <div class="mt-12">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">
-                    <i class="fas fa-list text-blue-900 mr-3"></i>Recent Results Entered
-                </h2>
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-blue-900 text-white">
-                                <tr>
-                                    <th class="px-6 py-3 text-left">Student</th>
-                                    <th class="px-6 py-3 text-left">Class</th>
-                                    <th class="px-6 py-3 text-left">Subject</th>
-                                    <th class="px-6 py-3 text-center">CA</th>
-                                    <th class="px-6 py-3 text-center">Exam</th>
-                                    <th class="px-6 py-3 text-center">Total</th>
-                                    <th class="px-6 py-3 text-center">Grade</th>
-                                    <th class="px-6 py-3 text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="resultsTable" class="divide-y divide-gray-200">
-                                <tr class="text-center text-gray-500 py-8">
-                                    <td colspan="8" class="py-8">No results entered yet</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6">
+              <h3 class="text-lg font-bold text-gray-900 mb-3">
+                <i class="fas fa-info-circle text-yellow-600 mr-2"></i>Quick
+                Tips
+              </h3>
+              <ul class="space-y-2 text-sm text-gray-700">
+                <li>
+                  <i class="fas fa-check text-green-600 mr-2"></i>CA =
+                  Continuous Assessment
+                </li>
+                <li>
+                  <i class="fas fa-check text-green-600 mr-2"></i>Exam =
+                  Examination Score
+                </li>
+                <li>
+                  <i class="fas fa-check text-green-600 mr-2"></i>Total = CA +
+                  Exam
+                </li>
+                <li>
+                  <i class="fas fa-check text-green-600 mr-2"></i>Save each
+                  subject separately
+                </li>
+              </ul>
             </div>
+          </div>
         </div>
+
+        <!-- Recent Results Table -->
+        <div class="mt-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-list text-blue-900 mr-3"></i>Recent Results Entered
+          </h2>
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-blue-900 text-white">
+                  <tr>
+                    <th class="px-6 py-3 text-left">Student</th>
+                    <th class="px-6 py-3 text-left">Class</th>
+                    <th class="px-6 py-3 text-left">Subject</th>
+                    <th class="px-6 py-3 text-center">CA</th>
+                    <th class="px-6 py-3 text-center">Exam</th>
+                    <th class="px-6 py-3 text-center">Total</th>
+                    <th class="px-6 py-3 text-center">Grade</th>
+                    <th class="px-6 py-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsTable" class="divide-y divide-gray-200">
+                  <tr class="text-center text-gray-500 py-8">
+                    <td colspan="8" class="py-8">No results entered yet</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Committed to providing quality education and nurturing future leaders through academic excellence and character development.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="about.html" class="text-gray-400 hover:text-white transition">About Us</a></li>
-                        <li><a href="admissions.html" class="text-gray-400 hover:text-white transition">Admissions</a></li>
-                        <li><a href="academics.html" class="text-gray-400 hover:text-white transition">Academics</a></li>
-                        <li><a href="gallery.html" class="text-gray-400 hover:text-white transition">Gallery</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
-                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
-                        <li><i class="fab fa-whatsapp mr-2"></i>+234 800 123 4567</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-                    <div class="flex gap-4">
-                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Committed to providing quality education and nurturing future
+              leaders through academic excellence and character development.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <a
+                  href="../index.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="about.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >About Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="admissions.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Admissions</a
+                >
+              </li>
+              <li>
+                <a
+                  href="academics.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Academics</a
+                >
+              </li>
+              <li>
+                <a
+                  href="gallery.html"
+                  class="text-gray-400 hover:text-white transition"
+                  >Gallery</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+            <ul class="space-y-2 text-sm text-gray-400">
+              <li>
+                <i class="fas fa-map-marker-alt mr-2"></i>123 Education Street,
+                City
+              </li>
+              <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
+              <li>
+                <i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu
+              </li>
+              <li><i class="fab fa-whatsapp mr-2"></i>+234 800 123 4567</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+            <div class="flex gap-4">
+              <a
+                href="#"
+                class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition"
+              >
+                <i class="fab fa-instagram"></i>
+              </a>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
-            </div>
+          </div>
         </div>
+        <div
+          class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm"
+        >
+          <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+        </div>
+      </div>
     </footer>
 
     <script>
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+      mobileMenuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
 
-        const studentsData = {
-            'Primary 1': ['Chioma Okafor', 'Tunde Adeyemi', 'Zainab Hassan'],
-            'Primary 2': ['Amara Nwosu', 'Emeka Eze', 'Fatima Ibrahim'],
-            'Primary 3': ['Blessing Okoro', 'Chidi Obi', 'Hauwa Musa'],
-            'Primary 4': ['Ngozi Eze', 'Segun Adebayo', 'Aisha Yusuf'],
-            'Primary 5': ['John Doe', 'Mary Johnson', 'Peter Okonkwo'],
-            'Primary 6': ['Grace Eze', 'Kunle Adeyemi', 'Zara Hassan'],
-            'JSS 1': ['Adekunle Okafor', 'Chidinma Nwosu', 'Ibrahim Musa'],
-            'JSS 2': ['Folake Adebayo', 'Chinedu Eze', 'Amina Hassan'],
-            'JSS 3': ['Toyin Okafor', 'Obinna Nwosu', 'Lawal Yusuf'],
-            'SSS 1': ['Oluwatoyin Adeyemi', 'Chukwuma Eze', 'Zainab Ibrahim'],
-            'SSS 2': ['Adebayo Okafor', 'Chioma Nwosu', 'Musa Hassan'],
-            'SSS 3': ['Adeola Adebayo', 'Chinedu Obi', 'Fatima Yusuf']
-        };
+      const studentsData = {
+        "Primary 1": ["Chioma Okafor", "Tunde Adeyemi", "Zainab Hassan"],
+        "Primary 2": ["Amara Nwosu", "Emeka Eze", "Fatima Ibrahim"],
+        "Primary 3": ["Blessing Okoro", "Chidi Obi", "Hauwa Musa"],
+        "Primary 4": ["Ngozi Eze", "Segun Adebayo", "Aisha Yusuf"],
+        "Primary 5": ["Muhammad Ahmad", "Mary Johnson", "Peter Okonkwo"],
+        "Primary 6": ["Grace Eze", "Kunle Adeyemi", "Zara Hassan"],
+        "JSS 1": ["Adekunle Okafor", "Chidinma Nwosu", "Ibrahim Musa"],
+        "JSS 2": ["Folake Adebayo", "Chinedu Eze", "Amina Hassan"],
+        "JSS 3": ["Toyin Okafor", "Obinna Nwosu", "Lawal Yusuf"],
+        "SSS 1": ["Oluwatoyin Adeyemi", "Chukwuma Eze", "Zainab Ibrahim"],
+        "SSS 2": ["Adebayo Okafor", "Chioma Nwosu", "Musa Hassan"],
+        "SSS 3": ["Adeola Adebayo", "Chinedu Obi", "Fatima Yusuf"],
+      };
 
-        document.getElementById('classSelect').addEventListener('change', function() {
-            const selectedClass = this.value;
-            const studentSelect = document.getElementById('studentSelect');
-            studentSelect.innerHTML = '<option value="">-- Choose Student --</option>';
-            
-            if (selectedClass && studentsData[selectedClass]) {
-                studentsData[selectedClass].forEach(student => {
-                    const option = document.createElement('option');
-                    option.value = student;
-                    option.textContent = student;
-                    studentSelect.appendChild(option);
-                });
-            }
-        });
+      document
+        .getElementById("classSelect")
+        .addEventListener("change", function () {
+          const selectedClass = this.value;
+          const studentSelect = document.getElementById("studentSelect");
+          studentSelect.innerHTML =
+            '<option value="">-- Choose Student --</option>';
 
-        document.getElementById('caScore').addEventListener('input', calculateTotal);
-        document.getElementById('examScore').addEventListener('input', calculateTotal);
-
-        function calculateTotal() {
-            const ca = parseInt(document.getElementById('caScore').value) || 0;
-            const exam = parseInt(document.getElementById('examScore').value) || 0;
-            const total = ca + exam;
-            document.getElementById('totalScore').textContent = total;
-        }
-
-        function getGrade(score) {
-            if (score >= 80) return 'A';
-            if (score >= 70) return 'B';
-            if (score >= 60) return 'C';
-            if (score >= 50) return 'D';
-            return 'F';
-        }
-
-        document.getElementById('resultsForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const student = document.getElementById('studentSelect').value;
-            const classVal = document.getElementById('classSelect').value;
-            const term = document.getElementById('termSelect').value;
-            const subject = document.getElementById('subjectSelect').value;
-            const ca = parseInt(document.getElementById('caScore').value);
-            const exam = parseInt(document.getElementById('examScore').value);
-            const total = ca + exam;
-            const grade = getGrade(total);
-
-            if (!student || !classVal || !term || !subject) {
-                alert('Please fill all fields');
-                return;
-            }
-
-            let results = JSON.parse(localStorage.getItem('schoolResults')) || [];
-            results.unshift({
-                student,
-                class: classVal,
-                term,
-                subject,
-                ca,
-                exam,
-                total,
-                grade,
-                date: new Date().toLocaleDateString()
+          if (selectedClass && studentsData[selectedClass]) {
+            studentsData[selectedClass].forEach((student) => {
+              const option = document.createElement("option");
+              option.value = student;
+              option.textContent = student;
+              studentSelect.appendChild(option);
             });
-            localStorage.setItem('schoolResults', JSON.stringify(results));
-
-            displayResults();
-            updateStatistics();
-            this.reset();
-            document.getElementById('totalScore').textContent = '0';
-            alert('Result saved successfully!');
+          }
         });
 
-        function displayResults() {
-            const results = JSON.parse(localStorage.getItem('schoolResults')) || [];
-            const tbody = document.getElementById('resultsTable');
-            
-            if (results.length === 0) {
-                tbody.innerHTML = '<tr class="text-center text-gray-500"><td colspan="8" class="py-8">No results entered yet</td></tr>';
-                return;
-            }
+      document
+        .getElementById("caScore")
+        .addEventListener("input", calculateTotal);
+      document
+        .getElementById("examScore")
+        .addEventListener("input", calculateTotal);
 
-            tbody.innerHTML = results.map((result, index) => `
+      function calculateTotal() {
+        const ca = parseInt(document.getElementById("caScore").value) || 0;
+        const exam = parseInt(document.getElementById("examScore").value) || 0;
+        const total = ca + exam;
+        document.getElementById("totalScore").textContent = total;
+      }
+
+      function getGrade(score) {
+        if (score >= 80) return "A";
+        if (score >= 70) return "B";
+        if (score >= 60) return "C";
+        if (score >= 50) return "D";
+        return "F";
+      }
+
+      document
+        .getElementById("resultsForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const student = document.getElementById("studentSelect").value;
+          const classVal = document.getElementById("classSelect").value;
+          const term = document.getElementById("termSelect").value;
+          const subject = document.getElementById("subjectSelect").value;
+          const ca = parseInt(document.getElementById("caScore").value);
+          const exam = parseInt(document.getElementById("examScore").value);
+          const total = ca + exam;
+          const grade = getGrade(total);
+
+          if (!student || !classVal || !term || !subject) {
+            alert("Please fill all fields");
+            return;
+          }
+
+          let results = JSON.parse(localStorage.getItem("schoolResults")) || [];
+          results.unshift({
+            student,
+            class: classVal,
+            term,
+            subject,
+            ca,
+            exam,
+            total,
+            grade,
+            date: new Date().toLocaleDateString(),
+          });
+          localStorage.setItem("schoolResults", JSON.stringify(results));
+
+          displayResults();
+          updateStatistics();
+          this.reset();
+          document.getElementById("totalScore").textContent = "0";
+          alert("Result saved successfully!");
+        });
+
+      function displayResults() {
+        const results = JSON.parse(localStorage.getItem("schoolResults")) || [];
+        const tbody = document.getElementById("resultsTable");
+
+        if (results.length === 0) {
+          tbody.innerHTML =
+            '<tr class="text-center text-gray-500"><td colspan="8" class="py-8">No results entered yet</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = results
+          .map(
+            (result, index) => `
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-3">${result.student}</td>
                     <td class="px-6 py-3">${result.class}</td>
                     <td class="px-6 py-3">${result.subject}</td>
                     <td class="px-6 py-3 text-center">${result.ca}</td>
                     <td class="px-6 py-3 text-center">${result.exam}</td>
-                    <td class="px-6 py-3 text-center font-bold">${result.total}</td>
+                    <td class="px-6 py-3 text-center font-bold">${
+                      result.total
+                    }</td>
                     <td class="px-6 py-3 text-center">
                         <span class="px-3 py-1 rounded-full text-white font-bold ${
-                            result.grade === 'A' ? 'bg-green-600' :
-                            result.grade === 'B' ? 'bg-blue-600' :
-                            result.grade === 'C' ? 'bg-yellow-600' :
-                            result.grade === 'D' ? 'bg-orange-600' :
-                            'bg-red-600'
+                          result.grade === "A"
+                            ? "bg-green-600"
+                            : result.grade === "B"
+                            ? "bg-blue-600"
+                            : result.grade === "C"
+                            ? "bg-yellow-600"
+                            : result.grade === "D"
+                            ? "bg-orange-600"
+                            : "bg-red-600"
                         }">${result.grade}</span>
                     </td>
                     <td class="px-6 py-3 text-center">
@@ -410,32 +603,40 @@
                         </button>
                     </td>
                 </tr>
-            `).join('');
+            `
+          )
+          .join("");
+      }
+
+      function deleteResult(index) {
+        if (confirm("Are you sure you want to delete this result?")) {
+          let results = JSON.parse(localStorage.getItem("schoolResults")) || [];
+          results.splice(index, 1);
+          localStorage.setItem("schoolResults", JSON.stringify(results));
+          displayResults();
+          updateStatistics();
         }
+      }
 
-        function deleteResult(index) {
-            if (confirm('Are you sure you want to delete this result?')) {
-                let results = JSON.parse(localStorage.getItem('schoolResults')) || [];
-                results.splice(index, 1);
-                localStorage.setItem('schoolResults', JSON.stringify(results));
-                displayResults();
-                updateStatistics();
-            }
-        }
+      function updateStatistics() {
+        const results = JSON.parse(localStorage.getItem("schoolResults")) || [];
+        const today = new Date().toLocaleDateString();
+        const todayResults = results.filter((r) => r.date === today);
+        const avgScore =
+          results.length > 0
+            ? Math.round(
+                results.reduce((sum, r) => sum + r.total, 0) / results.length
+              )
+            : 0;
 
-        function updateStatistics() {
-            const results = JSON.parse(localStorage.getItem('schoolResults')) || [];
-            const today = new Date().toLocaleDateString();
-            const todayResults = results.filter(r => r.date === today);
-            const avgScore = results.length > 0 ? Math.round(results.reduce((sum, r) => sum + r.total, 0) / results.length) : 0;
+        document.getElementById("totalResults").textContent = results.length;
+        document.getElementById("todayResults").textContent =
+          todayResults.length;
+        document.getElementById("avgScore").textContent = avgScore + "%";
+      }
 
-            document.getElementById('totalResults').textContent = results.length;
-            document.getElementById('todayResults').textContent = todayResults.length;
-            document.getElementById('avgScore').textContent = avgScore + '%';
-        }
-
-        displayResults();
-        updateStatistics();
+      displayResults();
+      updateStatistics();
     </script>
-</body>
+  </body>
 </html>

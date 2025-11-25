@@ -2,6 +2,48 @@
 $title = 'About & Contact';
 
 include(__DIR__ .  '/../includes/header.php');
+
+$stmt = $conn->prepare("
+    SELECT 
+        classes.id AS class_id,
+        classes.name AS class_name,
+        subjects.id AS subject_id,
+        subjects.name AS subject_name
+    FROM classes
+    LEFT JOIN class_subjects 
+        ON class_subjects.class_id = classes.id
+    LEFT JOIN subjects 
+        ON class_subjects.subject_id = subjects.id
+    ORDER BY classes.level, subjects.name
+");
+$stmt->execute();
+$result = $stmt->get_result();
+
+$classes = [];
+while ($row = $result->fetch_assoc()) {
+    $classId = $row['class_id'];
+
+    // If this class hasn't been added yet, initialize it
+    if (!isset($classes[$classId])) {
+        $classes[$classId] = [
+            'name' => $row['class_name'],
+            'subjects' => []
+        ];
+    }
+
+    // Add subject if it exists (LEFT JOIN may return NULL)
+    if (!empty($row['subject_name'])) {
+        $classes[$classId]['subjects'][] = [
+            'name' => $row['subject_name']
+        ];
+    }
+}
+
+// Re-index array to remove numeric keys
+$classes = array_values($classes);
+
+
+
 ?>
 
 <body class="bg-gray-50">
@@ -20,110 +62,21 @@ include(__DIR__ .  '/../includes/header.php');
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Subjects by Class Category</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Pre-Primary -->
-                <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
-                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-baby text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Pre-Primary (Nursery 1-2)</h3>
-                    <ul class="space-y-2 text-gray-700">
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Literacy & Numeracy</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Rhymes & Songs</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Creative Arts</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Physical Education</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Social Skills</li>
-                    </ul>
-                </div>
 
-                <!-- Lower Primary -->
-                <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
-                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-child text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Lower Primary (Primary 1-3)</h3>
-                    <ul class="space-y-2 text-gray-700">
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>English Language</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Mathematics</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Basic Science</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Social Studies</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Creative Arts</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Physical Education</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Computer Studies</li>
-                    </ul>
-                </div>
 
-                <!-- Upper Primary -->
-                <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
-                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-user-graduate text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Upper Primary (Primary 4-6)</h3>
-                    <ul class="space-y-2 text-gray-700">
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>English Language</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Mathematics</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Basic Science & Technology</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Social Studies</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Verbal Reasoning</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Quantitative Reasoning</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Computer Studies</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Creative Arts</li>
-                    </ul>
-                </div>
+                <?php foreach ($classes as $class) : ?>
+                    <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
 
-                <!-- Junior Secondary -->
-                <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
-                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-book-reader text-2xl"></i>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3"><?= $class['name'] ?></h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <?php foreach ($class['subjects'] as $subject) : ?>
+                                <li><i class="fas fa-check text-green-600 mr-2"></i><?= $subject['name'] ?></li>
+                            <?php endforeach; ?>
+                        </ul>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Junior Secondary (JSS 1-3)</h3>
-                    <ul class="space-y-2 text-gray-700">
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>English Language</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Mathematics</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Basic Science</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Basic Technology</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Social Studies</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Computer Studies</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Business Studies</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Home Economics</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Agricultural Science</li>
-                    </ul>
-                </div>
+                <?php endforeach; ?>
 
-                <!-- Senior Secondary -->
-                <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
-                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-graduation-cap text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Senior Secondary (SSS 1-3)</h3>
-                    <ul class="space-y-2 text-gray-700">
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>English Language</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Mathematics</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Physics</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Chemistry</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Biology</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Economics</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Government</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Literature in English</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Computer Science</li>
-                    </ul>
-                </div>
 
-                <!-- Electives -->
-                <div class="bg-white border-2 border-blue-900 rounded-lg p-6 shadow-lg">
-                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-star text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Elective Subjects</h3>
-                    <ul class="space-y-2 text-gray-700">
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Further Mathematics</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Technical Drawing</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Food & Nutrition</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Commerce</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Accounting</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Geography</li>
-                        <li><i class="fas fa-check text-green-600 mr-2"></i>Civic Education</li>
-                    </ul>
-                </div>
             </div>
         </div>
     </section>
@@ -138,8 +91,8 @@ include(__DIR__ .  '/../includes/header.php');
                 <h3 class="text-2xl font-bold text-center text-gray-900 mb-6">Student Result Card</h3>
                 <div class="bg-white rounded-lg shadow-xl border-2 border-gray-200 overflow-hidden">
                     <div class="bg-blue-900 text-white p-6 text-center">
-                        <img src="/placeholder.svg?height=80&width=80" alt="School Logo" class="h-20 w-20 mx-auto mb-3">
-                        <h4 class="text-2xl font-bold">Excellence Academy</h4>
+                        <img src="<?= asset('images/logo.png') ?>" alt="School Logo" class="h-20 w-20 mx-auto mb-3  rounded-full">
+                        <h4 class="text-2xl font-bold">Tauheed Academy</h4>
                         <p class="text-blue-200">First Term Report Card - 2024/2025</p>
                     </div>
 
@@ -147,7 +100,7 @@ include(__DIR__ .  '/../includes/header.php');
                         <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
                             <div>
                                 <p class="text-gray-600">Student Name:</p>
-                                <p class="font-semibold">John Doe</p>
+                                <p class="font-semibold">Muhammad Ahmad</p>
                             </div>
                             <div>
                                 <p class="text-gray-600">Admission No:</p>
@@ -204,7 +157,7 @@ include(__DIR__ .  '/../includes/header.php');
                                         <td class="px-4 py-3">Social Studies</td>
                                         <td class="px-4 py-3 text-center">30</td>
                                         <td class="px-4 py-3 text-center">45</td>
-                                        <td class="px-4 py-3 text-center font-bold">75</td>
+                                        <td class="px-4 py-3 text-center font-bold">74</td>
                                         <td class="px-4 py-3 text-center font-bold text-blue-600">B</td>
                                         <td class="px-4 py-3">Good</td>
                                     </tr>
@@ -226,8 +179,8 @@ include(__DIR__ .  '/../includes/header.php');
                                     </tr>
                                     <tr class="bg-blue-50 font-bold">
                                         <td class="px-4 py-3" colspan="2">Total Score</td>
-                                        <td class="px-4 py-3 text-center" colspan="2">502/600</td>
-                                        <td class="px-4 py-3 text-center" colspan="2">Average: 83.67%</td>
+                                        <td class="px-4 py-3 text-center" colspan="2">501/600</td>
+                                        <td class="px-4 py-3 text-center" colspan="2">Average: 83.66%</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -270,29 +223,29 @@ include(__DIR__ .  '/../includes/header.php');
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             <tr>
-                                <td class="px-6 py-3">80 - 100</td>
+                                <td class="px-6 py-3">75 - 100</td>
                                 <td class="px-6 py-3 text-center font-bold text-green-600">A</td>
                                 <td class="px-6 py-3">Excellent</td>
                             </tr>
                             <tr>
-                                <td class="px-6 py-3">70 - 79</td>
+                                <td class="px-6 py-3">60 - 74</td>
                                 <td class="px-6 py-3 text-center font-bold text-blue-600">B</td>
                                 <td class="px-6 py-3">Very Good</td>
                             </tr>
                             <tr>
-                                <td class="px-6 py-3">60 - 69</td>
+                                <td class="px-6 py-3">50 - 59</td>
                                 <td class="px-6 py-3 text-center font-bold text-yellow-600">C</td>
                                 <td class="px-6 py-3">Good</td>
                             </tr>
                             <tr>
-                                <td class="px-6 py-3">50 - 59</td>
+                                <td class="px-6 py-3">40 - 49</td>
                                 <td class="px-6 py-3 text-center font-bold text-orange-600">D</td>
-                                <td class="px-6 py-3">Pass</td>
+                                <td class="px-6 py-3">Fair</td>
                             </tr>
                             <tr>
-                                <td class="px-6 py-3">0 - 49</td>
-                                <td class="px-6 py-3 text-center font-bold text-red-600">F</td>
-                                <td class="px-6 py-3">Fail</td>
+                                <td class="px-6 py-3">0 - 39</td>
+                                <td class="px-6 py-3 text-center font-bold text-red-600">E</td>
+                                <td class="px-6 py-3">Poor</td>
                             </tr>
                         </tbody>
                     </table>

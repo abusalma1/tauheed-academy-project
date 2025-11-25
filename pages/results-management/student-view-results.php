@@ -70,7 +70,7 @@ $results = $result->fetch_all(MYSQLI_ASSOC);
                     <div class="flex items-center gap-6">
                         <img src="/placeholder.svg?height=100&width=100" alt="Student Photo" class="h-24 w-24 rounded-full border-4 border-white">
                         <div>
-                            <h2 class="text-2xl font-bold">John Doe</h2>
+                            <h2 class="text-2xl font-bold">Muhammad Ahmad</h2>
                             <p class="text-blue-200">Primary 5 - Arm A</p>
                             <p class="text-blue-200">Admission No: EXA/2025/ADM/0001</p>
                         </div>
@@ -123,18 +123,18 @@ $results = $result->fetch_all(MYSQLI_ASSOC);
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            <?php foreach($results as $result) : ?>
-                            <tr class="hover:bg-blue-50">
-                                <td class="px-6 py-4"><?= $result['subject_name'] ?></td>
-                                <td class="px-6 py-4 text-center"><?= $result['ca'] ?></td>
-                                <td class="px-6 py-4 text-center"><?= $result['exam'] ?></td>
-                                <td class="px-6 py-4 text-center font-bold"><?= $result['total'] ?></td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="px-3 py-1 rounded-full bg-green-100 text-green-800 font-bold"><?= $result['grade'] ?></span>
-                                </td>
-                                <td class="px-6 py-4"><?= $result['remark'] ?></td>
-                            </tr>
-                          <?php endforeach ?>
+                            <?php foreach ($results as $result) : ?>
+                                <tr class="hover:bg-blue-50">
+                                    <td class="px-6 py-4"><?= $result['subject_name'] ?></td>
+                                    <td class="px-6 py-4 text-center"><?= $result['ca'] ?></td>
+                                    <td class="px-6 py-4 text-center"><?= $result['exam'] ?></td>
+                                    <td class="px-6 py-4 text-center font-bold"><?= $result['total'] ?></td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="px-3 py-1 rounded-full bg-green-100 text-green-800 font-bold"><?= $result['grade'] ?></span>
+                                    </td>
+                                    <td class="px-6 py-4"><?= $result['remark'] ?></td>
+                                </tr>
+                            <?php endforeach ?>
                         </tbody>
                     </table>
                 </div>
