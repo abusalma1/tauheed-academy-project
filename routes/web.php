@@ -252,6 +252,16 @@ $routes = [
     'fees-assginment' => [
         'url' => "$baseUrl/pages/admin/fees/fees-assignment.php"
     ],
+    'add-bank-account' => [
+        'url' => "$baseUrl/pages/admin/fees/add-bank-account.php"
+    ],
+    'update-bank-account' => [
+        'url' => "$baseUrl/pages/admin/fees/update-bank-account.php"
+    ],
+    'bank-accounts' => [
+        'url' => "$baseUrl/pages/admin/fees/bank-accounts.php"
+    ],
+
 
 
 ];

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 25, 2025 at 12:12 PM
+-- Generation Time: Nov 25, 2025 at 02:50 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -56,6 +56,30 @@ INSERT INTO `admins` (`id`, `name`, `email`, `password`, `reset_token`, `type`, 
 (1, 'Abubakar Ahmad Adili', 'abubakarahmadadili@gmail.com', '$2y$10$VmpoPAOKYaVB4pEfE0h/qepU80Egi/8T4mxIPCGirpA2//ionrL0y', NULL, 'superAdmin', 'ST/2025/001', 'Maniru Road', 'Director/CEO', 'active', '09061893504', NULL, '2025-11-05 14:33:05', '2025-11-23 12:50:50', NULL, 'male', NULL, NULL),
 (2, 'Aminu Ahmad Adili', 'admin@email.com', '$2y$10$n8ei/IxLhOlEcIE8aFHDpemDAnithSjtGFgBeOTXIYM1e4WvThR1C', NULL, 'admin', 'ST/2025/002', 'Kofar Marke Area', 'Development', 'active', '09061893504', NULL, '2025-11-10 12:28:17', '2025-11-22 16:12:52', NULL, 'male', NULL, NULL),
 (3, 'Abusalma', 'adahiru.iuol@gmail.com', '$2y$10$N6uZt2KgNrfwAls0hM.YTO5oE8hOystwNjMr2/9c6qSOgZCIe3Gqq', NULL, 'admin', 'ST/2025/003', 'Mabera', 'FInance', 'active', '08160050448', NULL, '2025-11-20 14:46:54', '2025-11-24 10:57:27', 'B.sc Public Admin', 'male', 'iconic Open University (10 years fince officer)', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bank_accounts`
+--
+
+CREATE TABLE `bank_accounts` (
+  `id` int(11) NOT NULL,
+  `bank_name` varchar(255) DEFAULT NULL,
+  `account_name` varchar(255) DEFAULT NULL,
+  `account_number` varchar(34) DEFAULT NULL,
+  `purpose` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `bank_accounts`
+--
+
+INSERT INTO `bank_accounts` (`id`, `bank_name`, `account_name`, `account_number`, `purpose`, `created_at`, `updated_at`) VALUES
+(1, 'UBA Bank', 'Tauheed Academy', '9078563412', 'Tansport Fee', '2025-11-25 13:31:30', '2025-11-25 13:48:11'),
+(2, 'GT bank', 'Tauheed Academy', '2143658709', 'PTA Fee', '2025-11-25 13:48:44', '2025-11-25 13:48:44');
 
 -- --------------------------------------------------------
 
@@ -632,6 +656,12 @@ ALTER TABLE `admins`
   ADD UNIQUE KEY `staff_no` (`staff_no`);
 
 --
+-- Indexes for table `bank_accounts`
+--
+ALTER TABLE `bank_accounts`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `classes`
 --
 ALTER TABLE `classes`
@@ -775,6 +805,12 @@ ALTER TABLE `terms`
 --
 ALTER TABLE `admins`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `bank_accounts`
+--
+ALTER TABLE `bank_accounts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `classes`

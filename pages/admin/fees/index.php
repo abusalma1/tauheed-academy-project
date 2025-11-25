@@ -75,9 +75,10 @@ $classesCount = countDataTotal('classes');
                             <p class="text-sm text-gray-700"><strong>Bank Details:</strong> Account info configured</p>
                             <p class="text-sm text-gray-700"><strong>Payment Gateway:</strong> Setup and manage</p>
                         </div>
-                        <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+
+                        <a href="<?= route('bank-accounts') ?>" class="w-full inline-block text-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
                             <i class="fas fa-cog mr-2"></i>Configure Methods
-                        </button>
+                        </a>
                     </div>
                 </div>
 
