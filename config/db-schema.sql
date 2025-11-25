@@ -25,7 +25,8 @@ CREATE TABLE admins (
     status ENUM('active', 'inactive') DEFAULT 'active',
     phone VARCHAR(20),
     picture_path VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -44,7 +45,8 @@ CREATE TABLE schools (
     twitter VARCHAR(255),
     instagram VARCHAR(255),
     logo_path VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -67,7 +69,8 @@ CREATE TABLE teachers (
     password VARCHAR(255) NOT NULL,
     reset_token VARCHAR(255) NULL,
     reset_expires DATETIME NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -79,7 +82,8 @@ CREATE TABLE sections (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     head_teacher_id INT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (head_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
@@ -91,7 +95,8 @@ CREATE TABLE class_arms (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -116,6 +121,9 @@ CREATE TABLE class_class_arms (
     class_id INT NOT NULL,
     arm_id INT NOT NULL,
     teacher_id INT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (class_id, arm_id),
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
     FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE,
@@ -129,7 +137,9 @@ CREATE TABLE teacher_section (
     id INT AUTO_INCREMENT PRIMARY KEY,
     teacher_id INT NOT NULL,
     section_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
     FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
@@ -140,7 +150,8 @@ CREATE TABLE teacher_section (
 CREATE TABLE subjects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -152,7 +163,9 @@ CREATE TABLE class_subjects (
     class_id INT NOT NULL,
     subject_id INT NOT NULL,
     teacher_id INT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
@@ -176,7 +189,8 @@ CREATE TABLE guardians (
     status ENUM('active', 'inactive') DEFAULT 'active',
        reset_token VARCHAR(255) NULL,
     reset_expires DATETIME NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -189,7 +203,9 @@ CREATE TABLE sessions (
     start_date DATE,
     end_date DATE,
     status ENUM('pending', 'ongoing', 'finished') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- ===========================================================
@@ -202,7 +218,9 @@ CREATE TABLE terms (
     start_date DATE,
     end_date DATE,
     status ENUM('pending', 'ongoing', 'finished') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -230,7 +248,8 @@ CREATE TABLE students (
     arm_id INT NULL,
     term_id INT NULL,
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (guardian_id) REFERENCES guardians(id) ON DELETE SET NULL,
@@ -255,7 +274,8 @@ CREATE TABLE student_class_records (
     overall_position INT DEFAULT NULL,
     promotion_status ENUM('promoted', 'repeat', 'pending') DEFAULT 'pending',
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
@@ -280,7 +300,8 @@ CREATE TABLE student_term_records (
     class_size INT DEFAULT NULL,
     overall_grade VARCHAR(5) NULL,
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (student_class_record_id) REFERENCES student_class_records(id) ON DELETE CASCADE,
@@ -303,7 +324,8 @@ CREATE TABLE results (
     grade VARCHAR(2),
     remark VARCHAR(50),
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (student_term_record_id) REFERENCES student_term_records(id) ON DELETE CASCADE,
@@ -323,7 +345,8 @@ CREATE TABLE news (
     picture_path VARCHAR(255),
     publication_date TIMESTAMP,
     status ENUM('draft', 'published') DEFAULT 'draft',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -340,7 +363,8 @@ CREATE TABLE fees (
     uniform DECIMAL(10,2),
     transport DECIMAL(10,2),
     materials DECIMAL(10,2),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     CONSTRAINT fk_fees_class
@@ -359,8 +383,10 @@ CREATE TABLE bank_accounts (
     account_name VARCHAR(255),
     account_number VARCHAR(34),
     purpose VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    
 ) ENGINE=InnoDB;
 
 

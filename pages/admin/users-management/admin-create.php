@@ -7,10 +7,8 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$stmt = $conn->prepare("SELECT * FROM admins");
-$stmt->execute();
-$result = $stmt->get_result();
-$admins = $result->fetch_all(MYSQLI_ASSOC);
+
+$admins = selectAllData('admins');
 
 // Count total admins
 $adminsCount =  countDataTotal('admins', true);
@@ -387,9 +385,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <button class="text-red-600 hover:text-red-900 font-semibold">
+                                            <a href="<?= route('delete-user') . '?id=' . $admin['id'] ?>&table=admins&type=Admin" class="text-red-600 hover:text-red-900 font-semibold">
                                                 <i class="fas fa-trash"></i> Delete
-                                            </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>

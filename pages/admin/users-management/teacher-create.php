@@ -333,7 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <a href="">
+                                            <a href="<?= route('delete-user') . '?id=' . $teacher['id'] ?>&table=teachers&type=Teacher">
                                                 <button class="text-red-600 hover:text-red-900 font-semibold">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>

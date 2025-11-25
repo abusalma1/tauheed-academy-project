@@ -18,8 +18,7 @@ $totalActiveUsers = $adminsCount['active'] + $teachersCount['active'] + $guardia
 $totalInactiveUsers = $adminsCount['inactive'] + $teachersCount['inactive'] + $guardiansCount['inactive'] + $studentsCount['inactive'];
 
 
-$stmt = $conn->prepare("
-SELECT 
+$stmt = $conn->prepare("SELECT 
     classes.id AS class_id,
     classes.name AS class_name,
 
@@ -37,6 +36,7 @@ LEFT JOIN classes
     ON classes.id = students.class_id
 LEFT JOIN class_arms 
     ON class_arms.id = students.arm_id
+    where students.deleted_at is null
 ORDER BY classes.id, class_arms.id, students.name
 ");
 $stmt->execute();

@@ -322,9 +322,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                 <i class="fas fa-edit"></i> Edit
                                             </button>
-                                            <button class="text-red-600 hover:text-red-900 font-semibold">
+
+                                            <a href="<?= route('delete-user') . '?id=' . $guardian['id'] ?>&table=guardians&type=Guardian" class="text-red-600 hover:text-red-900 font-semibold">
                                                 <i class="fas fa-trash"></i> Delete
-                                            </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>

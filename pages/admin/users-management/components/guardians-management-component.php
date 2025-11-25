@@ -58,7 +58,7 @@
                                 <i class="fas fa-lock mr-2"></i>Edit Password
                             </a>
 
-                            <a href="delete-confirmation.html?type=guardian&id=1" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
+                            <a href="<?= route('delete-user') . '?id=' . $guardian['id'] ?>&table=guardians&type=Guardian" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
                                 <i class="fas fa-trash mr-1"></i>Delete
                             </a>
 

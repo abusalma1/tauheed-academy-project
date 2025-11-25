@@ -497,9 +497,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <button class="text-red-600 hover:text-red-900 font-semibold">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </button>
+                                            <a href="<?= route('delete-user') . '?id=' . $student['student_id'] ?>&table=students&type=Student">
+                                                <button class="text-red-600 hover:text-red-900 font-semibold">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>

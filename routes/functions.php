@@ -80,33 +80,33 @@ function countDataTotal($table, $haveActivity = false)
     global $conn;
 
     // Count total users
-    $totalQuery = $conn->query("SELECT COUNT(*) AS total FROM $table");
+    $totalQuery = $conn->query("SELECT COUNT(*) AS total FROM $table WHERE deleted_at is null");
     $total = $totalQuery->fetch_assoc()['total'];
     $total = number_format($total);
 
 
     if ($haveActivity) {
         // Count active users
-        $activeQuery = $conn->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active'");
+        $activeQuery = $conn->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active'and deleted_at is null");
         $active = $activeQuery->fetch_assoc()['active'];
         $active = number_format($active);
 
 
         // Count inactive users
-        $inactiveQuery = $conn->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive'");
+        $inactiveQuery = $conn->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive' and deleted_at is null");
         $inactive = $inactiveQuery->fetch_assoc()['inactive'];
         $inactive = number_format($inactive);
 
 
         if ($table === 'admins') {
             // Count active admins
-            $activeQuery = $conn->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin'");
+            $activeQuery = $conn->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin' and deleted_at is null");
             $admin = $activeQuery->fetch_assoc()['admin'];
             $admin = number_format($admin);
 
 
             // Count inactive superadmins
-            $inactiveQuery = $conn->query("SELECT COUNT(*) AS superAdmin FROM $table WHERE type = 'superAdmin'");
+            $inactiveQuery = $conn->query("SELECT COUNT(*) AS superAdmin FROM $table WHERE type = 'superAdmin' and deleted_at is null");
             $superAdmin = $inactiveQuery->fetch_assoc()['superAdmin'];
             $superAdmin = number_format($superAdmin);
 
@@ -125,13 +125,13 @@ function selectAllData($table, $whereIdIs = null, $whereIdIsNot = null)
     global $conn;
 
     if ($whereIdIs) {
-        $stmt = $conn->prepare("SELECT * FROM $table WHERE id =  ?");
+        $stmt = $conn->prepare("SELECT * FROM $table WHERE id =  ? and deleted_at is null");
         $stmt->bind_param('i', $whereIdIs);
     } else if ($whereIdIsNot) {
-        $stmt = $conn->prepare("SELECT * FROM $table WHERE id != ?");
+        $stmt = $conn->prepare("SELECT * FROM $table WHERE id != ?  and deleted_at is null");
         $stmt->bind_param('i', $whereIdIsNot);
     } else {
-        $stmt = $conn->prepare("SELECT * FROM $table");
+        $stmt = $conn->prepare("SELECT * FROM $table where deleted_at is null");
     }
     $stmt->execute();
     $result = $stmt->get_result();

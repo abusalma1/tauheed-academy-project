@@ -77,7 +77,7 @@
                         </a>
 
                         <!-- Delete -->
-                        <a href="<?= route('delete-admin') . '?id=' . $admin['id'] ?>"
+                        <a href="<?= route('delete-user') . '?id=' . $admin['id'] ?>&table=admins&type=Admin"
                             class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
                             <i class="fas fa-trash mr-1"></i>Delete
                         </a>

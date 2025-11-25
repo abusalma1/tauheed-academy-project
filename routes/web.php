@@ -90,6 +90,9 @@ $routes = [
     'view-user-details' => [
         'url' => "$baseUrl/pages/admin/users-management/user-details.php"
     ],
+    'delete-user' => [
+        'url' => "$baseUrl/pages/admin/users-management/delete-user.php"
+    ],
     // admin 
 
     'admin-create' => [

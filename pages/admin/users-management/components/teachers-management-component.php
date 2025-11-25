@@ -57,7 +57,7 @@
                         <a href="<?= route('update-user-password') . '?id=' . $teacher['id']  . '&user_type=teacher' ?>" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
                             <i class="fas fa-lock mr-2"></i>Edit Password
                         </a>
-                        <a href="" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
+                        <a href="<?= route('delete-user') . '?id=' . $teacher['id'] ?>&table=teachers&type=Teacher" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
                             <i class="fas fa-trash mr-1"></i>Delete
                         </a>
 
