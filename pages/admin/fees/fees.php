@@ -1,6 +1,27 @@
 <?php
 $title = 'Fees(Admin section)';
 include(__DIR__ .  '/../../../includes/header.php');
+
+$stmt = $conn->prepare("
+    SELECT 
+        classes.name,
+        fees.*,
+        (
+            first_term +
+            second_term +
+            third_term +
+            uniform +
+            transport +
+            materials
+        ) AS total
+    FROM fees
+    LEFT JOIN classes ON fees.class_id = classes.id
+    ORDER BY classes.level ASC
+");
+
+$stmt->execute();
+$fees = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
 ?>
 
 <body class="bg-gray-50">
@@ -18,65 +39,52 @@ include(__DIR__ .  '/../../../includes/header.php');
     <!-- Fee Structure by Term -->
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">School Fees by Class - First Term</h2>
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">School Fees by Classes</h2>
             <div class="overflow-x-auto">
                 <table class="w-full bg-white shadow-lg rounded-lg overflow-hidden">
                     <thead class="bg-blue-900 text-white">
                         <tr>
-                            <th class="px-6 py-4 text-left">Class</th>
-                            <th class="px-6 py-4 text-left">Category</th>
-                            <th class="px-6 py-4 text-right">Tuition</th>
-                            <th class="px-6 py-4 text-right">Development Levy</th>
-                            <th class="px-6 py-4 text-right">Books & Materials</th>
-                            <th class="px-6 py-4 text-right">Total Amount</th>
+                            <th class="px-6 py-4 text-center">Class</th>
+                            <th class="px-6 py-4 text-center">First Term</th>
+                            <th class="px-6 py-4 text-center">Second Term</th>
+                            <th class="px-6 py-4 text-center">Third Term</th>
+
+
+                            <th class="px-6 py-4 text-center">Uniform</th>
+                            <th class="px-6 py-4 text-center">Books & Materials</th>
+                            <th class="px-6 py-4 text-center">Transport</th>
+
+                            <th class="px-6 py-4 text-center">Total Annual Fee</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-semibold">Nursery 1-2</td>
-                            <td class="px-6 py-4 text-gray-600">Pre-Primary</td>
-                            <td class="px-6 py-4 text-right">₦45,000</td>
-                            <td class="px-6 py-4 text-right">₦10,000</td>
-                            <td class="px-6 py-4 text-right">₦8,000</td>
-                            <td class="px-6 py-4 text-right font-bold text-blue-900">₦63,000</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-semibold">Primary 1-3</td>
-                            <td class="px-6 py-4 text-gray-600">Lower Primary</td>
-                            <td class="px-6 py-4 text-right">₦55,000</td>
-                            <td class="px-6 py-4 text-right">₦12,000</td>
-                            <td class="px-6 py-4 text-right">₦10,000</td>
-                            <td class="px-6 py-4 text-right font-bold text-blue-900">₦77,000</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-semibold">Primary 4-6</td>
-                            <td class="px-6 py-4 text-gray-600">Upper Primary</td>
-                            <td class="px-6 py-4 text-right">₦60,000</td>
-                            <td class="px-6 py-4 text-right">₦12,000</td>
-                            <td class="px-6 py-4 text-right">₦12,000</td>
-                            <td class="px-6 py-4 text-right font-bold text-blue-900">₦84,000</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-semibold">JSS 1-3</td>
-                            <td class="px-6 py-4 text-gray-600">Junior Secondary</td>
-                            <td class="px-6 py-4 text-right">₦70,000</td>
-                            <td class="px-6 py-4 text-right">₦15,000</td>
-                            <td class="px-6 py-4 text-right">₦15,000</td>
-                            <td class="px-6 py-4 text-right font-bold text-blue-900">₦100,000</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-semibold">SSS 1-3</td>
-                            <td class="px-6 py-4 text-gray-600">Senior Secondary</td>
-                            <td class="px-6 py-4 text-right">₦80,000</td>
-                            <td class="px-6 py-4 text-right">₦15,000</td>
-                            <td class="px-6 py-4 text-right">₦18,000</td>
-                            <td class="px-6 py-4 text-right font-bold text-blue-900">₦113,000</td>
-                        </tr>
+                        <?php foreach ($fees as $fee): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 font-semibold"><?= $fee['name'] ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['first_term']) ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['second_term']) ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['third_term']) ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['uniform']) ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['materials']) ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['transport']) ?></td>
+                                <td class="px-6 py-4 text-center font-bold text-blue-900">₦<?= number_format($fee['total']) ?></td>
+
+                            </tr>
+                        <?php endforeach ?>
+
                     </tbody>
                 </table>
             </div>
             <div class="mt-8 bg-blue-50 border-l-4 border-blue-900 p-6 rounded">
-                <p class="text-gray-700"><strong>Note:</strong> Second and Third term fees are 10% less than First term. Additional charges may apply for extracurricular activities, excursions, and special programs.</p>
+                <p class="text-gray-700"><strong>Note: </strong></p>
+                <br>
+                <ul class="text-gray-700 list-disc pl-5">
+                    <li>Tuition and instructional fees, together with facilities and development fees, are distributed across the academic terms.</li>
+                    <li>Payment of transport fees is required for students who make use of the school bus service.</li>
+                </ul>
+
+
+
             </div>
         </div>
     </section>
@@ -109,7 +117,9 @@ include(__DIR__ .  '/../../../includes/header.php');
                         <li><i class="fas fa-check text-green-600 mr-2"></i>Sports facilities</li>
                         <li><i class="fas fa-check text-green-600 mr-2"></i>Computer lab</li>
                     </ul>
-                </div>
+                </div>  
+
+
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-clipboard-list text-2xl"></i>
@@ -122,6 +132,32 @@ include(__DIR__ .  '/../../../includes/header.php');
                         <li><i class="fas fa-check text-green-600 mr-2"></i>Workbooks</li>
                     </ul>
                 </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-shirt text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Uniform</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li><i class="fas fa-check text-green-600 mr-2"></i>Regular School Uniform (2 sets)</li>
+                        <li><i class="fas fa-check text-green-600 mr-2"></i>Sport Wears</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-bus-alt text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Transport</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li><i class="fas fa-check text-green-600 mr-2"></i>Transporting students to school</li>
+                        <li><i class="fas fa-check text-green-600 mr-2"></i>Returning students from school</li>
+                        <li><i class="fas fa-check text-green-600 mr-2"></i>Service available on school days</li>
+                    </ul>
+
+                </div>
+
+
+
             </div>
         </div>
     </section>
@@ -142,7 +178,7 @@ include(__DIR__ .  '/../../../includes/header.php');
                         <p><strong>Bank Name:</strong> First National Bank</p>
                         <p><strong>Account Name:</strong> Excellence Academy</p>
                         <p><strong>Account Number:</strong> 1234567890</p>
-                        <p class="text-sm text-gray-600 mt-4">Please use student's admission name, class and number as payment reference</p>
+                        <p class="text-sm text-gray-600 mt-4">Please use sstudent's name, class and admission number as payment reference</p>
 
                     </div>
                 </div>
@@ -157,7 +193,7 @@ include(__DIR__ .  '/../../../includes/header.php');
                     <div class="space-y-2 text-gray-700">
                         <p>Pay through school fincance officer (Accountant).</p>
 
-                        <p class="text-sm text-gray-600 mt-4">Please use student's admission name, class and number as payment reference</p>
+                        <p class="text-sm text-gray-600 mt-4">Please use student's name, class and admission number as payment reference</p>
                     </div>
                 </div>
             </div>
