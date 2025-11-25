@@ -37,7 +37,7 @@ include(__DIR__ .  '/../includes/header.php');
                             <div class="bg-blue-900 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</div>
                             <div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Complete Application Form</h3>
-                                <p class="text-gray-700">Download and fill out the admission form with accurate information about the student and parents/guardians.</p>
+                                <p class="text-gray-700">Buy     and fill out the admission form with accurate information about the student and parents/guardians.</p>
                             </div>
                         </div>
                         <div class="flex gap-4">
@@ -58,7 +58,7 @@ include(__DIR__ .  '/../includes/header.php');
                             <div class="bg-blue-900 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold">5</div>
                             <div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Receive Admission Letter</h3>
-                                <p class="text-gray-700">Upon successful completion, you will receive an official admission letter with your unique admission number.</p>
+                                <p class="text-gray-700">Upon successful completion, you will receive an official admission letter with your childs unique admission number.</p>
                             </div>
                         </div>
                     </div>
