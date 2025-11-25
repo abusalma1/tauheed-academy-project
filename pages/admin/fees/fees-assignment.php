@@ -44,6 +44,63 @@ foreach ($rows as $row) {
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
+
+    try {
+        $feesData = json_decode($_POST['fees'], true);
+
+        foreach ($feesData as $classId => $fee) {
+            $stmt = $conn->prepare("SELECT id FROM fees WHERE class_id = ?");
+            $stmt->bind_param("i", $classId);
+            $stmt->execute();
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0) {
+                $stmt->close();
+                $update = $conn->prepare("UPDATE fees 
+                    SET first_term=?, second_term=?, third_term=?, uniform=?, transport=?, materials=?, updated_at=NOW()
+                    WHERE class_id=?");
+                $update->bind_param(
+                    "ddddddi",
+                    $fee['first_term'],
+                    $fee['second_term'],
+                    $fee['third_term'],
+                    $fee['uniform'],
+                    $fee['transport'],
+                    $fee['materials'],
+                    $classId
+                );
+                $update->execute();
+                $update->close();
+            } else {
+                $stmt->close();
+                $insert = $conn->prepare("INSERT INTO fees 
+                    (class_id, first_term, second_term, third_term, uniform, transport, materials) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $insert->bind_param(
+                    "idddddd",
+                    $classId,
+                    $fee['first_term'],
+                    $fee['second_term'],
+                    $fee['third_term'],
+                    $fee['uniform'],
+                    $fee['transport'],
+                    $fee['materials']
+                );
+                $insert->execute();
+                $insert->close();
+            }
+        }
+
+        echo json_encode(["status" => "success"]);
+    } catch (Exception $e) {
+        echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+    }
+
+    exit; // IMPORTANT!!!
+}
+
 ?>
 
 <body class="bg-gray-50">
@@ -74,11 +131,10 @@ foreach ($rows as $row) {
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Filter by Section</label>
                         <select id="sectionFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
                             <option value="">All Sections</option>
-                            <option value="Tahfeez">Tahfeez</option>
-                            <option value="Nursery">Nursery</option>
-                            <option value="Primary">Primary</option>
-                            <option value="Junior Secondary">Junior Secondary</option>
-                            <option value="Senior Secondary">Senior Secondary</option>
+                            <?php foreach ($sections as $section): ?>
+                                <option value="<?= $section['section_name'] ?>"><?= $section['section_name'] ?></option>
+                            <?php endforeach ?>
+
                         </select>
                     </div>
                     <div class="flex items-end gap-2">
@@ -148,17 +204,17 @@ foreach ($rows as $row) {
                                         <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tahfeezBody" class="divide-y divide-gray-200">
+                                <tbody class="divide-y divide-gray-200">
                                     <?php foreach ($section['classes'] as $class) : ?>
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 font-semibold text-gray-900"><?= $class['class_name'] ?></td>
-                                            <td class="px-6 py-4"><input type="number" class="fist-term w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>"></td>
-                                            <td class="px-6 py-4"><input type="number" class="second-term w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>"></td>
-                                            <td class="px-6 py-4"><input type="number" class="third-term w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>"></td>
-                                            <td class="px-6 py-4"><input type="number" class="uniform w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>"></td>
-                                            <td class="px-6 py-4"><input type="number" class="materials w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>"></td>
+                                            <td class="px-6 py-4"><input type="number" class="first-term w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
+                                            <td class=" px-6 py-4"><input type="number" class="second-term w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
+                                            <td class="px-6 py-4"><input type="number" class="third-term w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
+                                            <td class="px-6 py-4"><input type="number" class="uniform w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
+                                            <td class="px-6 py-4"><input type="number" class="materials w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
 
-                                            <td class="px-6 py-4"><input type="number" class="transport w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>"></td>
+                                            <td class="px-6 py-4"><input type="number" class="transport w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
                                             <td class="px-6 py-4 text-right"><span class="total font-bold text-orange-600">₦0</span></td>
                                             <td class="px-6 py-4 text-center"><button onclick="updateRowTotal(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-calculator"></i></button></td>
                                         </tr>
@@ -180,36 +236,98 @@ foreach ($rows as $row) {
                 </button>
             </div>
         </div>
+
+        <!-- Loader Modal -->
+        <div id="loaderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-lg p-6 flex flex-col items-center">
+                <div class="loader border-4 border-t-4 border-gray-200 rounded-full w-12 h-12 animate-spin border-t-orange-600"></div>
+                <p class="mt-4 text-gray-700 font-semibold">Submitting fees...</p>
+            </div>
+        </div>
+
+        <!-- Result Modal -->
+        <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-lg p-6 text-center">
+                <p id="resultMessage" class="text-lg font-semibold"></p>
+                <button onclick="closeResultModal()" class="mt-4 bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700">OK</button>
+            </div>
+        </div>
+
+        <style>
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+
     </section>
 
     <!-- Footer -->
     <?php include(__DIR__ . "/../../../includes/footer.php"); ?>
 
-
     <script>
-        // Load fees from localStorage
-        function loadFees() {
-            const fees = JSON.parse(localStorage.getItem('schoolFees')) || {};
-            document.querySelectorAll('input[type="number"]').forEach(input => {
-                const classKey = input.getAttribute('data-class');
-                const type = input.classList[0];
-                const key = `${classKey}-${type}`;
-                if (fees[key]) input.value = fees[key];
+        function saveAllFees() {
+            const fees = {};
+
+            document.querySelectorAll('table tbody tr').forEach(row => {
+                const classId = row.querySelector('.first-term').dataset.classId;
+
+                fees[classId] = {
+                    first_term: parseFloat(row.querySelector('.first-term').value) || 0,
+                    second_term: parseFloat(row.querySelector('.second-term').value) || 0,
+                    third_term: parseFloat(row.querySelector('.third-term').value) || 0,
+                    uniform: parseFloat(row.querySelector('.uniform').value) || 0,
+                    materials: parseFloat(row.querySelector('.materials').value) || 0,
+                    transport: parseFloat(row.querySelector('.transport').value) || 0
+                };
             });
-            updateStats();
+
+            document.getElementById('loaderModal').classList.remove('hidden');
+
+            fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'fees=' + encodeURIComponent(JSON.stringify(fees))
+                })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('loaderModal').classList.add('hidden');
+
+                    const resultModal = document.getElementById('resultModal');
+                    const resultMessage = document.getElementById('resultMessage');
+
+                    if (data.status === "success") {
+                        resultMessage.textContent = "✅ Fees saved successfully!";
+                        setTimeout(() => {
+                            window.location.href = "fees-list.php";
+                        }, 1500);
+                    } else {
+                        resultMessage.textContent = "❌ Error saving fees.";
+                    }
+
+                    resultModal.classList.remove('hidden');
+                })
+                .catch(err => {
+                    console.log("FETCH ERROR:", err);
+                    document.getElementById('loaderModal').classList.add('hidden');
+                    document.getElementById('resultMessage').textContent = "❌ Network error.";
+                    document.getElementById('resultModal').classList.remove('hidden');
+                });
         }
 
-        // Update row total
-        function updateRowTotal(btn) {
-            const row = btn.closest('tr');
-            const firstTerm = parseFloat(row.querySelector('.frist-term').value) || 0;
-            const secondTerm = parseFloat(row.querySelector('.second-term').value) || 0;
-            const thirdTerm = parseFloat(row.querySelector('.third-term').value) || 0;
-            const uniform = parseFloat(row.querySelector('.uniform').value) || 0;
-            const transport = parseFloat(row.querySelector('.transport').value) || 0;
-            const materials = parseFloat(row.querySelector('.materials').value) || 0;
-            const total = firstTerm + secondTerm + thirdTerm + uniform + transport + materials;
-            row.querySelector('.total').textContent = '₦' + total.toLocaleString();
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.add('hidden');
         }
 
 
@@ -227,16 +345,33 @@ foreach ($rows as $row) {
             });
         });
 
-        // Auto-calculate on input
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('blur', () => {
-                updateRowTotal(input.closest('tr').querySelector('button'));
-            });
+
+        // Listen for changes in all input fields
+        document.addEventListener("input", function(e) {
+            if (e.target.matches("input[type='number']")) {
+                updateRowTotal(e.target);
+            }
         });
 
-        // Load fees on page load
-        loadFees();
+        function updateRowTotal(inputElement) {
+            // Get the row of the changed input
+            const row = inputElement.closest("tr");
+
+            // Get all inputs inside the row
+            const inputs = row.querySelectorAll("input[type='number']");
+
+            let total = 0;
+
+            inputs.forEach(input => {
+                total += Number(input.value) || 0;
+            });
+
+            // Update total in the last column
+            const totalCell = row.querySelector(".total");
+            totalCell.textContent = "₦" + total.toLocaleString();
+        }
     </script>
+
 </body>
 
 </html>

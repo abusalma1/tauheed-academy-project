@@ -329,7 +329,7 @@ CREATE TABLE news (
 
 
 -- ===========================================================
--- 12. FEES TABLE
+-- 13. FEES TABLE
 -- ===========================================================
 CREATE TABLE fees (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -340,8 +340,6 @@ CREATE TABLE fees (
     uniform DECIMAL(10,2),
     transport DECIMAL(10,2),
     materials DECIMAL(10,2),
-
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
