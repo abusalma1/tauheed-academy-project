@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Bank Account - Excellence Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
+                    <div>
+                        <h1 class="text-xl font-bold">Excellence Academy</h1>
+                        <p class="text-xs text-blue-200">Add Bank Account</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="bank-accounts.html" class="hover:text-blue-300 transition">Back</a>
+                    <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
+            <a href="bank-accounts.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back</a>
+            <button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Add Bank Account</h1>
+            <p class="text-xl text-blue-200">Add a new bank account for school fees collection</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <!-- Form Header -->
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">New Bank Account Details</h2>
+                    <p class="text-gray-600">Fill in all the required information for the bank account</p>
+                </div>
+
+                <!-- Form -->
+                <form id="bankAccountForm" class="space-y-8">
+                    <!-- Bank Information Section -->
+                    <div class="border-b pb-8">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <i class="fas fa-bank text-blue-900"></i>
+                            Bank Information
+                        </h3>
+
+                        <!-- Bank Name -->
+                        <div class="mb-6">
+                            <label for="bankName" class="block text-gray-700 font-semibold mb-2">
+                                Bank Name <span class="text-red-500">*</span>
+                            </label>
+                            <select id="bankName" name="bankName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" required>
+                                <option value="">Select a bank</option>
+                                <option value="first-bank">First Bank</option>
+                                <option value="gtbank">GTBank</option>
+                                <option value="zenith">Zenith Bank</option>
+                                <option value="access">Access Bank</option>
+                                <option value="uba">UBA</option>
+                                <option value="fcmb">FCMB</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Account Type -->
+                        <div class="mb-6">
+                            <label for="accountType" class="block text-gray-700 font-semibold mb-2">
+                                Account Type <span class="text-red-500">*</span>
+                            </label>
+                            <select id="accountType" name="accountType" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" required>
+                                <option value="">Select account type</option>
+                                <option value="current">Business Current</option>
+                                <option value="savings">Business Savings</option>
+                                <option value="cheque">Cheque Account</option>
+                            </select>
+                        </div>
+
+                        <!-- Account Purpose -->
+                        <div class="mb-6">
+                            <label for="accountPurpose" class="block text-gray-700 font-semibold mb-2">
+                                Account Purpose <span class="text-red-500">*</span>
+                            </label>
+                            <select id="accountPurpose" name="accountPurpose" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" required>
+                                <option value="">Select purpose</option>
+                                <option value="primary">Primary Account</option>
+                                <option value="secondary">Secondary Account</option>
+                                <option value="tertiary">Tertiary Account</option>
+                                <option value="other">Other Purpose</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Account Details Section -->
+                    <div class="border-b pb-8">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <i class="fas fa-credit-card text-blue-900"></i>
+                            Account Details
+                        </h3>
+
+                        <!-- Account Name -->
+                        <div class="mb-6">
+                            <label for="accountName" class="block text-gray-700 font-semibold mb-2">
+                                Account Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="accountName" name="accountName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Excellence Academy" required>
+                        </div>
+
+                        <!-- Account Number -->
+                        <div class="mb-6">
+                            <label for="accountNumber" class="block text-gray-700 font-semibold mb-2">
+                                Account Number <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="accountNumber" name="accountNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="1234567890" maxlength="10" required>
+                            <p class="text-gray-600 text-sm mt-2">Enter 10-digit account number</p>
+                        </div>
+
+                        <!-- NUBAN/Sort Code -->
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="nuban" class="block text-gray-700 font-semibold mb-2">
+                                    NUBAN <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="nuban" name="nuban" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="1234567890123456789" maxlength="20" required>
+                            </div>
+
+                            <div>
+                                <label for="sortCode" class="block text-gray-700 font-semibold mb-2">
+                                    Sort Code <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="sortCode" name="sortCode" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="011/058957" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Balance Section -->
+                    <div class="border-b pb-8">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <i class="fas fa-money-bill-wave text-blue-900"></i>
+                            Account Balance
+                        </h3>
+
+                        <!-- Current Balance -->
+                        <div class="mb-6">
+                            <label for="currentBalance" class="block text-gray-700 font-semibold mb-2">
+                                Current Balance <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3 text-gray-700 font-semibold">₦</span>
+                                <input type="number" id="currentBalance" name="currentBalance" class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="0.00" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Status -->
+                    <div class="pb-8">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <i class="fas fa-toggle-on text-blue-900"></i>
+                            Account Status
+                        </h3>
+
+                        <!-- Active Status -->
+                        <div class="flex items-center gap-4">
+                            <input type="checkbox" id="isActive" name="isActive" class="w-5 h-5 rounded focus:ring-2 focus:ring-blue-900" checked>
+                            <label for="isActive" class="text-gray-700 font-semibold">
+                                Mark as Active
+                            </label>
+                            <p class="text-gray-600 text-sm">(Active accounts can receive payments)</p>
+                        </div>
+                    </div>
+
+                    <!-- Notes Section -->
+                    <div class="border-b pb-8">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <i class="fas fa-sticky-note text-blue-900"></i>
+                            Additional Notes
+                        </h3>
+
+                        <!-- Notes -->
+                        <div class="mb-6">
+                            <label for="notes" class="block text-gray-700 font-semibold mb-2">
+                                Notes (Optional)
+                            </label>
+                            <textarea id="notes" name="notes" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Add any additional notes or instructions for this account..."></textarea>
+                            <p class="text-gray-600 text-sm mt-2">Character count: <span id="notesCount">0</span>/300</p>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex gap-4 pt-8 border-t">
+                        <button type="submit" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                            <i class="fas fa-plus"></i>
+                            Add Account
+                        </button>
+                        <a href="bank-accounts.html" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Bank account added successfully!</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Committed to providing quality education and nurturing future leaders.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Admin Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="admin-dashboard.html" class="text-gray-400 hover:text-white transition">Dashboard</a></li>
+                        <li><a href="fees-management.html" class="text-gray-400 hover:text-white transition">Fees</a></li>
+                        <li><a href="bank-accounts.html" class="text-gray-400 hover:text-white transition">Bank Accounts</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
+                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
+                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+                    <div class="flex gap-4">
+                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Character count for notes
+        const notes = document.getElementById('notes');
+        const notesCount = document.getElementById('notesCount');
+        notes.addEventListener('input', () => {
+            notesCount.textContent = notes.value.length;
+        });
+
+        // Form submission
+        const bankAccountForm = document.getElementById('bankAccountForm');
+        const successMessage = document.getElementById('successMessage');
+        bankAccountForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Collect form data
+            const formData = {
+                bankName: document.getElementById('bankName').value,
+                accountType: document.getElementById('accountType').value,
+                accountPurpose: document.getElementById('accountPurpose').value,
+                accountName: document.getElementById('accountName').value,
+                accountNumber: document.getElementById('accountNumber').value,
+                nuban: document.getElementById('nuban').value,
+                sortCode: document.getElementById('sortCode').value,
+                currentBalance: document.getElementById('currentBalance').value,
+                isActive: document.getElementById('isActive').checked,
+                notes: document.getElementById('notes').value,
+                addedDate: new Date().toLocaleDateString()
+            };
+
+            // Save to localStorage
+            let bankAccounts = JSON.parse(localStorage.getItem('bankAccounts')) || [];
+            bankAccounts.push(formData);
+            localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+
+            // Show success message
+            successMessage.classList.remove('hidden');
+            bankAccountForm.reset();
+            notesCount.textContent = '0';
+
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'bank-accounts.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
