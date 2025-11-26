@@ -26,7 +26,7 @@ if (isset($_GET['id'])) {
 $subject_id = $subject['id'];
 
 
-$stmt = $conn->prepare('SELECT * FROM class_subjects WHERE subject_id = ?');
+$stmt = $conn->prepare('SELECT * FROM class_subjects WHERE subject_id = ? and deleted_at is null');
 $stmt->bind_param('i', $subject['id']);
 $stmt->execute();
 $result = $stmt->get_result();

@@ -23,6 +23,8 @@ $stmt = $conn->prepare("SELECT
     LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
     LEFT JOIN teachers AS class_teachers ON class_class_arms.teacher_id = class_teachers.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+    where classes.deleted_at is null
+    and sections.deleted_at is null
     ORDER BY classes.level ASC, class_arms.name ASC
 ");
 
@@ -201,7 +203,7 @@ $studentsCount = countDataTotal('students')['total'];
                                                             <i class="fas fa-edit"></i> Edit
                                                         </button>
                                                     </a>
-                                                    <a href="">
+                                                    <a href="<?= route('delete-class') ?>?id=<?= $class['class_id'] ?>">
                                                         <button class="text-red-600 hover:text-red-900 font-semibold flex items-center gap-1">
                                                             <i class="fas fa-trash"></i> Delete
                                                         </button>

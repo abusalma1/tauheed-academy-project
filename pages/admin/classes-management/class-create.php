@@ -18,6 +18,7 @@ $stmt = $conn->prepare("    SELECT
     LEFT JOIN class_class_arms ON classes.id = class_class_arms.class_id
     LEFT JOIN sections ON classes.section_id = sections.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+    where classes.deleted_at is null
     GROUP BY classes.id 
      order by classes.level
 ");
@@ -314,9 +315,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <button class="text-red-600 hover:text-red-900 font-semibold">
+
+                                            <a href="<?= route('delete-class') ?>?id=<?= $class['id'] ?>"
+                                                class="text-red-600 hover:text-red-900 font-semibold">
                                                 <i class="fas fa-trash"></i> Delete
-                                            </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>

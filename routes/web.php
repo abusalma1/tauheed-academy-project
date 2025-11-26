@@ -156,6 +156,9 @@ $routes = [
     'create-class' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-create.php"
     ],
+    'delete-class' => [
+        'url' => "$baseUrl/pages/admin/classes-management/delete-class.php"
+    ],
     'assing-class-teacher' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-teacher.php"
     ],
