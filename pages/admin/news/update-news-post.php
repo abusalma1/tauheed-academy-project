@@ -7,11 +7,21 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $stmt = $conn->prepare('SELECT * FROM news WHERE id=?');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $story = $result->fetch_assoc();
+    } else {
+        header('Location: ' .  route('back'));
+    }
+} else {
+    header('Location: ' .  route('back'));
+}
 
-$stmt = $conn->prepare("SELECT * FROM news ORDER BY updated_at DESC LIMIT 10");
-$stmt->execute();
-$result =  $stmt->get_result();
-$news = $result->fetch_all(MYSQLI_ASSOC);
 
 $errors = [];
 
@@ -23,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-
+    $id = trim($_POST['id'] ?? '');
     $newsTitle = trim($_POST['title'] ?? '');
     $category = trim($_POST['category'] ?? '');
     $content = trim($_POST['content'] ?? '');
@@ -39,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($publication_date)) $errors['publicationDateError'] = "Publication Date is required";
 
     if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT into news (title, category, content, status, publication_date) values (?, ?, ?, ?, ?)");
-        $stmt->bind_param('sssss', $newsTitle, $category, $content, $status, $publication_date);
+        $stmt = $conn->prepare("UPDATE news set title = ?, category = ?, content = ? , status = ?, publication_date = ? where id = ?");
+        $stmt->bind_param('sssssi', $newsTitle, $category, $content, $status, $publication_date, $id);
         if ($stmt->execute()) {
             $_SESSION['success'] = "News Posted successfully!";
             header("Location: " .  route('back'));
@@ -65,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Post School News</h1>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update School News</h1>
             <p class="text-xl text-blue-200">Share important announcements and updates with the school community</p>
         </div>
     </section>
@@ -77,6 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form id="newsForm" class="space-y-6" method="post">
 
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <input type="hidden" name="id" value="<?= htmlspecialchars($story['id']) ?>">
+
 
                     <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
                     <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
@@ -87,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- Title -->
                     <div>
                         <label for="title" class="block text-gray-700 font-semibold mb-2">News Title <span class="text-red-600">*</span></label>
-                        <input type="text" id="title" name="title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter news title">
+                        <input type="text" id="title" name="title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter news title" value="<?= htmlspecialchars($story['title']) ?>">
                         <span class="text-red-500 text-sm hidden" id="titleError"></span>
 
                     </div>
@@ -97,10 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="category" class="block text-gray-700 font-semibold mb-2">Category <span class="text-red-600">*</span></label>
                         <select id="category" name="category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900">
                             <option value="">Select Category</option>
-                            <option value="announcement">Announcement</option>
-                            <option value="event">Event</option>
-                            <option value="achievement">Achievement</option>
-                            <option value="update">Update</option>
+                            <option value="announcement" <?= $story['category'] === 'announcement' ? 'selected' : '' ?>>Announcement</option>
+                            <option value="event" <?= $story['category'] === 'event' ? 'selected' : '' ?>>Event</option>
+                            <option value="achievement" <?= $story['category'] === 'achievement' ? 'selected' : '' ?>>Achievement</option>
+                            <option value="update" <?= $story['category'] === 'update' ? 'selected' : '' ?>>Update</option>
                         </select>
                         <span class="text-red-500 text-sm hidden" id="categoryError"></span>
 
@@ -109,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- Content -->
                     <div>
                         <label for="content" class="block text-gray-700 font-semibold mb-2">Content <span class="text-red-600">*</span></label>
-                        <textarea id="content" name="content" rows="8" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter news content..."></textarea>
+                        <textarea id="content" name="content" rows="8" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter news content..."><?= htmlspecialchars($story['content']) ?></textarea>
                         <p class="text-sm text-gray-500 mt-2"><span id="charCount">0</span>/500 characters</p>
                         <span class="text-red-500 text-sm hidden" id="contentError"></span>
 
@@ -135,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- Publication Date -->
                     <div>
                         <label for="date" class="block text-gray-700 font-semibold mb-2">Publication Date <span class="text-red-600">*</span></label>
-                        <input type="date" id="date" name="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900">
+                        <input type="date" id="date" name="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" value="<?= date('Y-m-d', strtotime($story['publication_date'])) ?> ">
                         <span class="text-red-500 text-sm hidden" id="publicationDateError">cpntent</span>
 
                     </div>
@@ -145,8 +157,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div>
                         <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
                         <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
-                            <option value="published">Publish</option>
-                            <option value="draft">Draft</option>
+                            <option value="published" <?= $story['status'] === 'published' ? 'selected' : '' ?>>Publish</option>
+                            <option value="draft" <?= $story['status'] === 'draft' ? 'selected' : '' ?>>Draft</option>
                         </select>
                     </div>
 
@@ -161,50 +173,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </a>
                     </div>
                 </form>
-            </div>
-
-            <!-- Recent News Posted -->
-            <div class="mt-12">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">Recently Posted News</h2>
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <table class="w-full">
-                        <thead class="bg-blue-900 text-white">
-                            <tr>
-                                <th class="px-6 py-4 text-left font-semibold">Title</th>
-                                <th class="px-6 py-4 text-left font-semibold">Category</th>
-                                <th class="px-6 py-4 text-left font-semibold">Date</th>
-                                <th class="px-6 py-4 text-left font-semibold">Status</th>
-                                <th class="px-6 py-4 text-left font-semibold">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="newsTable">
-                            <?php foreach ($news as $story) : ?>
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="px-6 py-4"><?= $story['title'] ?></td>
-                                    <td class="px-6 py-4">
-                                        <?php if ($story['category'] === 'event'): ?>
-                                            <span class=" bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"><?= ucwords($story['category']) ?></span>
-                                        <?php elseif ($story['category'] === 'achievement'): ?>
-                                            <span class=" bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm"><?= ucwords($story['category']) ?></span>
-                                        <?php elseif ($story['category'] === 'announcement'): ?>
-                                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"><?= ucwords($story['category']) ?></span>
-                                        <?php elseif ($story['category'] === 'update'): ?>
-                                            <span class=" bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm"><?= ucwords($story['category']) ?></span>
-                                        <?php endif ?>
-
-                                    </td>
-                                    <td class="px-6 py-4"><?= date('D d M, Y', strtotime($story['created_at'])); ?></td>
-                                    <td class="px-6 py-4"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"><?= ucwords($story['status']) ?></span></td>
-                                    <td class="px-6 py-4">
-                                        <a href="<?= route('update-news-post') ?>?id=<?= $story['id'] ?>" class="text-blue-600 hover:text-blue-800 mr-3"><i class="fas fa-edit"></i></a>
-                                        <a href="" class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </section>

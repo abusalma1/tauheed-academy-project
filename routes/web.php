@@ -83,6 +83,9 @@ $routes = [
     'admin-news-detial' => [
         'url' => "$baseUrl/pages/admin/news/news-detail.php"
     ],
+    'update-news-post' => [
+        'url' => "$baseUrl/pages/admin/news/update-news-post.php"
+    ],
 
     // users 
 
@@ -259,6 +262,9 @@ $routes = [
     ],
     'fees-assginment' => [
         'url' => "$baseUrl/pages/admin/fees/fees-assignment.php"
+    ],
+    'submit-fees' => [
+        'url' => "$baseUrl/pages/admin/fees/submit-fees.php"
     ],
     'add-bank-account' => [
         'url' => "$baseUrl/pages/admin/fees/add-bank-account.php"

@@ -2,28 +2,23 @@
 $title = "Fees Assignment";
 include(__DIR__ . '/../../../includes/header.php');
 
+// Fetch sections and classes
 $stmt = $conn->prepare("SELECT 
         sections.id AS section_id,
         sections.name AS section_name,
-
         classes.id AS class_id,
         classes.name AS class_name,
-
         classes.level AS class_level
-
-
     FROM sections
     LEFT JOIN classes ON classes.section_id = sections.id
-
     ORDER BY classes.level ASC
 ");
-
 $stmt->execute();
 $result = $stmt->get_result();
 $rows = $result->fetch_all(MYSQLI_ASSOC);
 
-
 $sections = [];
+$classFees = []; // to store existing fees
 
 foreach ($rows as $row) {
     $sectionId = $row['section_id'];
@@ -44,6 +39,15 @@ foreach ($rows as $row) {
     }
 }
 
+// Fetch existing fees for all classes
+$feeStmt = $conn->prepare("SELECT * FROM fees");
+$feeStmt->execute();
+$feeResult = $feeStmt->get_result();
+while ($feeRow = $feeResult->fetch_assoc()) {
+    $classFees[$feeRow['class_id']] = $feeRow;
+}
+
+// Handle AJAX submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
 
@@ -51,13 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $feesData = json_decode($_POST['fees'], true);
 
         foreach ($feesData as $classId => $fee) {
-            $stmt = $conn->prepare("SELECT id FROM fees WHERE class_id = ?");
-            $stmt->bind_param("i", $classId);
-            $stmt->execute();
-            $stmt->store_result();
-
-            if ($stmt->num_rows > 0) {
-                $stmt->close();
+            if (isset($classFees[$classId])) {
+                // Update existing
                 $update = $conn->prepare("UPDATE fees 
                     SET first_term=?, second_term=?, third_term=?, uniform=?, transport=?, materials=?, updated_at=NOW()
                     WHERE class_id=?");
@@ -74,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $update->execute();
                 $update->close();
             } else {
-                $stmt->close();
+                // Insert new
                 $insert = $conn->prepare("INSERT INTO fees 
                     (class_id, first_term, second_term, third_term, uniform, transport, materials) 
                     VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -98,10 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
 
-    exit; // IMPORTANT!!!
+    exit;
 }
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->
