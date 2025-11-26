@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 25, 2025 at 04:04 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: Nov 26, 2025 at 08:16 AM
+-- Server version: 10.4.25-MariaDB
+-- PHP Version: 8.1.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -80,7 +80,7 @@ CREATE TABLE `admins` (
   `experience` varchar(255) DEFAULT NULL,
   `reset_expires` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `admins`
@@ -106,7 +106,7 @@ CREATE TABLE `bank_accounts` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `bank_accounts`
@@ -130,7 +130,7 @@ CREATE TABLE `classes` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `level` int(11) NOT NULL,
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `classes`
@@ -161,7 +161,7 @@ CREATE TABLE `class_arms` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `class_arms`
@@ -187,7 +187,7 @@ CREATE TABLE `class_class_arms` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `class_class_arms`
@@ -234,7 +234,7 @@ CREATE TABLE `class_subjects` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `class_subjects`
@@ -287,23 +287,23 @@ CREATE TABLE `fees` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `fees`
 --
 
 INSERT INTO `fees` (`id`, `class_id`, `first_term`, `second_term`, `third_term`, `uniform`, `transport`, `materials`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
-(2, 2, 12.00, 12.00, 12.00, 12.00, 12.00, 12.00, '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
-(3, 3, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
-(4, 4, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
-(5, 5, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
-(6, 6, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
-(7, 7, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2025-11-25 10:19:40', '2025-11-25 10:19:40', NULL),
-(8, 8, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2025-11-25 10:19:40', '2025-11-25 10:19:40', NULL),
-(9, 9, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2025-11-25 10:19:40', '2025-11-25 10:19:40', NULL),
-(10, 15, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2025-11-25 10:19:40', '2025-11-25 10:19:40', NULL);
+(1, 1, '0.00', '0.00', '0.00', '0.00', '0.00', '0.00', '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
+(2, 2, '12.00', '12.00', '12.00', '12.00', '12.00', '12.00', '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
+(3, 3, '0.00', '0.00', '0.00', '0.00', '0.00', '0.00', '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
+(4, 4, '0.00', '0.00', '0.00', '0.00', '0.00', '0.00', '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
+(5, 5, '0.00', '0.00', '0.00', '0.00', '0.00', '0.00', '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
+(6, 6, '0.00', '0.00', '0.00', '0.00', '0.00', '0.00', '2025-11-25 10:19:39', '2025-11-25 10:19:39', NULL),
+(7, 7, '0.00', '0.00', '0.00', '0.00', '0.00', '0.00', '2025-11-25 10:19:40', '2025-11-25 10:19:40', NULL),
+(8, 8, '0.00', '0.00', '0.00', '0.00', '0.00', '0.00', '2025-11-25 10:19:40', '2025-11-25 10:19:40', NULL),
+(9, 9, '0.00', '0.00', '0.00', '0.00', '0.00', '0.00', '2025-11-25 10:19:40', '2025-11-25 10:19:40', NULL),
+(10, 15, '0.00', '0.00', '0.00', '0.00', '0.00', '0.00', '2025-11-25 10:19:40', '2025-11-25 10:19:40', NULL);
 
 -- --------------------------------------------------------
 
@@ -328,7 +328,7 @@ CREATE TABLE `guardians` (
   `gender` enum('male','female') DEFAULT 'male',
   `reset_expires` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `guardians`
@@ -360,7 +360,7 @@ CREATE TABLE `news` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `news`
@@ -393,19 +393,19 @@ CREATE TABLE `results` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `results`
 --
 
 INSERT INTO `results` (`id`, `student_term_record_id`, `subject_id`, `ca`, `exam`, `grade`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 8, 5.00, 50.00, 'C', 'Good', '2025-11-17 07:49:27', '2025-11-17 11:34:39', NULL),
-(2, 2, 8, 19.00, 18.00, 'F', 'Fail', '2025-11-17 07:49:28', '2025-11-17 11:34:39', NULL),
-(3, 3, 8, 35.00, 34.00, 'B', 'Very Good', '2025-11-17 07:52:45', '2025-11-17 07:52:45', NULL),
-(4, 4, 8, 30.00, 50.00, 'A', 'Excellent', '2025-11-17 07:52:46', '2025-11-17 07:52:46', NULL),
-(9, 3, 4, 20.00, 50.00, 'A', 'Excellent', '2025-11-17 12:32:13', '2025-11-17 12:32:13', NULL),
-(10, 4, 4, 35.00, 60.00, 'A', 'Excellent', '2025-11-17 12:32:14', '2025-11-17 12:32:14', NULL);
+(1, 1, 8, '5.00', '50.00', 'C', 'Good', '2025-11-17 07:49:27', '2025-11-17 11:34:39', NULL),
+(2, 2, 8, '19.00', '18.00', 'F', 'Fail', '2025-11-17 07:49:28', '2025-11-17 11:34:39', NULL),
+(3, 3, 8, '35.00', '34.00', 'B', 'Very Good', '2025-11-17 07:52:45', '2025-11-17 07:52:45', NULL),
+(4, 4, 8, '30.00', '50.00', 'A', 'Excellent', '2025-11-17 07:52:46', '2025-11-17 07:52:46', NULL),
+(9, 3, 4, '20.00', '50.00', 'A', 'Excellent', '2025-11-17 12:32:13', '2025-11-17 12:32:13', NULL),
+(10, 4, 4, '35.00', '60.00', 'A', 'Excellent', '2025-11-17 12:32:14', '2025-11-17 12:32:14', NULL);
 
 -- --------------------------------------------------------
 
@@ -428,7 +428,7 @@ CREATE TABLE `schools` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `schools`
@@ -451,7 +451,7 @@ CREATE TABLE `sections` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `sections`
@@ -479,7 +479,7 @@ CREATE TABLE `sessions` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `sessions`
@@ -518,7 +518,7 @@ CREATE TABLE `students` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `reset_expires` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `students`
@@ -528,8 +528,8 @@ INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `gua
 (1, 'Abdulrahman Faruk Kalgo', '25/04/001', 'student@email.com', '09061893504', 4, '2005-01-01', NULL, '$2y$10$ocPaYzJd91p9wDzMYHrJ5uQ0aZmNTzFhcfTzFUmoWX01wd18e/Nb2', NULL, 'active', 'male', 1, 1, 1, '2025-11-13 09:49:29', '2025-11-20 05:39:31', NULL, NULL),
 (2, 'Sagir yusuf Kaoje', '25/04/002', '', '', 1, '2022-12-12', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'male', 1, 2, 1, '2025-11-13 11:54:58', '2025-11-19 15:25:39', NULL, NULL),
 (3, 'Samir Yusuf', '25/04/003', '', '', 1, '2018-01-01', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'male', 2, 1, 1, '2025-11-15 00:26:26', '2025-11-19 15:25:39', NULL, NULL),
-(4, 'Kabir Ysusf kaoje', '25/04/004', 'student2@email.com', '', 1, '2018-01-01', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'female', 4, 1, 2, '2025-11-17 14:08:23', '2025-11-19 15:25:39', NULL, NULL),
-(5, 'Sadiaya F K', '25/04/005', '', '', 4, '2002-12-12', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'female', 4, 1, 1, '2025-11-17 13:07:23', '2025-11-19 15:25:39', NULL, NULL);
+(4, 'Kabir Ysusf kaoje', '25/04/004', 'student2@email.com', '', 1, '2018-01-01', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'female', 4, 1, 2, '2025-11-17 14:08:23', '2025-11-26 06:49:19', NULL, '2025-11-26 07:49:19'),
+(5, 'Sadiaya F K', '25/04/005', '', '', 4, '2002-12-12', NULL, '$2y$10$irkhT8/EmOsB8/9CzoajRe6T.HxMV3E2ncG/XMrZ6Qw0NGGb5ADye', NULL, 'active', 'female', 4, 1, 1, '2025-11-17 13:07:23', '2025-11-26 06:48:27', NULL, '2025-11-26 07:48:27');
 
 -- --------------------------------------------------------
 
@@ -550,17 +550,17 @@ CREATE TABLE `student_class_records` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `student_class_records`
 --
 
 INSERT INTO `student_class_records` (`id`, `student_id`, `session_id`, `class_id`, `arm_id`, `overall_total`, `overall_average`, `overall_position`, `promotion_status`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 1, 1, 1, 0.00, 0.00, NULL, 'pending', '2025-11-17 07:47:32', '2025-11-17 07:47:32', NULL),
-(2, 2, 1, 1, 2, 0.00, 0.00, NULL, 'pending', '2025-11-17 07:49:27', '2025-11-17 07:49:27', NULL),
-(3, 4, 1, 4, 1, 0.00, 0.00, NULL, 'pending', '2025-11-17 14:08:25', '2025-11-17 14:08:25', NULL),
-(4, 5, 1, 4, 1, 0.00, 0.00, NULL, 'pending', '2025-11-17 13:07:23', '2025-11-17 13:07:23', NULL);
+(1, 1, 1, 1, 1, '0.00', '0.00', NULL, 'pending', '2025-11-17 07:47:32', '2025-11-17 07:47:32', NULL),
+(2, 2, 1, 1, 2, '0.00', '0.00', NULL, 'pending', '2025-11-17 07:49:27', '2025-11-17 07:49:27', NULL),
+(3, 4, 1, 4, 1, '0.00', '0.00', NULL, 'pending', '2025-11-17 14:08:25', '2025-11-17 14:08:25', NULL),
+(4, 5, 1, 4, 1, '0.00', '0.00', NULL, 'pending', '2025-11-17 13:07:23', '2025-11-17 13:07:23', NULL);
 
 -- --------------------------------------------------------
 
@@ -580,17 +580,17 @@ CREATE TABLE `student_term_records` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `student_term_records`
 --
 
 INSERT INTO `student_term_records` (`id`, `student_class_record_id`, `term_id`, `total_marks`, `average_marks`, `position_in_class`, `class_size`, `overall_grade`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 1, 55.00, 55.00, 1, 2, NULL, '2025-11-17 07:49:25', '2025-11-17 11:34:40', NULL),
-(2, 2, 1, 37.00, 37.00, 2, 2, NULL, '2025-11-17 07:49:28', '2025-11-17 11:34:40', NULL),
-(3, 1, 2, 139.00, 69.50, 2, 2, NULL, '2025-11-17 07:52:44', '2025-11-17 12:32:18', NULL),
-(4, 2, 2, 175.00, 87.50, 1, 2, NULL, '2025-11-17 07:52:45', '2025-11-17 12:32:18', NULL);
+(1, 1, 1, '55.00', '55.00', 1, 2, NULL, '2025-11-17 07:49:25', '2025-11-17 11:34:40', NULL),
+(2, 2, 1, '37.00', '37.00', 2, 2, NULL, '2025-11-17 07:49:28', '2025-11-17 11:34:40', NULL),
+(3, 1, 2, '139.00', '69.50', 2, 2, NULL, '2025-11-17 07:52:44', '2025-11-17 12:32:18', NULL),
+(4, 2, 2, '175.00', '87.50', 1, 2, NULL, '2025-11-17 07:52:45', '2025-11-17 12:32:18', NULL);
 
 -- --------------------------------------------------------
 
@@ -604,7 +604,7 @@ CREATE TABLE `subjects` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `subjects`
@@ -644,7 +644,7 @@ CREATE TABLE `teachers` (
   `experience` varchar(255) DEFAULT NULL,
   `reset_expires` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `teachers`
@@ -670,7 +670,7 @@ CREATE TABLE `teacher_section` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -688,7 +688,7 @@ CREATE TABLE `terms` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `terms`

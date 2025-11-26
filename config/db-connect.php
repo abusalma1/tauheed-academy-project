@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['submitted'])) {
 
 // echo('Working');
 
-define('BASE_URL', '/tauheed-academy-project');
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASSWORD', '');

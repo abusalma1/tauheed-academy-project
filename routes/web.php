@@ -1,5 +1,6 @@
 <?php
-include(__DIR__ . '/../config/db-connect.php');
+define('BASE_URL', '/tauheed-academy-project');
+
 $baseUrl = BASE_URL;
 
 $routes = [
