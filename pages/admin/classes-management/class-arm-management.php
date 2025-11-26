@@ -2,10 +2,8 @@
 $title = "Sections Management";
 include(__DIR__ . '/../../../includes/header.php');
 
-$stmt = $conn->prepare("SELECT * FROM class_arms");
-$stmt->execute();
-$result = $stmt->get_result();
-$arms = $result->fetch_all(MYSQLI_ASSOC);
+
+$arms = selectAllData('class_arms');
 
 $armsCount = countDataTotal('class_arms')['total'];
 $classesCount = countDataTotal('classes')['total'];
@@ -107,9 +105,11 @@ $studentsCount = countDataTotal('students')['total'];
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
                                     </a>
-                                    <button class="text-red-600 hover:text-red-900 font-semibold">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
+                                    <a href="<?= route('delete-class-arm') ?>?id=<?= $arm['id'] ?>">
+                                        <button class="text-red-600 hover:text-red-900 font-semibold">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach ?>
@@ -124,7 +124,7 @@ $studentsCount = countDataTotal('students')['total'];
 
 
     <script>
-              const searchInput = document.getElementById('searchInput');
+        const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
         const armRows = document.querySelectorAll('.arm-row');
 

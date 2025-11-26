@@ -15,6 +15,7 @@ $stmt = $conn->prepare("
         ON sections.head_teacher_id = teachers.id
     LEFT JOIN classes 
         ON classes.section_id = sections.id
+        where sections.deleted_at is null
     GROUP BY 
         sections.id, 
         sections.name, 
@@ -129,9 +130,11 @@ $studentsCount = countDataTotal('students')['total'];
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
                                     </a>
-                                    <button class="text-red-600 hover:text-red-900 font-semibold">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
+                                    <a href="<?= route('delete-section') ?>?id=<?= $section['section_id'] ?>">
+                                        <button class="text-red-600 hover:text-red-900 font-semibold">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach ?>
@@ -145,7 +148,6 @@ $studentsCount = countDataTotal('students')['total'];
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
-       
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
         const sectionRows = document.querySelectorAll('.section-row');

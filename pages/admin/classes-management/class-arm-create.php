@@ -8,10 +8,13 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-$stmt = $conn->prepare("SELECT * FROM class_arms");
+$stmt = $conn->prepare("SELECT * FROM class_arms where deleted_At is null order by updated_at desc Limit 10");
 $stmt->execute();
 $result = $stmt->get_result();
-$class_arms = $result->fetch_all(MYSQLI_ASSOC);
+$class_arms_list = $result->fetch_all(MYSQLI_ASSOC);
+
+
+$class_arms = selectAllData('class_arms');
 
 $armsCount = countDataTotal('class_arms')['total'];
 
@@ -29,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $name = htmlspecialchars(trim($_POST['armName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $description = filter_var(trim($_POST['armDescription'] ?? ''), ENT_QUOTES);
+    $description = htmlspecialchars(trim($_POST['armDescription'] ?? ''), ENT_QUOTES, 'UTF-8');
 
 
 
@@ -38,6 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
+    if (empty($description)) {
+        $errors['descriptionError'] = "Description is required";
+    }
 
     if (empty($errors)) {
         $stmt = $conn->prepare(
@@ -192,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 text-sm font-semibold text-gray-900"><?= $arm['name'] ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-600" <?= $arm['description']  ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $arm['description']  ?></td>
 
                                         <td class="px-6 py-4 text-sm space-x-2">
                                             <a href="<?= route('update-class-arm') ?>?id=<?= $arm['id'] ?>">
@@ -200,9 +206,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <button class="text-red-600 hover:text-red-900 font-semibold">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </button>
+                                            <a href="<?= route('delete-class-arm') ?>?id=<?= $arm['id'] ?>">
+                                                <button class="text-red-600 hover:text-red-900 font-semibold">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>
@@ -224,8 +232,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . '/../../../includes/footer.php') ?>
 
     <script>
-     
-
         // Form validation and submission
         const armForm = document.getElementById('armForm');
 

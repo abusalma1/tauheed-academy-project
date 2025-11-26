@@ -17,6 +17,7 @@ $stmt = $conn->prepare("
     FROM sections
     LEFT JOIN teachers 
     ON sections.head_teacher_id = teachers.id
+    where sections.deleted_at is null
 ");
 $stmt->execute();
 $result = $stmt->get_result();
@@ -230,9 +231,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <button class="text-red-600 hover:text-red-900 font-semibold">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </button>
+                                            <a href="<?= route('delete-section') ?>?id=<?= $section['section_id'] ?>">
+                                                <button class="text-red-600 hover:text-red-900 font-semibold">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>
@@ -253,8 +256,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Footer -->
     <?php include(__DIR__ . '/../../../includes/footer.php');  ?>
     <script>
-       
-
         // Form validation and submission
         const sectionForm = document.getElementById('sectionForm');
 

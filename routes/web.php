@@ -174,6 +174,9 @@ $routes = [
     'update-class-arm' => [
         'url' => "$baseUrl/pages/admin/classes-management/class-arm-update.php"
     ],
+    'delete-class-arm' => [
+        'url' => "$baseUrl/pages/admin/classes-management/delete-class-arm.php"
+    ],
 
     // sections
 
@@ -185,6 +188,9 @@ $routes = [
     ],
     'update-section' => [
         'url' => "$baseUrl/pages/admin/classes-management/section-update.php"
+    ],
+    'delete-section' => [
+        'url' => "$baseUrl/pages/admin/classes-management/delete-section.php"
     ],
 
     // subjects
