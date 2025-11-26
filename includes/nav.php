@@ -52,7 +52,6 @@
                     <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
 
                         <ul class="flex flex-col py-2">
-                            <li> <a href="<?= route('timetable'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Timetable </a> </li>
                             <li> <a href="<?= route('academics'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Academics </a> </li>
                             <li> <a href="<?= route('staff'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Staff </a> </li>
 
@@ -119,7 +118,6 @@
             </button>
 
             <div class="mobile-dropdown hidden flex-col mt-2 bg-blue-700 rounded-lg">
-                <a href="<?= route('timetable'); ?>" class="block px-4 py-2 hover:bg-blue-600">Timetable</a>
                 <a href="<?= route('academics'); ?>" class="block px-4 py-2 hover:bg-blue-600">Academics</a>
                 <a href="<?= route('staff'); ?>" class="block px-4 py-2 hover:bg-blue-600">Staff</a>
             </div>

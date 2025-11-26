@@ -167,10 +167,7 @@ $news = $result->fetch_all(MYSQLI_ASSOC);
                     <i class="fas fa-money-bill-wave text-4xl mb-3"></i>
                     <p class="font-semibold">Fees</p>
                 </a>
-                <a href="<?= route('timetable') ?>" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
-                    <i class="fas fa-calendar-alt text-4xl mb-3"></i>
-                    <p class="font-semibold">Timetable</p>
-                </a>
+
                 <a href="<?php
                             if ($is_logged_in) {
                                 if ($user_type === 'student') {
@@ -190,6 +187,10 @@ $news = $result->fetch_all(MYSQLI_ASSOC);
                 <a href="<?= route('about') ?>" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
                     <i class="fas fa-envelope text-4xl mb-3"></i>
                     <p class="font-semibold">Contact</p>
+                </a>
+                <a href="<?= route('academics') ?>" class="bg-blue-900 text-white p-6 rounded-lg text-center hover:bg-blue-800 transition shadow-lg">
+                    <i class="fas fa-book text-4xl mb-3"></i>
+                    <p class="font-semibold">Academics</p>
                 </a>
             </div>
         </div>

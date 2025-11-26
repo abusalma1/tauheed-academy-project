@@ -1,7 +1,14 @@
 <?php
-define('BASE_URL', '/tauheed-academy-project');
+include(__DIR__ . '/../config/db-connect.php');
+
+if ($_SERVER['HTTP_HOST'] === 'localhost') {
+    define('BASE_URL', '/tauheed-academy-project');
+} else {
+    define('BASE_URL', '/'); // production
+}
 
 $baseUrl = BASE_URL;
+
 
 $routes = [
     'back' => [
@@ -30,9 +37,6 @@ $routes = [
     ],
     'staff' => [
         'url' => "$baseUrl/pages/staff.php"
-    ],
-    'timetable' => [
-        'url' => "$baseUrl/pages/timetable.php"
     ],
 
     // non auth news
