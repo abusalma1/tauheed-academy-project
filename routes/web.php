@@ -86,6 +86,9 @@ $routes = [
     'update-news-post' => [
         'url' => "$baseUrl/pages/admin/news/update-news-post.php"
     ],
+    'delete-news-post' => [
+        'url' => "$baseUrl/pages/admin/news/delete-news.php"
+    ],
 
     // users 
 

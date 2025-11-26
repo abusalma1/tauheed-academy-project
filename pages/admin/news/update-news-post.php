@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("UPDATE news set title = ?, category = ?, content = ? , status = ?, publication_date = ? where id = ?");
         $stmt->bind_param('sssssi', $newsTitle, $category, $content, $status, $publication_date, $id);
         if ($stmt->execute()) {
-            $_SESSION['success'] = "News Posted successfully!";
+            $_SESSION['success'] = "News Updated successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {

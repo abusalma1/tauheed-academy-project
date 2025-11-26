@@ -8,15 +8,14 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
   $id = $_GET['id'];
-  $table = $_GET['table'];
-  $type = $_GET['type'];
 
-  $stmt = $conn->prepare("SELECT * FROM `$table` WHERE id=?");
+
+  $stmt = $conn->prepare("SELECT * FROM news WHERE id=?");
   $stmt->bind_param('i', $id);
   $stmt->execute();
   $result = $stmt->get_result();
   if ($result->num_rows > 0) {
-    $user = $result->fetch_assoc();
+    $story = $result->fetch_assoc();
   } else {
     header('Location: ' .  route('back'));
   }
@@ -34,25 +33,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   $id = trim($_POST['id'] ?? '');
 
-  if (empty($id)) $errors['id'] = 'User Not Found';
+  if (empty($id)) $errors['id'] = 'Story Not Found';
 
-  if(empty($errors)){
-    $stmt = $conn->prepare("UPDATE `$table` set deleted_at = NOW() where id =?");
+  if (empty($errors)) {
+    $stmt = $conn->prepare("UPDATE news set deleted_at = NOW() where id =?");
     $stmt->bind_param('i', $id);
 
     if ($stmt->execute()) {
-      $_SESSION['success'] = "User Deleted successfully!";
+      $_SESSION['success'] = "Story Deleted successfully!";
       header("Location: " .  route('back'));
       exit();
     } else {
-      echo "<script>alert('Failed to delete a user: " . $stmt->error . "');</script>";
+      echo "<script>alert('Failed to delete post: " . $stmt->error . "');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {
       echo "<p class='text-red-600 font-semibold'>$error</p>";
     }
   }
-
 }
 
 
@@ -68,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="max-w-md w-full mx-auto px-4">
       <form method="POST" class="bg-white rounded-lg shadow-lg p-8">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
-        <input type="hidden" name="id" value="<?= $user['id'] ?>">
+        <input type="hidden" name="id" value="<?= $story['id'] ?>">
 
         <!-- Warning Icon -->
         <div class="flex justify-center mb-6">
@@ -79,35 +77,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Title -->
         <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">
-          Delete User Account
+          Delete News Story
         </h2>
         <p class="text-gray-600 text-center mb-6">
-          Are you sure you want to delete this user account?
+          Are you sure you want to delete this posted news?
         </p>
 
-        <!-- User Details -->
+        <!-- News Details -->
         <div class="bg-gray-50 rounded-lg p-4 mb-6">
           <div class="space-y-3">
             <div>
-              <p class="text-sm text-gray-600">User Name</p>
-              <p class="text-lg font-semibold text-gray-900" id="userName">
-                <?= $user['name'] ?? '-' ?>
+              <p class="text-sm text-gray-600">Story Title</p>
+              <p class="text-lg font-semibold text-gray-900" id="storyTitle">
+                <?= $story['title'] ?? '-' ?>
               </p>
             </div>
             <div>
-              <p class="text-sm text-gray-600">Email Address</p>
-              <p class="text-lg font-semibold text-gray-900" id="userEmail">
-                <?= $user['email'] ?? '-' ?>
+              <p class="text-sm text-gray-600">Story category</p>
+              <p class="text-lg font-semibold text-gray-900" id="storyCategory">
+                <?= ucwords($story['category']) ?? '-' ?>
 
               </p>
             </div>
             <div>
-              <p class="text-sm text-gray-600">User Type</p>
+              <p class="text-sm text-gray-600">Story Status</p>
               <p
                 class="text-lg font-semibold text-gray-900 capitalize"
-                id="userType">
-                <?= ucwords($type) ?>
-
+                id="storyStatus">
+                <?= ucwords($story['status']) ?? '-' ?>
               </p>
             </div>
           </div>
@@ -146,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             type="submit"
             disabled
             class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-            <i class="fas fa-trash mr-2"></i>Delete Account
+            <i class="fas fa-trash mr-2"></i>Delete Post
           </button>
         </div>
       </form>

@@ -8,7 +8,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-$stmt = $conn->prepare("SELECT * FROM news ORDER BY updated_at DESC LIMIT 10");
+$stmt = $conn->prepare("SELECT * FROM news where deleted_at is null ORDER BY updated_at DESC LIMIT 10");
 $stmt->execute();
 $result =  $stmt->get_result();
 $news = $result->fetch_all(MYSQLI_ASSOC);
@@ -197,7 +197,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <td class="px-6 py-4"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"><?= ucwords($story['status']) ?></span></td>
                                     <td class="px-6 py-4">
                                         <a href="<?= route('update-news-post') ?>?id=<?= $story['id'] ?>" class="text-blue-600 hover:text-blue-800 mr-3"><i class="fas fa-edit"></i></a>
-                                        <a href="" class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></a>
+                                        <a href="<?= route('delete-news-post') ?>?id=<?= $story['id'] ?>"
+                                            class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

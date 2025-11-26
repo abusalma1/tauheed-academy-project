@@ -2,7 +2,7 @@
 $title = "Admin School News";
 include(__DIR__ . '/../../../includes/header.php');
 
-$stmt = $conn->prepare("SELECT * FROM news ORDER BY updated_at DESC");
+$stmt = $conn->prepare("SELECT * FROM news  where deleted_at is null  ORDER BY updated_at DESC");
 $stmt->execute();
 $result = $stmt->get_result();
 $news = $result->fetch_all(MYSQLI_ASSOC);
@@ -98,7 +98,7 @@ $news = $result->fetch_all(MYSQLI_ASSOC);
 
 
                                 <!-- Delete -->
-                                <a href=""
+                                <a href="<?= route('delete-news-post') ?>?id=<?= $story['id'] ?>"
                                     class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-center text-sm font-semibold">
                                     <i class="fas fa-trash mr-1"></i>Delete
                                 </a>
