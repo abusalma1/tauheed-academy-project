@@ -22,6 +22,7 @@ LEFT JOIN classes
     ON students.class_id = classes.id
 LEFT JOIN class_arms 
     ON students.arm_id = class_arms.id
+    where students.deleted_at is null
 ");
 
 
@@ -497,7 +498,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <a href="<?= route('delete-user') . '?id=' . $student['student_id'] ?>&table=students&type=Student">
+                                            <a href="<?= route('delete-user') . '?id=' . $student['id'] ?>&table=students&type=Student">
                                                 <button class="text-red-600 hover:text-red-900 font-semibold">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>

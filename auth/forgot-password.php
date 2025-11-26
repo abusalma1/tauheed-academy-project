@@ -6,54 +6,42 @@ include(__DIR__ . '/./includes/non-auth-header.php');
 include(__DIR__ . '/../config/mailer.php');
 
 
-// ===== CONFIG =====
-$DEV_SHOW_EMAIL_NOT_FOUND = false;  // For local testing ONLY. Set to false in production.
+$DEV_SHOW_EMAIL_NOT_FOUND = false;  
 
-// Initialize flags/vars to avoid notices
 $errorMessage = null;
 $userTable = null;
 $showSuccess = null;
 
-// Build base URL (prefer HTTPS in production)
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $isLocalhost = in_array($host, ['localhost', '127.0.0.1']);
 $scheme = $isLocalhost ? 'http' : 'https';
 $baseUrl = $scheme . '://' . $host;
 
-// CSRF: initialize token on GET
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
 }
 
-// Handle POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  // CSRF validation
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
     $errorMessage = "Invalid request. Please refresh and try again.";
   } else {
-    // Normalize email
     $email = strtolower(trim($_POST['email'] ?? ''));
 
-    // Basic input validation
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      // In production, avoid detailed errors; show generic by default
       if ($DEV_SHOW_EMAIL_NOT_FOUND) {
         $errorMessage = "Invalid email address";
       }
     }
 
-    // Tables to check (no user enumeration)
     $tables = ['admins', 'teachers', 'guardians', 'students'];
 
-    // Find account by email
     if ($errorMessage === null) {
       foreach ($tables as $table) {
         $sql = "SELECT id FROM `$table` WHERE email=? LIMIT 1";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
-          // Log internally, show generic message
           error_log("Prepare failed (SELECT): " . $conn->error);
           $errorMessage = "An unexpected error occurred. Please try again.";
           break;
@@ -74,12 +62,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
       }
 
-      // Always respond with a generic success message to prevent enumeration
-      // Only generate and store a token if the account actually exists
       if ($errorMessage === null) {
         if (!empty($userTable)) {
-          // Generate secure token and store HASH only
-          $rawToken = bin2hex(random_bytes(32));   // 64 hex chars
+          $rawToken = bin2hex(random_bytes(32));  
           $tokenHash = hash('sha256', $rawToken);
           $expires_at = date("Y-m-d H:i:s", strtotime("+1 hour"));
 
@@ -105,7 +90,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           sendResetEmail($email, $resetLink);
         }
 
-        // Show generic success regardless of existence to avoid enumeration
         if ($errorMessage === null) {
           $showSuccess = true;
         }
