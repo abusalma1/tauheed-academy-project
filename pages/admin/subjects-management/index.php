@@ -18,6 +18,8 @@ $stmt = $conn->prepare("
     LEFT JOIN subjects ON class_subjects.subject_id = subjects.id
     LEFT JOIN teachers ON class_subjects.teacher_id = teachers.id
     LEFT JOIN sections ON classes.section_id = sections.id
+    where classes.deleted_at is null
+   and subjects.deleted_at is null
     ORDER BY classes.id, subjects.name
 ");
 
@@ -207,7 +209,7 @@ $totalCapacity = 0;
                                                             <i class="fas fa-edit"></i> Edit
                                                         </button>
                                                     </a>
-                                                    <a href="">
+                                                    <a href="<?= route('delete-subject') ?>?id=<?= $subject['id'] ?>">
                                                         <button class="text-red-600 hover:text-red-900 font-semibold flex items-center gap-1">
                                                             <i class="fas fa-trash"></i> Delete
                                                         </button>

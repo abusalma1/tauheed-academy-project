@@ -195,6 +195,9 @@ $routes = [
     'update-subject' => [
         'url' => "$baseUrl/pages/admin/subjects-management/subject-update.php"
     ],
+    'delete-subject' => [
+        'url' => "$baseUrl/pages/admin/subjects-management/delete-subject.php"
+    ],
     'assing-subject-teacher' => [
         'url' => "$baseUrl/pages/admin/subjects-management/subject-teacher.php"
     ],

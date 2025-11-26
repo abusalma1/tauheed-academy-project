@@ -18,6 +18,7 @@ $stmt = $conn->prepare("
     FROM subjects
     LEFT JOIN class_subjects ON class_subjects.subject_id = subjects.id
     LEFT JOIN classes ON classes.id = class_subjects.class_id
+    where subjects.deleted_at is null
     GROUP BY subjects.id
 ");
 $stmt->execute();
@@ -224,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <a href="">
+                                            <a href="<?= route('delete-subject') ?>?id=<?= $subject['id'] ?>">
                                                 <button class="text-red-600 hover:text-red-900 font-semibold">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>
@@ -253,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <script>
-               document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#classes", {
                 plugins: ['remove_button'], // allows removing selected items
                 placeholder: "Select classes...",
