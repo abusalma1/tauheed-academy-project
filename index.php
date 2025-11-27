@@ -39,20 +39,11 @@ $news = $result->fetch_all(MYSQLI_ASSOC);
                 <div>
                     <h2 class="text-3xl font-bold text-gray-900 mb-4">Welcome from Our Director</h2>
                     <p class="text-gray-700 leading-relaxed mb-4">
-                        Dear Parents, Students, and Visitors,
-                    </p>
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        It is with great pleasure that I welcome you to Excellence Academy. Our institution stands as a beacon of quality education, dedicated to nurturing young minds and preparing them for the challenges of tomorrow.
-                    </p>
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        We believe in holistic development, combining academic excellence with character building, creativity, and critical thinking. Our experienced faculty, modern facilities, and student-centered approach ensure that every child receives the attention and guidance they deserve.
-                    </p>
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        Thank you for considering Excellence Academy as your partner in education. Together, we will shape the leaders of tomorrow.
+                        <?= nl2br(htmlspecialchars($school['welcome_message'] ?? '')) ?>
                     </p>
                     <p class="text-gray-900 font-semibold">
-                        Dr. Sarah Johnson<br>
-                        <span class="text-gray-600 text-sm">Director/CEO, Excellence Academy</span>
+                        Director/CEO, <br>
+                        <span class="text-gray-600 text-sm"><?= htmlspecialchars($school['name']) ?></span>
                     </p>
                 </div>
             </div>
@@ -197,15 +188,7 @@ $news = $result->fetch_all(MYSQLI_ASSOC);
     </section>
 
     <?php include(__DIR__ . '/includes/footer.php') ?>
-    <script>
-        //  Mobile Menu Script
-        const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-        const mobileMenu = document.getElementById("mobile-menu");
 
-        mobileMenuBtn.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
-        });
-    </script>
 </body>
 
 </html>

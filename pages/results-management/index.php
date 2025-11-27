@@ -13,13 +13,19 @@ $stmt = $conn->prepare("
         sections.name AS section_name,
         class_subjects.id AS class_subject_id 
     FROM classes
-    LEFT JOIN class_subjects ON classes.id = class_subjects.class_id
-    LEFT JOIN subjects ON class_subjects.subject_id = subjects.id
-    LEFT JOIN teachers ON class_subjects.teacher_id = teachers.id
-    LEFT JOIN sections ON classes.section_id = sections.id
-    ORDER BY classes.id, subjects.name
+    LEFT JOIN class_subjects 
+        ON classes.id = class_subjects.class_id
+    LEFT JOIN subjects 
+        ON class_subjects.subject_id = subjects.id 
+        AND subjects.deleted_at IS NULL
+    LEFT JOIN teachers 
+        ON class_subjects.teacher_id = teachers.id
+    LEFT JOIN sections 
+        ON classes.section_id = sections.id
+    WHERE classes.deleted_at IS NULL 
+      AND sections.deleted_at IS NULL
+    ORDER BY classes.level, subjects.name
 ");
-
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -50,10 +56,17 @@ while ($row = $result->fetch_assoc()) {
 
 // Reindex classes by numeric index
 $classes = array_values($classes);
-$allClasses = selectAllData('classes');
+$stmt = $conn->prepare("SELECT * from classes where deleted_at is null order by level asc");
+$stmt->execute();
+$allClasses =  $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $terms = selectAllData('terms');
 $sessions = selectAllData('sessions');
 
+$stmt = $conn->prepare("SELECT * from terms where deleted_at is null and status = ?");
+$ongoing = 'ongoing';
+$stmt->bind_param('s', $ongoing);
+$stmt->execute();
+$current_term = $stmt->get_result()->fetch_assoc();
 
 if (isset($_POST['missing_selection'])) {
     $_SESSION['failure'] = "Please select a session and a term before creating or updating results.";
@@ -99,7 +112,7 @@ if (isset($_POST['missing_selection'])) {
                             class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400">
                             <option value="">-- Select Session --</option>
                             <?php foreach ($sessions as $session): ?>
-                                <option value="<?= $session['id'] ?>"><?= $session['name'] ?></option>
+                                <option value="<?= $session['id'] ?>" <?= $current_term['session_id'] === $session['id'] ? "selected" : '' ?>><?= $session['name'] ?> <?= $current_term['session_id'] === $session['id'] ? "(Current)" : '' ?></option>
                             <?php endforeach ?>
                         </select>
                     </div>
@@ -111,8 +124,9 @@ if (isset($_POST['missing_selection'])) {
                             class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400" disabled>
                             <option value="">-- Select Term --</option>
                             <?php foreach ($terms as $term) : ?>
-                                <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>">
+                                <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>" <?= $current_term['id'] === $term['id'] ? "selected" : '' ?>>
                                     <?= $term['name'] ?>
+                                    <?= $current_term['id'] === $term['id'] ? "(Current)" : '' ?>
                                 </option>
 
                             <?php endforeach ?>

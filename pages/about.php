@@ -22,13 +22,8 @@ include(__DIR__ .  '/../includes/header.php');
                 <div>
                     <h2 class="text-3xl font-bold text-gray-900 mb-6">About <?= $school['name'] ?? 'Tauheed Academy' ?></h2>
                     <p class="text-gray-700 leading-relaxed mb-4">
-                        Excellence Academy is a premier educational institution dedicated to providing quality education and nurturing the next generation of leaders. Established with a vision to create a learning environment that fosters academic excellence, character development, and holistic growth.
-                    </p>
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        Our state-of-the-art facilities, experienced faculty, and student-centered approach ensure that every child receives personalized attention and guidance. We believe in developing not just academic skills, but also critical thinking, creativity, and strong moral values.
-                    </p>
-                    <p class="text-gray-700 leading-relaxed">
-                        With a track record of outstanding academic performance and well-rounded student development, Excellence Academy continues to be the preferred choice for parents seeking quality education for their children.
+                        <?= nl2br(htmlspecialchars($school['about_message'] ?? '')) ?>
+
                     </p>
                 </div>
                 <div>
@@ -103,7 +98,11 @@ include(__DIR__ .  '/../includes/header.php');
 
     <?php include(__DIR__ . '/../includes/footer.php') ?>
 
+    <script>
+        function submit(){
 
+        }
+    </script>
 </body>
 
 </html>

@@ -8,6 +8,17 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+$stmt = $conn->prepare("SELECT admission_number  from students order by created_at desc limit 1");
+$stmt->execute();
+$result = $stmt->get_result();
+$lastAdmissionNumber = $result->fetch_all(MYSQLI_ASSOC);
+if (count($lastAdmissionNumber) > 1) {
+    $lastAdmissionNumber = $lastAdmissionNumber['admission_number'];
+} else if (count($lastAdmissionNumber) < 1) {
+    $lastAdmissionNumber = 'Check The students list below the form';
+} else {
+    $lastAdmissionNumber = 'No Student accout exist';
+}
 
 $stmt = $conn->prepare("SELECT 
     students.id AS id,
@@ -36,6 +47,7 @@ $guardians = selectAllData('guardians');
 $stmt = $conn->prepare(" SELECT 
         classes.id AS class_id,
         classes.name as class_name,
+        classes.level as level,
         teachers.id AS teacher_id,
         teachers.name AS teacher_name,
         sections.id as section_id,
@@ -52,6 +64,7 @@ $stmt = $conn->prepare(" SELECT
     ON classes.section_id = sections.id
      LEFT JOIN class_arms 
     ON class_class_arms.arm_id = class_arms.id
+    order by classes.level , class_arms.name
 ");
 $stmt->execute();
 $result = $stmt->get_result();
@@ -282,6 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Admission Number -->
                             <div>
                                 <label for="admissionNumber" class="block text-sm font-semibold text-gray-700 mb-2">Admission Number *</label>
+                                <span class="text-blue-500 text-s">Last Admission Number Give: <?= $lastAdmissionNumber ?></span>
                                 <input type="text" id="admissionNumber" name="admissionNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="e.g., EA/2025/001">
                                 <span class="text-red-500 text-sm hidden" id="admissionNumberError"></span>
                             </div>

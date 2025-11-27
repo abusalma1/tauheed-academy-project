@@ -218,7 +218,7 @@ while ($row = $scoreResult->fetch_assoc()) {
               <div class="hidden print:block bg-white p-8 mb-8 border-2 border-blue-900">
                 <div class="text-center mb-6">
                   <img src="/placeholder.svg?height=60&width=60" alt="School Logo" class="h-16 w-16 mx-auto mb-2">
-                  <h1 class="text-2xl font-bold text-blue-900">Excellence Academy</h1>
+                  <h1 class="text-2xl font-bold text-blue-900"><?= $school['name'] ?></h1>
                   <p class="text-gray-600">2024/2025 Academic Session - Report Card</p>
                 </div>
                 <div class="grid grid-cols-4 gap-4 text-sm border-t-2 border-blue-900 pt-4">

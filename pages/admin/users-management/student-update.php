@@ -81,6 +81,9 @@ $stmt = $conn->prepare(" SELECT
     ON classes.section_id = sections.id
      LEFT JOIN class_arms 
     ON class_class_arms.arm_id = class_arms.id
+    where classes.deleted_at is null
+    order by classes.level , class_arms.name
+
 ");
 $stmt->execute();
 $result = $stmt->get_result();
@@ -205,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     AND arm_id = ? 
     AND session_id = ?
 ");
-            $stmt->bind_param('iiii', $student['id'], $class_id, $arm_id, $session_id);
+            $stmt->bind_param('iiii', $student['id'], $student['class_id'], $student['arm_id'], $student['session_id']);
             $stmt->execute();
             $result = $stmt->get_result();
             $student_class_record = $result->fetch_assoc();
@@ -512,6 +515,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
+        }
+
+        function validatePhone(phone) {
+            const re = /^\+?234\d{10}$|^\d{11}$/;
+            return re.test(phone.replace(/\s/g, ''));
         }
 
         updateStudentForm.addEventListener('submit', (e) => {

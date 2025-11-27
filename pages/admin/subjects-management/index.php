@@ -20,7 +20,7 @@ $stmt = $conn->prepare("
     LEFT JOIN sections ON classes.section_id = sections.id
     where classes.deleted_at is null
    and subjects.deleted_at is null
-    ORDER BY classes.id, subjects.name
+    ORDER BY classes.level, subjects.name
 ");
 
 $stmt->execute();

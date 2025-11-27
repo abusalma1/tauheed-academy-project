@@ -32,7 +32,15 @@ $stmt->execute();
 $result = $stmt->get_result();
 $class_subjects = $result->fetch_all(MYSQLI_ASSOC);
 
-$classes = selectAllData('classes');
+$stmt = $conn->prepare("
+    SELECT *
+    FROM classes
+    where deleted_at is null
+    GROUP BY level
+");
+$stmt->execute();
+$result = $stmt->get_result();
+$classes = $result->fetch_all(MYSQLI_ASSOC);
 $subjects = selectAllData('subjects', null, $subject['id']);
 
 // Handle POST (update)
@@ -194,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
-              document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#classes", {
                 plugins: ['remove_button'], // allows removing selected items
                 placeholder: "Select class arms...",

@@ -2,49 +2,55 @@
 $title = "Schoo Information";
 include(__DIR__ . "/../../includes/header.php");
 
-if (isset($_POST['submit'])) {
-    $id = $school['id']; // existing record id
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
-    $name = htmlspecialchars($_POST['name']);
-    $motto = htmlspecialchars($_POST['motto']);
-    $address = htmlspecialchars($_POST['address']);
-    $email = htmlspecialchars($_POST['email']);
-    $phone = htmlspecialchars($_POST['phone']);
-    $whatsapp_number = htmlspecialchars($_POST['whatsapp_number']);
-    $facebook = htmlspecialchars($_POST['facebook']);
-    $instagram = htmlspecialchars($_POST['instagram']);
-    $twitter = htmlspecialchars($_POST['twitter']);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }
+
+    $id = intval($_POST['id']);
 
     $stmt = $conn->prepare("
         UPDATE schools 
-        SET name = ?, motto =?, address = ?, email = ?, phone = ?, whatsapp_number = ?, facebook = ?, instagram = ?, twitter = ?, updated_at = NOW() 
-        WHERE id = ?
+        SET name=?, motto=?, address=?, email=?, welcome_message=?, about_message=?, 
+            phone=?, whatsapp_number=?, facebook=?, instagram=?, twitter=?, 
+            admission_number_format=?, admission_number_format_description=?, 
+            updated_at=NOW()
+        WHERE id=?
     ");
 
     $stmt->bind_param(
-        'sssssssssi',
-        $name,
-        $motto,
-        $address,
-        $email,
-        $phone,
-        $whatsapp_number,
-        $facebook,
-        $instagram,
-        $twitter,
+        'sssssssssssssi',
+        $_POST['name'],
+        $_POST['motto'],
+        $_POST['address'],
+        $_POST['email'],
+        $_POST['welcomeMessage'],
+        $_POST['aboutMessage'],
+        $_POST['phone'],
+        $_POST['whatsapp_number'],
+        $_POST['facebook'],
+        $_POST['instagram'],
+        $_POST['twitter'],
+        $_POST['admissionNumberFormat'],
+        $_POST['admissionNumberFormatDescription'],
         $id
     );
 
     if ($stmt->execute()) {
         $_SESSION['success'] = "School info updated successfully!";
-        header('Location: ' . route('back'));
-
-        $result = $conn->query("SELECT * FROM schools WHERE id = $id");
-        $school = $result->fetch_assoc();
+        header("Location: " . route('back'));
+        exit();
     } else {
         echo "<script>alert('Failed to update school info: " . $stmt->error . "');</script>";
     }
 }
+
 
 ?>
 
@@ -72,11 +78,12 @@ if (isset($_POST['submit'])) {
 
                 <!-- Form -->
                 <form id="schoolInfoForm" class="space-y-8" method="post" enctype="multipart/form-data">
-                    <!-- Success Message -->
-                    <div id="successMessage" class="hidden mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                        <i class="fas fa-check-circle"></i>
-                        <span>School information updated successfully!</span>
-                    </div>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <input type="hidden" name="id" value="<?= htmlspecialchars($school['id']); ?>">
+
+
+                    <?php include(__DIR__ . '/../../includes/components/form-loader.php'); ?>
+
                     <input type="text" value="<?= htmlspecialchars($school['id']) ?>" hidden>
                     <!-- Basic Information Section -->
                     <div class="border-b pb-8">
@@ -156,7 +163,7 @@ if (isset($_POST['submit'])) {
                             <label for="twitter" class="block text-gray-700 font-semibold mb-2">
                                 <i class="fab fa-twitter text-blue-400 mr-2"></i>Twitter Link
                             </label>
-                            <input type="url" id="twitter" name="twitter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://twitter.com/schoolname" value="<?= htmlspecialchars($school['twitter'] ?? '') ?>">`
+                            <input type="url" id="twitter" name="twitter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://twitter.com/schoolname" value="<?= htmlspecialchars($school['twitter'] ?? '') ?>">
                         </div>
 
                         <!-- Instagram -->
@@ -168,30 +175,18 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
 
-                    <!-- Logo Section -->
+                    <!-- Welcom Message Section -->
                     <div class="border-b pb-8">
                         <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                            <i class="fas fa-image text-blue-900"></i>
-                            School Logo
+                            <i class="fas fa-align-left text-blue-900"></i>
+                            Welcome Message
                         </h3>
 
                         <div class="mb-6">
-                            <label for="logoFile" class="block text-gray-700 font-semibold mb-2">
-                                Logo File Path <span class="text-red-500">*</span>
+                            <label for="welcomeMessage" class="block text-gray-700 font-semibold mb-2">
+                                Welcome Message <span class="text-red-500">*</span>
                             </label>
-                            <div class="flex items-center gap-4">
-                                <input type="file" id="logoFile" name="logoFile" accept="image/*" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900">
-                                <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition" onclick="document.getElementById('logoFile').click()">
-                                    <i class="fas fa-upload mr-2"></i>Choose File
-                                </button>
-                            </div>
-                            <p class="text-gray-600 text-sm mt-2">Recommended size: 200x200px. Formats: PNG, JPG, GIF</p>
-                        </div>
-
-                        <!-- Logo Preview -->
-                        <div class="bg-gray-100 p-6 rounded-lg text-center">
-                            <img id="logoPreview" src="/placeholder.svg?height=150&width=150" alt="Logo Preview" class="h-32 w-32 mx-auto rounded-lg">
-                            <p class="text-gray-600 text-sm mt-4">Logo Preview</p>
+                            <textarea id="welcomeMessage" name="welcomeMessage" rows="7" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter a formal welcome message, written in clear English with proper grammar and paragraph structure..."><?= htmlspecialchars($school['welcome_message'] ?? '') ?></textarea>
                         </div>
                     </div>
 
@@ -206,26 +201,10 @@ if (isset($_POST['submit'])) {
                             <label for="aboutMessage" class="block text-gray-700 font-semibold mb-2">
                                 About Message <span class="text-red-500">*</span>
                             </label>
-                            <textarea id="aboutMessage" name="aboutMessage" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter a brief description about your school..."></textarea>
-                            <p class="text-gray-600 text-sm mt-2">Character count: <span id="aboutCharCount">0</span>/500</p>
+                            <textarea id="aboutMessage" name="aboutMessage" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter a formal description about your school, written in clear English with proper grammar and paragraph structure..."><?= htmlspecialchars($school['about_message'] ?? '') ?></textarea>
                         </div>
                     </div>
 
-                    <!-- Admission Procedure Section -->
-                    <div class="border-b pb-8">
-                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                            <i class="fas fa-clipboard-list text-blue-900"></i>
-                            Admission Procedure
-                        </h3>
-
-                        <div class="mb-6">
-                            <label for="admissionProcedure" class="block text-gray-700 font-semibold mb-2">
-                                Admission Procedure <span class="text-red-500">*</span>
-                            </label>
-                            <textarea id="admissionProcedure" name="admissionProcedure" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Describe the step-by-step admission process..."></textarea>
-                            <p class="text-gray-600 text-sm mt-2">Character count: <span id="procedureCharCount">0</span>/500</p>
-                        </div>
-                    </div>
 
                     <!-- Admission Number Format Section -->
                     <div class="pb-8">
@@ -238,8 +217,16 @@ if (isset($_POST['submit'])) {
                             <label for="admissionNumberFormat" class="block text-gray-700 font-semibold mb-2">
                                 Admission Number Format <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="admissionNumberFormat" name="admissionNumberFormat" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., EA/2025/001 or ADM-2025-001">
+                            <input type="text" id="admissionNumberFormat" name="admissionNumberFormat" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., EA/2025/001 or ADM-2025-001" value="<?= htmlspecialchars($school['admission_number_format'] ?? '') ?>">
                             <p class="text-gray-600 text-sm mt-2">Example format for admission numbers (e.g., EA/2025/001)</p>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="admissionNumberFormatDescription" class="block text-gray-700 font-semibold mb-2">
+                                Admission Number Format Description <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="admissionNumberFormatDescription" name="admissionNumberFormatDescription" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="e.g., ADMISSION/YEAR/SERIAL" value="<?= htmlspecialchars($school['admission_number_format_description'] ?? '') ?>">
+                            <p class="text-gray-600 text-sm mt-2">Description format for admission numbers (e.g., Admmisson/Year/Serial)</p>
                         </div>
                     </div>
 
@@ -261,22 +248,6 @@ if (isset($_POST['submit'])) {
     </section>
 
     <?php include(__DIR__  . '/../../includes/footer.php') ?>
-
-    <script>
-               // Logo preview
-        const logoFile = document.getElementById('logoFile');
-        const logoPreview = document.getElementById('logoPreview');
-        logoFile.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    logoPreview.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
 </body>
 
 </html>

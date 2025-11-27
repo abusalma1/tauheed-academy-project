@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="accountName" class="block text-gray-700 font-semibold mb-2">
                                 Account Name <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="accountName" name="accountName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Excellence Academy">
+                            <input type="text" id="accountName" name="accountName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="<?= $school['name'] ?>">
                             <span class="text-red-500 text-sm hidden" id="accountNameError"></span>
 
                         </div>

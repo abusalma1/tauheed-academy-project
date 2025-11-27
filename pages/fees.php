@@ -178,7 +178,7 @@ $fees = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     </div>
                     <div class="space-y-2 text-gray-700">
                         <p><strong>Bank Name:</strong> First National Bank</p>
-                        <p><strong>Account Name:</strong> Excellence Academy</p>
+                        <p><strong>Account Name:</strong> <?= $school['name'] ?></p>
                         <p><strong>Account Number:</strong> 1234567890</p>
                         <p class="text-sm text-gray-600 mt-4">Please use sstudent's name, class and admission number as payment reference</p>
 

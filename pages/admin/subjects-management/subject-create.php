@@ -7,8 +7,15 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
-$classes = selectAllData('classes');
+$stmt = $conn->prepare("
+    SELECT*
+    FROM classes
+    where deleted_at is null
+    GROUP BY level
+");
+$stmt->execute();
+$result = $stmt->get_result();
+$classes = $result->fetch_all(MYSQLI_ASSOC);
 
 $stmt = $conn->prepare("
     SELECT 

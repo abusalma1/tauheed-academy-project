@@ -74,7 +74,7 @@ $classesCount = countDataTotal('classes')['total'];
 $armsCount = countDataTotal('class_arms')['total'];
 $sectionsCount = countDataTotal('sections')['total'];
 $studentsCount = countDataTotal('students')['total'];
-
+  
 ?>
 
 <body class="bg-gray-50">

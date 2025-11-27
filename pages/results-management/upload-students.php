@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulk Upload Students - Excellence Academy</title>
+    <title>Bulk Upload Students - <?= $school['name'] ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="bg-gray-50">
     <!-- Navigation -->
     <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
@@ -17,7 +19,7 @@
                         <i class="fas fa-graduation-cap text-blue-900 text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold">Excellence Academy</h1>
+                        <h1 class="text-xl font-bold"><?= $school['name'] ?></h1>
                         <p class="text-xs text-blue-200">Nurturing Future Leaders</p>
                     </div>
                 </div>
@@ -166,7 +168,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-graduation-cap mr-2"></i>Excellence Academy</h3>
+                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-graduation-cap mr-2"></i><?= $school['name'] ?></h3>
                     <p class="text-gray-400 text-sm">Committed to quality education and excellence.</p>
                 </div>
                 <div>
@@ -190,7 +192,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+                <p>&copy; 2025 <?= $school['name'] ?>. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -204,7 +206,7 @@
         function addStudentRow() {
             const container = document.getElementById('studentRows');
             const rowCount = container.children.length + 1;
-            
+
             const row = document.createElement('div');
             row.className = 'grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg';
             row.innerHTML = `
@@ -242,7 +244,7 @@
                     </button>
                 </div>
             `;
-            
+
             container.appendChild(row);
         }
 
@@ -256,10 +258,10 @@
 
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const classVal = document.getElementById('classSelect').value;
             const session = document.getElementById('session').value;
-            
+
             if (!classVal || !session) {
                 alert('Please select a class and academic session');
                 return;
@@ -280,4 +282,5 @@
         }
     </script>
 </body>
+
 </html>

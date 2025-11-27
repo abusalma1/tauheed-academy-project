@@ -12,7 +12,7 @@ include(__DIR__ .  '/../includes/header.php');
     <section class="bg-blue-900 text-white py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Admissions</h1>
-            <p class="text-xl text-blue-200">Join the Excellence Academy Family</p>
+            <p class="text-xl text-blue-200">Join the <?= $school['name'] ?> Family</p>
         </div>
     </section>
 
@@ -37,7 +37,7 @@ include(__DIR__ .  '/../includes/header.php');
                             <div class="bg-blue-900 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</div>
                             <div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Complete Application Form</h3>
-                                <p class="text-gray-700">Buy     and fill out the admission form with accurate information about the student and parents/guardians.</p>
+                                <p class="text-gray-700">Buy and fill out the admission form with accurate information about the student and parents/guardians.</p>
                             </div>
                         </div>
                         <div class="flex gap-4">
@@ -74,27 +74,16 @@ include(__DIR__ .  '/../includes/header.php');
             <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
                 <p class="text-gray-700 mb-6 text-center">Each admitted student receives a unique admission number following this format:</p>
                 <div class="bg-blue-50 border-2 border-blue-900 p-6 rounded-lg text-center">
-                    <p class="text-3xl font-bold text-blue-900 mb-4">EXA/2025/ADM/0001</p>
-                    <div class="grid grid-cols-4 gap-4 text-sm">
+                    <p class="text-3xl font-bold text-blue-900 mb-4"><?= $school['admission_number_format'] ?></p>
+                    <div class="grid grid-cols-1 gap-4 text-sm">
                         <div>
-                            <p class="font-bold text-gray-900">EXA</p>
-                            <p class="text-gray-600">School Code</p>
-                        </div>
-                        <div>
-                            <p class="font-bold text-gray-900">2025</p>
-                            <p class="text-gray-600">Year</p>
-                        </div>
-                        <div>
-                            <p class="font-bold text-gray-900">ADM</p>
-                            <p class="text-gray-600">Admission</p>
-                        </div>
-                        <div>
-                            <p class="font-bold text-gray-900">0001</p>
-                            <p class="text-gray-600">Serial Number</p>
+                            <p class="font-bold text-gray-900"><?= $school['admission_number_format'] ?></p>
+                         
+                            <p class="text-gray-600"><?= $school['admission_number_format_description'] ?></p>
                         </div>
                     </div>
                 </div>
-                <p class="text-gray-600 text-sm mt-6 text-center">This number will be used throughout the student's academic journey at Excellence Academy.</p>
+                <p class="text-gray-600 text-sm mt-6 text-center">This number will be used throughout the student's academic journey at <?= $school['name'] ?>.</p>
             </div>
         </div>
     </section>
@@ -102,10 +91,10 @@ include(__DIR__ .  '/../includes/header.php');
     <!-- Apply Now CTA -->
     <section class="py-16 bg-blue-900 text-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Join Excellence Academy?</h2>
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Join <?= $school['name'] ?>?</h2>
             <p class="text-xl text-blue-200 mb-8">Start your child's journey to academic excellence today. Our admissions team is ready to assist you.</p>
             <div class="flex flex-wrap justify-center gap-4">
-       
+
                 <a href="<?= route('contact') ?>" class="bg-blue-800 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition text-lg">
                     <i class="fas fa-phone mr-2"></i>Contact Us
                 </a>

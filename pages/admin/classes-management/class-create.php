@@ -295,7 +295,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <thead class="bg-green-900 text-white">
                             <tr>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Class Name</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Level</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Arms</th>
+
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Section</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
                             </tr>
@@ -306,7 +308,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 text-sm font-semibold text-gray-900"> <?= $class['name'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $class['level'] ?></td>
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= $class['arm_names'] ?></td>
+
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= $class['section_name'] ?></td>
 
                                         <td class="px-6 py-4 text-sm space-x-2">

@@ -3,12 +3,15 @@ include(__DIR__ . '/../config/db-connect.php');
 
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
 
+$host = $_SERVER['HTTP_HOST'];
 
-if ($_SERVER['HTTP_HOST'] === 'localhost') {
-    $baseUrl = $protocol . "://" . $_SERVER['HTTP_HOST'] . "/tauheed-academy-project";
+if ($host === 'localhost' || preg_match('/^192\.168\./', $host)) {
+    // adjust this path to match your project folder
+    $baseUrl = $protocol . "://" . $host . "/tauheed-academy-project";
 } else {
-    $baseUrl = $protocol . "://" . $_SERVER['HTTP_HOST'];
+    $baseUrl = $protocol . "://" . $host;
 }
+
 
 $routes = [
     'back' => [

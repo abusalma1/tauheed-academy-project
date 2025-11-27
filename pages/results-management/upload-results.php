@@ -59,14 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         elseif ($total >= 60) $grade = 'B';
         elseif ($total >= 50) $grade = 'C';
         elseif ($total >= 40) $grade = 'D';
-        else $grade = 'E';
+        else $grade = 'F';
 
         $remark_map = [
             'A' => 'Excellent',
             'B' => 'Very Good',
             'C' => 'Good',
-            'D' => 'Fair',
-            'E' => 'Poor'
+            'D' => 'Pass',
+            'F' => 'Fail'
         ];
         $remark = $remark_map[$grade];
 
@@ -87,9 +87,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // STEP 2: Create new student_class_record
             $insert = $conn->prepare("
-                INSERT INTO student_class_records (student_id, class_id, arm_id, session_id)
-                VALUES (?, ?, ?, ?)
-            ");
+    INSERT INTO student_class_records (student_id, class_id, arm_id, session_id)
+    VALUES (?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+        class_id = VALUES(class_id),
+        arm_id = VALUES(arm_id),
+        updated_at = CURRENT_TIMESTAMP
+");
             $insert->bind_param("iiii", $student_id, $class_id, $arm_id, $session_id);
             $insert->execute();
             $student_class_record_id = $conn->insert_id;
@@ -420,7 +424,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (score >= 60) return 'B';
             if (score >= 50) return 'C';
             if (score >= 40) return 'D';
-            return 'E';
+            return 'F';
         }
 
         function getRemark(grade) {
@@ -429,7 +433,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'B': 'Very Good',
                 'C': 'Good',
                 'D': 'Fair',
-                'E': 'Poor',
+                'F': 'Fail',
                 'Over': 'Over Marking'
 
             };

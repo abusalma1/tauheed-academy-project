@@ -40,11 +40,14 @@ CREATE TABLE schools (
     address VARCHAR(255),
     phone VARCHAR(20),
     email VARCHAR(100),
+    about_message TEXT,
+    welcome_message TEXT,
     whatsapp_number VARCHAR(20),
     facebook VARCHAR(255),
     twitter VARCHAR(255),
     instagram VARCHAR(255),
-    logo_path VARCHAR(255),
+    admission_number_format VARCHAR(255),
+    admission_number_format_description VARCHAR(255),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -110,6 +113,8 @@ CREATE TABLE class_arms (
         name VARCHAR(100) NOT NULL,
         level INT UNIQUE NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
     ) ENGINE=InnoDB;
