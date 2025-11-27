@@ -4,18 +4,22 @@ $title = "Terms & Sessions";
 include(__DIR__ . '/../../../includes/header.php');
 
 $stmt = $conn->prepare("SELECT 
-        sessions.id as session_id,
-        sessions.name as session_name,
-        sessions.start_date as session_start_date,
-        sessions.end_date as session_end_date,
+    sessions.id AS session_id,
+    sessions.name AS session_name,
+    sessions.start_date AS session_start_date,
+    sessions.end_date AS session_end_date,
 
-        terms.id as term_id,
-        terms.name as term_name,
-        terms.start_date as term_start_date,
-        terms.end_date as term_end_date
+    terms.id AS term_id,
+    terms.name AS term_name,
+    terms.start_date AS term_start_date,
+    terms.end_date AS term_end_date
 
-    FROM sessions
-    LEFT JOIN terms on sessions.id = terms.session_id
+FROM sessions
+LEFT JOIN terms 
+    ON sessions.id = terms.session_id 
+    AND terms.deleted_at IS NULL  
+WHERE sessions.deleted_at IS NULL
+order by sessions.created_at desc
 ");
 
 $stmt->execute();
@@ -131,11 +135,14 @@ $termsCount = countDataTotal('terms')['total'];
 
                             </div>
                             <div class="flex flex-col items-center gap-3">
-                                <a href="<?= route('update-session'); ?>?id=<?= $session['session_id'] ?>" class="bg-white text-indigo-900 px-4 py-2 rounded-lg font-semibold hover:bg-indigo-100 transition">
+                                <a href="<?= route('create-term') . '?id=' . $session['session_id'] ?>" class="bg-white text-indigo-900 px-4 py-1 rounded-lg font-semibold hover:bg-indigo-100 transition">
+                                    <i class="fas fa-plus mr-2"></i>Create Term
+                                </a>
+                                <a href="<?= route('update-session'); ?>?id=<?= $session['session_id'] ?>" class="bg-white text-indigo-900 px-4 py-1 rounded-lg font-semibold hover:bg-indigo-100 transition">
                                     <i class="fas fa-pen mr-2"></i>Edit Session
                                 </a>
-                                <a href="<?= route('create-term') . '?id=' . $session['session_id'] ?>" class="bg-white text-indigo-900 px-4 py-2 rounded-lg font-semibold hover:bg-indigo-100 transition">
-                                    <i class="fas fa-plus mr-2"></i>Create Term
+                                <a href="<?= route('delete-session') . '?id=' . $session['session_id'] ?>" class="bg-white text-indigo-900 px-4 py-1 rounded-lg font-semibold hover:bg-indigo-100 transition">
+                                    <i class="fas fa-trash mr-2"></i>Delete Term
                                 </a>
                             </div>
                         </div>
@@ -171,7 +178,8 @@ $termsCount = countDataTotal('terms')['total'];
                                                             <i class="fas fa-edit"></i> Edit
                                                         </button>
                                                     </a>
-                                                    <a href="">
+                                                    <a href="<?= route('delete-term') ?>?id=<?= $term['term_id'] ?>">
+
                                                         <button class="text-red-600 hover:text-red-900 font-semibold flex items-center gap-1">
                                                             <i class="fas fa-trash"></i> Delete
                                                         </button>
@@ -194,7 +202,7 @@ $termsCount = countDataTotal('terms')['total'];
     <?php include(__DIR__ . '/../../../includes/footer.php');    ?>
 
     <script>
-              function filterClasses() {
+        function filterClasses() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const selectedSection = document.getElementById('sectionFilter').value;
 

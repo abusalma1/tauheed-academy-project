@@ -28,13 +28,17 @@ if (isset($_GET['id'])) {
 }
 
 
-$stmt = $conn->prepare('SELECT * FROM terms WHERE session_id = ?');
+$stmt = $conn->prepare("SELECT * FROM terms WHERE session_id = ? and deleted_at is null order by updated_at desc limit 10");
+$stmt->bind_param('i', $session_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$terms_list = $result->fetch_all(MYSQLI_ASSOC);
+
+$stmt = $conn->prepare("SELECT * FROM terms WHERE session_id = ? and deleted_at is null");
 $stmt->bind_param('i', $session_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $terms = $result->fetch_all(MYSQLI_ASSOC);
-
-
 
 $termsCount  = countDataTotal('terms')['total'];
 
@@ -226,9 +230,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <button class="text-red-600 hover:text-red-900 font-semibold">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </button>
+                                            <a href="<?= route('delete-term') ?>?id=<?= $term['id'] ?>">
+                                                <button class="text-red-600 hover:text-red-900 font-semibold">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>
@@ -248,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
     <script>
-              // Form validation and submission
+        // Form validation and submission
         const termFrom = document.getElementById('termFrom');
 
 

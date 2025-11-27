@@ -228,6 +228,13 @@ $routes = [
     'update-term' => [
         'url' => "$baseUrl/pages/admin/term-session-management/term-update.php"
     ],
+    'delete-term' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/delete-term.php"
+    ],
+    'delete-session' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/delete-session.php"
+    ],
+
 
 
     // session & terms transistions

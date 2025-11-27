@@ -7,8 +7,13 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+$stmt = $conn->prepare("SELECT * FROM sessions WHERE deleted_at is null order by updated_at desc limit 10");
+$stmt->execute();
+$result = $stmt->get_result();
+$sessions_list = $result->fetch_all(MYSQLI_ASSOC);
 
 $sessions = selectAllData('sessions');
+
 $sections = selectAllData('sections');
 $class_arms = selectAllData('class_arms');
 
@@ -181,8 +186,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </tr>
                         </thead>
                         <tbody id="classesTableBody" class="divide-y divide-gray-200">
-                            <?php if (count($sessions) > 0): ?>
-                                <?php foreach ($sessions as $session): ?>
+                            <?php if (count($sessions_list) > 0): ?>
+                                <?php foreach ($sessions_list as $session): ?>
 
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 text-sm font-semibold text-gray-900"> <?= $session['name'] ?></td>
@@ -195,9 +200,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
+                                            <a href="<?= route('delete-session') . '?id=' . $session['id'] ?>" >
                                             <button class="text-red-600 hover:text-red-900 font-semibold">
                                                 <i class="fas fa-trash"></i> Delete
                                             </button>
+                                        </td>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>
@@ -217,7 +224,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
     <script>
-       
         document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#classArm", {
                 plugins: ['remove_button'], // allows removing selected items

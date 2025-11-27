@@ -193,8 +193,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </tr>
                         </thead>
                         <tbody id="armsTableBody" class="divide-y divide-gray-200">
-                            <?php if (count($class_arms) > 0) : ?>
-                                <?php foreach ($class_arms as $arm) : ?>
+                            <?php if (count($class_arms_list) > 0) : ?>
+                                <?php foreach ($class_arms_list as $arm) : ?>
 
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 text-sm font-semibold text-gray-900"><?= $arm['name'] ?></td>
