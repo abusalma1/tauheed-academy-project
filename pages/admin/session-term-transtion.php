@@ -3,15 +3,41 @@ $title = 'Session & Terms Transitions';
 
 include __DIR__ . '/../../includes/header.php';
 
-$stmt = $conn->prepare("SELECT terms.*, sessions.name session_name FROM terms left join sessions on terms.session_id = sessions.id ORDER BY sessions.name ASC ,  terms.name ASC");
+$stmt = $conn->prepare("
+    SELECT 
+        terms.*,
+        sessions.name AS session_name
+    FROM terms
+    LEFT JOIN sessions 
+        ON terms.session_id = sessions.id
+        AND sessions.deleted_at IS NULL   -- only include non-deleted sessions
+    WHERE terms.deleted_at IS NULL        -- only include non-deleted terms
+    ORDER BY sessions.name ASC, terms.name ASC
+");
+
 $stmt->execute();
 $terms = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+
 $active = 'ongoing';
-$stmt = $conn->prepare("SELECT terms.*, sessions.name session_name FROM terms left join sessions on terms.session_id = sessions.id where terms.status = ? LIMIT 1");
+
+$stmt = $conn->prepare("
+    SELECT 
+        terms.*,
+        sessions.name AS session_name
+    FROM terms
+    LEFT JOIN sessions 
+        ON terms.session_id = sessions.id
+        AND sessions.deleted_at IS NULL   -- only include non-deleted sessions
+    WHERE terms.status = ? 
+      AND terms.deleted_at IS NULL        -- only include non-deleted terms
+    LIMIT 1
+");
+
 $stmt->bind_param('s', $active);
 $stmt->execute();
 $current_term = $stmt->get_result()->fetch_assoc();
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'];
@@ -301,47 +327,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php endif ?>
 
                             <div class="flex gap-3">
-                                <?php if ($term['status'] === 'ongoing') :  ?>
-                                    <form method="POST">
-                                        <input type="hidden" name="action" value="deactivate">
-                                        <input type="hidden" name="term_id" value="<?= $term['id'] ?>">
-
-
-                                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition text-sm">
-                                            <i class="fas fa-lock mr-1"></i>Close
-                                        </button>
-                                    </form>
-                                <?php elseif ($term['status'] === 'pending') :  ?>
-                                    <form method="POST">
+                                <?php if ($term['status'] === 'pending') :  ?>
+                                    <form method="POST" class="flex flex-col gap-3">
                                         <input type="hidden" name="action" value="activate">
                                         <input type="hidden" name="term_id" value="<?= $term['id'] ?>">
 
                                         <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 mb-3">
                                             <input type="checkbox" class="w-4 h-4 text-blue-900" name="allow_demotion" value="1">
-                                            <span class="ml-3 text-gray-700">Allow Demotion</span>
+                                            <span class="ml-3 text-gray-700">Allow Demotion (for previou session)</span>
                                         </label>
+
+
 
                                         <label for="average_required" class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 mb-3">
                                             <input
                                                 type="number"
                                                 id="average_required"
                                                 name="average_required"
-                                                value="1"
+                                                value="0.00"
                                                 class="w-20 h-10 text-blue-900 border border-gray-200 rounded-md px-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                                            <span class="ml-3 text-gray-700">Average Required For Promotion</span>
+                                            <span class="ml-3 text-gray-700">Minimum Average Required for Promotion</span>
                                         </label>
 
-                                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-sm">
-                                            <i class="fas fa-play mr-1"></i>Activate
-                                        </button>
+
+                                        <div class="flex flex-col gap-3">
+                                            <span class="text-sm text-gray-600 font-semibold">
+                                                Activating this term will automatically close the current active term and process student demotion (if enabled).
+                                            </span>
+
+                                            <!-- Confirmation Checkbox -->
+                                            <div class="mb-6">
+                                                <label class="flex items-center gap-3 cursor-pointer">
+                                                    <input type="checkbox" id="confirmCheckbox" class="w-4 h-4 text-red-600 rounded focus:ring-2 focus:ring-red-500">
+                                                    <span class="text-sm text-gray-700">I understand this action is permanent and cannot be reversed.</span>
+                                                </label>
+                                            </div>
+
+                                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-sm  disabled:opacity-50 disabled:cursor-not-allowed" id="submitBtn" disabled>
+                                                <i class="fas fa-play mr-1"></i>Activate
+                                            </button>
+                                        </div>
                                     </form>
                                 <?php endif;  ?>
 
-                                <?php if ($term['status'] !== 'finished') :  ?>
-                                    <button class="px-4 py-2 bg-gray-300 text-gray-900 rounded-lg font-semibold hover:bg-gray-400 transition text-sm">
-                                        Edit
-                                    </button>
-                                <?php endif;  ?>
                             </div>
 
                         </div>
@@ -435,6 +463,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . "/../../includes/footer.php"); ?>
 
     <script>
+        // Confirmation checkbox
+        const confirmCheckbox = document.getElementById('confirmCheckbox');
+        const deleteBtn = document.getElementById('submitBtn');
+
+        confirmCheckbox.addEventListener('change', () => {
+            deleteBtn.disabled = !confirmCheckbox.checked;
+        });
+
+
         // Term/Session form submission
         const termSessionForm = document.getElementById('termSessionForm');
         termSessionForm.addEventListener('submit', (e) => {
