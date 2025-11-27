@@ -1,18 +1,18 @@
 <?php
 include(__DIR__ . '/../config/db-connect.php');
 
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+
+
 if ($_SERVER['HTTP_HOST'] === 'localhost') {
-    define('BASE_URL', '/tauheed-academy-project');
+    $baseUrl = $protocol . "://" . $_SERVER['HTTP_HOST'] . "/tauheed-academy-project";
 } else {
-    define('BASE_URL', '/'); // production
+    $baseUrl = $protocol . "://" . $_SERVER['HTTP_HOST'];
 }
-
-$baseUrl = BASE_URL;
-
 
 $routes = [
     'back' => [
-        'url' => $_SESSION['previous_page']
+        'url' => $_SESSION['previous_page'] ?? $baseUrl . "/index.php"
     ],
     'home' => [
         'url' => "$baseUrl/index.php"

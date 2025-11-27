@@ -4,14 +4,16 @@ include(__DIR__ .  '/./web.php');
 
 function route($name)
 {
-    global $routes;
+    global $routes, $baseUrl;
 
     if (isset($routes[$name])) {
         return $routes[$name]['url'];
     }
 
-    return '/tauheed-academy-project/';
+    // fallback: go to home
+    return $baseUrl . "/index.php";
 }
+
 
 function validateEmail($email)
 {

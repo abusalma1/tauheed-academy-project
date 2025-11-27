@@ -12,15 +12,19 @@ function sendResetEmail($email, $resetLink)
   try {
     // REQUIRED SETTINGS
     $mail->isSMTP();
-    $mail->Host       = $_ENV['SMTP_HOST'];
+    $mail->Host       = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
-    $mail->Username   = $_ENV['SMTP_USERNAME'];
-    $mail->Password   = $_ENV['SMTP_PASSWORD'];
+    $mail->Username   = $_ENV['SMTP_USERNAME'] ?? '';
+    $mail->Password   = $_ENV['SMTP_PASSWORD'] ?? '';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = $_ENV['SMTP_PORT'];
+    $mail->Port       = (int) ($_ENV['SMTP_PORT'] ?? 587);
+
+    // Optional: charset/encoding
+    $mail->CharSet    = 'UTF-8';
+    $mail->Encoding   = 'base64';
 
     // sender details
-    $mail->setFrom($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
+    $mail->setFrom($_ENV['SMTP_FROM'] ?? 'no-reply@example.com', $_ENV['SMTP_FROM_NAME'] ?? 'App');
     $mail->addAddress($email);
 
     // email content
@@ -43,6 +47,7 @@ function sendResetEmail($email, $resetLink)
 
     $mail->send();
   } catch (Exception $e) {
-    error_log("Mailer Error: {$mail->ErrorInfo}");
+    error_log("Mailer Exception: {$e->getMessage()}");
+    error_log("Mailer ErrorInfo: {$mail->ErrorInfo}");
   }
 }
