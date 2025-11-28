@@ -2,6 +2,67 @@
 $title = "Subject Results/Class";
 include(__DIR__ . '/../../includes/header.php');
 
+if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_id'])) {
+    $class_id = intval($_GET['class_id']);
+    $session_id = intval($_GET['session_id']);
+    $term_id = intval($_GET['term_id']);
+
+    $subject_id = intval($_GET['subject_id']);
+
+    $stmt = $conn->prepare("SELECT name from subjects where id = ?");
+    $stmt->bind_param("i", $subject_id);
+    $stmt->execute();
+    $subject = $stmt->get_result()->fetch_assoc();
+
+    $stmt = $conn->prepare("SELECT id, name from sessions where id = ?");
+    $stmt->bind_param("i", $session_id);
+    $stmt->execute();
+    $session = $stmt->get_result()->fetch_assoc();
+
+    $stmt = $conn->prepare("SELECT id, name from terms where id = ?");
+    $stmt->bind_param("i", $term_id);
+    $stmt->execute();
+    $term = $stmt->get_result()->fetch_assoc();
+
+
+    $stmt = $conn->prepare("
+        SELECT 
+            st.id AS id,
+            st.name,
+            st.admission_number,
+            st.arm_id,
+            
+            r.ca,
+            r.exam,
+            r.total,
+            r.grade,
+            r.remark
+
+        FROM students st
+
+        LEFT JOIN student_class_records scr
+            ON scr.student_id = st.id 
+            AND scr.class_id = ?
+
+        LEFT JOIN student_term_records str
+            ON str.student_class_record_id = scr.id
+            AND str.term_id = ?
+
+        LEFT JOIN results r
+            ON r.student_term_record_id = str.id
+            AND r.subject_id = ?
+
+        WHERE st.class_id = ?
+        ORDER BY st.admission_number
+    ");
+
+    $stmt->bind_param("iiii", $class_id, $term_id, $subject_id, $class_id);
+    $stmt->execute();
+    $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+} else {
+    route('back');
+}
+
 ?>
 
 <body class="bg-gray-50">
@@ -20,56 +81,64 @@ include(__DIR__ . '/../../includes/header.php');
         </div>
     </section>
 
-    <!-- Main Content -->
-    <div id="studentsByClassContainer" class="space-y-8">
-        <?php foreach ($classes as $class): ?>
-            <div class="student-class-group bg-white rounded-lg shadow-lg overflow-hidden" data-class="<?= strtolower(str_replace(' ', '-', $class['class_name'])) ?>">
-                <div class="bg-gradient-to-r from-orange-900 to-orange-700 text-white p-6">
-                    <h3 class="text-2xl font-bold"><?= $class['class_name'] ?></h3>
-                    <p class="text-sm opacity-90"><?= count($class['students']) ?> students</p>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-100 border-b">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Admission #</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Arm</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($class['students'] as $student): ?>
-                                <tr class="border-b hover:bg-gray-50 student-row" data-search="<?= $student['student_name'] . ' ' . $student['admission_number'] ?>">
-                                    <td class="px-6 py-4 text-sm text-gray-900"><?= $student['student_name'] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-600"><?= $student['admission_number'] ?></td>
-                                    <td class="px-6 py-4 text-sm"><span class="px-3 py-1 bg-blue-100 text-blue-900 rounded-full text-xs font-semibold"><?= $student['arm_name'] ?></span></td>
-                                    <td class="px-6 py-4 text-sm">
-                                        <span class="px-3 py-1 <?= $student['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $student['status'] ?></span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm space-x-2">
-                                        <a href="<?= route('update-user-password') . '?id=' . $student['student_id']  . '&user_type=student' ?>" class="text-blue-600 hover:text-blue-800 font-semibold">
-                                            <i class="fas fa-lock"></i> Edit Password
-                                        </a>
-                                        <a href="<?= route('student-update') . '?id=' . $student['student_id'] ?>" class="text-green-600 hover:text-green-800 font-semibold">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <a href="<?= route('view-user-details') . '?id=' . $student['student_id'] . '&type=student' ?>" class="text-purple-600 hover:text-green-800 font-semibold">
-                                            <i class="fas fa-eye"></i>View Details
-                                        </a>
-                                        <a href="<?= route('delete-user') . '?id=' . $student['student_id'] ?>&table=students&type=Student" class="text-red-600 hover:text-red-800 font-semibold">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </a>
-                                    </td>
+
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Main Content -->
+            <div id="studentsByClassContainer" class="space-y-8">
+
+                <div class="student-class-group bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-6">
+                        <h3 class="text-2xl font-bold"><?= $subject['name'] ?></h3>
+                        <p class="text-sm opacity-50 py-2"><?= $term['name'] ?>, <?= $session['name'] ?> Academic Session</p>
+                        <p class="text-xs opacity-90"><?= count($students) ?> students</p>
+
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100 border-b">
+                                <tr>
+                                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Name</th>
+                                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Admission #</th>
+                                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">CA(40)</th>
+                                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Exam(60)</th>
+                                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Total(100)</th>
+                                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Grade</th>
+                                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Remark</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($students as $student): ?>
+                                    <tr>
+                                        <td class="px-4 py-3"><?= $student['name'] ?></td>
+                                        <td class="px-4 py-3 text-center"><?= $student['admission_number'] ?></td>
+
+                                        <td class="px-4 py-3 text-center"><?= $student['ca'] ?></td>
+                                        <td class="px-4 py-3 text-center"><?= $student['exam'] ?></td>
+                                        <td class="px-4 py-3 text-center font-bold"><?= $student['total'] ?></td>
+                                        <td class="px-4 py-3 text-center font-bold text-green-600"><?= $student['grade'] ?></td>
+                                        <td class="px-4 py-3 text-center"><?= $student['remark'] ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        <?php endforeach; ?>
-    </div>
+
+            <div class="flex justify-center mt-8">
+                <div class="grid md:grid-cols-3 gap-4">
+                    <a href="<?= route('upload-results') . '?subject_id=' . $subject_id . '&class_id=' . $class_id . '&session_id=' . $session_id . '&term_id=' . $term_id ?>"
+                        class="bg-gray-400 hover:bg-gray-500 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
+                        <i class="fas fa-upload"></i>Update
+                    </a>
+                    <button onclick="printTable()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
+                        <i class="fas fa-print"></i>Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
     <?php include(__DIR__ . '/../../includes/footer.php'); ?>

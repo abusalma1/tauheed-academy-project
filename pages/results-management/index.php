@@ -247,7 +247,7 @@ if (isset($_POST['missing_selection'])) {
                                             <a
                                                 href="<?= route('upload-results') . '?subject_id=' . $subject['id'] . '&class_id=' . $class['id'] ?>"
                                                 class="createResultBtn bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                                                <i class="fas fa-plus"></i> Upload Results
+                                                <i class="fas fa-upload"></i> Upload Results
                                             </a>
 
                                             <a

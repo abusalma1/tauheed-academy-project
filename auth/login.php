@@ -18,14 +18,14 @@ if (isset($_SESSION['user_session'])) {
                 $stmt = $conn->prepare("SELECT * FROM students WHERE email = ? OR admission_number = ?");
                 $stmt->bind_param("ss", $email, $email);
             } else if ($user_type === 'teacher') {
-                $stmt = $conn->prepare("SELECT * FROM teachers WHERE email = ?");
-                $stmt->bind_param("s", $email);
+                $stmt = $conn->prepare("SELECT * FROM teachers WHERE email = ? OR staff_no = ?");
+                $stmt->bind_param("ss", $email, $email);
             } else if ($user_type === 'guardian') {
                 $stmt = $conn->prepare("SELECT * FROM guardians WHERE email = ?");
                 $stmt->bind_param("s", $email);
             } else if ($user_type === 'admin') {
-                $stmt = $conn->prepare("SELECT * FROM admins WHERE email = ?");
-                $stmt->bind_param("s", $email);
+                $stmt = $conn->prepare("SELECT * FROM admins WHERE email = ?  OR staff_no = ?");
+                $stmt->bind_param("ss", $email, $email);
             }
 
             $stmt->execute();

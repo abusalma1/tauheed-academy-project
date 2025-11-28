@@ -31,6 +31,7 @@ if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_
             r.ca,
             r.exam,
             r.grade,
+            r.total,
             r.remark
 
         FROM students st
@@ -370,13 +371,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <input type="number" min="0" max="60" name="exam[<?= $student['id'] ?>]" data-index="<?= $index ?>" value="<?= $student['exam'] ?? '' ?>" class="exam-input w-20 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                                             </td>
                                             <td class="px-6 py-4 text-center font-bold">
-                                                <span class="total-score" data-index="<?= $index ?>">0</span>
+                                                <span class="total-score" data-index="<?= $index ?>"><?= $student['total'] ?? 0 ?></span>
                                             </td>
                                             <td class="px-6 py-4 text-center font-bold">
-                                                <span class="grade" data-index="<?= $index ?>">-</span>
+                                                <span class="grade" data-index="<?= $index ?>"><?= $student['grade'] ?? '-' ?></span>
                                             </td>
                                             <td class="px-6 py-4 text-center">
-                                                <span class="remark" data-index="<?= $index ?>">-</span>
+                                                <span class="remark" data-index="<?= $index ?>"><?= $student['remark'] ?? '-' ?></span>
                                             </td>
 
                                         </tr>
