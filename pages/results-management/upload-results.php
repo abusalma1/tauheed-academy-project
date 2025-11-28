@@ -24,14 +24,13 @@ if (isset($_GET['class_id']) && isset($_GET['term_id'])) {
     $stmt = $conn->prepare("SELECT *
         FROM students
         WHERE class_id = ?
-        ORDER BY name ASC
+        ORDER BY admission_number
     ");
 
     $stmt->bind_param("i", $class_id);
     $stmt->execute();
     $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -59,14 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         elseif ($total >= 60) $grade = 'B';
         elseif ($total >= 50) $grade = 'C';
         elseif ($total >= 40) $grade = 'D';
-        else $grade = 'F';
+        else $grade = 'E';
 
         $remark_map = [
             'A' => 'Excellent',
             'B' => 'Very Good',
             'C' => 'Good',
-            'D' => 'Pass',
-            'F' => 'Fail'
+            'D' => 'Fair',
+            'E' => 'Poor'
         ];
         $remark = $remark_map[$grade];
 
@@ -424,7 +423,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (score >= 60) return 'B';
             if (score >= 50) return 'C';
             if (score >= 40) return 'D';
-            return 'F';
+            return 'E';
         }
 
         function getRemark(grade) {
@@ -433,7 +432,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'B': 'Very Good',
                 'C': 'Good',
                 'D': 'Fair',
-                'F': 'Fail',
+                'E': 'Poor',
                 'Over': 'Over Marking'
 
             };

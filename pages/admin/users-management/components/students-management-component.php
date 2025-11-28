@@ -10,7 +10,7 @@
         </div>
         <div class="bg-white rounded-lg shadow p-4">
             <p class="text-gray-600 text-sm">Active</p>
-            <p class="text-2xl font-bold text-green-600"><?= $totalActiveUsers ?></p>
+            <p class="text-2xl font-bold text-green-600"><?= $totalActiveStudents ?></p>
         </div>
         <div class="bg-white rounded-lg shadow p-4">
             <p class="text-gray-600 text-sm">Classes</p>

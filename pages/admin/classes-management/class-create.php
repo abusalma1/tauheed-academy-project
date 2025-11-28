@@ -188,6 +188,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Class Level -->
                             <div>
                                 <label for="classLevel" class="block text-sm font-semibold text-gray-700 mb-2">Class Level *</label>
+                                <span class="text-gray-500 text-sm">Check the classes list below the form to identfiy the right level to use. </span><br>
+                                <span class="text-gray-500 text-sm">Using a level given to a class will force the levels to shift on step forward</span>
+
                                 <input type="number" id="classLevel" name="classLevel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" placeholder="e.g., Nursery 1 = level 1,Nursery 2 = level 2">
                                 <span class="text-red-500 text-sm hidden" id="classLevelError"></span>
                             </div>
@@ -209,6 +212,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Class Arm -->
                             <div>
                                 <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arm</label>
+                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-class-arm') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Class Arms</a></span>
+
                                 <select id="classArm" name="classArm[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" multiple>
                                     <option value="">Select class arm</option>
                                     <?php foreach ($class_arms as $arm): ?>
@@ -223,6 +228,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Class section -->
                             <div>
                                 <label for="classSection" class="block text-sm font-semibold text-gray-700 mb-2">Class Section *</label>
+                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-section') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Sections</a></span>
+
                                 <select id="classSection" name="classSection" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900">
                                     <option value="">Select section </option>
 

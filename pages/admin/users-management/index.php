@@ -73,8 +73,11 @@ foreach ($rows as $row) {
 $classesCount = countDataTotal('classes')['total'];
 $armsCount = countDataTotal('class_arms')['total'];
 $sectionsCount = countDataTotal('sections')['total'];
-$studentsCount = countDataTotal('students')['total'];
-  
+$studentsCountList = countDataTotal('students', true);
+$studentsCount = $studentsCountList['total'];
+$totalActiveStudents = $studentsCountList['active'];
+
+
 ?>
 
 <body class="bg-gray-50">

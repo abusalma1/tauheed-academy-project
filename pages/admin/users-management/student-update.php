@@ -8,6 +8,14 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+
+$stmt = $conn->prepare("SELECT * from terms where deleted_at is null and status = ?");
+$ongoing = 'ongoing';
+$stmt->bind_param('s', $ongoing);
+$stmt->execute();
+$current_term = $stmt->get_result()->fetch_assoc();
+
+
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
@@ -201,43 +209,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->execute()) {
             $term_id = (int)$term;
             $session_id = (int)$session;
-
+            // --- Student Class Record ---
             $stmt = $conn->prepare("SELECT * FROM student_class_records 
-    WHERE student_id = ? 
-    AND class_id = ? 
-    AND arm_id = ? 
-    AND session_id = ?
-");
+    WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?");
             $stmt->bind_param('iiii', $student['id'], $student['class_id'], $student['arm_id'], $student['session_id']);
             $stmt->execute();
             $result = $stmt->get_result();
             $student_class_record = $result->fetch_assoc();
-            $student_class_record_id = $student_class_record['id'];
 
-            $stmt = $conn->prepare("
-    UPDATE student_class_records 
-    SET class_id = ?, arm_id = ?, session_id = ? 
-    WHERE id = ?
-");
-            $stmt->bind_param('iiii', $class_id, $arm_id, $session_id, $student_class_record_id);
-            $stmt->execute();
+            if ($student_class_record) {
+                // Record exists → update
+                $student_class_record_id = $student_class_record['id'];
+                $stmt = $conn->prepare("UPDATE student_class_records 
+        SET class_id = ?, arm_id = ?, session_id = ? WHERE id = ?");
+                $stmt->bind_param('iiii', $class_id, $arm_id, $session_id, $student_class_record_id);
+                $stmt->execute();
+            } else {
+                // Record does not exist → insert
+                $stmt = $conn->prepare("INSERT INTO student_class_records 
+        (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param('iiii', $student['id'], $class_id, $arm_id, $session_id);
+                $stmt->execute();
+                $student_class_record_id = $stmt->insert_id; // get new ID
+            }
 
+            // --- Student Term Record ---
             $stmt = $conn->prepare("SELECT * FROM student_term_records 
-    WHERE student_class_record_id = ? 
-    AND term_id = ?
-");
+    WHERE student_class_record_id = ? AND term_id = ?");
             $stmt->bind_param('ii', $student_class_record_id, $student['term_id']);
             $stmt->execute();
             $result = $stmt->get_result();
             $student_term_record = $result->fetch_assoc();
 
-            $stmt = $conn->prepare("
-    UPDATE student_term_records 
-    SET student_class_record_id = ?, term_id = ?
-    WHERE id = ?
-");
-            $stmt->bind_param('iii', $student_class_record_id, $term, $student_term_record['id']);
-            $stmt->execute();
+            if ($student_term_record) {
+                // Record exists → update
+                $stmt = $conn->prepare("UPDATE student_term_records 
+        SET student_class_record_id = ?, term_id = ? WHERE id = ?");
+                $stmt->bind_param('iii', $student_class_record_id, $term, $student_term_record['id']);
+                $stmt->execute();
+            } else {
+                // Record does not exist → insert
+                $stmt = $conn->prepare("INSERT INTO student_term_records 
+        (student_class_record_id, term_id) VALUES (?, ?)");
+                $stmt->bind_param('ii', $student_class_record_id, $term);
+                $stmt->execute();
+            }
+
 
 
             $_SESSION['success'] = "Student account updated successfully!";
@@ -348,7 +365,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <?php foreach ($sessions as $session): ?>
                                         <option value="<?= $session['id'] ?>"
                                             <?= ($studentSessionId && $session['id'] == $studentSessionId) ? 'selected' : '' ?>>
-                                            <?= $session['name'] ?>
+                                            <?= $session['name'] ?> <?= $current_term['session_id'] === $session['id'] ? "(Current)" : '' ?></option>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -362,6 +379,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             data-session="<?= $term['session_id'] ?>"
                                             <?= ($student && $term['id'] == $student['term_id']) ? 'selected' : '' ?>>
                                             <?= $term['name'] ?>
+                                            <?= $current_term['id'] === $term['id'] ? "(Current)" : '' ?>
+
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

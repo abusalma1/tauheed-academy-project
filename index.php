@@ -54,48 +54,50 @@ $news = $result->fetch_all(MYSQLI_ASSOC);
     <section class="py-16 bg-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">School News</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="news-grid">
-                <?php foreach ($news as $story) : ?>
-                    <div class="news-item <?= $story['category'] ?> bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:scale-105">
-                        <div class="relative overflow-hidden h-48">
-                            <img src="/placeholder.svg?height=300&width=400" alt="News" class="w-full h-full object-cover">
+            <?php if (count($news) <= 0) : ?>
+                <span class="text-gray-400 text-center block">Nothing Is posted</span>
+            <?php else : ?>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="news-grid">
 
-                            <?php if ($story['category'] === 'event'): ?>
-                                <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                    <i class="fas fa-calendar-check mr-2"></i>Event
-                                </div>
-                            <?php elseif ($story['category'] === 'achievement'): ?>
-                                <div class="absolute top-4 right-4 bg-yellow-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                    <i class="fas fa-star mr-2"></i>Achievement
-                                </div>
-                            <?php elseif ($story['category'] === 'announcement'): ?>
-                                <div class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                    <i class="fas fa-bullhorn mr-2"></i>Announcement
-                                </div>
-                            <?php elseif ($story['category'] === 'update'): ?>
-                                <div class="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                    <i class="fas fa-info-circle mr-2"></i>Update
-                                </div>
-                            <?php endif ?>
+                    <?php foreach ($news as $story) : ?>
+                        <div class="news-item <?= $story['category'] ?> bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:scale-105">
+                            <div class="relative overflow-hidden h-48">
+                                <img src="/placeholder.svg?height=300&width=400" alt="News" class="w-full h-full object-cover">
 
-                        </div>
-                        <div class="p-6">
-                            <div class="flex items-center gap-2 text-gray-500 text-sm mb-3">
-                                <i class="fas fa-calendar"></i>
-                                <span><?= date('D d M, Y', strtotime($story['created_at'])); ?></span>
+                                <?php if ($story['category'] === 'event'): ?>
+                                    <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                        <i class="fas fa-calendar-check mr-2"></i>Event
+                                    </div>
+                                <?php elseif ($story['category'] === 'achievement'): ?>
+                                    <div class="absolute top-4 right-4 bg-yellow-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                        <i class="fas fa-star mr-2"></i>Achievement
+                                    </div>
+                                <?php elseif ($story['category'] === 'announcement'): ?>
+                                    <div class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                        <i class="fas fa-bullhorn mr-2"></i>Announcement
+                                    </div>
+                                <?php elseif ($story['category'] === 'update'): ?>
+                                    <div class="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                        <i class="fas fa-info-circle mr-2"></i>Update
+                                    </div>
+                                <?php endif ?>
+
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-3"><?= $story['title'] ?></h3>
-                            <p class="text-gray-600 mb-4"><?= htmlspecialchars(substr($story['content'], 0, 50) . "...") ?></p>
-                            <a href="<?= route('news-detial') . '?id=' . $story['id']; ?>" class="inline-flex items-center gap-2 text-blue-900 font-semibold hover:text-blue-700">
-                                Read More <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="p-6">
+                                <div class="flex items-center gap-2 text-gray-500 text-sm mb-3">
+                                    <i class="fas fa-calendar"></i>
+                                    <span><?= date('D d M, Y', strtotime($story['created_at'])); ?></span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-3"><?= $story['title'] ?></h3>
+                                <p class="text-gray-600 mb-4"><?= htmlspecialchars(substr($story['content'], 0, 50) . "...") ?></p>
+                                <a href="<?= route('news-detial') . '?id=' . $story['id']; ?>" class="inline-flex items-center gap-2 text-blue-900 font-semibold hover:text-blue-700">
+                                    Read More <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                <?php endforeach ?>
-
-
-
-            </div>
+                    <?php endforeach ?>
+                </div>
+            <?php endif ?>
         </div>
     </section>
 

@@ -8,17 +8,25 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$stmt = $conn->prepare("SELECT admission_number  from students order by created_at desc limit 1");
+$stmt = $conn->prepare("SELECT * from terms where deleted_at is null and status = ?");
+$ongoing = 'ongoing';
+$stmt->bind_param('s', $ongoing);
+$stmt->execute();
+$current_term = $stmt->get_result()->fetch_assoc();
+
+$stmt = $conn->prepare("SELECT admission_number FROM students ORDER BY created_at DESC LIMIT 1");
 $stmt->execute();
 $result = $stmt->get_result();
-$lastAdmissionNumber = $result->fetch_all(MYSQLI_ASSOC);
-if (count($lastAdmissionNumber) > 1) {
+$lastAdmissionNumber = $result->fetch_assoc(); // fetch single row since LIMIT 1
+
+if ($lastAdmissionNumber) {
+    // Admission number exists
     $lastAdmissionNumber = $lastAdmissionNumber['admission_number'];
-} else if (count($lastAdmissionNumber) < 1) {
-    $lastAdmissionNumber = 'Check The students list below the form';
 } else {
-    $lastAdmissionNumber = 'No Student accout exist';
+    // No student found
+    $lastAdmissionNumber = 'No student account exists. Check the students list below the form.';
 }
+
 
 $stmt = $conn->prepare("SELECT 
     students.id AS id,
@@ -138,15 +146,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['guardian'] = "Guardian is required.";
     }
 
-    if (empty($password)) {
-        $errors['password'] = "Password is required.";
-    } elseif (strlen($password) < 5) {
-        $errors['password'] = "Password must be at least 5 characters long.";
+    if (!empty($password)) {
+        if (strlen($password) < 5) {
+            $errors['password'] = "Password must be at least 5 characters long.";
+        }
+        if ($password !== $confirmPassword) {
+            $errors['confirmPassword'] = "Passwords do not match.";
+        }
+    } else {
+        $password = $admissionNumber;
     }
 
-    if ($password !== $confirmPassword) {
-        $errors['confirmPassword'] = "Passwords do not match.";
-    }
+
 
     // Optional fields
     if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -213,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
             $stmt = $conn->prepare("INSERT into student_term_records (student_class_record_id, term_id) values (?, ?)");
-            $stmt->bind_param('ii', $student_class_record_id,  $term_id);
+            $stmt->bind_param('ii', $student_class_record_id,  $term);
             $stmt->execute();
 
             $_SESSION['success'] = "Student account created successfully!";
@@ -295,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Admission Number -->
                             <div>
                                 <label for="admissionNumber" class="block text-sm font-semibold text-gray-700 mb-2">Admission Number *</label>
-                                <span class="text-blue-500 text-s">Last Admission Number Give: <?= $lastAdmissionNumber ?></span>
+                                <span class="text-gray-500 text-sm">Last Admission Number Given: <?= $lastAdmissionNumber ?></span>
                                 <input type="text" id="admissionNumber" name="admissionNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="e.g., EA/2025/001">
                                 <span class="text-red-500 text-sm hidden" id="admissionNumberError"></span>
                             </div>
@@ -303,6 +314,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Class -->
                             <div>
                                 <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">Class *</label>
+                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-class') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Class</a></span>
+
                                 <select id="class" name="class" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                     <option value="">Select class</option>
                                     <?php foreach ($classes as $class): ?>
@@ -317,27 +330,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <!-- session -->
                                 <div class="flex-1 max-w-md">
                                     <label for="session" class="block text-sm font-semibold text-gray-700 mb-2">Session *</label>
+                                    <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-session') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Session</a></span>
+
                                     <select id="session" name="session" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                         <option value="">Select session</option>
                                         <?php foreach ($sessions as $session): ?>
                                             <option value="<?= $session['id'] ?>">
                                                 <?= $session['name'] ?>
+                                                <?= $current_term['session_id'] === $session['id'] ? "(Current)" : '' ?></option>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
+                                    <span class="text-red-500 text-sm hidden" id="sessionError"></span>
                                 </div>
 
                                 <!-- term -->
                                 <div class="flex-1 max-w-md">
                                     <label for="term" class="block text-sm font-semibold text-gray-700 mb-2">Term *</label>
+                                    <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('term-session-management') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Term</a></span>
+
                                     <select id="term" name="term" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                         <option value="">Select term</option>
                                         <?php foreach ($terms as $term): ?>
-                                            <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>">
+                                            <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>" >
                                                 <?= $term['name'] ?>
+                                                <?= $current_term['id'] === $term['id'] ? "(Current)" : '' ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
+                                    <span class="text-red-500 text-sm hidden" id="termError"></span>
                                 </div>
 
 
@@ -364,6 +385,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Guardian -->
                             <div>
                                 <label for="guardian" class="block text-sm font-semibold text-gray-700 mb-2">Guardian *</label>
+                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('guardian-create') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Guardian account</a></span>
                                 <select id="guardian" name="guardian" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                     <option value="">Select guardian</option>
                                     <?php foreach ($guardians as $guardian) : ?>
@@ -378,6 +400,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Password -->
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
+                                <span class="text-gray-500 text-sm">Leave blank to use admission number as the default password. It can be changed later.</span>
+
                                 <div class="relative">
                                     <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="Enter password">
                                     <button type="button" id="togglePassword" class="absolute right-3 top-2.5 text-gray-600">
@@ -637,6 +661,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const admissionNumber = document.getElementById('admissionNumber').value.trim();
             const studentClass = document.getElementById('class').value;
             const studentTerm = document.getElementById('term').value;
+            const studentSession = document.getElementById('session').value;
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
             const guardian = document.getElementById('guardian').value.trim();
@@ -703,11 +728,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
+            if (!studentSession) {
+                document.getElementById('sessionError').textContent = 'Please select a session';
+                document.getElementById('sessionError').classList.remove('hidden');
+                isValid = false;
+            }
+
             if (!studentTerm) {
                 document.getElementById('termError').textContent = 'Please select a term';
                 document.getElementById('termError').classList.remove('hidden');
                 isValid = false;
             }
+
 
             if (!dob) {
                 document.getElementById('dobError').textContent = 'Date of birth is required';
@@ -729,20 +761,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
+            if (password) {
+                if (password.length < 5) {
+                    document.getElementById('passwordError').textContent = 'Password must be at least 5 characters';
+                    document.getElementById('passwordError').classList.remove('hidden');
+                    isValid = false;
+                }
 
-            if (password.length < 5) {
-                document.getElementById('passwordError').textContent = 'Password must be at least 5 characters';
-                document.getElementById('passwordError').classList.remove('hidden');
-                isValid = false;
+
+                if (password !== confirmPassword) {
+                    document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+                    document.getElementById('confirmPasswordError').classList.remove('hidden');
+                    isValid = false;
+                }
             }
-
-
-            if (password !== confirmPassword) {
-                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
-                document.getElementById('confirmPasswordError').classList.remove('hidden');
-                isValid = false;
-            }
-
 
             if (isValid) {
                 window.scrollTo({
