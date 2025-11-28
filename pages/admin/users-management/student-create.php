@@ -17,7 +17,7 @@ $current_term = $stmt->get_result()->fetch_assoc();
 $stmt = $conn->prepare("SELECT admission_number FROM students ORDER BY created_at DESC LIMIT 1");
 $stmt->execute();
 $result = $stmt->get_result();
-$lastAdmissionNumber = $result->fetch_assoc(); // fetch single row since LIMIT 1
+$lastAdmissionNumber = $result->fetch_assoc();
 
 if ($lastAdmissionNumber) {
     // Admission number exists
@@ -306,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Admission Number -->
                             <div>
                                 <label for="admissionNumber" class="block text-sm font-semibold text-gray-700 mb-2">Admission Number *</label>
-                                <span class="text-gray-500 text-sm">Last Admission Number Given: <?= $lastAdmissionNumber ?></span>
+                                <span class="text-gray-500 text-sm">Last Admission Number Given: <span class="font-bold"><?= $lastAdmissionNumber ?></span></span>
                                 <input type="text" id="admissionNumber" name="admissionNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" placeholder="e.g., EA/2025/001">
                                 <span class="text-red-500 text-sm hidden" id="admissionNumberError"></span>
                             </div>

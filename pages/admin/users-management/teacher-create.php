@@ -7,6 +7,19 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+$stmt = $conn->prepare("SELECT staff_no FROM admins ORDER BY created_at DESC LIMIT 1");
+$stmt->execute();
+$result = $stmt->get_result();
+$lastStaffNumber = $result->fetch_assoc();
+
+if ($lastStaffNumber) {
+    // Admission number exists
+    $lastStaffNumber = $lastStaffNumber['staff_no'];
+} else {
+    // No student found
+    $lastStaffNumber = 'No admin account exists. Check the admins list below the form.';
+}
+
 
 $teachers = selectAllData('teachers');
 
@@ -176,6 +189,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Staff Number -->
                             <div>
                                 <label for="staffNumber" class="block text-sm font-semibold text-gray-700 mb-2">Staff ID Number *</label>
+                                <span class="text-gray-500 text-sm">Last Staff Number Given: <span class="font-bold"><?= $lastStaffNumber ?></span></span>
+
                                 <input type="tel" id="staffNumber" name="staffNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900" placeholder="Enter staff id number">
                                 <span class="text-red-500 text-sm hidden" id="staffNumberError"></span>
                             </div>
@@ -308,8 +323,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <thead class="bg-blue-900 text-white">
                             <tr>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold">Email</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Staff No</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Email</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Qualification</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Status</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
@@ -321,8 +336,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 text-sm text-gray-900"><?= $teacher['name'] ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $teacher['email'] ?></td>
+
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= $teacher['staff_no'] ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $teacher['email'] ?></td>
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= $teacher['qualification'] ?></td>
                                         <td class="px-6 py-4 text-sm">
                                             <span class="px-3 py-1 <?= $teacher['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $teacher['status'] ?></span>
