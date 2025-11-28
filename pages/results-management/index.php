@@ -246,14 +246,14 @@ if (isset($_POST['missing_selection'])) {
                                         <div class="flex flex-col gap-2 md:w-auto">
                                             <a
                                                 href="<?= route('upload-results') . '?subject_id=' . $subject['id'] . '&class_id=' . $class['id'] ?>"
-                                                class="createResultBtn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                                                <i class="fas fa-plus"></i> Create
+                                                class="createResultBtn bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                                                <i class="fas fa-plus"></i> Upload Results
                                             </a>
 
                                             <a
-                                                href="<?= route('update-results') . '?subject_id=' . $subject['id'] . '&class_id=' . $class['id'] ?>"
-                                                class="updateResultBtn bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                                                <i class="fas fa-edit"></i> Update
+                                                href="<?= route('view-subject-result') . '?subject_id=' . $subject['id'] . '&class_id=' . $class['id'] ?>"
+                                                class="updateResultBtn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                                                <i class="fas fa-eye"></i> View Results
                                             </a>
 
                                         </div>

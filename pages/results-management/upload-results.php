@@ -16,21 +16,46 @@ $sessions = selectAllData('sessions');
 
 $students = [];
 
-if (isset($_GET['class_id']) && isset($_GET['term_id'])) {
+if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_id'])) {
     $class_id = intval($_GET['class_id']);
     $term_id = intval($_GET['term_id']);
     $subject_id = intval($_GET['subject_id']);
 
-    $stmt = $conn->prepare("SELECT *
-        FROM students
-        WHERE class_id = ?
-        ORDER BY admission_number
+    $stmt = $conn->prepare("
+        SELECT 
+            st.id AS id,
+            st.name,
+            st.admission_number,
+            st.arm_id,
+            
+            r.ca,
+            r.exam,
+            r.grade,
+            r.remark
+
+        FROM students st
+
+        LEFT JOIN student_class_records scr
+            ON scr.student_id = st.id 
+            AND scr.class_id = ?
+
+        LEFT JOIN student_term_records str
+            ON str.student_class_record_id = scr.id
+            AND str.term_id = ?
+
+        LEFT JOIN results r
+            ON r.student_term_record_id = str.id
+            AND r.subject_id = ?
+
+        WHERE st.class_id = ?
+        ORDER BY st.admission_number
     ");
 
-    $stmt->bind_param("i", $class_id);
+    $stmt->bind_param("iiii", $class_id, $term_id, $subject_id, $class_id);
     $stmt->execute();
     $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -339,10 +364,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <td class="px-6 py-4"><?= htmlspecialchars($student['name']) ?></td>
                                             <td class="px-6 py-4"><?= htmlspecialchars($student['admission_number']) ?></td>
                                             <td class="px-6 py-4 text-center">
-                                                <input type="number" min="0" max="40" name="ca[<?= $student['id'] ?>]" data-index="<?= $index ?>" class="ca-input w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                                <input type="number" min="0" max="40" name="ca[<?= $student['id'] ?>]" data-index="<?= $index ?>" value="<?= $student['ca'] ?? '' ?>" class="ca-input w-20 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                                             </td>
                                             <td class="px-6 py-4 text-center">
-                                                <input type="number" min="0" max="60" name="exam[<?= $student['id'] ?>]" data-index="<?= $index ?>" class="exam-input w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                                <input type="number" min="0" max="60" name="exam[<?= $student['id'] ?>]" data-index="<?= $index ?>" value="<?= $student['exam'] ?? '' ?>" class="exam-input w-20 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                                             </td>
                                             <td class="px-6 py-4 text-center font-bold">
                                                 <span class="total-score" data-index="<?= $index ?>">0</span>
