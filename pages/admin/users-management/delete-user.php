@@ -2,6 +2,12 @@
 $title = "Delete Confirmation";
 include(__DIR__ . '/../../../includes/header.php');
 
+if (!$is_logged_in) {
+  $_SESSION['failure'] = "Login is Required!";
+  header("Location: " . route('home'));
+  exit();
+}
+
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -36,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if (empty($id)) $errors['id'] = 'User Not Found';
 
-  if(empty($errors)){
+  if (empty($errors)) {
     $stmt = $conn->prepare("UPDATE `$table` set deleted_at = NOW() where id =?");
     $stmt->bind_param('i', $id);
 
@@ -52,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       echo "<p class='text-red-600 font-semibold'>$error</p>";
     }
   }
-
 }
 
 

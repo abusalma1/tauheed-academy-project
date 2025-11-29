@@ -3,6 +3,12 @@
 $title = "Session Creation";
 include(__DIR__ . '/../../../includes/header.php');
 
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -200,10 +206,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <a href="<?= route('delete-session') . '?id=' . $session['id'] ?>" >
-                                            <button class="text-red-600 hover:text-red-900 font-semibold">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </button>
+                                            <a href="<?= route('delete-session') . '?id=' . $session['id'] ?>">
+                                                <button class="text-red-600 hover:text-red-900 font-semibold">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
                                         </td>
                                         </td>
                                     </tr>

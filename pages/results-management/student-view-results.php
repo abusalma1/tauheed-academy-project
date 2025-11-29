@@ -3,6 +3,12 @@ $title = "My Results";
 
 include(__DIR__ . '/../../includes/header.php');
 
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 $student_id = 3;   // The ID of the student whose results you want
 $term_id = 1;      // The term ID (optional: can be dynamic from filter)
 $is_current = 1;   // If you want to filter by current record

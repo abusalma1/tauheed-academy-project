@@ -2,6 +2,12 @@
 $title = "News Detail";
 include(__DIR__ . '/../../../includes/header.php');
 
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -89,7 +95,7 @@ if (isset($_GET['id'])) {
                         </div>
                     </div>
                     <h1 class="text-4xl font-bold text-gray-900 mb-4"><?= htmlspecialchars(ucwords($story['title'])) ?></h1>
-                    
+
                 </div>
 
                 <!-- Article Body -->

@@ -66,7 +66,9 @@
                     <a href="<?= route('profile') ?>" class="hover:text-blue-300 transition">Profile</a>
 
                     <?php if ($user_type === 'teacher') : ?>
+                        <a href="<?= route('my-class'); ?>" class="hover:text-blue-300 transition">My class</a>
                         <a href="<?= route('results-management'); ?>" class="hover:text-blue-300 transition">Results</a>
+
                     <?php elseif ($user_type === 'student') : ?>
                         <a href="<?= route('student-result'); ?>" class="hover:text-blue-300 transition">My Result</a>
                     <?php elseif ($user_type === 'guardian') : ?>
@@ -131,7 +133,9 @@
             <?php if ($user_type === 'student') : ?>
                 <a href="<?= route('student-result'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Results</a>
             <?php elseif ($user_type === 'teacher'): ?>
+                <a href="<?= route('my-class'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My class</a>
                 <a href="<?= route('results-management'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Results</a>
+
             <?php elseif ($user_type === 'guardian'): ?>
                 <a href="<?= route('my-children') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Me & My Children</a>
             <?php elseif ($user_type === 'admin'): ?>

@@ -2,6 +2,12 @@
 $title = 'Classes, Sections & Arms Management';
 include(__DIR__ . '/../../../includes/header.php');
 
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 
 $armsCount = countDataTotal('class_arms')['total'];
 $classesCount = countDataTotal('classes')['total'];
@@ -166,7 +172,7 @@ $sectionsCount = countDataTotal('sections')['total'];
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
-        </script>
+    </script>
 </body>
 
 </html>

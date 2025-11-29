@@ -305,5 +305,10 @@ $routes = [
     ],
 
 
+    // class teachers
+
+    'my-class' => [
+        'url' => "$baseUrl/pages/teachers/my-class.php"
+    ],
 
 ];

@@ -2,6 +2,12 @@
 $title = "Schoo Information";
 include(__DIR__ . "/../../includes/header.php");
 
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -161,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <!-- Twitter -->
                         <div class="mb-6">
                             <label for="twitter" class="block text-gray-700 font-semibold mb-2">
-                                <i class="fab fa-twitter text-blue-400 mr-2"></i>Twitter Link
+                                <i class="fab fa-x-twitter text-black-400 mr-2"></i>Twitter Link
                             </label>
                             <input type="url" id="twitter" name="twitter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="https://twitter.com/schoolname" value="<?= htmlspecialchars($school['twitter'] ?? '') ?>">
                         </div>

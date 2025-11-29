@@ -3,6 +3,12 @@
 $title = "Students Managment";
 include(__DIR__ . '/../../../includes/header.php');
 
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -352,7 +358,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <select id="term" name="term" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
                                         <option value="">Select term</option>
                                         <?php foreach ($terms as $term): ?>
-                                            <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>" >
+                                            <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>">
                                                 <?= $term['name'] ?>
                                                 <?= $current_term['id'] === $term['id'] ? "(Current)" : '' ?>
                                             </option>

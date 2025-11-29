@@ -9,6 +9,8 @@ if (!$is_logged_in) {
 }
 
 
+
+
 $subjects = selectAllData('subjects');
 $classes = selectAllData('classes');
 $terms = selectAllData('terms');

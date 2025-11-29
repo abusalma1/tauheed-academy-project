@@ -2,6 +2,12 @@
 $title = "Subject Results/Class";
 include(__DIR__ . '/../../includes/header.php');
 
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_id'])) {
     $class_id = intval($_GET['class_id']);
     $session_id = intval($_GET['session_id']);
