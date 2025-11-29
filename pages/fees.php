@@ -50,6 +50,8 @@ $fees = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             <th class="px-6 py-4 text-center">First Term</th>
                             <th class="px-6 py-4 text-center">Second Term</th>
                             <th class="px-6 py-4 text-center">Third Term</th>
+                            <th class="px-6 py-4 text-center">Registration</th>
+                            <th class="px-6 py-4 text-center">PTA</th>
 
 
                             <th class="px-6 py-4 text-center">Uniform</th>
@@ -66,6 +68,8 @@ $fees = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['first_term']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['second_term']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['third_term']) ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['registration']) ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['pta']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['uniform']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['materials']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['transport']) ?></td>

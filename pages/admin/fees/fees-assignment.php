@@ -47,58 +47,68 @@ while ($feeRow = $feeResult->fetch_assoc()) {
     $classFees[$feeRow['class_id']] = $feeRow;
 }
 
-// Handle AJAX submission
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json');
 
-    try {
-        $feesData = json_decode($_POST['fees'], true);
+    foreach ($_POST['fees'] as $classId => $fee) {
 
-        foreach ($feesData as $classId => $fee) {
-            if (isset($classFees[$classId])) {
-                // Update existing
-                $update = $conn->prepare("UPDATE fees 
-                    SET first_term=?, second_term=?, third_term=?, uniform=?, transport=?, materials=?, updated_at=NOW()
-                    WHERE class_id=?");
-                $update->bind_param(
-                    "ddddddi",
-                    $fee['first_term'],
-                    $fee['second_term'],
-                    $fee['third_term'],
-                    $fee['uniform'],
-                    $fee['transport'],
-                    $fee['materials'],
-                    $classId
-                );
-                $update->execute();
-                $update->close();
-            } else {
-                // Insert new
-                $insert = $conn->prepare("INSERT INTO fees 
-                    (class_id, first_term, second_term, third_term, uniform, transport, materials) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $insert->bind_param(
-                    "idddddd",
-                    $classId,
-                    $fee['first_term'],
-                    $fee['second_term'],
-                    $fee['third_term'],
-                    $fee['uniform'],
-                    $fee['transport'],
-                    $fee['materials']
-                );
-                $insert->execute();
-                $insert->close();
-            }
+        // sanitize to avoid null numeric fields
+        $first  = $fee['first_term'] ?? 0;
+        $second = $fee['second_term'] ?? 0;
+        $third  = $fee['third_term'] ?? 0;
+        $uniform = $fee['uniform'] ?? 0;
+        $transport = $fee['transport'] ?? 0;
+        $materials = $fee['materials'] ?? 0;
+        $registration = $fee['registration'] ?? 0;
+        $pta = $fee['pta'] ?? 0;
+
+
+        if (isset($classFees[$classId])) {
+            // Update existing
+            $update = $conn->prepare("UPDATE fees 
+                SET first_term=?, second_term=?, third_term=?, uniform=?, transport=?, materials=?,  registration=?, pta=?, updated_at=NOW()
+                WHERE class_id=?");
+            $update->bind_param(
+                "ddddddddi",
+                $first,
+                $second,
+                $third,
+                $uniform,
+                $transport,
+                $materials,
+                $registration,
+                $pta,
+                $classId
+            );
+            $update->execute();
+            $update->close();
+        } else {
+            // Insert new
+            $insert = $conn->prepare("INSERT INTO fees
+                (class_id, first_term, second_term, third_term, uniform, transport, materials, registration, pta)
+                VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $insert->bind_param(
+                "idddddddd",
+                $classId,
+                $first,
+                $second,
+                $third,
+                $uniform,
+                $transport,
+                $materials,
+                $registration,
+                $pta
+            );
+            $insert->execute();
+            $insert->close();
         }
-
-        echo json_encode(["status" => "success"]);
-    } catch (Exception $e) {
-        echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
 
+    $_SESSION['success'] = "Fees saved successfully!";
+    header("Location: " . route('back'));
     exit;
 }
+
 ?>
 
 
@@ -176,80 +186,185 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
             </div>
+            <form method="post">
+                <!-- Fees Table by Sections -->
+                <div class="space-y-8 text-nowrap">
 
-            <!-- Fees Table by Sections -->
-            <div class="space-y-8 text-nowrap">
+                    <?php foreach ($sections as $section): ?>
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                            <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-6 py-4">
+                                <h3 class="text-xl font-bold text-white"><?= $section['section_name'] ?> Section</h3>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-100 border-b-2 border-gray-300">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Class Name</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">First Term</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Second Term</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Third Term</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Registration</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">PTA</th>
 
-                <?php foreach ($sections as $section): ?>
-                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-6 py-4">
-                            <h3 class="text-xl font-bold text-white"><?= $section['section_name'] ?> Section</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="bg-gray-100 border-b-2 border-gray-300">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Class Name</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">First Term</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Second Term</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Third Term</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Uniform</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Books & Materials</th>
+                                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Transport</th>
 
+                                            <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Total Annual Fee</th>
 
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Uniform</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Books & Materials</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Transport</th>
-
-                                        <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Total Annual Fee</th>
-                                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <?php foreach ($section['classes'] as $class) : ?>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-6 py-4 font-semibold text-gray-900"><?= $class['class_name'] ?></td>
-                                            <td class="px-6 py-4"><input type="number" class="first-term w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
-                                            <td class=" px-6 py-4"><input type="number" class="second-term w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
-                                            <td class="px-6 py-4"><input type="number" class="third-term w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
-                                            <td class="px-6 py-4"><input type="number" class="uniform w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
-                                            <td class="px-6 py-4"><input type="number" class="materials w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
-
-                                            <td class="px-6 py-4"><input type="number" class="transport w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none" placeholder="0" data-class="<?= $class['class_name'] ?>" data-class-id="<?= $class['class_id'] ?>"></td>
-                                            <td class="px-6 py-4 text-right"><span class="total font-bold text-orange-600">₦0</span></td>
-                                            <td class="px-6 py-4 text-center"><button onclick="updateRowTotal(this)" class="text-blue-600 hover:text-blue-900"><i class="fas fa-calculator"></i></button></td>
                                         </tr>
-                                    <?php endforeach ?>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <?php foreach ($section['classes'] as $class) : ?>
+
+                                            <?php
+                                            // Load existing fees if they exist
+                                            $fee = $classFees[$class['class_id']] ?? [
+                                                'first_term' => '',
+                                                'second_term' => '',
+                                                'third_term' => '',
+                                                'uniform' => '',
+                                                'materials' => '',
+                                                'transport' => '',
+                                                'registration' => '',
+                                                'pta' => ''
+
+                                            ];
+                                            ?>
+                                            <tr class="hover:bg-gray-50" data-class-id="<?= $class['class_id'] ?>">
+
+
+                                                <!-- CLASS NAME -->
+                                                <td class="px-6 py-4 font-semibold text-gray-900">
+                                                    <?= $class['class_name'] ?>
+                                                </td>
+
+                                                <!-- FIRST TERM -->
+                                                <td class="px-6 py-4">
+                                                    <input type="number"
+                                                        name="fees[<?= $class['class_id'] ?>][first_term]"
+                                                        value="<?= $fee['first_term'] ?>"
+                                                        data-type="first_term"
+                                                        class="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none fee-input"
+                                                        placeholder="0">
+                                                </td>
+
+                                                <!-- SECOND TERM -->
+                                                <td class="px-6 py-4">
+                                                    <input type="number"
+                                                        name="fees[<?= $class['class_id'] ?>][second_term]"
+                                                        value="<?= $fee['second_term'] ?>"
+                                                        data-type="second_term"
+
+                                                        class="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none fee-input"
+                                                        placeholder="0">
+                                                </td>
+
+                                                <!-- THIRD TERM -->
+                                                <td class="px-6 py-4">
+                                                    <input type="number"
+                                                        name="fees[<?= $class['class_id'] ?>][third_term]"
+                                                        value="<?= $fee['third_term'] ?>"
+                                                        data-type="third_term"
+
+                                                        class="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none fee-input"
+                                                        placeholder="0">
+                                                </td>
+
+                                                <!-- REGISTRATION -->
+                                                <td class="px-6 py-4">
+                                                    <input type="number"
+                                                        name="fees[<?= $class['class_id'] ?>][registration]"
+                                                        value="<?= $fee['registration'] ?>"
+                                                        data-type="registration"
+
+                                                        class="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none fee-input"
+                                                        placeholder="0">
+                                                </td>
+
+                                                <!-- PTA -->
+                                                <td class="px-6 py-4">
+                                                    <input type="number"
+                                                        name="fees[<?= $class['class_id'] ?>][pta]"
+                                                        value="<?= $fee['pta'] ?>"
+                                                        data-type="pta"
+
+                                                        class="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none fee-input"
+                                                        placeholder="0">
+                                                </td>
+
+                                                <!-- UNIFORM -->
+                                                <td class="px-6 py-4">
+                                                    <input type="number"
+                                                        name="fees[<?= $class['class_id'] ?>][uniform]"
+                                                        value="<?= $fee['uniform'] ?>"
+                                                        data-type="uniform"
+
+                                                        class="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none fee-input"
+                                                        placeholder="0">
+                                                </td>
+
+                                                <!-- MATERIALS -->
+                                                <td class="px-6 py-4">
+                                                    <input type="number"
+                                                        name="fees[<?= $class['class_id'] ?>][materials]"
+                                                        value="<?= $fee['materials'] ?>"
+                                                        data-type="materials"
+
+                                                        class="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none fee-input"
+                                                        placeholder="0">
+                                                </td>
+
+                                                <!-- TRANSPORT -->
+                                                <td class="px-6 py-4">
+                                                    <input type="number"
+                                                        name="fees[<?= $class['class_id'] ?>][transport]"
+                                                        value="<?= $fee['transport'] ?>"
+                                                        data-type="transport"
+
+                                                        class="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none fee-input"
+                                                        placeholder="0">
+                                                </td>
+
+                                                <!-- TOTAL (STATIC – NO JS) -->
+                                                <td class="px-6 py-4 text-right">
+                                                    <span class="font-bold text-orange-600 total-fee">
+                                                        ₦<?=
+                                                            array_sum([
+                                                                $fee['first_term'] ?? 0,
+                                                                $fee['second_term'] ?? 0,
+                                                                $fee['third_term'] ?? 0,
+                                                                $fee['uniform'] ?? 0,
+                                                                $fee['materials'] ?? 0,
+                                                                $fee['transport'] ?? 0,
+                                                                $fee['registration'] ?? 0,
+                                                                $fee['pta'] ?? 0
+                                                            ]);
+                                                            ?>
+                                                    </span>
+                                                </td>
+
+                                            </tr>
+
+                                        <?php endforeach ?>
+                                    </tbody>
+
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                <?php endforeach ?>
-            </div>
+                    <?php endforeach ?>
+                </div>
 
-            <!-- Save Button -->
-            <div class="mt-8 flex justify-center gap-4">
-                <button onclick="saveAllFees()" class="bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
-                    <i class="fas fa-save mr-2"></i>Save All Fees
-                </button>
-                <button onclick="resetForm()" class="bg-gray-300 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
-                    <i class="fas fa-redo mr-2"></i>Reset
-                </button>
-            </div>
-        </div>
-
-        <!-- Loader Modal -->
-        <div id="loaderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-            <div class="bg-white rounded-lg p-6 flex flex-col items-center">
-                <div class="loader border-4 border-t-4 border-gray-200 rounded-full w-12 h-12 animate-spin border-t-orange-600"></div>
-                <p class="mt-4 text-gray-700 font-semibold">Submitting fees...</p>
-            </div>
-        </div>
-
-        <!-- Result Modal -->
-        <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-            <div class="bg-white rounded-lg p-6 text-center">
-                <p id="resultMessage" class="text-lg font-semibold"></p>
-                <button onclick="closeResultModal()" class="mt-4 bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700">OK</button>
-            </div>
+                <!-- Save Button -->
+                <div class="mt-8 flex justify-center gap-4">
+                    <button type="submit" class="bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
+                        <i class="fas fa-save mr-2"></i>Save All Fees
+                    </button>
+                    <button onclick="resetForm()" class="bg-gray-300 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
+                        <i class="fas fa-redo mr-2"></i>Reset
+                    </button>
+                </div>
+            </form>
         </div>
 
         <style>
@@ -274,63 +389,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include(__DIR__ . "/../../../includes/footer.php"); ?>
 
     <script>
-        function saveAllFees() {
-            const fees = {};
-
-            document.querySelectorAll('table tbody tr').forEach(row => {
-                const classId = row.querySelector('.first-term').dataset.classId;
-
-                fees[classId] = {
-                    first_term: parseFloat(row.querySelector('.first-term').value) || 0,
-                    second_term: parseFloat(row.querySelector('.second-term').value) || 0,
-                    third_term: parseFloat(row.querySelector('.third-term').value) || 0,
-                    uniform: parseFloat(row.querySelector('.uniform').value) || 0,
-                    materials: parseFloat(row.querySelector('.materials').value) || 0,
-                    transport: parseFloat(row.querySelector('.transport').value) || 0
-                };
-            });
-
-            document.getElementById('loaderModal').classList.remove('hidden');
-
-            fetch(window.location.href, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'fees=' + encodeURIComponent(JSON.stringify(fees))
-                })
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('loaderModal').classList.add('hidden');
-
-                    const resultModal = document.getElementById('resultModal');
-                    const resultMessage = document.getElementById('resultMessage');
-
-                    if (data.status === "success") {
-                        resultMessage.textContent = "✅ Fees saved successfully!";
-                        setTimeout(() => {
-                            window.location.href = "fees-list.php";
-                        }, 1500);
-                    } else {
-                        resultMessage.textContent = "❌ Error saving fees.";
-                    }
-
-                    resultModal.classList.remove('hidden');
-                })
-                .catch(err => {
-                    console.log("FETCH ERROR:", err);
-                    document.getElementById('loaderModal').classList.add('hidden');
-                    document.getElementById('resultMessage').textContent = "❌ Network error.";
-                    document.getElementById('resultModal').classList.remove('hidden');
-                });
-        }
-
-        function closeResultModal() {
-            document.getElementById('resultModal').classList.add('hidden');
-        }
-
-
-
         // Filter by section
         document.getElementById('sectionFilter').addEventListener('change', (e) => {
             const section = e.target.value;
@@ -352,23 +410,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
 
-        function updateRowTotal(inputElement) {
-            // Get the row of the changed input
-            const row = inputElement.closest("tr");
-
-            // Get all inputs inside the row
-            const inputs = row.querySelectorAll("input[type='number']");
-
+        function updateRowTotal(input) {
+            const row = input.closest('tr');
+            const inputs = row.querySelectorAll('.fee-input');
             let total = 0;
-
-            inputs.forEach(input => {
-                total += Number(input.value) || 0;
+            inputs.forEach(inp => {
+                total += parseFloat(inp.value) || 0;
             });
 
-            // Update total in the last column
-            const totalCell = row.querySelector(".total");
-            totalCell.textContent = "₦" + total.toLocaleString();
+            // Update the total in the table
+            const totalSpan = row.querySelector('.total-fee');
+            totalSpan.textContent = '₦' + total.toLocaleString();
+
+            // Update statistics
+            updateStatistics();
         }
+
+        function updateStatistics() {
+            const rows = document.querySelectorAll('tr[data-class-id]');
+            let totalClasses = rows.length;
+            let feesAssigned = 0;
+            let sumAnnual = 0;
+
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('.fee-input');
+                let rowTotal = 0;
+                inputs.forEach(inp => {
+                    const val = parseFloat(inp.value) || 0;
+                    if (val > 0) feesAssigned++;
+                    rowTotal += val;
+                });
+                sumAnnual += rowTotal;
+            });
+
+            // Update stat cards
+            document.getElementById('totalClassesStat').textContent = totalClasses;
+            document.getElementById('feesAssignedStat').textContent = feesAssigned; // number of fields filled
+            document.getElementById('avgFeeStat').textContent = '₦' + Math.round(sumAnnual / totalClasses).toLocaleString();
+        }
+
+        // Initialize stats on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatistics();
+        });
     </script>
 
 </body>
