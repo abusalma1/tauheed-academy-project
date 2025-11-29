@@ -270,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <section class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Current Academic Session -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-8 mb-12">
                 <div class="bg-white rounded-lg shadow-lg p-8">
                     <?php if ($current_term) : ?>
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Current Academic Session</h2>

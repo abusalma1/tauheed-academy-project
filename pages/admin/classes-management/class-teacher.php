@@ -117,6 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Teacher Select -->
                             <div>
                                 <label for="teacher_id" class="block text-sm font-semibold text-gray-700 mb-2">Assigned Teacher</label>
+                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('teacher-create') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Teacher Account</a></span>
+
                                 <select id="teacher_id" name="teacher_id"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900">
                                     <option value="" <?= is_null($current_teacher_id) ? 'selected' : '' ?>>-- No Teacher Assigned --</option>

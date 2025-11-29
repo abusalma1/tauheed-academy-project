@@ -42,7 +42,7 @@ $fees = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">School Fees by Classes</h2>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto rounded">
                 <table class="w-full bg-white shadow-lg rounded-lg overflow-hidden">
                     <thead class="bg-blue-900 text-white">
                         <tr>

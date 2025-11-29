@@ -46,14 +46,16 @@ $fees = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">School Fees by Classes</h2>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto rounded">
                 <table class="w-full bg-white shadow-lg rounded-lg overflow-hidden">
-                    <thead class="bg-blue-900 text-white">
+                    <thead class="bg-blue-900 text-white ">
                         <tr>
                             <th class="px-6 py-4 text-center">Class</th>
                             <th class="px-6 py-4 text-center">First Term</th>
                             <th class="px-6 py-4 text-center">Second Term</th>
                             <th class="px-6 py-4 text-center">Third Term</th>
+                            <th class="px-6 py-4 text-center">Registration</th>
+                            <th class="px-6 py-4 text-center">PTA</th>
 
 
                             <th class="px-6 py-4 text-center">Uniform</th>
@@ -70,6 +72,8 @@ $fees = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['first_term']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['second_term']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['third_term']) ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['registration']) ?></td>
+                                <td class="px-6 py-4 text-center">₦<?= number_format($fee['pta']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['uniform']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['materials']) ?></td>
                                 <td class="px-6 py-4 text-center">₦<?= number_format($fee['transport']) ?></td>

@@ -90,6 +90,13 @@ if (isset($_SESSION['user_session'])) {
         .animate-upDown {
             animation: upDown 0.6s infinite alternate;
         }
+
+        table {
+            white-space: nowrap;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
+
     </style>
 </head>
 

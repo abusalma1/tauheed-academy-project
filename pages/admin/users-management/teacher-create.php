@@ -13,7 +13,7 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$stmt = $conn->prepare("SELECT staff_no FROM admins ORDER BY created_at DESC LIMIT 1");
+$stmt = $conn->prepare("SELECT staff_no FROM teachers ORDER BY created_at DESC LIMIT 1");
 $stmt->execute();
 $result = $stmt->get_result();
 $lastStaffNumber = $result->fetch_assoc();

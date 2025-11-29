@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Insert new
             $insert = $conn->prepare("INSERT INTO fees
                 (class_id, first_term, second_term, third_term, uniform, transport, materials, registration, pta)
-                VALUES (?, ?, ?, ?, ?, ?, ?)");
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $insert->bind_param(
                 "idddddddd",
                 $classId,
