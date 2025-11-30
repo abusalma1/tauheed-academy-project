@@ -273,9 +273,13 @@ if ($type === 'student') {
                                 <i class="fas fa-edit mr-2"></i>Edit User
                             </button>
                         </a>
-                        <button onclick="window.history.back()" class="flex-1 bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition text-center font-semibold">
-                            <i class="fas fa-arrow-left mr-2"></i>Back to List
-                        </button>
+                        <a
+                            href="<?= route('back') ?>"
+                            class="flex flex-1">
+                            <button class="flex-1 bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition text-center font-semibold">
+                                <i class="fas fa-arrow-left mr-2"></i>Back to List
+                            </button>
+                        </a>
                     </div>
                 </div>
             </div>

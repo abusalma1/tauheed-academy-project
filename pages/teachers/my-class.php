@@ -36,7 +36,7 @@ JOIN classes c ON c.id = cca.class_id
 JOIN class_arms ca ON ca.id = cca.arm_id
 LEFT JOIN students s ON s.class_id = cca.class_id AND s.arm_id = cca.arm_id
 WHERE cca.teacher_id = ?
-
+order by c.level, ca.name, s.name
 ");
 
 $stmt->bind_param('i', $teacher['id']);
@@ -63,14 +63,16 @@ while ($row = $result->fetch_assoc()) {
         ];
     }
 
-    // Add student to the class-arm group
-    $classes[$key]['students'][] = [
-        'id' => $row['student_id'],
-        'name' => $row['student_name'],
-        'admission_number' => $row['student_admission_number'],
-        'email' => $row['student_email'],
-        'status' => $row['student_status']
-    ];
+    // Add student to the class-arm group **only if student exists**
+    if ($row['student_id'] !== null) {
+        $classes[$key]['students'][] = [
+            'id' => $row['student_id'],
+            'name' => $row['student_name'],
+            'admission_number' => $row['student_admission_number'],
+            'email' => $row['student_email'],
+            'status' => $row['student_status']
+        ];
+    }
 }
 
 
@@ -123,36 +125,6 @@ while ($row = $result->fetch_assoc()) {
             </div>
             <?php foreach ($classes as $class) : ?>
 
-                <!-- Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-900">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-600 text-sm">Total Students</p>
-                                <p class="text-3xl font-bold text-blue-900"><?= count($class['students']) ?></p>
-                            </div>
-                            <i class="fas fa-users text-4xl text-blue-100"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-600 text-sm">Results Uploaded</p>
-                                <p class="text-3xl font-bold text-green-600">28</p>
-                            </div>
-                            <i class="fas fa-check-circle text-4xl text-green-100"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-600 text-sm">Pending Results</p>
-                                <p class="text-3xl font-bold text-yellow-600">7</p>
-                            </div>
-                            <i class="fas fa-hourglass-end text-4xl text-yellow-100"></i>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Students Table -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
@@ -168,38 +140,57 @@ while ($row = $result->fetch_assoc()) {
                                 <tr class="bg-gray-100 border-b border-gray-300">
                                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-800">Student Name</th>
                                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-800">Admission No.</th>
-                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-800">Email</th>
-                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-800">Status</th>
                                     <th class="px-6 py-3 text-center text-sm font-semibold text-gray-800">Actions</th>
+                                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-800">Resutls</th>
+
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($class['students'] as $student) : ?>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
-                                        <td class="px-6 py-4 text-sm text-gray-800"><?= $student['name'] ?? '-' ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $student['admission_number'] ?? '-' ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-600"><?= $student['email'] ?? '-' ?></td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium"><?= ucwords($student['status']) ?></span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex justify-center gap-2">
-                                                <button class="bg-blue-900 hover:bg-blue-800 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Edit Details">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </button>
-                                                <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="View Results">
-                                                    <i class="fas fa-eye"></i> View
-                                                </button>
-                                                <button class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Print Results">
-                                                    <i class="fas fa-print"></i> Print
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach ?>
+                                <?php if (count($class['students']) > 0): ?>
+                                    <?php foreach ($class['students'] as $student) : ?>
+                                        <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
+                                            <td class="px-6 py-4 text-sm text-gray-800"><?= $student['name'] ?? '-' ?></td>
+
+                                            <td class="px-6 py-4 text-sm text-gray-600"><?= $student['admission_number'] ?? '-' ?></td>
+
+                                            <td class="px-6 py-4">
+                                                <div class="flex justify-center gap-2">
+
+                                                    <a href="<?= route('update-class-student-password') ?>?id=<?= $student['id'] ?>" class="bg-blue-600 hover:bg-blue-800 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Edit Details">
+                                                        <i class="fas fa-edit"></i> Edit Password
+                                                    </a>
+                                                    <a href="<?= route('class-student-detials') ?>?id=<?= $student['id'] ?>" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="View Results">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex justify-center gap-2">
+                                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Print Results">
+                                                        <i class="fas fa-print"></i> 1st Term
+                                                    </button>'
+
+                                                    <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Print Results">
+                                                        <i class="fas fa-print"></i> 2nd Term
+                                                    </button>
+
+                                                    <button class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Print Results">
+                                                        <i class="fas fa-print"></i>3rd Term
+                                                    </button>'
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach ?>
+                                <?php endif ?>
 
                             </tbody>
-                        </table>
+
+                        </table><?php if (count($class['students']) <= 0): ?>
+                            <span class="border-b border-gray-200 text-center block p-5 text-gray-500 hover:bg-gray-50 transition">
+                                There is no students in this class at the moment.
+                            </span>
+                        <?php endif ?>
                     </div>
                 </div>
 
@@ -207,7 +198,7 @@ while ($row = $result->fetch_assoc()) {
                 <div class="bg-white rounded-lg shadow-md p-8 mb-8">
                     <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                         <i class="fas fa-print text-blue-900"></i>
-                        Print Results for All Students
+                        Print Results for All <?= $class['class_name'] . ' ' . $class['arm_name'] ?> Students
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- First Term Print -->

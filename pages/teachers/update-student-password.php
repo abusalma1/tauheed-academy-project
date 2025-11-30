@@ -1,6 +1,6 @@
 <?php
-$title = "Update User Password";
-include(__DIR__ . '/../../../includes/header.php');
+$title = "Update Student Password";
+include(__DIR__ . '/../../includes/header.php');
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -14,29 +14,22 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 
-if (isset($_GET['id'])  && isset($_GET['user_type'])) {
+if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $user_type = $_GET['user_type'];
-    if ($user_type === 'admin') {
-        $query = "SELECT id, name FROM admins WHERE id=?";
-    } elseif ($user_type === 'teacher') {
-        $query = "SELECT id, name FROM teachers WHERE id=?";
-    } elseif ($user_type === 'guardian') {
-        $query = "SELECT id, name FROM guardians WHERE id=?";
-    } elseif ($user_type === 'student') {
-        $query = "SELECT id, name FROM students WHERE id=?";
-    }
+
+    $query = "SELECT id, name FROM students WHERE id=?";
+
     $stmt = $conn->prepare($query);
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+        $student = $result->fetch_assoc();
     } else {
         header('Location: ' .  route('back'));
     }
 } else {
-    $_SESSION['failure'] = "User and user type are required";
+    $_SESSION['failure'] = "Student and student type are required";
     header('Location: ' .  route('back'));
 }
 
@@ -67,21 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        if ($user_type === 'admin') {
-            $query = "UPDATE admins SET password = ? WHERE id = ?";
-        } elseif ($user_type === 'teacher') {
-            $query = "UPDATE teachers SET password = ? WHERE id = ?";
-        } elseif ($user_type === 'guardian') {
-            $query = "UPDATE guardians SET password = ? WHERE id = ?";
-        } elseif ($user_type === 'student') {
-            $query = "UPDATE students SET password = ? WHERE id = ?";
-        }
+
+        $query = "UPDATE students SET password = ? WHERE id = ?";
+
 
         $stmt = $conn->prepare($query);
         $stmt->bind_param('si',  $hashed_password, $id);
 
         if ($stmt->execute()) {
-            $_SESSION['success'] = "User Password Reset successfully!";
+            $_SESSION['success'] = "Student Password Reset successfully!";
             header("Location: " .  route('back'));
             exit();
         } else {
@@ -99,14 +86,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
+    <?php include(__DIR__ . '/../../includes/nav.php'); ?>
+
 
 
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update User Account</h1>
-            <p class="text-xl text-blue-200">Edit user account information</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Student Account</h1>
+            <p class="text-xl text-blue-200">Edit student account information</p>
         </div>
     </section>
 
@@ -121,16 +109,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <form id="updatePasswordForm" class="space-y-6" method="POST">
 
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
-                            <input type="hidden" name="id" value="<?= $user['id'] ?>">
+                            <input type="hidden" name="id" value="<?= $student['id'] ?>">
 
 
-                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
+                            <?php include(__DIR__ . '/../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../includes/components/error-message.php'); ?>
+                            <?php include(__DIR__ . '/../../includes/components/form-loader.php'); ?>
                             <!-- Full Name -->
                             <div>
                                 <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name <small>(Read Only)</small>*</label>
-                                <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter full name" value="<?= $user['name'] ?>">
+                                <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter full name" value="<?= $student['name'] ?>">
                             </div>
 
                             <!-- Password -->
@@ -166,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
                                 <button type="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
-                                    <i class="fas fa-save mr-2"></i>Update User Account Password
+                                    <i class="fas fa-save mr-2"></i>Update Student Account Password
                                 </button>
                                 <a href="<?= route('back') ?>" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
                                     Cancel
@@ -197,13 +185,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
                 </div>
+
+
             </div>
+        </div>
+
+
+        </div>
+        </div>
 
         </div>
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
+
 
 
     <script>

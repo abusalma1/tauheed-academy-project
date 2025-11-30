@@ -310,5 +310,12 @@ $routes = [
     'my-class' => [
         'url' => "$baseUrl/pages/teachers/my-class.php"
     ],
+    'class-student-detials' => [
+        'url' => "$baseUrl/pages/teachers/class-student-detials.php"
+    ],
+    'update-class-student-password' => [
+        'url' => "$baseUrl/pages/teachers/update-student-password.php"
+    ],
+
 
 ];
