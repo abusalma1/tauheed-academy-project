@@ -188,6 +188,9 @@ while ($row = $scoreResult->fetch_assoc()) {
       <?php if ($user_type === 'student') : ?>
         <h1 class="text-4xl md:text-5xl font-bold mb-4">My Results</h1>
         <p class="text-xl text-blue-200">View Your Academic Performance</p>
+      <?php elseif ($user_type === 'teacher') : ?>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">My Students Results</h1>
+        <p class="text-xl text-blue-200">View Students Academic Performance</p>
       <?php else: ?>
         <h1 class="text-4xl md:text-5xl font-bold mb-4">My Child's Results</h1>
         <p class="text-xl text-blue-200">View Your Childs Academic Performance</p>

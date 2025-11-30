@@ -141,7 +141,6 @@ while ($row = $result->fetch_assoc()) {
                                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-800">Student Name</th>
                                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-800">Admission No.</th>
                                     <th class="px-6 py-3 text-center text-sm font-semibold text-gray-800">Actions</th>
-                                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-800">Resutls</th>
 
                                 </tr>
                             </thead>
@@ -159,27 +158,15 @@ while ($row = $result->fetch_assoc()) {
                                                     <a href="<?= route('update-class-student-password') ?>?id=<?= $student['id'] ?>" class="bg-blue-600 hover:bg-blue-800 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Edit Details">
                                                         <i class="fas fa-edit"></i> Edit Password
                                                     </a>
-                                                    <a href="<?= route('class-student-detials') ?>?id=<?= $student['id'] ?>" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="View Results">
-                                                        <i class="fas fa-eye"></i> View
+                                                    <a href="<?= route('class-student-detials') ?>?id=<?= $student['id'] ?>" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1">
+                                                        <i class="fas fa-eye"></i> View Detilas
                                                     </a>
-
+                                                    <a href="<?= route('student-result') . '?id=' . $student['id'] ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Print Results">
+                                                        <i class="fas fa-eye"></i> View Results
+                                                    </a>
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4">
-                                                <div class="flex justify-center gap-2">
-                                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Print Results">
-                                                        <i class="fas fa-print"></i> 1st Term
-                                                    </button>'
 
-                                                    <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Print Results">
-                                                        <i class="fas fa-print"></i> 2nd Term
-                                                    </button>
-
-                                                    <button class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-xs font-medium transition flex items-center gap-1" title="Print Results">
-                                                        <i class="fas fa-print"></i>3rd Term
-                                                    </button>'
-                                                </div>
-                                            </td>
                                         </tr>
                                     <?php endforeach ?>
                                 <?php endif ?>

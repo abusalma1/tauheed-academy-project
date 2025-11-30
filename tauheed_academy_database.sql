@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 28, 2025 at 08:15 AM
+-- Generation Time: Nov 30, 2025 at 08:19 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -95,7 +95,10 @@ CREATE TABLE `classes` (
 
 INSERT INTO `classes` (`id`, `section_id`, `name`, `level`, `created_at`, `deleted_at`, `updated_at`) VALUES
 (1, 1, 'Nursery 1', 1, '2025-11-28 04:46:22', NULL, '2025-11-28 04:46:22'),
-(2, 1, 'Nursery 2', 2, '2025-11-28 06:14:52', NULL, '2025-11-28 06:14:52');
+(2, 1, 'Nursery 2', 2, '2025-11-28 06:14:52', NULL, '2025-11-28 06:14:52'),
+(3, 1, 'Nursery 3', 3, '2025-11-29 02:37:31', NULL, '2025-11-29 02:37:31'),
+(4, 2, 'Primary 1', 4, '2025-11-29 17:10:12', NULL, '2025-11-29 17:10:12'),
+(5, 2, 'Primary 2', 5, '2025-11-29 17:23:28', NULL, '2025-11-29 17:23:28');
 
 -- --------------------------------------------------------
 
@@ -142,8 +145,14 @@ CREATE TABLE `class_class_arms` (
 INSERT INTO `class_class_arms` (`class_id`, `arm_id`, `teacher_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
 (1, 1, NULL, '2025-11-28 04:46:22', NULL, '2025-11-28 04:46:22'),
 (1, 2, NULL, '2025-11-28 04:46:22', NULL, '2025-11-28 04:46:22'),
-(2, 1, NULL, '2025-11-28 06:14:52', NULL, '2025-11-28 06:14:52'),
-(2, 2, NULL, '2025-11-28 06:14:52', NULL, '2025-11-28 06:14:52');
+(2, 1, 2, '2025-11-28 06:14:52', NULL, '2025-11-30 06:00:49'),
+(2, 2, 2, '2025-11-28 06:14:52', NULL, '2025-11-29 19:00:01'),
+(3, 1, 1, '2025-11-29 02:37:31', NULL, '2025-11-29 19:00:58'),
+(3, 2, 2, '2025-11-29 02:37:31', NULL, '2025-11-29 19:45:46'),
+(4, 1, NULL, '2025-11-29 17:10:12', NULL, '2025-11-29 17:10:12'),
+(4, 2, NULL, '2025-11-29 17:10:12', NULL, '2025-11-29 17:10:12'),
+(5, 1, NULL, '2025-11-29 17:23:28', NULL, '2025-11-29 17:23:28'),
+(5, 2, NULL, '2025-11-29 17:23:28', NULL, '2025-11-29 17:23:28');
 
 -- --------------------------------------------------------
 
@@ -190,8 +199,21 @@ CREATE TABLE `fees` (
   `materials` decimal(10,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `deleted_at` datetime DEFAULT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `registration` decimal(10,2) DEFAULT NULL,
+  `pta` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `fees`
+--
+
+INSERT INTO `fees` (`id`, `class_id`, `first_term`, `second_term`, `third_term`, `uniform`, `transport`, `materials`, `created_at`, `deleted_at`, `updated_at`, `registration`, `pta`) VALUES
+(1, 1, '30000.00', '25000.00', '22000.00', '20000.00', '10000.00', '13000.00', '2025-11-29 02:07:29', NULL, '2025-11-29 17:24:28', '12.00', '23.00'),
+(2, 2, '30000.00', '25000.00', '22000.00', '20000.00', '121000.00', '13000.00', '2025-11-29 02:07:29', NULL, '2025-11-29 17:24:28', '23.00', '23.00'),
+(3, 3, '1230.00', '1230.00', '1230.00', '1000.00', '1212.00', '1212.00', '2025-11-29 02:39:08', NULL, '2025-11-29 17:24:28', '23.00', '23.00'),
+(4, 4, '123123.00', '32.00', '31212.00', '3123.00', '1200.00', '123.00', '2025-11-29 17:13:13', NULL, '2025-11-29 17:24:28', '23.00', '423.00'),
+(5, 5, '12.00', '12.00', '-112.00', '12.00', '12.00', '12.00', '2025-11-29 17:24:28', NULL, '2025-11-29 17:24:28', '12.00', '12.00');
 
 -- --------------------------------------------------------
 
@@ -300,7 +322,7 @@ INSERT INTO `results` (`id`, `student_term_record_id`, `subject_id`, `ca`, `exam
 (27, 10, 3, '32.00', '23.00', 'C', 'Good', '2025-11-28 06:47:49', NULL, '2025-11-28 06:47:49'),
 (28, 11, 1, '19.00', '20.00', 'E', 'Poor', '2025-11-28 07:03:39', NULL, '2025-11-28 07:04:41'),
 (29, 12, 1, '12.00', '12.00', 'E', 'Poor', '2025-11-28 07:03:39', NULL, '2025-11-28 07:03:39'),
-(30, 13, 1, '12.00', '12.00', 'E', 'Poor', '2025-11-28 07:03:39', NULL, '2025-11-28 07:03:39');
+(30, 13, 1, '12.00', '60.00', 'B', 'Very Good', '2025-11-28 07:03:39', NULL, '2025-11-28 10:18:31');
 
 -- --------------------------------------------------------
 
@@ -333,7 +355,7 @@ CREATE TABLE `schools` (
 --
 
 INSERT INTO `schools` (`id`, `name`, `motto`, `address`, `phone`, `email`, `about_message`, `welcome_message`, `whatsapp_number`, `facebook`, `twitter`, `instagram`, `admission_number_format`, `admission_number_format_description`, `created_at`, `deleted_at`, `updated_at`) VALUES
-(1, 'Tauheed Academy', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-28 03:55:32', NULL, '2025-11-28 03:55:32');
+(1, 'Tauheed Academy', '', 'No 1. Tsafe Road, Gidan Madawaki Isah\r\nOpp. Stultan Abubakar III Jumu\'at Mosque, sokoto', '07012345678', 'tauheedacademy2015@gmail.com', '', '', '07012345678', 'https://facebook.com/tauheedacademy', 'https://x.com/tauheedacademy', 'https://instagram.com/tauheedacademy', '', '', '2025-11-28 03:55:32', NULL, '2025-11-28 11:26:36');
 
 -- --------------------------------------------------------
 
@@ -356,7 +378,8 @@ CREATE TABLE `sections` (
 --
 
 INSERT INTO `sections` (`id`, `name`, `description`, `head_teacher_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
-(1, 'Nursery', 'Pre Primary Education', 1, '2025-11-28 04:45:38', NULL, '2025-11-28 04:45:38');
+(1, 'Nursery', 'Pre Primary Education', 1, '2025-11-28 04:45:38', NULL, '2025-11-28 04:45:38'),
+(2, 'Primary', 'Basic Western Education', 1, '2025-11-29 17:09:39', NULL, '2025-11-29 17:09:39');
 
 -- --------------------------------------------------------
 
@@ -417,7 +440,7 @@ CREATE TABLE `students` (
 
 INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `guardian_id`, `dob`, `picture`, `password`, `reset_token`, `reset_expires`, `status`, `gender`, `class_id`, `arm_id`, `term_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
 (1, 'Sudent 1', 'ADM/2025/001', '', '', 1, '2010-01-01', NULL, '$2y$10$I0827bvuAUzAiVVsNEu79.MOsxJJzTMrK1Q.4PFN2ihcoqoXIxPaa', NULL, NULL, 'active', 'male', 2, 1, 4, '2025-11-28 04:58:20', NULL, '2025-11-28 06:49:55'),
-(2, 'Student 2', 'ADM/2025/002', '', '', 2, '2010-12-12', NULL, '$2y$10$TAxPWscjDkJcgo6VPNZMduHt5iIQwNcQ6ytkWl9fITvTWC3UXLTD6', NULL, NULL, 'active', 'female', 2, 1, 4, '2025-11-28 06:00:51', NULL, '2025-11-28 06:49:55'),
+(2, 'Student 2', 'ADM/2025/002', '', '', 2, '2010-12-12', NULL, '$2y$10$Ua3z/RF42cFJnVVMMDnEA.525aV1WPGOAZh5oIOZSFxyeMO9AALQS', NULL, NULL, 'active', 'female', 2, 1, 4, '2025-11-28 06:00:51', NULL, '2025-11-30 07:00:53'),
 (3, 'Student 3', 'ADM/2025/003', '', '', 3, '2011-01-12', NULL, '$2y$10$iLBMhJRjRIHU24WYIZte2Oih1Na5emBd/swu6iQaUbXa1MTmb8I2G', NULL, NULL, 'active', 'male', 2, 1, 4, '2025-11-28 06:13:03', NULL, '2025-11-28 06:49:55');
 
 -- --------------------------------------------------------
@@ -487,9 +510,9 @@ INSERT INTO `student_term_records` (`id`, `student_class_record_id`, `term_id`, 
 (8, 1, 3, '119.00', '39.67', 3, 3, NULL, '2025-11-28 06:34:57', NULL, '2025-11-28 06:47:49'),
 (9, 2, 3, '125.00', '41.67', 1, 3, NULL, '2025-11-28 06:34:57', NULL, '2025-11-28 06:47:49'),
 (10, 3, 3, '124.00', '41.33', 2, 3, NULL, '2025-11-28 06:34:57', NULL, '2025-11-28 06:47:49'),
-(11, 4, 4, '39.00', '39.00', 1, 3, NULL, '2025-11-28 06:49:55', NULL, '2025-11-28 07:04:41'),
-(12, 5, 4, '24.00', '24.00', 2, 3, NULL, '2025-11-28 06:49:55', NULL, '2025-11-28 07:04:41'),
-(13, 6, 4, '24.00', '24.00', 2, 3, NULL, '2025-11-28 06:49:55', NULL, '2025-11-28 07:04:41');
+(11, 4, 4, '39.00', '39.00', 2, 3, NULL, '2025-11-28 06:49:55', NULL, '2025-11-28 10:18:31'),
+(12, 5, 4, '24.00', '24.00', 3, 3, NULL, '2025-11-28 06:49:55', NULL, '2025-11-28 10:18:31'),
+(13, 6, 4, '72.00', '72.00', 1, 3, NULL, '2025-11-28 06:49:55', NULL, '2025-11-28 10:18:31');
 
 -- --------------------------------------------------------
 
@@ -545,7 +568,8 @@ CREATE TABLE `teachers` (
 --
 
 INSERT INTO `teachers` (`id`, `name`, `email`, `phone`, `address`, `qualification`, `experience`, `gender`, `staff_no`, `status`, `picture_path`, `password`, `reset_token`, `reset_expires`, `created_at`, `deleted_at`, `updated_at`) VALUES
-(1, 'Teacher 1', 'teacher1@email.com', '09012346578', 'Teacher 1 Address', 'Qualification', 'experiaence', 'male', 'STAFF/T/001', 'active', NULL, '$2y$10$MEvKbvKpm2rSa94LtHtGAegNxBUEyFxiRV5KBymYUgDjREwIKqNcu', NULL, NULL, '2025-11-28 04:45:04', NULL, '2025-11-28 04:45:04');
+(1, 'Teacher 1', 'teacher1@email.com', '09012346578', 'Teacher 1 Address', 'Qualification', 'experiaence', 'male', 'STAFF/T/001', 'active', NULL, '$2y$10$MEvKbvKpm2rSa94LtHtGAegNxBUEyFxiRV5KBymYUgDjREwIKqNcu', NULL, NULL, '2025-11-28 04:45:04', NULL, '2025-11-28 04:45:04'),
+(2, 'Teacher 2', 'teacher2@email.com', '07012345678', 'Address Adress', 'B.Sc Mathematics', 'abubcocn boiasb asofnoief', 'female', 'STAFF/T/002', 'active', NULL, '$2y$10$GjkGQHiYABXxWOGe07LCMuA8TBLRQskS841Efm3ILi79.2nQitxHW', NULL, NULL, '2025-11-29 18:59:29', NULL, '2025-11-29 18:59:29');
 
 -- --------------------------------------------------------
 
@@ -765,7 +789,7 @@ ALTER TABLE `bank_accounts`
 -- AUTO_INCREMENT for table `classes`
 --
 ALTER TABLE `classes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `class_arms`
@@ -783,7 +807,7 @@ ALTER TABLE `class_subjects`
 -- AUTO_INCREMENT for table `fees`
 --
 ALTER TABLE `fees`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `guardians`
@@ -801,7 +825,7 @@ ALTER TABLE `news`
 -- AUTO_INCREMENT for table `results`
 --
 ALTER TABLE `results`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `schools`
@@ -813,7 +837,7 @@ ALTER TABLE `schools`
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `sessions`
@@ -849,7 +873,7 @@ ALTER TABLE `subjects`
 -- AUTO_INCREMENT for table `teachers`
 --
 ALTER TABLE `teachers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `teacher_section`
