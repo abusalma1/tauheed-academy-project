@@ -319,8 +319,11 @@ $routes = [
     'update-class-student-password' => [
         'url' => "$baseUrl/pages/teachers/update-student-password.php"
     ],
-    'class-broadsheet' => [
-        'url' => "$baseUrl/pages/teachers/class-broadsheet.php"
+    'class-broadsheet-by-session' => [
+        'url' => "$baseUrl/pages/teachers/class-broadsheet-by-session.php"
+    ],
+    'class-broadsheet-by-term' => [
+        'url' => "$baseUrl/pages/teachers/class-broadsheet-by-term.php"
     ],
 
 ];

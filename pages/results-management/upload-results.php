@@ -8,6 +8,11 @@ if (!$is_logged_in) {
     exit();
 }
 
+// ✅ Generate CSRF token if missing
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $subjects  = selectAllData('subjects');
 $classes   = selectAllData('classes');
 $terms     = selectAllData('terms');
@@ -51,9 +56,9 @@ if (isset($_GET['class_id'], $_GET['term_id'], $_GET['subject_id'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ✅ CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        die("CSRF validation failed. Please refresh and try again.");
+        die('CSRF validation failed. Please refresh and try again.');
     } else {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // regenerate after validation
     }
 
     $class_id   = (int) $_POST['class_id'];
@@ -250,6 +255,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Filter Section -->
             <form method="GET" action="" class="bg-gradient-to-r from-blue-900 to-blue-700 text-white rounded-lg shadow-lg p-6 mb-8">
+
+
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
                     <i class="fas fa-filter"></i>Select Class & Subject
                 </h2>
@@ -308,6 +315,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Results Table -->
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
                 <input type="hidden" name="class_id" value="<?= isset($_GET['class_id']) ? $_GET['class_id'] : '' ?>">
                 <input type="hidden" name="subject_id" value="<?= isset($_GET['subject_id']) ? $_GET['subject_id'] : '' ?>">
                 <input type="hidden" name="term_id" value="<?= isset($_GET['term_id']) ? $_GET['term_id'] : '' ?>">
