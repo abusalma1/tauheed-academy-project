@@ -5,7 +5,7 @@ include(__DIR__ . '/./includes/non-auth-header.php');
 $errorMessage = null;
 $showSuccess  = null;
 
-// ✅ CSRF token generation for GET
+//  CSRF token generation for GET
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -23,7 +23,7 @@ $tables   = ['admins', 'teachers', 'guardians', 'students'];
 $userTable = null;
 $userId    = null;
 
-// ✅ Find token
+//  Find token
 if ($tokenHash) {
     foreach ($tables as $table) {
         $stmt = $pdo->prepare("SELECT id, reset_expires FROM $table WHERE reset_token = ? LIMIT 1");
@@ -46,7 +46,7 @@ if (!$userTable && !$errorMessage) {
     $errorMessage = "Invalid or expired reset token";
 }
 
-// ✅ Handle POST (password reset)
+//  Handle POST (password reset)
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $userTable) {
     // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $userTable) {
             $hashed = password_hash($password, PASSWORD_DEFAULT);
 
             try {
-                // ✅ Transaction ensures atomic update
+                //  Transaction ensures atomic update
                 $pdo->beginTransaction();
 
                 $stmt = $pdo->prepare("UPDATE $userTable 

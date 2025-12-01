@@ -52,21 +52,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
-            // ✅ Start transaction
+            //  Start transaction
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare("INSERT INTO sessions (name, start_date, end_date) VALUES (?, ?, ?)");
             $success = $stmt->execute([$name, $start_date, $end_date]);
 
             if ($success) {
-                // ✅ Commit transaction
+                //  Commit transaction
                 $pdo->commit();
 
                 $_SESSION['success'] = "Session created successfully!";
                 header("Location: " . route('back'));
                 exit();
             } else {
-                // ❌ Rollback if insert fails
+                //  Rollback if insert fails
                 $pdo->rollBack();
                 echo "<script>alert('Failed to create session');</script>";
             }

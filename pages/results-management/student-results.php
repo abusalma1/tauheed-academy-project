@@ -31,7 +31,7 @@ if ($user_type !== 'student') {
   $student_id = $user['id'];
 }
 
-// ✅ 1. Get basic student info
+//  1. Get basic student info
 $stmt = $pdo->prepare("
     SELECT s.id, s.name, s.admission_number,
            c.name AS class_name,
@@ -48,7 +48,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([$student_id]);
 $studentInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// ✅ 2. Get ALL class records of this student (history)
+//  2. Get ALL class records of this student (history)
 $stmt = $pdo->prepare("
     SELECT 
         scr.id AS student_class_record_id,
@@ -121,7 +121,7 @@ foreach ($classRows as $row) {
   }
 }
 
-// ✅ 3. Fetch ALL results by student_record_id
+//  3. Fetch ALL results by student_record_id
 $stmt = $pdo->prepare("
     SELECT 
         r.student_term_record_id AS str_id,

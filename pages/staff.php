@@ -3,7 +3,7 @@ $title = 'Our Staff';
 
 include(__DIR__ . '/../includes/header.php');
 
-// ✅ Teachers with subjects
+//  Teachers with subjects
 $stmt = $pdo->prepare("
   SELECT 
     t.id,
@@ -33,12 +33,12 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ✅ Admins
+//  Admins
 $stmt = $pdo->prepare("SELECT * FROM admins WHERE type = ? ORDER BY name");
 $stmt->execute(['admin']);
 $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ✅ Super Admins
+//  Super Admins
 $stmt = $pdo->prepare("SELECT * FROM admins WHERE type = ? ORDER BY name");
 $stmt->execute(['superAdmin']);
 $superAdmins = $stmt->fetchAll(PDO::FETCH_ASSOC);

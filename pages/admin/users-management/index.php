@@ -22,7 +22,7 @@ $totalUsers          = $adminsCount['total'] + $teachersCount['total'] + $guardi
 $totalActiveUsers    = $adminsCount['active'] + $teachersCount['active'] + $guardiansCount['active'] + $studentsCount['active'];
 $totalInactiveUsers  = $adminsCount['inactive'] + $teachersCount['inactive'] + $guardiansCount['inactive'] + $studentsCount['inactive'];
 
-// ✅ PDO query for students with classes and arms
+//  PDO query for students with classes and arms
 $stmt = $pdo->prepare("
     SELECT 
         classes.id AS class_id,

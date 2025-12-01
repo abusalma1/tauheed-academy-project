@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-// ✅ Ensure CSRF token exists
+//  Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -58,11 +58,11 @@ if ($user_type === 'admin') {
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // ✅ CSRF validation
+    //  CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     } else {
-        // ✅ Regenerate after successful validation
+        //  Regenerate after successful validation
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
-            // ✅ Start transaction
+            //  Start transaction
             $pdo->beginTransaction();
 
             if ($user_type === 'admin') {
@@ -106,13 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($success) {
-                // ✅ Commit transaction
+                //  Commit transaction
                 $pdo->commit();
                 $_SESSION['success'] = "Profile updated successfully!";
                 header("Location: " . route('back'));
                 exit();
             } else {
-                // ❌ Rollback if update fails
+                //  Rollback if update fails
                 $pdo->rollBack();
                 echo "<script>alert('Failed to update profile');</script>";
             }

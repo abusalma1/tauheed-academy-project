@@ -4,20 +4,20 @@ include(__DIR__ . "/./includes/non-auth-header.php");
 
 $error = '';
 
-// ✅ Redirect if already logged in
+//  Redirect if already logged in
 if (isset($_SESSION['user_session'])) {
     header('Location: ' . route('home'));
     exit();
 }
 
-// ✅ Generate CSRF token if missing
+//  Generate CSRF token if missing
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// ✅ Handle login submission
+//  Handle login submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-    // ✅ CSRF validation
+    //  CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     } else {
@@ -29,10 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
     if (!empty($emailOrId) && !empty($password)) {
         try {
-            // ✅ Start transaction
+            //  Start transaction
             $pdo->beginTransaction();
 
-            // ✅ Define user sources
+            //  Define user sources
             $sources = [
                 'student'  => ["SELECT * FROM students WHERE email = ? OR admission_number = ?", [$emailOrId, $emailOrId]],
                 'teacher'  => ["SELECT * FROM teachers WHERE email = ? OR staff_no = ?", [$emailOrId, $emailOrId]],
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             $user = null;
             $user_type = null;
 
-            // ✅ Try each source
+            //  Try each source
             foreach ($sources as $type => [$query, $params]) {
                 $stmt = $pdo->prepare($query);
                 $stmt->execute($params);

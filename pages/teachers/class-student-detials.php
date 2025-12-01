@@ -11,7 +11,7 @@ if (!$is_logged_in) {
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
 
-    // ✅ Fetch student
+    //  Fetch student
     $stmt = $pdo->prepare("SELECT * FROM students WHERE id = ?");
     $stmt->execute([$id]);
     $student = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -25,19 +25,19 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-// ✅ Fetch class
+//  Fetch class
 $stmt = $pdo->prepare("SELECT name FROM classes WHERE id = ?");
 $stmt->execute([$student['class_id']]);
 $class = $stmt->fetch(PDO::FETCH_ASSOC);
 $student['class'] = $class['name'] ?? null;
 
-// ✅ Fetch arm
+//  Fetch arm
 $stmt = $pdo->prepare("SELECT name FROM class_arms WHERE id = ?");
 $stmt->execute([$student['arm_id']]);
 $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 $student['arm'] = $arm['name'] ?? null;
 
-// ✅ Fetch guardian
+//  Fetch guardian
 $stmt = $pdo->prepare("SELECT * FROM guardians WHERE id = ?");
 $stmt->execute([$student['guardian_id']]);
 $guardian = $stmt->fetch(PDO::FETCH_ASSOC);

@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-// ✅ Generate CSRF token if missing
+//  Generate CSRF token if missing
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -54,7 +54,7 @@ if (isset($_GET['class_id'], $_GET['term_id'], $_GET['subject_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // ✅ CSRF validation
+    //  CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     } else {
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $arm_ids     = $_POST['arm'] ?? [];
 
     try {
-        // ✅ Start transaction
+        //  Start transaction
         $pdo->beginTransaction();
 
         foreach ($ca_scores as $student_id => $ca_value) {
@@ -223,14 +223,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$position, $class_size, $student_term_id]);
         }
 
-        // ✅ Commit transaction
+        //  Commit transaction
         $pdo->commit();
 
         $_SESSION['success'] = "Results uploaded successfully!";
         header("Location: " . route('back'));
         exit();
     } catch (PDOException $e) {
-        // ❌ Rollback on error
+        //  Rollback on error
         $pdo->rollBack();
         echo "<p class='text-red-500'>Database error: " . htmlspecialchars($e->getMessage()) . "</p>";
     }

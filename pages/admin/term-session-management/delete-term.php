@@ -42,21 +42,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if (empty($errors)) {
     try {
-      // ✅ Start transaction
+      //  Start transaction
       $pdo->beginTransaction();
 
       $stmt = $pdo->prepare("UPDATE terms SET deleted_at = NOW() WHERE id = ?");
       $success = $stmt->execute([$id]);
 
       if ($success) {
-        // ✅ Commit transaction
+        //  Commit transaction
         $pdo->commit();
 
         $_SESSION['success'] = "Term Deleted successfully!";
         header("Location: " . route('back'));
         exit();
       } else {
-        // ❌ Rollback if update fails
+        //  Rollback if update fails
         $pdo->rollBack();
         echo "<script>alert('Failed to delete term');</script>";
       }

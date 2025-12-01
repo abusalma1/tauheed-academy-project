@@ -196,6 +196,11 @@ $studentsCount = countDataTotal('students')['total'];
 
                                             <td class="px-6 py-4 text-sm text-slate-600">
                                                 <div class="flex items-center justify-center gap-4">
+                                                    <a href="<?= route('update-class') . '?id=' . $class['class_id'] ?>">
+                                                        <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
+                                                            <i class="fas fa-eye"></i> view class
+                                                        </button>
+                                                    </a>
                                                     <a href="<?= route('assing-class-teacher') . '?class_id=' . $class['class_id'] . '&arm_id=' .  $class['arm_id']; ?>">
 
                                                         <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">

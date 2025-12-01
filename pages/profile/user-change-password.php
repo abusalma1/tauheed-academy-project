@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-// ✅ Ensure CSRF token exists
+//  Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -49,11 +49,11 @@ $errors = [];
 $currentPasswordError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // ✅ CSRF validation
+    //  CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     } else {
-        // ✅ Regenerate after successful validation
+        //  Regenerate after successful validation
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
@@ -89,20 +89,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             try {
-                // ✅ Start transaction
+                //  Start transaction
                 $pdo->beginTransaction();
 
                 $stmt = $pdo->prepare($query);
                 $success = $stmt->execute([$hashed_password, $id]);
 
                 if ($success) {
-                    // ✅ Commit transaction
+                    //  Commit transaction
                     $pdo->commit();
                     $_SESSION['success'] = "User Password Reset successfully!";
                     header("Location: " . route('back'));
                     exit();
                 } else {
-                    // ❌ Rollback if update fails
+                    //  Rollback if update fails
                     $pdo->rollBack();
                     echo "<script>alert('Failed to update password');</script>";
                 }

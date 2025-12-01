@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-// ✅ Ensure CSRF token exists
+//  Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -73,11 +73,11 @@ $sessions = selectAllData('sessions');
 $studentsCount = countDataTotal('students', true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // ✅ CSRF validation
+    //  CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die("Invalid CSRF token.");
     } else {
-        // ✅ Regenerate after successful validation
+        //  Regenerate after successful validation
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            // ✅ Start transaction
+            //  Start transaction
             $pdo->beginTransaction();
 
             // Insert student
@@ -178,14 +178,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt3 = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
             $stmt3->execute([$student_class_record_id, $term]);
 
-            // ✅ Commit transaction
+            //  Commit transaction
             $pdo->commit();
 
             $_SESSION['success'] = "Student account created successfully!";
             header("Location: " . route('back'));
             exit();
         } catch (PDOException $e) {
-            // ❌ Rollback on error
+            //  Rollback on error
             $pdo->rollBack();
             echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($e->getMessage()) . "</p>";
         }

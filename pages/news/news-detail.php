@@ -5,13 +5,13 @@ include(__DIR__ . '/../../includes/header.php');
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
 
-    // ✅ Fetch the current story
+    //  Fetch the current story
     $stmt = $pdo->prepare('SELECT * FROM news WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$id]);
     $story = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($story) {
-        // ✅ Get Previous Article (earlier created_at)
+        //  Get Previous Article (earlier created_at)
         $stmtPrev = $pdo->prepare('
             SELECT id, picture_path, created_at, title 
             FROM news 
@@ -22,7 +22,7 @@ if (isset($_GET['id'])) {
         $stmtPrev->execute([$story['created_at']]);
         $previous = $stmtPrev->fetch(PDO::FETCH_ASSOC);
 
-        // ✅ Get Next Article (later created_at)
+        //  Get Next Article (later created_at)
         $stmtNext = $pdo->prepare('
             SELECT id, picture_path, created_at, title 
             FROM news 

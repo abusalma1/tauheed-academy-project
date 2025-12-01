@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-// ✅ Use PDO instead of MySQLi
+//  Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
     SELECT 
         classes.id AS class_id,
@@ -63,21 +63,21 @@ foreach ($rows as $row) {
 // Reindex classes by numeric index
 $classes = array_values($classes);
 
-// ✅ Fetch all classes
+//  Fetch all classes
 $stmt = $pdo->prepare("SELECT * FROM classes WHERE deleted_at IS NULL ORDER BY level ASC");
 $stmt->execute();
 $allClasses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ✅ Fetch terms and sessions
+//  Fetch terms and sessions
 $terms    = selectAllData('terms');
 $sessions = selectAllData('sessions');
 
-// ✅ Fetch current term
+//  Fetch current term
 $stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
 $stmt->execute(['ongoing']);
 $current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// ✅ Handle missing selection
+//  Handle missing selection
 if (isset($_POST['missing_selection'])) {
     $_SESSION['failure'] = "Please select a session and a term before creating or updating results.";
     header("Location: " . $_SERVER['PHP_SELF']);

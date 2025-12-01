@@ -3,7 +3,7 @@ $title = 'Fees';
 
 include(__DIR__ . '/../includes/header.php');
 
-// ✅ Use PDO instead of MySQLi
+//  Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
     SELECT 
         classes.name,

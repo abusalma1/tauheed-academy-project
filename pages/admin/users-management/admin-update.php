@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
-            // ✅ Start transaction
+            //  Start transaction
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare("UPDATE admins 
@@ -106,13 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             if ($success) {
-                // ✅ Commit transaction
+                //  Commit transaction
                 $pdo->commit();
                 $_SESSION['success'] = "Admin/Super User updated successfully!";
                 header("Location: " . route('back'));
                 exit();
             } else {
-                // ❌ Rollback if update fails
+                //  Rollback if update fails
                 $pdo->rollBack();
                 echo "<script>alert('Failed to update admin/super user account');</script>";
             }

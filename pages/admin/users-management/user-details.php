@@ -13,7 +13,7 @@ if (isset($_GET['id'])) {
     $type = $_GET['type'];
     $type_table = $type . 's';
 
-    // ✅ Sanitize table name to prevent injection
+    //  Sanitize table name to prevent injection
     $allowed_tables = ['admins', 'teachers', 'guardians', 'students'];
     if (!in_array($type_table, $allowed_tables)) {
         $_SESSION['failure'] = "Invalid user type";

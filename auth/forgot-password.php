@@ -16,12 +16,12 @@ $isLocalhost = in_array($host, ['localhost', '127.0.0.1']);
 $scheme      = $isLocalhost ? 'http' : 'https';
 $baseUrl     = $scheme . '://' . $host;
 
-// ✅ Generate CSRF token on GET
+//  Generate CSRF token on GET
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// ✅ Handle POST
+//  Handle POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
   // CSRF validation
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           $tokenHash  = hash('sha256', $rawToken);
           $expires_at = date("Y-m-d H:i:s", strtotime("+1 hour"));
 
-          // ✅ Transaction ensures atomic update
+          //  Transaction ensures atomic update
           $pdo->beginTransaction();
 
           $updateSql = "UPDATE `$userTable` 
@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           sendResetEmail($email, $resetLink);
         }
 
-        // ✅ Always show success message (prevents email enumeration)
+        //  Always show success message (prevents email enumeration)
         if ($errorMessage === null) {
           $showSuccess = true;
         }

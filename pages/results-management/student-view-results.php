@@ -13,7 +13,7 @@ $student_id = 3;   // The ID of the student whose results you want
 $term_id    = 1;   // The term ID (optional: can be dynamic from filter)
 $is_current = 1;   // If you want to filter by current record
 
-// ✅ Prepare and execute with PDO
+//  Prepare and execute with PDO
 $stmt = $pdo->prepare("
     SELECT
         s.id AS student_id,
@@ -44,7 +44,7 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$is_current, $term_id, $student_id]);
 
-// ✅ Fetch all results
+//  Fetch all results
 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 

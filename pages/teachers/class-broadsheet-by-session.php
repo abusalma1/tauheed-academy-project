@@ -17,7 +17,7 @@ if (isset($_GET['class_id']) && isset($_GET['session_id'])) {
     exit();
 }
 
-// ✅ Query overall class performance from student_class_records
+//  Query overall class performance from student_class_records
 $stmt = $pdo->prepare("
     SELECT 
         s.id AS student_id,

@@ -9,7 +9,7 @@ if ($is_logged_in === false) {
     exit();
 }
 
-// ✅ Use PDO instead of MySQLi
+//  Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
     SELECT 
         students.*, 

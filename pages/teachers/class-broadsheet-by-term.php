@@ -17,7 +17,7 @@ if (isset($_GET['class_id']) && isset($_GET['session_id'])) {
     exit();
 }
 
-// ✅ Use PDO instead of MySQLi
+//  Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
     SELECT
         t.id AS term_id,
@@ -56,7 +56,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([$session_id, $class_id]);
 $terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ✅ Group results by term
+//  Group results by term
 $grouped = [];
 
 foreach ($terms as $row) {

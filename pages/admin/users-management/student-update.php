@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-// ✅ Ensure CSRF token exists
+//  Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -80,11 +80,11 @@ $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $studentsCount = countDataTotal('students', true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // ✅ CSRF validation
+    //  CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die("Invalid CSRF token.");
     } else {
-        // ✅ Regenerate after successful validation
+        //  Regenerate after successful validation
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- FINAL DECISION ---
     if (empty($errors)) {
         try {
-            // ✅ Start transaction
+            //  Start transaction
             $pdo->beginTransaction();
 
             // Update student
@@ -191,14 +191,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$student_class_record_id, $term]);
             }
 
-            // ✅ Commit transaction
+            //  Commit transaction
             $pdo->commit();
 
             $_SESSION['success'] = "Student account updated successfully!";
             header("Location: " . route('back'));
             exit();
         } catch (PDOException $e) {
-            // ❌ Rollback on error
+            //  Rollback on error
             $pdo->rollBack();
             echo "<p class='text-red-500'>Error updating record: " . htmlspecialchars($e->getMessage()) . "</p>";
         }

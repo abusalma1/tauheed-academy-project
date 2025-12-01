@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
-            // ✅ Start transaction
+            //  Start transaction
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare("INSERT INTO admins 
@@ -110,13 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             if ($success) {
-                // ✅ Commit transaction
+                //  Commit transaction
                 $pdo->commit();
                 $_SESSION['success'] = "Admin/Super User created successfully!";
                 header("Location: " . route('back'));
                 exit();
             } else {
-                // ❌ Rollback if insert fails
+                //  Rollback if insert fails
                 $pdo->rollBack();
                 echo "<script>alert('Failed to create admin/super user account');</script>";
             }

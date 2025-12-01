@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
-            // ✅ Start transaction
+            //  Start transaction
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare(
@@ -78,14 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = $stmt->execute([$name, $start_date, $end_date, $session_id]);
 
             if ($success) {
-                // ✅ Commit transaction
+                //  Commit transaction
                 $pdo->commit();
 
                 $_SESSION['success'] = "Term created successfully!";
                 header("Location: " . route('back'));
                 exit();
             } else {
-                // ❌ Rollback if insert fails
+                //  Rollback if insert fails
                 $pdo->rollBack();
                 echo "<script>alert('Failed to create term');</script>";
             }

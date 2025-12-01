@@ -14,22 +14,22 @@ if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_
     $term_id    = (int) $_GET['term_id'];
     $subject_id = (int) $_GET['subject_id'];
 
-    // ✅ Subject
+    //  Subject
     $stmt = $pdo->prepare("SELECT name FROM subjects WHERE id = ?");
     $stmt->execute([$subject_id]);
     $subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // ✅ Session
+    //  Session
     $stmt = $pdo->prepare("SELECT id, name FROM sessions WHERE id = ?");
     $stmt->execute([$session_id]);
     $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // ✅ Term
+    //  Term
     $stmt = $pdo->prepare("SELECT id, name FROM terms WHERE id = ?");
     $stmt->execute([$term_id]);
     $term = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // ✅ Students + Results
+    //  Students + Results
     $stmt = $pdo->prepare("
         SELECT 
             st.id AS id,

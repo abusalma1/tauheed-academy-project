@@ -3,7 +3,7 @@ $title = 'About & Contact';
 
 include(__DIR__ . '/../includes/header.php');
 
-// ✅ Use PDO instead of MySQLi
+//  Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
     SELECT 
         classes.id AS class_id,
@@ -40,7 +40,7 @@ foreach ($rows as $row) {
     }
 }
 
-// ✅ Re-index array to remove numeric keys
+//  Re-index array to remove numeric keys
 $classes = array_values($classes);
 ?>
 

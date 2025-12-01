@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
-            // ✅ Start transaction
+            //  Start transaction
             $pdo->beginTransaction();
 
             // Insert subject
@@ -74,14 +74,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_pivot->execute([intval($class_id), $subject_id]);
             }
 
-            // ✅ Commit transaction
+            //  Commit transaction
             $pdo->commit();
 
             $_SESSION['success'] = "Subject added successfully!";
             header("Location: " . route('back'));
             exit();
         } catch (PDOException $e) {
-            // ❌ Rollback transaction on error
+            //  Rollback transaction on error
             $pdo->rollBack();
             echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }

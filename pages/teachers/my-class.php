@@ -7,8 +7,8 @@ if (!$is_logged_in) {
     header("Location: " . route('home'));
     exit();
 }
-
-// ✅ Current Term
+    
+// Current Term
 $stmt = $pdo->prepare("
     SELECT t.name, s.name AS session_name, s.id AS session_id
     FROM terms t
@@ -20,7 +20,7 @@ $currentTerm = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $teacher = $user;
 
-// ✅ Classes and Students
+// Classes and Students
 $stmt = $pdo->prepare("
    SELECT 
     c.id AS class_id,
@@ -73,7 +73,7 @@ foreach ($rows as $row) {
     }
 }
 
-// ✅ Reindex classes by numeric index if needed
+// Reindex classes by numeric index if needed
 $classes = array_values($classes);
 ?>
 
