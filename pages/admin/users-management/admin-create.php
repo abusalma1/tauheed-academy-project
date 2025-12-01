@@ -13,130 +13,116 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$stmt = $conn->prepare("SELECT staff_no FROM admins ORDER BY created_at DESC LIMIT 1");
+// Fetch last staff number
+$stmt = $pdo->prepare("SELECT staff_no FROM admins ORDER BY created_at DESC LIMIT 1");
 $stmt->execute();
-$result = $stmt->get_result();
-$lastStaffNumber = $result->fetch_assoc();
+$lastStaffNumberRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($lastStaffNumber) {
-    // Admission number exists
-    $lastStaffNumber = $lastStaffNumber['staff_no'];
+if ($lastStaffNumberRow) {
+    $lastStaffNumber = $lastStaffNumberRow['staff_no'];
 } else {
-    // No student found
     $lastStaffNumber = 'No admin account exists. Check the admins list below the form.';
 }
-
 
 $admins = selectAllData('admins');
 
 // Count total admins
-$adminsCount =  countDataTotal('admins', true);
+$adminsCount = countDataTotal('admins', true);
 
-
-$name =  $email  = $phone  =  $address = $staffNumber  = $status =  $roleTypeError = $gender = $qualification = $experience = $department = $hashed_password = '';
+$name = $email = $phone = $address = $staffNumber = $status = $roleType = $gender = $qualification = $experience = $department = $hashed_password = '';
 $errors = [];
 
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $name = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
-    $phone = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $staffNumber = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $roleType = htmlspecialchars(trim($_POST['roleType'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $gender = trim($_POST['gender'] ?? '');
+    $name         = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email        = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone        = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address      = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $staffNumber  = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $roleType     = htmlspecialchars(trim($_POST['roleType'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $gender       = trim($_POST['gender'] ?? '');
     $qualification = htmlspecialchars(trim($_POST['qualification'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $experience = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $department = htmlspecialchars(trim($_POST['department'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $password = htmlspecialchars(trim($_POST['password'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $experience   = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $department   = htmlspecialchars(trim($_POST['department'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $password     = htmlspecialchars(trim($_POST['password'] ?? ''), ENT_QUOTES, 'UTF-8');
     $confirmPassword = htmlspecialchars(trim($_POST['confirmPassword'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $status       = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
 
-
-    if (empty($name)) {
-        $errors['nameError'] = 'Full name is required';
-    }
-
+    // Validations
+    if (empty($name)) $errors['nameError'] = 'Full name is required';
     if (empty($email)) {
         $errors['emailError'] = 'Email is required';
-    } else {
-        if (!validateEmail($email)) {
-            $errors['emailError'] = 'Please enter a valid email address';
-        } else {
-            if (emailExist($email, 'admins')) {
-                $errors['emailError'] = "Email already exists!";
-            }
-        }
+    } elseif (!validateEmail($email)) {
+        $errors['emailError'] = 'Please enter a valid email address';
+    } elseif (emailExist($email, 'admins')) {
+        $errors['emailError'] = "Email already exists!";
     }
-
-
-    if (empty($phone)) {
-        $errors['phoneError'] =  'Phone number is required';
-    }
-
-    if (empty($roleType)) {
-        $errors['roleTypeError'] =  'Subject/Department is required';
-    }
-
-    if (empty($address)) {
-        $errors['addressError'] = 'Please enter address';
-    }
-
-    if (empty($gender)) {
-        $errors['gender'] = "Gender is required.";
-    }
+    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
+    if (empty($roleType)) $errors['roleTypeError'] = 'Subject/Department is required';
+    if (empty($address)) $errors['addressError'] = 'Please enter address';
+    if (empty($gender)) $errors['genderError'] = "Gender is required.";
     if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
     if (empty($experience)) $errors['experienceError'] = 'Experience is required';
-
-
     if (empty($staffNumber)) {
         $errors['staffNumberError'] = 'Please insert staff ID number';
-    } else {
-        if (staffNumberExist($staffNumber, 'admins')) {
-            $errors['staffNumberError'] = "Staff No already exists!";
-        }
+    } elseif (staffNumberExist($staffNumber, 'admins')) {
+        $errors['staffNumberError'] = "Staff No already exists!";
     }
-
-    if (empty($department)) {
-        $departmentError = 'Qualification is required';
-    }
-
+    if (empty($department)) $errors['departmentError'] = 'Department is required';
     if (empty($password)) {
         $errors['passwordError'] = "Password field is required";
-        $password = '';
+    } elseif (strlen($password) < 8) {
+        $errors['passwordError'] = 'Password must be at least 8 characters';
+    } elseif ($password !== $confirmPassword) {
+        $errors['confirmPasswordError'] = 'Passwords do not match';
     } else {
-        if (strlen($password) < 8) {
-            $errors['passwordError'] = 'Password must be at least 8 characters';
-        } else {
-            if ($password !== $confirmPassword) {
-                $errors['confirmPasswordError'] = 'Passwords do not match';
-            } else {
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            }
-        }
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     }
-
-
-    if (empty($status)) {
-        $errors['statusError'] = "Status is required";
-    }
+    if (empty($status)) $errors['statusError'] = "Status is required";
 
     if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT INTO admins (name, email, phone, department, address, staff_no, status, type, gender, qualification,     experience, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('ssssssssssss', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $gender, $qualification, $experience, $hashed_password);
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Admin/Super User created successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create admin/super user account: " . $stmt->error . "');</script>";
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare("INSERT INTO admins 
+                (name, email, phone, department, address, staff_no, status, type, gender, qualification, experience, password) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $success = $stmt->execute([
+                $name,
+                $email,
+                $phone,
+                $department,
+                $address,
+                $staffNumber,
+                $status,
+                $roleType,
+                $gender,
+                $qualification,
+                $experience,
+                $hashed_password
+            ]);
+
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+                $_SESSION['success'] = "Admin/Super User created successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if insert fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to create admin/super user account');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         // Display all validation errors

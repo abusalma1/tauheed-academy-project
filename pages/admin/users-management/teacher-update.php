@@ -36,10 +36,11 @@ $teachers = selectAllData('teachers', null, $id);
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
     $id = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');

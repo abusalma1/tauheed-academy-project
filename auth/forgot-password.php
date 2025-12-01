@@ -6,7 +6,7 @@ include(__DIR__ . '/./includes/non-auth-header.php');
 include(__DIR__ . '/../config/mailer.php');
 
 
-$DEV_SHOW_EMAIL_NOT_FOUND = false;  
+$DEV_SHOW_EMAIL_NOT_FOUND = false;
 
 $errorMessage = null;
 $userTable = null;
@@ -40,52 +40,43 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($errorMessage === null) {
       foreach ($tables as $table) {
         $sql = "SELECT id FROM `$table` WHERE email=? LIMIT 1";
-        $stmt = $conn->prepare($sql);
+        $stmt = $pdo->prepare($sql);
         if (!$stmt) {
-          error_log("Prepare failed (SELECT): " . $conn->error);
+          error_log("Prepare failed (SELECT)");
           $errorMessage = "An unexpected error occurred. Please try again.";
           break;
         }
-        $stmt->bind_param("s", $email);
-        if (!$stmt->execute()) {
-          error_log("Execute failed (SELECT): " . $stmt->error);
+        if (!$stmt->execute([$email])) {
+          error_log("Execute failed (SELECT)");
           $errorMessage = "An unexpected error occurred. Please try again.";
-          $stmt->close();
           break;
         }
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
+        if ($stmt->rowCount() > 0) {
           $userTable = $table;
-          $stmt->close();
           break;
         }
-        $stmt->close();
       }
 
       if ($errorMessage === null) {
         if (!empty($userTable)) {
-          $rawToken = bin2hex(random_bytes(32));  
+          $rawToken = bin2hex(random_bytes(32));
           $tokenHash = hash('sha256', $rawToken);
           $expires_at = date("Y-m-d H:i:s", strtotime("+1 hour"));
 
           $updateSql = "UPDATE `$userTable` SET reset_token=?, reset_expires=? WHERE email=?";
-          $stmt = $conn->prepare($updateSql);
+          $stmt = $pdo->prepare($updateSql);
           if (!$stmt) {
-            error_log("Prepare failed (UPDATE): " . $conn->error);
+            error_log("Prepare failed (UPDATE)");
             $errorMessage = "An unexpected error occurred. Please try again.";
           } else {
-            $stmt->bind_param("sss", $tokenHash, $expires_at, $email);
-            if (!$stmt->execute()) {
-              error_log("Execute failed (UPDATE): " . $stmt->error);
+            if (!$stmt->execute([$tokenHash, $expires_at, $email])) {
+              error_log("Execute failed (UPDATE)");
               $errorMessage = "An unexpected error occurred. Please try again.";
             }
-            $stmt->close();
           }
-
 
           $projectBase = $isLocalhost ? '/tauheed-academy-project' : '';
           $resetLink = $baseUrl . $projectBase . "/auth/reset-password.php?token=" . urlencode($rawToken);
-
 
           sendResetEmail($email, $resetLink);
         }
@@ -97,6 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
   }
 }
+
 ?>
 
 <body class="bg-gray-50">

@@ -1,9 +1,10 @@
 <?php
-$title = 'About & Contact';
+$title = 'Fees';
 
-include(__DIR__ .  '/../includes/header.php');
+include(__DIR__ . '/../includes/header.php');
 
-$stmt = $conn->prepare("
+// ✅ Use PDO instead of MySQLi
+$stmt = $pdo->prepare("
     SELECT 
         classes.name,
         fees.*,
@@ -19,12 +20,10 @@ $stmt = $conn->prepare("
     LEFT JOIN classes ON fees.class_id = classes.id
     ORDER BY classes.level ASC
 ");
-
 $stmt->execute();
-$fees = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-
+$fees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <body class="bg-gray-50">
     <?php include(__DIR__ .  '/../includes/nav.php'); ?>

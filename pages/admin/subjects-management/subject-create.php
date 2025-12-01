@@ -8,22 +8,22 @@ if (!$is_logged_in) {
     exit();
 }
 
-
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$stmt = $conn->prepare("
-    SELECT*
+// Fetch classes
+$stmt = $pdo->prepare("
+    SELECT *
     FROM classes
-    where deleted_at is null
+    WHERE deleted_at IS NULL
     GROUP BY level
 ");
 $stmt->execute();
-$result = $stmt->get_result();
-$classes = $result->fetch_all(MYSQLI_ASSOC);
+$classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("
+// Fetch subjects with class names
+$stmt = $pdo->prepare("
     SELECT 
         subjects.id AS id,
         subjects.name AS name,
@@ -31,24 +31,23 @@ $stmt = $conn->prepare("
     FROM subjects
     LEFT JOIN class_subjects ON class_subjects.subject_id = subjects.id
     LEFT JOIN classes ON classes.id = class_subjects.class_id
-    where subjects.deleted_at is null
+    WHERE subjects.deleted_at IS NULL
     GROUP BY subjects.id
 ");
 $stmt->execute();
-$result = $stmt->get_result();
-$subjects = $result->fetch_all(MYSQLI_ASSOC);
+$subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-
+$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $name = trim($_POST['name']);
+    $name      = trim($_POST['name']);
     $class_ids = isset($_POST['classes']) ? $_POST['classes'] : [];
 
     if (empty($name)) {
@@ -60,38 +59,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        $stmt = $conn->prepare("INSERT INTO subjects (name) VALUES (?)");
+            // Insert subject
+            $stmt = $pdo->prepare("INSERT INTO subjects (name) VALUES (?)");
+            $stmt->execute([$name]);
+            $subject_id = $pdo->lastInsertId();
 
-        if ($stmt) {
-            $stmt->bind_param('s', $name);
-
-            if ($stmt->execute()) {
-                $subject_id = $stmt->insert_id;
-                $stmt->close();
-
-                $pivot_query = "INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)";
-                $stmt_pivot = $conn->prepare($pivot_query);
-
-                foreach (
-                    $class_ids as
-                    $class_id
-                ) {
-
-                    $stmt_pivot->bind_param('ii', $class_id, $subject_id);
-                    $stmt_pivot->execute();
-                }
-
-                $stmt_pivot->close();
-
-                $_SESSION['success'] = "Subject added successfully!";
-                header("Location: " .  route('back'));
-                exit();
-            } else {
-                echo "<script>alert('Failed to insert subject into database.: " . $stmt->error . "');</script>";
+            // Insert into pivot table
+            $stmt_pivot = $pdo->prepare("INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)");
+            foreach ($class_ids as $class_id) {
+                $stmt_pivot->execute([intval($class_id), $subject_id]);
             }
-        } else {
-            echo "<script>alert('Error preparing subject insertion.: " . $stmt->error . "');</script>";
+
+            // ✅ Commit transaction
+            $pdo->commit();
+
+            $_SESSION['success'] = "Subject added successfully!";
+            header("Location: " . route('back'));
+            exit();
+        } catch (PDOException $e) {
+            // ❌ Rollback transaction on error
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -99,12 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-
-
-
-
 ?>
+
+
 <script>
     const subjects = <?= json_encode($subjects, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

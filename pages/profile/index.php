@@ -9,12 +9,6 @@ if (!$is_logged_in) {
     exit();
 }
 
-if ($is_logged_in === false) {
-    $_SESSION['failure'] = "Login is Required!";
-    header("Location: " . route('home'));
-    exit();
-}
-
 
 ?>
 

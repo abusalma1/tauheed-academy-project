@@ -1,16 +1,8 @@
 <?php
-
 $title = 'Student Results';
-
 include __DIR__ . '/../../includes/header.php';
 
-if (!$is_logged_in) {
-  $_SESSION['failure'] = "Login is Required!";
-  header("Location: " . route('home'));
-  exit();
-}
-
-if ($is_logged_in === false) {
+if (!$is_logged_in || $is_logged_in === false) {
   $_SESSION['failure'] = "Login is Required!";
   header("Location: " . route('home'));
   exit();
@@ -18,29 +10,29 @@ if ($is_logged_in === false) {
 
 if ($user_type !== 'student') {
   if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM students WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-      $student = $result->fetch_assoc();
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM students WHERE id = ?');
+    $stmt->execute([$id]);
+    $student = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($student) {
       $student_id = $student['id'];
     } else {
       $_SESSION['failure'] = "Student is required.";
-      header('Location: ' .  route('back'));
+      header('Location: ' . route('back'));
+      exit();
     }
   } else {
     $_SESSION['failure'] = "Student is required.";
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit();
   }
 } else {
   $student_id = $user['id'];
 }
 
-
-// 1. Get basic student info
-$stmt = $conn->prepare("
+// ✅ 1. Get basic student info
+$stmt = $pdo->prepare("
     SELECT s.id, s.name, s.admission_number,
            c.name AS class_name,
            a.name AS arm_name,
@@ -53,25 +45,23 @@ $stmt = $conn->prepare("
     LEFT JOIN sessions ses ON t.session_id = ses.id
     WHERE s.id = ?
 ");
-$stmt->bind_param("i", $student_id);
-$stmt->execute();
-$studentInfo = $stmt->get_result()->fetch_assoc();
+$stmt->execute([$student_id]);
+$studentInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// 2. Get ALL class records of this student (history)
-$stmt = $conn->prepare("
+// ✅ 2. Get ALL class records of this student (history)
+$stmt = $pdo->prepare("
     SELECT 
         scr.id AS student_class_record_id,
         scr.class_id,
         scr.arm_id,
         scr.session_id,
-        scr.overall_total ,
+        scr.overall_total,
         scr.overall_average,
-        scr.overall_position ,
+        scr.overall_position,
         scr.promotion_status,
         
         str.id AS student_term_record_id,
         str.term_id,
-        str.id AS student_term_record_id,
         str.total_marks,
         str.average_marks,
         str.position_in_class,
@@ -92,15 +82,13 @@ $stmt = $conn->prepare("
     WHERE scr.student_id = ?
     ORDER BY ses.id ASC, t.id ASC
 ");
-$stmt->bind_param("i", $student_id);
-$stmt->execute();
-$classResult = $stmt->get_result();
+$stmt->execute([$student_id]);
+$classRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Rearrange data: CLASS -> TERM -> RECORD ID
 $records = [];
 
-while ($row = $classResult->fetch_assoc()) {
-
+foreach ($classRows as $row) {
   $classId  = $row['class_id'];
   $termId   = $row['term_id'];
   $session  = $row['session_name'];
@@ -121,25 +109,24 @@ while ($row = $classResult->fetch_assoc()) {
 
   if ($termId) {
     $records[$session][$classId]['terms'][$termId] = [
-      'term_name'   => $row['term_name'],
-      'total_marks'   => $row['total_marks'],
-      'average_marks'   => $row['average_marks'],
-      'position_in_class'   => $row['position_in_class'],
-      'class_size'   => $row['class_size'],
-      'overall_grade'   => $row['overall_grade'],
-      'str_id'      => $strId,
+      'term_name'        => $row['term_name'],
+      'total_marks'      => $row['total_marks'],
+      'average_marks'    => $row['average_marks'],
+      'position_in_class' => $row['position_in_class'],
+      'class_size'       => $row['class_size'],
+      'overall_grade'    => $row['overall_grade'],
+      'str_id'           => $strId,
       'subjects_results' => []
     ];
   }
 }
 
-// 3. Fetch ALL results by student_record_id
-$stmt = $conn->prepare("
+// ✅ 3. Fetch ALL results by student_record_id
+$stmt = $pdo->prepare("
     SELECT 
         r.student_term_record_id AS str_id,
         r.ca, r.exam, r.total, r.grade, r.remark,
         s.name AS subject_name,
-
         str.term_id,
         scr.class_id,
         ses.name AS session_name
@@ -152,30 +139,27 @@ $stmt = $conn->prepare("
     LEFT JOIN subjects s ON r.subject_id = s.id
     WHERE scr.student_id = ?
 ");
-$stmt->bind_param("i", $student_id);
-$stmt->execute();
-$scoreResult = $stmt->get_result();
-
+$stmt->execute([$student_id]);
+$scoreRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Attach results into $records
-while ($row = $scoreResult->fetch_assoc()) {
-
+foreach ($scoreRows as $row) {
   $session = $row['session_name'];
   $classId = $row['class_id'];
   $termId  = $row['term_id'];
 
-  $records[$session][$classId]['terms'][$termId]['subjects_results'][] = [
-    'subject_name' => $row['subject_name'],
-    'ca'           => $row['ca'],
-    'exam'         => $row['exam'],
-    'total'        => $row['total'],
-    'grade'        => $row['grade'],
-    'remark'       => $row['remark']
-  ];
+  if (isset($records[$session][$classId]['terms'][$termId])) {
+    $records[$session][$classId]['terms'][$termId]['subjects_results'][] = [
+      'subject_name' => $row['subject_name'],
+      'ca'           => $row['ca'],
+      'exam'         => $row['exam'],
+      'total'        => $row['total'],
+      'grade'        => $row['grade'],
+      'remark'       => $row['remark']
+    ];
+  }
 }
-
 ?>
-
 
 
 <body class="bg-gray-50">

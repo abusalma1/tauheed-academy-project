@@ -13,8 +13,9 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
-$stmt = $conn->prepare("    SELECT 
+// Fetch classes with arms and sections
+$stmt = $pdo->prepare("
+    SELECT 
         classes.id AS id,
         classes.name AS name,
         classes.level AS level,
@@ -24,55 +25,42 @@ $stmt = $conn->prepare("    SELECT
     LEFT JOIN class_class_arms ON classes.id = class_class_arms.class_id
     LEFT JOIN sections ON classes.section_id = sections.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
-    where classes.deleted_at is null
+    WHERE classes.deleted_at IS NULL
     GROUP BY classes.id 
-     order by classes.level
+    ORDER BY classes.level
 ");
 $stmt->execute();
-$result = $stmt->get_result();
-$classes = $result->fetch_all(MYSQLI_ASSOC);
-
+$classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $sections = selectAllData('sections');
 $class_arms = selectAllData('class_arms');
 
-
-
 $studentsCount  = countDataTotal('students')['total'];
-$classesCount = countDataTotal('classes')['total'];
+$classesCount   = countDataTotal('classes')['total'];
 
 $errors  = [];
 
-$name = $section = $teacher = $arm =  '';
-$nameError = $sectionError = $teacherError = $armError =  '';
-
+$name = $section = $teacher = $arm = '';
+$nameError = $sectionError = $teacherError = $armError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $name = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $level = htmlspecialchars(trim($_POST['classLevel'] ?? ''), ENT_QUOTES);
-    $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES);
-    $arms = $_POST['classArm'] ?? [];
+    $name     = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $level    = (int) ($_POST['classLevel'] ?? 0);
+    $section  = (int) ($_POST['classSection'] ?? 0);
+    $arms     = $_POST['classArm'] ?? [];
     $shiftLevels = $_POST['shiftLevels'] ?? null;
-
 
     if (!is_array($arms)) {
         $arms = [$arms];
     }
 
-    $arms = array_map(
-        function ($arm) {
-            return htmlspecialchars(trim($arm), ENT_QUOTES, 'UTF-8');
-        },
-        $arms
-    );
-
-
+    $arms = array_map(function ($arm) {
+        return (int) htmlspecialchars(trim($arm), ENT_QUOTES, 'UTF-8');
+    }, $arms);
 
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
@@ -81,30 +69,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
     } else {
-        $stmt = $conn->prepare("SELECT id, name FROM classes WHERE level = ?");
-        $stmt->bind_param("i", $level);
-        $stmt->execute();
-        $exist = $stmt->get_result()->fetch_assoc(); // fetch single row
-        $stmt->close();
+        $stmt = $pdo->prepare("SELECT id, name FROM classes WHERE level = ?");
+        $stmt->execute([$level]);
+        $exist = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($exist) {
-            // If checkbox "shiftLevels" is checked and level exists
             if (isset($shiftLevels)) {
-                $conn->begin_transaction();
+                $pdo->beginTransaction();
 
-                // Shift levels forward
-                $shiftStmt = $conn->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
-                $shiftStmt->bind_param('i', $level);
-                $shiftStmt->execute();
-                $shiftStmt->close();
+                $shiftStmt = $pdo->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
+                $shiftStmt->execute([$level]);
 
-                $conn->commit();
+                $pdo->commit();
             } else {
                 $errors['levelError'] = "Given Level is already taken by " . $exist['name'];
             }
         }
     }
-
 
     if (empty($section)) {
         $errors['sectionError'] = "Section is required";
@@ -114,30 +95,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['armError'] = "Arm is required";
     }
 
-
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            "INSERT INTO classes (name, level, section_id) VALUES (?, ?, ?)"
-        );
-        $stmt->bind_param('sii', $name, $level, $section);
+        $stmt = $pdo->prepare("INSERT INTO classes (name, level, section_id) VALUES (?, ?, ?)");
+        $success = $stmt->execute([$name, $level, $section]);
 
-        if ($stmt->execute()) {
-            $class_id = $stmt->insert_id;
-            $stmt->close();
+        if ($success) {
+            $class_id = $pdo->lastInsertId();
 
             $pivot_query = "INSERT INTO class_class_arms (arm_id, class_id) VALUES (?, ?)";
-            $stmt_pivot = $conn->prepare($pivot_query);
-
+            $stmt_pivot = $pdo->prepare($pivot_query);
 
             foreach ($arms as $arm_id) {
-                $stmt_pivot->bind_param('ii', $arm_id, $class_id);
-                $stmt_pivot->execute();
+                $stmt_pivot->execute([$arm_id, $class_id]);
             }
+
             $_SESSION['success'] = "Class created successfully!";
-            header("Location: " .  route('back'));
+            header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
+            echo "<script>alert('Failed to create section');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -145,8 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
+
 
 
 <script>

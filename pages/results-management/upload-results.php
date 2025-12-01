@@ -8,262 +8,230 @@ if (!$is_logged_in) {
     exit();
 }
 
-
-
-
-$subjects = selectAllData('subjects');
-$classes = selectAllData('classes');
-$terms = selectAllData('terms');
-$sessions = selectAllData('sessions');
+$subjects  = selectAllData('subjects');
+$classes   = selectAllData('classes');
+$terms     = selectAllData('terms');
+$sessions  = selectAllData('sessions');
 
 $students = [];
 
-if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_id'])) {
-    $class_id = intval($_GET['class_id']);
-    $term_id = intval($_GET['term_id']);
-    $subject_id = intval($_GET['subject_id']);
+if (isset($_GET['class_id'], $_GET['term_id'], $_GET['subject_id'])) {
+    $class_id   = (int) $_GET['class_id'];
+    $term_id    = (int) $_GET['term_id'];
+    $subject_id = (int) $_GET['subject_id'];
 
-    $stmt = $conn->prepare("
+    $stmt = $pdo->prepare("
         SELECT 
             st.id AS id,
             st.name,
             st.admission_number,
             st.arm_id,
-            
             r.ca,
             r.exam,
             r.grade,
             r.total,
             r.remark
-
         FROM students st
-
         LEFT JOIN student_class_records scr
             ON scr.student_id = st.id 
             AND scr.class_id = ?
-
         LEFT JOIN student_term_records str
             ON str.student_class_record_id = scr.id
             AND str.term_id = ?
-
         LEFT JOIN results r
             ON r.student_term_record_id = str.id
             AND r.subject_id = ?
-
         WHERE st.class_id = ?
         ORDER BY st.admission_number
     ");
-
-    $stmt->bind_param("iiii", $class_id, $term_id, $subject_id, $class_id);
-    $stmt->execute();
-    $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->execute([$class_id, $term_id, $subject_id, $class_id]);
+    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // ✅ CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die("CSRF validation failed. Please refresh and try again.");
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
 
-    $class_id = intval($_POST['class_id']);
-    $term_id = intval($_POST['term_id']);
-    $session_id = intval($_POST['session_id']);
-    $subject_id = intval($_POST['subject_id']);
+    $class_id   = (int) $_POST['class_id'];
+    $term_id    = (int) $_POST['term_id'];
+    $session_id = (int) $_POST['session_id'];
+    $subject_id = (int) $_POST['subject_id'];
 
-    $ca_scores = $_POST['ca'] ?? [];
+    $ca_scores   = $_POST['ca'] ?? [];
     $exam_scores = $_POST['exam'] ?? [];
-    $arm_ids = $_POST['arm'] ?? [];
+    $arm_ids     = $_POST['arm'] ?? [];
 
+    try {
+        // ✅ Start transaction
+        $pdo->beginTransaction();
 
-    foreach ($ca_scores as $student_id => $ca_value) {
+        foreach ($ca_scores as $student_id => $ca_value) {
+            $ca    = max(0, min(40, (int) $ca_value));
+            $exam  = max(0, min(60, (int) ($exam_scores[$student_id] ?? 0)));
+            $total = $ca + $exam;
+            $arm_id = (int) $arm_ids[$student_id];
 
-        // Validate scores
-        $ca = max(0, min(40, intval($ca_value)));
-        $exam = max(0, min(60, intval($exam_scores[$student_id] ?? 0)));
-        $total = $ca + $exam;
-        $arm_id = intval($arm_ids[$student_id]);
+            // Grade + remark
+            if ($total >= 75) $grade = 'A';
+            elseif ($total >= 60) $grade = 'B';
+            elseif ($total >= 50) $grade = 'C';
+            elseif ($total >= 40) $grade = 'D';
+            else $grade = 'E';
 
+            $remark_map = [
+                'A' => 'Excellent',
+                'B' => 'Very Good',
+                'C' => 'Good',
+                'D' => 'Fair',
+                'E' => 'Poor'
+            ];
+            $remark = $remark_map[$grade];
 
-        // Determine grade
-        if ($total >= 75) $grade = 'A';
-        elseif ($total >= 60) $grade = 'B';
-        elseif ($total >= 50) $grade = 'C';
-        elseif ($total >= 40) $grade = 'D';
-        else $grade = 'E';
-
-        $remark_map = [
-            'A' => 'Excellent',
-            'B' => 'Very Good',
-            'C' => 'Good',
-            'D' => 'Fair',
-            'E' => 'Poor'
-        ];
-        $remark = $remark_map[$grade];
-
-        // STEP 1: Check if student_class_record exists
-        $check = $conn->prepare("
-            SELECT id 
-            FROM student_class_records 
-            WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?
-            LIMIT 1
-        ");
-        $check->bind_param("iiii", $student_id, $class_id, $arm_id, $session_id);
-        $check->execute();
-        $class_record = $check->get_result()->fetch_assoc();
-
-        if ($class_record) {
-            // Use existing record
-            $student_class_record_id = $class_record['id'];
-        } else {
-            // STEP 2: Create new student_class_record
-            $insert = $conn->prepare("
-    INSERT INTO student_class_records (student_id, class_id, arm_id, session_id)
-    VALUES (?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE 
-        class_id = VALUES(class_id),
-        arm_id = VALUES(arm_id),
-        updated_at = CURRENT_TIMESTAMP
-");
-            $insert->bind_param("iiii", $student_id, $class_id, $arm_id, $session_id);
-            $insert->execute();
-            $student_class_record_id = $conn->insert_id;
-        }
-
-        // STEP 1: Check if student_term_record exists
-        $check = $conn->prepare("
-            SELECT id 
-            FROM student_term_records 
-            WHERE student_class_record_id = ? AND term_id = ?
-            LIMIT 1
-        ");
-        $check->bind_param("ii", $student_class_record_id,  $term_id);
-        $check->execute();
-        $term_record = $check->get_result()->fetch_assoc();
-
-        if ($term_record) {
-            // Use existing record student_term_record_id
-            $student_term_record_id = $term_record['id'];
-        } else {
-            // STEP 2: Create new student_term_record
-            $insert = $conn->prepare("INSERT INTO student_term_records (student_class_record_id,  term_id)
-                VALUES (?, ?)
+            // STEP 1: student_class_record
+            $stmt = $pdo->prepare("
+                SELECT id FROM student_class_records 
+                WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?
+                LIMIT 1
             ");
-            $insert->bind_param("ii", $student_class_record_id, $term_id);
-            $insert->execute();
-            $student_term_record_id = $conn->insert_id;
+            $stmt->execute([$student_id, $class_id, $arm_id, $session_id]);
+            $class_record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($class_record) {
+                $student_class_record_id = $class_record['id'];
+            } else {
+                $stmt = $pdo->prepare("
+                    INSERT INTO student_class_records (student_id, class_id, arm_id, session_id)
+                    VALUES (?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE 
+                        class_id = VALUES(class_id),
+                        arm_id = VALUES(arm_id),
+                        updated_at = CURRENT_TIMESTAMP
+                ");
+                $stmt->execute([$student_id, $class_id, $arm_id, $session_id]);
+                $student_class_record_id = $pdo->lastInsertId();
+            }
+
+            // STEP 2: student_term_record
+            $stmt = $pdo->prepare("
+                SELECT id FROM student_term_records 
+                WHERE student_class_record_id = ? AND term_id = ?
+                LIMIT 1
+            ");
+            $stmt->execute([$student_class_record_id, $term_id]);
+            $term_record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($term_record) {
+                $student_term_record_id = $term_record['id'];
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
+                $stmt->execute([$student_class_record_id, $term_id]);
+                $student_term_record_id = $pdo->lastInsertId();
+            }
+
+            // STEP 3: results
+            $stmt = $pdo->prepare("
+                INSERT INTO results (student_term_record_id, subject_id, ca, exam, grade, remark)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    ca = VALUES(ca),
+                    exam = VALUES(exam),
+                    grade = VALUES(grade),
+                    remark = VALUES(remark)
+            ");
+            $stmt->execute([$student_term_record_id, $subject_id, $ca, $exam, $grade, $remark]);
         }
 
-        // STEP 3: Insert or update result
-        $save = $conn->prepare("
-            INSERT INTO results (student_term_record_id, subject_id, ca, exam, grade, remark)
-            VALUES (?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                ca = VALUES(ca),
-                exam = VALUES(exam),
-                grade = VALUES(grade),
-                remark = VALUES(remark)
+        // ===========================================
+        // CALCULATE TERM TOTALS, AVERAGES, AND POSITIONS
+        // ===========================================
+
+        // 1. Get all students in this class for this term
+        $stmt = $pdo->prepare("
+            SELECT str.id AS student_term_record_id
+            FROM student_term_records str
+            JOIN student_class_records scr ON str.student_class_record_id = scr.id
+            WHERE str.term_id = ? AND scr.class_id = ?
         ");
-        $save->bind_param("iiiiss", $student_term_record_id, $subject_id, $ca, $exam, $grade, $remark);
-        $save->execute();
-    }
+        $stmt->execute([$term_id, $class_id]);
+        $student_term_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // ===========================================
-    // CALCULATE TERM TOTALS, AVERAGES, AND POSITIONS
-    // ===========================================
+        // 2. Loop through each student to calculate total and average
+        foreach ($student_term_records as $str) {
+            $student_term_id = $str['student_term_record_id'];
 
-    // 1. Get all students in this class for this term
-    $students_query = "
-    SELECT str.id AS student_term_record_id
-    FROM student_term_records str
-    JOIN student_class_records scr ON str.student_class_record_id = scr.id
-    WHERE str.term_id = ? AND scr.class_id = ?
-";
-    $stmt = $conn->prepare($students_query);
-    $stmt->bind_param('ii', $term_id, $class_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $student_term_records = $result->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
+            $stmt = $pdo->prepare("
+                SELECT SUM(total) AS total_marks, AVG(total) AS average_marks
+                FROM results
+                WHERE student_term_record_id = ?
+            ");
+            $stmt->execute([$student_term_id]);
+            $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // 2. Loop through each student to calculate total and average
-    foreach ($student_term_records as $str) {
-        $student_term_id = $str['student_term_record_id'];
+            $total_marks   = (float) ($res['total_marks'] ?? 0);
+            $average_marks = (float) ($res['average_marks'] ?? 0);
 
-        $calc_query = "
-        SELECT SUM(total) AS total_marks, AVG(total) AS average_marks
-        FROM results
-        WHERE student_term_record_id = ?
-    ";
-        $stmt2 = $conn->prepare($calc_query);
-        $stmt2->bind_param('i', $student_term_id);
-        $stmt2->execute();
-        $res = $stmt2->get_result()->fetch_assoc();
-        $stmt2->close();
-
-        $total_marks = floatval($res['total_marks'] ?? 0);
-        $average_marks = floatval($res['average_marks'] ?? 0);
-
-        $update_query = "
-        UPDATE student_term_records
-        SET total_marks = ?, average_marks = ?
-        WHERE id = ?
-    ";
-        $stmt3 = $conn->prepare($update_query);
-        $stmt3->bind_param('ddi', $total_marks, $average_marks, $student_term_id);
-        $stmt3->execute();
-        $stmt3->close();
-    }
-
-    // 3. Update positions in class for this term (handling ties correctly)
-    $position_query = "
-    SELECT str.id, str.total_marks
-    FROM student_term_records str
-    JOIN student_class_records scr ON str.student_class_record_id = scr.id
-    WHERE str.term_id = ? AND scr.class_id = ?
-    ORDER BY str.total_marks DESC
-";
-    $stmt4 = $conn->prepare($position_query);
-    $stmt4->bind_param('ii', $term_id, $class_id);
-    $stmt4->execute();
-    $result4 = $stmt4->get_result();
-    $students_ordered = $result4->fetch_all(MYSQLI_ASSOC);
-    $stmt4->close();
-
-    $position = 0;
-    $previous_total = null;
-    $same_rank_count = 0;
-    $class_size = count($students_ordered);
-
-    foreach ($students_ordered as $i => $student) {
-        $student_term_id = $student['id'];
-        $total = floatval($student['total_marks']);
-
-        if ($previous_total !== null && $total == $previous_total) {
-            // same total, same position
-            $same_rank_count++;
-        } else {
-            $position += $same_rank_count + 1;
-            $same_rank_count = 0;
+            $stmt = $pdo->prepare("
+                UPDATE student_term_records
+                SET total_marks = ?, average_marks = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([$total_marks, $average_marks, $student_term_id]);
         }
-        $previous_total = $total;
 
-        $update_pos = "
-        UPDATE student_term_records
-        SET position_in_class = ?, class_size = ?
-        WHERE id = ?
-    ";
-        $stmt5 = $conn->prepare($update_pos);
-        $stmt5->bind_param('iii', $position, $class_size, $student_term_id);
-        $stmt5->execute();
-        $stmt5->close();
+        // 3. Update positions in class
+        $stmt = $pdo->prepare("
+            SELECT str.id, str.total_marks
+            FROM student_term_records str
+            JOIN student_class_records scr ON str.student_class_record_id = scr.id
+            WHERE str.term_id = ? AND scr.class_id = ?
+            ORDER BY str.total_marks DESC
+        ");
+        $stmt->execute([$term_id, $class_id]);
+        $students_ordered = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $position = 0;
+        $previous_total = null;
+        $same_rank_count = 0;
+        $class_size = count($students_ordered);
+
+        foreach ($students_ordered as $student) {
+            $student_term_id = $student['id'];
+            $total = (float) $student['total_marks'];
+
+            if ($previous_total !== null && $total == $previous_total) {
+                $same_rank_count++;
+            } else {
+                $position += $same_rank_count + 1;
+                $same_rank_count = 0;
+            }
+            $previous_total = $total;
+
+            $stmt = $pdo->prepare("
+                UPDATE student_term_records
+                SET position_in_class = ?, class_size = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([$position, $class_size, $student_term_id]);
+        }
+
+        // ✅ Commit transaction
+        $pdo->commit();
+
+        $_SESSION['success'] = "Results uploaded successfully!";
+        header("Location: " . route('back'));
+        exit();
+    } catch (PDOException $e) {
+        // ❌ Rollback on error
+        $pdo->rollBack();
+        echo "<p class='text-red-500'>Database error: " . htmlspecialchars($e->getMessage()) . "</p>";
     }
-
-
-    $_SESSION['success'] = "Results uploaded successfully!";
-    header("Location: " . route('back'));
-    exit;
 }
-
-
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

@@ -13,60 +13,66 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$stmt = $conn->prepare("SELECT * FROM sessions WHERE deleted_at is null order by updated_at desc limit 10");
+// Fetch latest sessions
+$stmt = $pdo->prepare("SELECT * FROM sessions WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
 $stmt->execute();
-$result = $stmt->get_result();
-$sessions_list = $result->fetch_all(MYSQLI_ASSOC);
+$sessions_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$sessions = selectAllData('sessions');
-
-$sections = selectAllData('sections');
+// Other data fetches (assuming selectAllData is already PDO-based)
+$sessions   = selectAllData('sessions');
+$sections   = selectAllData('sections');
 $class_arms = selectAllData('class_arms');
 
+$sessionsCount = countDataTotal('sessions')['total'];
 
-
-$sessionsCount  = countDataTotal('sessions')['total'];
-
-$errors  = [];
+$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $name = trim($_POST['sessionName'] ?? '');
+    $name       = trim($_POST['sessionName'] ?? '');
     $start_date = trim($_POST['startDate'] ?? '');
-    $end_date = trim($_POST['endDate'] ?? '');
+    $end_date   = trim($_POST['endDate'] ?? '');
 
-
-
+    // Validations
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
     }
-
     if (empty($start_date)) {
         $errors['startDateError'] = "Start Date is required";
     }
-
     if (empty($end_date)) {
         $errors['endDateError'] = "End Date is required";
     }
 
-
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            "INSERT INTO sessions (name, start_date, end_date) VALUES (?, ?, ?)"
-        );
-        $stmt->bind_param('sss', $name, $start_date, $end_date);
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Session created successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
+            $stmt = $pdo->prepare("INSERT INTO sessions (name, start_date, end_date) VALUES (?, ?, ?)");
+            $success = $stmt->execute([$name, $start_date, $end_date]);
+
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+
+                $_SESSION['success'] = "Session created successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if insert fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to create session');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -76,7 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 ?>
-
 
 <script>
     const sessions = <?= json_encode($sessions, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;

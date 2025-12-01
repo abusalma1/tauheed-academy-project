@@ -13,43 +13,56 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 if (isset($_GET['id'])) {
-  $id = $_GET['id'];
+  $id = (int) $_GET['id'];
 
-  $stmt = $conn->prepare("SELECT * FROM terms WHERE id=?");
-  $stmt->bind_param('i', $id);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  if ($result->num_rows > 0) {
-    $term = $result->fetch_assoc();
-  } else {
-    header('Location: ' .  route('back'));
+  $stmt = $pdo->prepare("SELECT * FROM terms WHERE id = ?");
+  $stmt->execute([$id]);
+  $term = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if (!$term) {
+    header('Location: ' . route('back'));
+    exit();
   }
 } else {
-  header('Location: ' .  route('back'));
+  header('Location: ' . route('back'));
+  exit();
 }
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (
-    !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-  ) {
+  if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
     die('CSRF validation failed. Please refresh and try again.');
   }
 
-  $id = trim($_POST['id'] ?? '');
+  $id = (int) trim($_POST['id'] ?? '');
 
-  if (empty($id)) $errors['id'] = 'Term Not Found';
+  if (empty($id)) {
+    $errors['id'] = 'Term Not Found';
+  }
 
   if (empty($errors)) {
-    $stmt = $conn->prepare("UPDATE terms set deleted_at = NOW() where id =?");
-    $stmt->bind_param('i', $id);
+    try {
+      // ✅ Start transaction
+      $pdo->beginTransaction();
 
-    if ($stmt->execute()) {
-      $_SESSION['success'] = "Term Deleted successfully!";
-      header("Location: " .  route('back'));
-      exit();
-    } else {
-      echo "<script>alert('Failed to delete a Term: " . $stmt->error . "');</script>";
+      $stmt = $pdo->prepare("UPDATE terms SET deleted_at = NOW() WHERE id = ?");
+      $success = $stmt->execute([$id]);
+
+      if ($success) {
+        // ✅ Commit transaction
+        $pdo->commit();
+
+        $_SESSION['success'] = "Term Deleted successfully!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        // ❌ Rollback if update fails
+        $pdo->rollBack();
+        echo "<script>alert('Failed to delete term');</script>";
+      }
+    } catch (PDOException $e) {
+      $pdo->rollBack();
+      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {
@@ -57,8 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 }
-
-
 ?>
 
 <body class="bg-gray-50">

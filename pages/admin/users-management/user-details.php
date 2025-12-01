@@ -9,50 +9,64 @@ if (!$is_logged_in) {
 }
 
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+    $id   = (int) $_GET['id'];
     $type = $_GET['type'];
     $type_table = $type . 's';
-    $stmt = $conn->prepare("SELECT * FROM `$type_table` WHERE id=?");
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-    } else {
-        header('Location: ' .  route('back'));
+
+    // ✅ Sanitize table name to prevent injection
+    $allowed_tables = ['admins', 'teachers', 'guardians', 'students'];
+    if (!in_array($type_table, $allowed_tables)) {
+        $_SESSION['failure'] = "Invalid user type";
+        header('Location: ' . route('back'));
+        exit();
+    }
+
+    $stmt = $pdo->prepare("SELECT * FROM `$type_table` WHERE id = ?");
+    $stmt->execute([$id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        header('Location: ' . route('back'));
+        exit();
     }
 } else {
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit();
 }
 
 if ($type === 'student') {
-    $stmt = $conn->prepare("SELECT name from classes where id = ?");
-    $stmt->bind_param('i', $user['class_id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $class = $result->fetch_assoc();
-    $user['class'] = $class['name'];
+    // Fetch class
+    $stmt = $pdo->prepare("SELECT name FROM classes WHERE id = ?");
+    $stmt->execute([$user['class_id']]);
+    $class = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user['class'] = $class['name'] ?? null;
 
-    $stmt = $conn->prepare("SELECT name from class_arms where id = ?");
-    $stmt->bind_param('i', $user['arm_id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $arm = $result->fetch_assoc();
-    $user['arm'] = $arm['name'];
+    // Fetch arm
+    $stmt = $pdo->prepare("SELECT name FROM class_arms WHERE id = ?");
+    $stmt->execute([$user['arm_id']]);
+    $arm = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user['arm'] = $arm['name'] ?? null;
 
-    $stmt = $conn->prepare("SELECT * from guardians where id = ?");
-    $stmt->bind_param('i', $user['guardian_id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $guardian = $result->fetch_assoc();
-    $user['guardian'] = $guardian['name'];
-    $user['address'] = $guardian['address'];
-} else if ($type === 'guardian') {
-    $stmt = $conn->prepare("SELECT students.name, students.admission_number, classes.name as class, class_arms.name as arm from students left join classes on students.class_id = classes.id  left join class_arms on students.arm_id = class_arms.id where guardian_id = ?");
-    $stmt->bind_param('i', $user['id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $children = $result->fetch_all(MYSQLI_ASSOC);
+    // Fetch guardian
+    $stmt = $pdo->prepare("SELECT * FROM guardians WHERE id = ?");
+    $stmt->execute([$user['guardian_id']]);
+    $guardian = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($guardian) {
+        $user['guardian'] = $guardian['name'];
+        $user['address']  = $guardian['address'];
+    }
+} elseif ($type === 'guardian') {
+    // Fetch children
+    $stmt = $pdo->prepare("
+        SELECT students.name, students.admission_number, 
+               classes.name AS class, class_arms.name AS arm
+        FROM students
+        LEFT JOIN classes ON students.class_id = classes.id
+        LEFT JOIN class_arms ON students.arm_id = class_arms.id
+        WHERE guardian_id = ?
+    ");
+    $stmt->execute([$user['id']]);
+    $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
 

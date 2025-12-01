@@ -10,29 +10,27 @@ if (isset($_SESSION['user_session'])) {
         $password = trim($_POST['password']);
         $user_type = trim($_POST['user_type']);
 
-
         if (!empty($email) && !empty($password) && !empty($user_type)) {
 
             if ($user_type === 'student') {
                 // Allow login using either email OR admission_number
-                $stmt = $conn->prepare("SELECT * FROM students WHERE email = ? OR admission_number = ?");
-                $stmt->bind_param("ss", $email, $email);
+                $stmt = $pdo->prepare("SELECT * FROM students WHERE email = ? OR admission_number = ?");
+                $stmt->execute([$email, $email]);
             } else if ($user_type === 'teacher') {
-                $stmt = $conn->prepare("SELECT * FROM teachers WHERE email = ? OR staff_no = ?");
-                $stmt->bind_param("ss", $email, $email);
+                $stmt = $pdo->prepare("SELECT * FROM teachers WHERE email = ? OR staff_no = ?");
+                $stmt->execute([$email, $email]);
             } else if ($user_type === 'guardian') {
-                $stmt = $conn->prepare("SELECT * FROM guardians WHERE email = ?");
-                $stmt->bind_param("s", $email);
+                $stmt = $pdo->prepare("SELECT * FROM guardians WHERE email = ?");
+                $stmt->execute([$email]);
             } else if ($user_type === 'admin') {
-                $stmt = $conn->prepare("SELECT * FROM admins WHERE email = ?  OR staff_no = ?");
-                $stmt->bind_param("ss", $email, $email);
+                $stmt = $pdo->prepare("SELECT * FROM admins WHERE email = ? OR staff_no = ?");
+                $stmt->execute([$email, $email]);
             }
 
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($result->num_rows == 1) {
-                $user = $result->fetch_assoc();
+            if (count($result) == 1) {
+                $user = $result[0];
 
                 if (password_verify($password, $user["password"])) {
                     session_regenerate_id(true);
@@ -56,9 +54,6 @@ if (isset($_SESSION['user_session'])) {
         }
     }
 }
-
-
-
 ?>
 
 

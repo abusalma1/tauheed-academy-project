@@ -1,5 +1,4 @@
 <?php
-
 $title = "Class Update Form";
 include(__DIR__ . '/../../../includes/header.php');
 
@@ -14,14 +13,12 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM classes WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM classes WHERE id = ?');
+    $stmt->execute([$id]);
+    $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result->num_rows > 0) {
-        $class = $result->fetch_assoc();
+    if ($class) {
         $class_id = $class['id'];
     } else {
         header('Location: ' . route('back'));
@@ -32,71 +29,56 @@ if (isset($_GET['id'])) {
     exit;
 }
 
-$sections = selectAllData('sections');
-$classes = selectAllData('classes', null, $class_id);
+$sections   = selectAllData('sections');
+$classes    = selectAllData('classes', null, $class_id);
 $class_arms = selectAllData('class_arms');
 
-$stmt = $conn->prepare("SELECT * FROM class_class_arms WHERE class_id = ?");
-$stmt->bind_param('i', $class_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$selected_class_arms = $result->fetch_all(MYSQLI_ASSOC);
-$linked_class_arms = array_column($selected_class_arms, 'arm_id');
+$stmt = $pdo->prepare("SELECT * FROM class_class_arms WHERE class_id = ?");
+$stmt->execute([$class_id]);
+$selected_class_arms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$linked_class_arms   = array_column($selected_class_arms, 'arm_id');
 
 $name = $section = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $name = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $section = htmlspecialchars(trim($_POST['classSection'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $level = htmlspecialchars(trim($_POST['classLevel'] ?? ''), ENT_QUOTES);
+    $name    = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $section = (int) ($_POST['classSection'] ?? 0);
+    $level   = (int) ($_POST['classLevel'] ?? 0);
     $shiftLevels = $_POST['shiftLevels'] ?? null;
 
-
-    $id = htmlspecialchars(trim($_POST['classId'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $id   = (int) ($_POST['classId'] ?? 0);
     $arms = $_POST['classArm'] ?? [];
 
     if (!is_array($arms)) {
         $arms = [$arms];
     }
 
-    $arms = array_map(
-        fn($arm) => htmlspecialchars(trim($arm), ENT_QUOTES, 'UTF-8'),
-        $arms
-    );
+    $arms = array_map(fn($arm) => (int) htmlspecialchars(trim($arm), ENT_QUOTES, 'UTF-8'), $arms);
 
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
     }
 
-
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
     } else {
-        $stmt = $conn->prepare("SELECT id, name FROM classes WHERE level = ? and id != ?");
-        $stmt->bind_param("ii", $level, $class_id);
-        $stmt->execute();
-        $exist = $stmt->get_result()->fetch_assoc(); // fetch single row
-        $stmt->close();
+        $stmt = $pdo->prepare("SELECT id, name FROM classes WHERE level = ? AND id != ?");
+        $stmt->execute([$level, $class_id]);
+        $exist = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($exist) {
-            // If checkbox "shiftLevels" is checked and level exists
             if (isset($shiftLevels)) {
-                $conn->begin_transaction();
+                $pdo->beginTransaction();
 
-                // Shift levels forward
-                $shiftStmt = $conn->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
-                $shiftStmt->bind_param('i', $level);
-                $shiftStmt->execute();
-                $shiftStmt->close();
+                $shiftStmt = $pdo->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
+                $shiftStmt->execute([$level]);
 
-                $conn->commit();
+                $pdo->commit();
             } else {
                 $errors['levelError'] = "Given Level is already taken by " . $exist['name'];
             }
@@ -112,29 +94,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $updateStmt = $conn->prepare(
-            "UPDATE classes SET name = ?, level = ?, section_id = ? WHERE id = ?"
-        );
-        $updateStmt->bind_param('siii', $name, $level, $section, $id);
-        if ($updateStmt->execute()) {
+        $updateStmt = $pdo->prepare("UPDATE classes SET name = ?, level = ?, section_id = ? WHERE id = ?");
+        $success = $updateStmt->execute([$name, $level, $section, $id]);
 
-            $delStmt = $conn->prepare("DELETE FROM class_class_arms WHERE class_id = ?");
-            $delStmt->bind_param('i', $id);
-            $delStmt->execute();
+        if ($success) {
+            $delStmt = $pdo->prepare("DELETE FROM class_class_arms WHERE class_id = ?");
+            $delStmt->execute([$id]);
 
-
-            $insert_stmt = $conn->prepare("INSERT INTO class_class_arms (class_id, arm_id) VALUES (?, ?)");
+            $insert_stmt = $pdo->prepare("INSERT INTO class_class_arms (class_id, arm_id) VALUES (?, ?)");
             foreach ($arms as $arm_id) {
-                $insert_stmt->bind_param('ii', $id, $arm_id);
-                $insert_stmt->execute();
+                $insert_stmt->execute([$id, $arm_id]);
             }
+
             $_SESSION['success'] = "Class updated successfully!";
             header("Location: " . route('back'));
             exit();
         } else {
             $errors['general'] = "Failed to update subject. Try again.";
         }
-        $updateStmt->close();
     } else {
         foreach ($errors as $field => $error) {
             echo "<p class='text-red-600 font-semibold'>$error</p>";
@@ -142,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 
 <script>

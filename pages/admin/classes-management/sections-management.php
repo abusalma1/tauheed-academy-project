@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-$stmt = $conn->prepare("
+$stmt = $pdo->prepare("
     SELECT 
         sections.id AS section_id,
         sections.name AS section_name,
@@ -21,7 +21,7 @@ $stmt = $conn->prepare("
         ON sections.head_teacher_id = teachers.id
     LEFT JOIN classes 
         ON classes.section_id = sections.id
-        where sections.deleted_at is null
+    WHERE sections.deleted_at IS NULL
     GROUP BY 
         sections.id, 
         sections.name, 
@@ -29,16 +29,12 @@ $stmt = $conn->prepare("
         teachers.id, 
         teachers.name
 ");
-
 $stmt->execute();
-$result = $stmt->get_result();
-$sections = $result->fetch_all(MYSQLI_ASSOC);
+$sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$classesCount = countDataTotal('classes')['total'];
+$classesCount  = countDataTotal('classes')['total'];
 $sectionsCount = countDataTotal('sections')['total'];
 $studentsCount = countDataTotal('students')['total'];
-
-
 ?>
 
 <body class="bg-gray-50">
@@ -54,9 +50,7 @@ $studentsCount = countDataTotal('students')['total'];
                     <h1 class="text-4xl md:text-5xl font-bold mb-4">View Sections</h1>
                     <p class="text-xl text-indigo-200">Browse and manage all school sections</p>
                 </div>
-                <a href="<?= route('create-section') ?>" class="bg-white text-indigo-900 px-6 py-3 rounded-lg font-semibold hover:bg-indigo-100 transition">
-                    <i class="fas fa-plus mr-2"></i>Create Section
-                </a>
+
             </div>
         </div>
     </section>
@@ -97,19 +91,24 @@ $studentsCount = countDataTotal('students')['total'];
 
             <!-- Search -->
             <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                <div class="flex flex-col gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Search by Section Name</label>
-                        <input type="text" id="searchInput" placeholder="Enter section name..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900">
+                        <label for="searchInput" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Search by Section Name
+                        </label>
+                        <input type="text" id="searchInput" name="section" placeholder="Enter section name..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900">
                     </div>
-                    <div class="hidden">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Filter by Status</label>
-                        <select id="statusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-900">
-                            <option value="">All Status</option>
-                        </select>
+                    <div class="flex items-center justify-center">
+
+                        <a href="<?= route('create-section') ?>"
+                            class="bg-indigo-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                            <i class="fas fa-plus mr-2"></i>Create Section
+                        </a>
                     </div>
                 </div>
             </div>
+
 
             <!-- Sections Table -->
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">

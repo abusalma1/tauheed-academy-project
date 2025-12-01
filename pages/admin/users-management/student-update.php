@@ -1,6 +1,5 @@
 <?php
-
-$title = "Students Managment";
+$title = "Students Update FPrm";
 include(__DIR__ . '/../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -9,182 +8,126 @@ if (!$is_logged_in) {
     exit();
 }
 
-
+// ✅ Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Current term
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
+$stmt->execute(['ongoing']);
+$current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT * from terms where deleted_at is null and status = ?");
-$ongoing = 'ongoing';
-$stmt->bind_param('s', $ongoing);
-$stmt->execute();
-$current_term = $stmt->get_result()->fetch_assoc();
-
-
+// Fetch student by ID
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare("
+        SELECT 
+            students.*,
+            classes.name AS class_name,
+            sessions.id AS session_id,
+            sessions.name AS session_name,
+            terms.id AS term_id,
+            terms.name AS term_name,
+            class_arms.name AS class_arm_name
+        FROM students
+        LEFT JOIN classes ON students.class_id = classes.id
+        LEFT JOIN class_arms ON students.arm_id = class_arms.id
+        LEFT JOIN terms ON terms.id = students.term_id
+        LEFT JOIN sessions ON sessions.id = terms.session_id
+        WHERE students.id = ?
+    ");
+    $stmt->execute([$id]);
+    $student = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $stmt = $conn->prepare("SELECT 
-    students.*,
-    classes.name AS class_name,
-    sessions.id AS session_id,
-      sessions.name AS session_name,
-    terms.id AS term_id,
-    terms.name AS term_name,
-    class_arms.name AS class_arm_name
-FROM students
-LEFT JOIN classes 
-    ON students.class_id = classes.id
-LEFT JOIN class_arms 
-    ON students.arm_id = class_arms.id
-LEFT JOIN terms 
-    ON terms.id = students.term_id
-    LEFT JOIN sessions 
-    ON sessions.id = terms.session_id
-    where students.id = ?
-");
-
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $student = $result->fetch_assoc();
-    } else {
+    if (!$student) {
         header('Location: ' . route('back'));
-        exit;
+        exit();
     }
+} else {
+    header('Location: ' . route('back'));
+    exit();
 }
-
-
 
 $guardians = selectAllData('guardians');
-$terms = selectAllData('terms');
-function getSessionIdFromTerm($termId, $terms)
-{
-    foreach ($terms as $t) {
-        if ($t['id'] == $termId) {
-            return $t['session_id'];
-        }
-    }
-    return null;
-}
-$studentSessionId = getSessionIdFromTerm($student['term_id'], $terms);
+$terms     = selectAllData('terms');
+$sessions  = selectAllData('sessions');
+$students  = selectAllData('students', null, $id);
 
-$sessions = selectAllData('sessions');
-
-$students = selectAllData('students', null, $id);
-
-$stmt = $conn->prepare(" SELECT 
+// Classes
+$stmt = $pdo->prepare("
+    SELECT 
         classes.id AS class_id,
-        classes.name as class_name,
+        classes.name AS class_name,
         teachers.id AS teacher_id,
         teachers.name AS teacher_name,
-        sections.id as section_id,
-        sections.name as section_name,
-        class_arms.id as arm_id,
-        class_arms.name as arm_name
-
+        sections.id AS section_id,
+        sections.name AS section_name,
+        class_arms.id AS arm_id,
+        class_arms.name AS arm_name
     FROM classes
-     LEFT JOIN class_class_arms 
-    ON class_class_arms.class_id = classes.id
-    LEFT JOIN teachers 
-    ON class_class_arms.teacher_id = teachers.id
-     LEFT JOIN sections 
-    ON classes.section_id = sections.id
-     LEFT JOIN class_arms 
-    ON class_class_arms.arm_id = class_arms.id
-    where classes.deleted_at is null
-    order by classes.level , class_arms.name
-
+    LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
+    LEFT JOIN teachers ON class_class_arms.teacher_id = teachers.id
+    LEFT JOIN sections ON classes.section_id = sections.id
+    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+    WHERE classes.deleted_at IS NULL
+    ORDER BY classes.level, class_arms.name
 ");
 $stmt->execute();
-$result = $stmt->get_result();
-$classes = $result->fetch_all(MYSQLI_ASSOC);
-
+$classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Count total students
-$studentsCount =  countDataTotal('students', true);
-
+$studentsCount = countDataTotal('students', true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF validation
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    // ✅ CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die("Invalid CSRF token.");
+    } else {
+        // ✅ Regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
     // Collect and sanitize input
-    $id = trim($_POST['id'] ?? '');
-    $name = trim($_POST['fullName'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
+    $id              = (int) trim($_POST['id'] ?? '');
+    $name            = trim($_POST['fullName'] ?? '');
+    $email           = trim($_POST['email'] ?? '');
+    $phone           = trim($_POST['phone'] ?? '');
     $admissionNumber = trim($_POST['admissionNumber'] ?? '');
-    $class = trim($_POST['class'] ?? '');
-    $term = trim($_POST['term'] ?? '');
-    $session = trim($_POST['session'] ?? '');
-    $dob = trim($_POST['dob'] ?? '');
-    $gender = trim($_POST['gender'] ?? '');
-    $guardian = trim($_POST['guardian'] ?? '');
-    $status = trim($_POST['status'] ?? 'inactive');
-
+    $class           = trim($_POST['class'] ?? '');
+    $term            = trim($_POST['term'] ?? '');
+    $session         = trim($_POST['session'] ?? '');
+    $dob             = trim($_POST['dob'] ?? '');
+    $gender          = trim($_POST['gender'] ?? '');
+    $guardian        = trim($_POST['guardian'] ?? '');
+    $status          = trim($_POST['status'] ?? 'inactive');
 
     $errors = [];
 
-    if (empty($name)) {
-        $errors['name'] = "Full name is required.";
-    }
-
-    if (empty($admissionNumber)) {
-        $errors['admissionNumber'] = "Admission number is required.";
-    }
-
+    // Validations
+    if (empty($name)) $errors['name'] = "Full name is required.";
+    if (empty($admissionNumber)) $errors['admissionNumber'] = "Admission number is required.";
     if (empty($class)) {
         $errors['class'] = "Please select a class.";
     } else {
         list($class_id, $arm_id) = explode('|', $class);
     }
-
-    if (empty($term)) {
-        $errors['term'] = "Please select a term.";
-    }
-
-
-    if (empty($session)) {
-        $errors['session'] = "Please select a term.";
-    }
-
-    if (empty($dob)) {
-        $errors['dob'] = "Date of birth is required.";
-    }
-
-    if (empty($gender)) {
-        $errors['gender'] = "Gender is required.";
-    }
-
-    if (empty($guardian)) {
-        $errors['guardian'] = "Guardian is required.";
-    }
-
-
-    if (!empty($phone) && !preg_match('/^[0-9+\s-]{7,15}$/', $phone)) {
-        $errors['phone'] = "Invalid phone number format.";
-    }
+    if (empty($term)) $errors['term'] = "Please select a term.";
+    if (empty($session)) $errors['session'] = "Please select a session.";
+    if (empty($dob)) $errors['dob'] = "Date of birth is required.";
+    if (empty($gender)) $errors['gender'] = "Gender is required.";
+    if (empty($guardian)) $errors['guardian'] = "Guardian is required.";
+    if (!empty($phone) && !preg_match('/^[0-9+\s-]{7,15}$/', $phone)) $errors['phone'] = "Invalid phone number format.";
 
     // Admission number uniqueness
-    $checkAdmission = $conn->prepare("SELECT id FROM students WHERE admission_number = ? and id != ?");
-    $checkAdmission->bind_param("si", $admissionNumber, $id);
-    $checkAdmission->execute();
-    $checkAdmission->store_result();
-    if ($checkAdmission->num_rows > 0) {
-        $errors['admissionNumber'] = "Admission number already exists.";
-    }
-    $checkAdmission->close();
+    $stmt = $pdo->prepare("SELECT id FROM students WHERE admission_number = ? AND id != ?");
+    $stmt->execute([$admissionNumber, $id]);
+    if ($stmt->fetch()) $errors['admissionNumber'] = "Admission number already exists.";
 
-
+    // Email uniqueness
     if (!empty($email)) {
         if (!validateEmail($email)) {
-            $errors['emailError '] = 'Please enter a valid email address';
+            $errors['emailError'] = 'Please enter a valid email address';
         } elseif (emailExist($email, 'students', $id)) {
             $errors['emailError'] = "Email already exists!";
         }
@@ -192,95 +135,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // --- FINAL DECISION ---
     if (empty($errors)) {
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        $stmt = $conn->prepare("UPDATE students set
-           name = ?, email = ?, phone = ?, admission_number = ?,  dob = ?, gender = ?, status = ?, class_id = ?, arm_id = ? , term_id = ? , guardian_id = ?  where id = ?");
-        $stmt->bind_param(
-            "sssssssiiiii",
-            $name,
-            $email,
-            $phone,
-            $admissionNumber,
-            $dob,
-            $gender,
-            $status,
-            $class_id,
-            $arm_id,
-            $term,
-            $guardian,
-            $id
+            // Update student
+            $stmt = $pdo->prepare("UPDATE students SET
+                name = ?, email = ?, phone = ?, admission_number = ?, dob = ?, gender = ?, status = ?, 
+                class_id = ?, arm_id = ?, term_id = ?, guardian_id = ? WHERE id = ?");
+            $stmt->execute([
+                $name,
+                $email,
+                $phone,
+                $admissionNumber,
+                $dob,
+                $gender,
+                $status,
+                $class_id,
+                $arm_id,
+                $term,
+                $guardian,
+                $id
+            ]);
 
-        );
-
-        if ($stmt->execute()) {
-            $term_id = (int)$term;
+            $term_id    = (int)$term;
             $session_id = (int)$session;
+
             // --- Student Class Record ---
-            $stmt = $conn->prepare("SELECT * FROM student_class_records 
-    WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?");
-            $stmt->bind_param('iiii', $student['id'], $student['class_id'], $student['arm_id'], $student['session_id']);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $student_class_record = $result->fetch_assoc();
+            $stmt = $pdo->prepare("SELECT * FROM student_class_records 
+                WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?");
+            $stmt->execute([$student['id'], $student['class_id'], $student['arm_id'], $student['session_id']]);
+            $student_class_record = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($student_class_record) {
-                // Record exists → update
                 $student_class_record_id = $student_class_record['id'];
-                $stmt = $conn->prepare("UPDATE student_class_records 
-        SET class_id = ?, arm_id = ?, session_id = ? WHERE id = ?");
-                $stmt->bind_param('iiii', $class_id, $arm_id, $session_id, $student_class_record_id);
-                $stmt->execute();
+                $stmt = $pdo->prepare("UPDATE student_class_records 
+                    SET class_id = ?, arm_id = ?, session_id = ? WHERE id = ?");
+                $stmt->execute([$class_id, $arm_id, $session_id, $student_class_record_id]);
             } else {
-                // Record does not exist → insert
-                $stmt = $conn->prepare("INSERT INTO student_class_records 
-        (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param('iiii', $student['id'], $class_id, $arm_id, $session_id);
-                $stmt->execute();
-                $student_class_record_id = $stmt->insert_id; // get new ID
+                $stmt = $pdo->prepare("INSERT INTO student_class_records (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$student['id'], $class_id, $arm_id, $session_id]);
+                $student_class_record_id = $pdo->lastInsertId();
             }
 
             // --- Student Term Record ---
-            $stmt = $conn->prepare("SELECT * FROM student_term_records 
-    WHERE student_class_record_id = ? AND term_id = ?");
-            $stmt->bind_param('ii', $student_class_record_id, $student['term_id']);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $student_term_record = $result->fetch_assoc();
+            $stmt = $pdo->prepare("SELECT * FROM student_term_records WHERE student_class_record_id = ? AND term_id = ?");
+            $stmt->execute([$student_class_record_id, $student['term_id']]);
+            $student_term_record = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($student_term_record) {
-                // Record exists → update
-                $stmt = $conn->prepare("UPDATE student_term_records 
-        SET student_class_record_id = ?, term_id = ? WHERE id = ?");
-                $stmt->bind_param('iii', $student_class_record_id, $term, $student_term_record['id']);
-                $stmt->execute();
+                $stmt = $pdo->prepare("UPDATE student_term_records SET student_class_record_id = ?, term_id = ? WHERE id = ?");
+                $stmt->execute([$student_class_record_id, $term, $student_term_record['id']]);
             } else {
-                // Record does not exist → insert
-                $stmt = $conn->prepare("INSERT INTO student_term_records 
-        (student_class_record_id, term_id) VALUES (?, ?)");
-                $stmt->bind_param('ii', $student_class_record_id, $term);
-                $stmt->execute();
+                $stmt = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
+                $stmt->execute([$student_class_record_id, $term]);
             }
 
-
+            // ✅ Commit transaction
+            $pdo->commit();
 
             $_SESSION['success'] = "Student account updated successfully!";
             header("Location: " . route('back'));
-            exit;
-        } else {
-            echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($stmt->error) . "</p>";
+            exit();
+        } catch (PDOException $e) {
+            // ❌ Rollback on error
+            $pdo->rollBack();
+            echo "<p class='text-red-500'>Error updating record: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
-
-        $stmt->close();
     } else {
-        // Display all validation errors
         foreach ($errors as $field => $error) {
             echo "<p class='text-red-600 font-semibold'>$error</p>";
         }
     }
 }
-
-
 ?>
+
 
 <script>
     const students = <?= json_encode($students, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;

@@ -7,45 +7,37 @@ if (!$is_logged_in) {
     header("Location: " . route('home'));
     exit();
 }
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM bank_accounts WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM bank_accounts WHERE id = ?');
+    $stmt->execute([$id]);
+    $account = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result->num_rows > 0) {
-        $account = $result->fetch_assoc();
-    } else {
+    if (!$account) {
         header('Location: ' . route('back'));
-        exit;
+        exit();
     }
 } else {
     header('Location: ' . route('back'));
-    exit;
+    exit();
 }
 
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $bankName = trim($_POST['bankName'] ?? '');
+    $bankName       = trim($_POST['bankName'] ?? '');
     $accountPurpose = trim($_POST['accountPurpose'] ?? '');
-    $accountName = trim($_POST['accountName'] ?? '');
-    $accountNumber = trim($_POST['accountNumber'] ?? '');
-
-
-
-
+    $accountName    = trim($_POST['accountName'] ?? '');
+    $accountNumber  = trim($_POST['accountNumber'] ?? '');
 
     if (empty($bankName)) {
         $errors['nameError'] = "Bank name is required";
@@ -60,22 +52,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($accountNumber)) {
-        $errors['accountNumber'] = "Account number name is required";
+        $errors['accountNumber'] = "Account number is required";
     }
 
-
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            "UPDATE bank_accounts set bank_name = ?, purpose = ?, account_name = ?, account_number = ?"
-        );
-        $stmt->bind_param('ssss', $bankName, $accountPurpose, $accountName, $accountNumber);
+        $stmt = $pdo->prepare("
+            UPDATE bank_accounts 
+            SET bank_name = ?, purpose = ?, account_name = ?, account_number = ?
+            WHERE id = ?
+        ");
+        $success = $stmt->execute([$bankName, $accountPurpose, $accountName, $accountNumber, $id]);
 
-        if ($stmt->execute()) {
+        if ($success) {
             $_SESSION['success'] = "Bank Account Updated successfully!";
-            header("Location: " .  route('back'));
+            header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
+            echo "<script>alert('Failed to update bank account');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -83,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

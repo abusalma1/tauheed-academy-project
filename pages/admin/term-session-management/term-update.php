@@ -1,6 +1,6 @@
 <?php
 
-$title = "Class Update Form";
+$title = "Term Update Form";
 include(__DIR__ . '/../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -14,88 +14,92 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT
-        terms.id as id, 
-        terms.name as name,
-        terms.start_date as start_date,
-        terms.end_date as end_date,
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT
+        terms.id AS id, 
+        terms.name AS name,
+        terms.start_date AS start_date,
+        terms.end_date AS end_date,
+        sessions.id AS session_id, 
+        sessions.name AS session_name,
+        sessions.start_date AS session_start_date,
+        sessions.end_date AS session_end_date
+     FROM terms 
+     LEFT JOIN sessions ON terms.session_id = sessions.id
+     WHERE terms.id = ?');
+    $stmt->execute([$id]);
+    $term = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        sessions.id as session_id , 
-        sessions.name as session_name,
-        sessions.start_date as session_start_date,
-        sessions.end_date as session_end_date
-
-        FROM terms 
-        left join sessions
-             on terms.session_id = sessions.id
-        WHERE terms.id = ? ');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $term = $result->fetch_assoc();
+    if ($term) {
         $term_id = $term['id'];
     } else {
         header('Location: ' . route('back'));
-        exit;
+        exit();
     }
 } else {
     header('Location: ' . route('back'));
-    exit;
+    exit();
 }
 
+// Assuming selectAllData is already PDO-based
 $terms = selectAllData('terms', null, $term_id);
 
-$stmt = $conn->prepare('SELECT * FROM terms WHERE session_id = ? and id != ?');
-$stmt->bind_param('ii', $term['session_id'], $term_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$terms = $result->fetch_all(MYSQLI_ASSOC);
-
+// Fetch other terms in the same session
+$stmt = $pdo->prepare('SELECT * FROM terms WHERE session_id = ? AND id != ?');
+$stmt->execute([$term['session_id'], $term_id]);
+$terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $id = trim($_POST['termId'] ?? '');
-    $name = trim($_POST['termName'] ?? '');
+    $id         = (int) trim($_POST['termId'] ?? '');
+    $name       = trim($_POST['termName'] ?? '');
     $start_date = trim($_POST['startDate'] ?? '');
-    $end_date = trim($_POST['endDate'] ?? '');
+    $end_date   = trim($_POST['endDate'] ?? '');
 
-
-
+    // Validations
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
     }
-
     if (empty($start_date)) {
         $errors['startDateError'] = "Start Date is required";
     }
-
     if (empty($end_date)) {
         $errors['endDateError'] = "End Date is required";
     }
 
-
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            "UPDATE terms SET name = ? , start_date = ?, end_date = ? WHERE id = ?"
-        );
-        $stmt->bind_param('sssi', $name, $start_date, $end_date, $id);
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Term updated successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
+            $stmt = $pdo->prepare(
+                "UPDATE terms SET name = ?, start_date = ?, end_date = ? WHERE id = ?"
+            );
+            $success = $stmt->execute([$name, $start_date, $end_date, $id]);
+
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+
+                $_SESSION['success'] = "Term updated successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if update fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update term');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -104,8 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-
 ?>
+
 
 
 <script>

@@ -14,107 +14,80 @@ function route($name)
     return $baseUrl . "/index.php";
 }
 
-
 function validateEmail($email)
 {
-    // Check if the email is valid using PHP's built-in filter
     return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 }
 
 function validatePhone($phone)
 {
-    // Remove all spaces
     $phone = preg_replace('/\s+/', '', $phone);
-
-    // Match Nigerian phone format: either +234XXXXXXXXXX or 11-digit local number
     return preg_match('/^\+?234\d{10}$|^\d{11}$/', $phone);
 }
 
-
 function emailExist($email, $table, $whereIdIsNot = 0)
 {
-    global $conn;
+    global $pdo;
 
     if ($whereIdIsNot > 0) {
-        // Check if email exists for others excluding this ID
         $query = "SELECT id FROM $table WHERE email = ? AND id != ? LIMIT 1";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param('si', $email, $whereIdIsNot);
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$email, $whereIdIsNot]);
     } else {
-        // Normal check for email existence
         $query = "SELECT id FROM $table WHERE email = ? LIMIT 1";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param('s', $email);
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$email]);
     }
 
-    $stmt->execute();
-    $stmt->store_result();
-
-    return $stmt->num_rows > 0;
+    return $stmt->rowCount() > 0;
 }
-
 
 function staffNumberExist($staff_no, $table, $whereIdIsNot = 0)
 {
-    global $conn;
+    global $pdo;
 
     if ($whereIdIsNot > 0) {
-        // Check if staff number exists for others excluding this ID
         $query = "SELECT id FROM $table WHERE staff_no = ? AND id != ? LIMIT 1";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param('si', $staff_no, $whereIdIsNot);
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$staff_no, $whereIdIsNot]);
     } else {
-        // Normal check for staff number existence
         $query = "SELECT id FROM $table WHERE staff_no = ? LIMIT 1";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param('s', $staff_no);
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$staff_no]);
     }
 
-    $stmt->execute();
-    $stmt->store_result();
-
-    return $stmt->num_rows > 0;
+    return $stmt->rowCount() > 0;
 }
-
 
 function countDataTotal($table, $haveActivity = false)
 {
-    global $conn;
+    global $pdo;
 
-    // Count total users
-    $totalQuery = $conn->query("SELECT COUNT(*) AS total FROM $table WHERE deleted_at is null");
-    $total = $totalQuery->fetch_assoc()['total'];
-    $total = number_format($total);
-
+    $totalQuery = $pdo->query("SELECT COUNT(*) AS total FROM $table WHERE deleted_at IS NULL");
+    $total = number_format($totalQuery->fetch(PDO::FETCH_ASSOC)['total']);
 
     if ($haveActivity) {
-        // Count active users
-        $activeQuery = $conn->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active'and deleted_at is null");
-        $active = $activeQuery->fetch_assoc()['active'];
-        $active = number_format($active);
+        $activeQuery = $pdo->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active' AND deleted_at IS NULL");
+        $active = number_format($activeQuery->fetch(PDO::FETCH_ASSOC)['active']);
 
-
-        // Count inactive users
-        $inactiveQuery = $conn->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive' and deleted_at is null");
-        $inactive = $inactiveQuery->fetch_assoc()['inactive'];
-        $inactive = number_format($inactive);
-
+        $inactiveQuery = $pdo->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive' AND deleted_at IS NULL");
+        $inactive = number_format($inactiveQuery->fetch(PDO::FETCH_ASSOC)['inactive']);
 
         if ($table === 'admins') {
-            // Count active admins
-            $activeQuery = $conn->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin' and deleted_at is null");
-            $admin = $activeQuery->fetch_assoc()['admin'];
-            $admin = number_format($admin);
+            $adminQuery = $pdo->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin' AND deleted_at IS NULL");
+            $admin = number_format($adminQuery->fetch(PDO::FETCH_ASSOC)['admin']);
 
+            $superAdminQuery = $pdo->query("SELECT COUNT(*) AS superAdmin FROM $table WHERE type = 'superAdmin' AND deleted_at IS NULL");
+            $superAdmin = number_format($superAdminQuery->fetch(PDO::FETCH_ASSOC)['superAdmin']);
 
-            // Count inactive superadmins
-            $inactiveQuery = $conn->query("SELECT COUNT(*) AS superAdmin FROM $table WHERE type = 'superAdmin' and deleted_at is null");
-            $superAdmin = $inactiveQuery->fetch_assoc()['superAdmin'];
-            $superAdmin = number_format($superAdmin);
-
-            return ['total' => $total, 'active' => $active, 'inactive' => $inactive, 'admin' => $admin, 'superadmin' => $superAdmin];
+            return [
+                'total' => $total,
+                'active' => $active,
+                'inactive' => $inactive,
+                'admin' => $admin,
+                'superadmin' => $superAdmin
+            ];
         }
-
 
         return ['total' => $total, 'active' => $active, 'inactive' => $inactive];
     }
@@ -124,31 +97,27 @@ function countDataTotal($table, $haveActivity = false)
 
 function selectAllData($table, $whereIdIs = null, $whereIdIsNot = null)
 {
-    global $conn;
+    global $pdo;
 
     if ($whereIdIs) {
-        $stmt = $conn->prepare("SELECT * FROM $table WHERE id =  ? and deleted_at is null");
-        $stmt->bind_param('i', $whereIdIs);
+        $stmt = $pdo->prepare("SELECT * FROM $table WHERE id = ? AND deleted_at IS NULL");
+        $stmt->execute([$whereIdIs]);
     } else if ($whereIdIsNot) {
-        $stmt = $conn->prepare("SELECT * FROM $table WHERE id != ?  and deleted_at is null");
-        $stmt->bind_param('i', $whereIdIsNot);
+        $stmt = $pdo->prepare("SELECT * FROM $table WHERE id != ? AND deleted_at IS NULL");
+        $stmt->execute([$whereIdIsNot]);
     } else {
-        $stmt = $conn->prepare("SELECT * FROM $table where deleted_at is null");
+        $stmt = $pdo->prepare("SELECT * FROM $table WHERE deleted_at IS NULL");
+        $stmt->execute();
     }
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $data = $result->fetch_all(MYSQLI_ASSOC);
 
-    return $data;
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 
 function getStudentResults($student_id)
 {
-    global $conn;
+    global $pdo;
 
-    // --- Fetch data ---
-    $stmt = $conn->prepare("
+    $stmt = $pdo->prepare("
         SELECT 
             sessions.id AS session_id,
             sessions.name AS session_name,
@@ -179,9 +148,8 @@ function getStudentResults($student_id)
         WHERE student_class_records.student_id = ?
         ORDER BY sessions.id DESC, classes.id ASC, terms.id ASC, subjects.name ASC
     ");
-    $stmt->bind_param("i", $student_id);
-    $stmt->execute();
-    $results = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->execute([$student_id]);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // --- Group for rendering ---
     $groupedResults = [];
@@ -190,7 +158,6 @@ function getStudentResults($student_id)
         $classKey = $row['class_name'] . '|' . $row['session_name'] . '|' . $row['arm_name'];
         $termKey = $row['term_name'];
 
-        // Create class entry if not exists
         if (!isset($groupedResults[$classKey])) {
             $groupedResults[$classKey] = [
                 'class_name' => $row['class_name'],
@@ -200,7 +167,6 @@ function getStudentResults($student_id)
             ];
         }
 
-        // Create term entry if not exists
         if (!isset($groupedResults[$classKey]['terms'][$termKey])) {
             $groupedResults[$classKey]['terms'][$termKey] = [
                 'term_name' => $row['term_name'],
@@ -208,7 +174,6 @@ function getStudentResults($student_id)
             ];
         }
 
-        // Add subject result
         $groupedResults[$classKey]['terms'][$termKey]['subjects_results'][] = [
             'subject_name' => $row['subject_name'],
             'ca' => $row['ca'] ?? 0,
@@ -219,7 +184,6 @@ function getStudentResults($student_id)
         ];
     }
 
-    // Convert associative terms → indexed array
     $finalResults = [];
     foreach ($groupedResults as $classData) {
         $classData['terms'] = array_values($classData['terms']);

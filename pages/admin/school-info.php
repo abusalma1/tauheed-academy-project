@@ -1,5 +1,5 @@
 <?php
-$title = "Schoo Information";
+$title = "School Information";
 include(__DIR__ . "/../../includes/header.php");
 
 if (!$is_logged_in) {
@@ -12,26 +12,23 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $id = intval($_POST['id']);
+    $id = (int) $_POST['id'];
 
-    $stmt = $conn->prepare("
+    $stmt = $pdo->prepare("
         UPDATE schools 
-        SET name=?, motto=?, address=?, email=?, welcome_message=?, about_message=?, 
-            phone=?, whatsapp_number=?, facebook=?, instagram=?, twitter=?, 
-            admission_number_format=?, admission_number_format_description=?, 
-            updated_at=NOW()
-        WHERE id=?
+        SET name = ?, motto = ?, address = ?, email = ?, welcome_message = ?, about_message = ?, 
+            phone = ?, whatsapp_number = ?, facebook = ?, instagram = ?, twitter = ?, 
+            admission_number_format = ?, admission_number_format_description = ?, 
+            updated_at = NOW()
+        WHERE id = ?
     ");
 
-    $stmt->bind_param(
-        'sssssssssssssi',
+    $success = $stmt->execute([
         $_POST['name'],
         $_POST['motto'],
         $_POST['address'],
@@ -46,19 +43,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_POST['admissionNumberFormat'],
         $_POST['admissionNumberFormatDescription'],
         $id
-    );
+    ]);
 
-    if ($stmt->execute()) {
+    if ($success) {
         $_SESSION['success'] = "School info updated successfully!";
         header("Location: " . route('back'));
         exit();
     } else {
-        echo "<script>alert('Failed to update school info: " . $stmt->error . "');</script>";
+        echo "<script>alert('Failed to update school info');</script>";
     }
 }
-
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

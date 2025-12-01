@@ -6,7 +6,7 @@
                 <img src="<?= asset('images/logo.png') ?>" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
                 <div>
                     <h1 class="text-xl font-bold"><?= $school['name'] ?? 'Tauheed Academy' ?></h1>
-                    <p class="text-xs text-blue-200"><?= $school['motto']; ?></p>
+                    <p class="text-xs text-blue-200">Admin Section</p>
 
                 </div>
             </div>

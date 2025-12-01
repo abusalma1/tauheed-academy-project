@@ -44,6 +44,8 @@ function sendResetEmail($email, $resetLink)
                 <p>If you did not request this, ignore this message.</p>
             </div>
         ";
+    $mail->AltBody = "Click the following link to reset your password: $resetLink";
+
 
     $mail->send();
   } catch (Exception $e) {

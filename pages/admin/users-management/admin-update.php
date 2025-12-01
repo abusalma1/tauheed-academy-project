@@ -9,120 +9,116 @@ if (!$is_logged_in) {
     exit();
 }
 
-
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM admins WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $admin = $result->fetch_assoc();
-    } else {
-        header('Location: ' .  route('back'));
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM admins WHERE id = ?');
+    $stmt->execute([$id]);
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$admin) {
+        header('Location: ' . route('back'));
+        exit();
     }
 } else {
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit();
 }
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
+// Assuming selectAllData is already PDO-based
 $admins = selectAllData('admins', null, $id);
 
 // Count total admins
-$adminsCount =  countDataTotal('admins', true);
+$adminsCount = countDataTotal('admins', true);
 
-
-$name =  $email  = $phone  =  $address = $staffNumber  = $status =  $roleTypeError = $department = '';
+$name = $email = $phone = $address = $staffNumber = $status = $roleType = $department = $gender = $qualification = $experience = '';
 $errors = [];
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
-    }
-
-    $name = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $id = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
-    $phone = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $staffNumber = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $roleType = htmlspecialchars(trim($_POST['roleType'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $department = htmlspecialchars(trim($_POST['department'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
-    $gender = trim($_POST['gender'] ?? '');
-    $qualification = htmlspecialchars(trim($_POST['qualification'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $experience = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
-
-
-    if (empty($name)) {
-        $errors['nameError'] = 'Full name is required';
-    }
-
-    if (empty($email)) {
-
-        $errors['emailError'] = 'Email is required';
     } else {
-        if (!validateEmail($email)) {
-            $errors['emailError'] = 'Please enter a valid email address';
-        } else {
-            if (emailExist($email, 'admins', $id)) {
-                $errors['emailError'] = "Email already exists!";
-            }
-        }
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    if (empty($phone)) {
-        $errors['phoneError'] =  'Phone number is required';
-    }
+    $id          = (int) htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $name        = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email       = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone       = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address     = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $staffNumber = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $roleType    = htmlspecialchars(trim($_POST['roleType'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $department  = htmlspecialchars(trim($_POST['department'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $status      = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender      = trim($_POST['gender'] ?? '');
+    $qualification = htmlspecialchars(trim($_POST['qualification'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $experience    = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
 
-    if (empty($roleType)) {
-        $errors['roleTypeError'] =  'Subject/Department is required';
+    // Validations
+    if (empty($name)) $errors['nameError'] = 'Full name is required';
+    if (empty($email)) {
+        $errors['emailError'] = 'Email is required';
+    } elseif (!validateEmail($email)) {
+        $errors['emailError'] = 'Please enter a valid email address';
+    } elseif (emailExist($email, 'admins', $id)) {
+        $errors['emailError'] = "Email already exists!";
     }
-
-    if (empty($address)) {
-        $errors['addressError']  = 'Please enter address';
-    }
-
-    if (empty($gender)) {
-        $errors['gender'] = "Gender is required.";
-    }
+    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
+    if (empty($roleType)) $errors['roleTypeError'] = 'Subject/Department is required';
+    if (empty($address)) $errors['addressError'] = 'Please enter address';
+    if (empty($gender)) $errors['genderError'] = "Gender is required.";
     if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
     if (empty($experience)) $errors['experienceError'] = 'Experience is required';
-
-
     if (empty($staffNumber)) {
         $errors['staffNumberError'] = 'Please insert staff ID number';
-    } else {
-        if (staffNumberExist($staffNumber, 'admins', $id)) {
-            $errors['staffNumberError'] = "Staff No already exists!";
-        }
+    } elseif (staffNumberExist($staffNumber, 'admins', $id)) {
+        $errors['staffNumberError'] = "Staff No already exists!";
     }
-
-    if (empty($department)) {
-        $errors['departmentError'] = 'Qualification is required';
-    }
-
-    if (empty($status)) {
-        $errors['statusError'] = "Status is required";
-    }
+    if (empty($department)) $errors['departmentError'] = 'Department is required';
+    if (empty($status)) $errors['statusError'] = "Status is required";
 
     if (empty($errors)) {
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        $stmt = $conn->prepare("UPDATE admins set name = ?, email = ?, phone = ?, department = ?, address = ?, staff_no = ?, status = ?, type = ? , gender = ?, qualification = ?, experience = ? where id = ? ");
-        $stmt->bind_param('sssssssssssi', $name, $email, $phone, $department, $address, $staffNumber, $status, $roleType, $gender, $qualification, $experience,  $id);
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Admin/Super User updated successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create admin/super user account: " . $stmt->error . "');</script>";
+            $stmt = $pdo->prepare("UPDATE admins 
+                SET name = ?, email = ?, phone = ?, department = ?, address = ?, staff_no = ?, 
+                    status = ?, type = ?, gender = ?, qualification = ?, experience = ? 
+                WHERE id = ?");
+            $success = $stmt->execute([
+                $name,
+                $email,
+                $phone,
+                $department,
+                $address,
+                $staffNumber,
+                $status,
+                $roleType,
+                $gender,
+                $qualification,
+                $experience,
+                $id
+            ]);
+
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+                $_SESSION['success'] = "Admin/Super User updated successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if update fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update admin/super user account');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

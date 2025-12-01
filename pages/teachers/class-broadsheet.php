@@ -1,5 +1,5 @@
 <?php
-$title = "My Class";
+$title = "Class Results";
 include(__DIR__ . '/../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -8,74 +8,79 @@ if (!$is_logged_in) {
     exit();
 }
 
-// ✅ Current Term
-$stmt = $pdo->prepare("
-    SELECT t.name, s.name AS session_name, s.id AS session_id
-    FROM terms t
-    LEFT JOIN sessions s ON t.session_id = s.id
-    WHERE t.status = ?
-");
-$stmt->execute(['ongoing']);
-$currentTerm = $stmt->fetch(PDO::FETCH_ASSOC);
-
-$teacher = $user;
-
-// ✅ Classes and Students
-$stmt = $pdo->prepare("
-   SELECT 
-    c.id AS class_id,
-    c.name AS class_name,
-    ca.id AS arm_id,
-    ca.name AS arm_name,
-    s.id AS student_id,
-    s.name AS student_name,
-    s.status AS student_status,
-    s.admission_number AS student_admission_number,
-    s.email AS student_email
-   FROM class_class_arms cca
-   JOIN classes c ON c.id = cca.class_id
-   JOIN class_arms ca ON ca.id = cca.arm_id
-   LEFT JOIN students s ON s.class_id = cca.class_id AND s.arm_id = cca.arm_id
-   WHERE cca.teacher_id = ?
-   ORDER BY c.level, ca.name, s.name
-");
-$stmt->execute([$teacher['id']]);
-$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$classes = [];
-
-foreach ($rows as $row) {
-    $class_id = $row['class_id'];
-    $arm_id   = $row['arm_id'];
-
-    // Unique key for each class-arm combo
-    $key = $class_id . '_' . $arm_id;
-
-    if (!isset($classes[$key])) {
-        $classes[$key] = [
-            'class_id'   => $class_id,
-            'class_name' => $row['class_name'],
-            'arm_id'     => $arm_id,
-            'arm_name'   => $row['arm_name'],
-            'students'   => []
-        ];
-    }
-
-    // Add student only if exists
-    if (!empty($row['student_id'])) {
-        $classes[$key]['students'][] = [
-            'id'               => $row['student_id'],
-            'name'             => $row['student_name'],
-            'admission_number' => $row['student_admission_number'],
-            'email'            => $row['student_email'],
-            'status'           => $row['student_status']
-        ];
-    }
+if (isset($_GET['class_id']) && isset($_GET['session_id'])) {
+    $class_id   = (int) $_GET['class_id'];
+    $session_id = (int) $_GET['session_id'];
+} else {
+    $_SESSION['failure'] = "Class and session are not found";
+    header('Location: ' . route('back'));
+    exit();
 }
 
-// ✅ Reindex classes by numeric index if needed
-$classes = array_values($classes);
+// ✅ Use PDO instead of MySQLi
+$stmt = $pdo->prepare("
+    SELECT
+        t.id AS term_id,
+        t.name AS term_name,
+        t.session_id,
+
+        s.id AS student_id,
+        s.name AS student_name,
+        s.admission_number,
+        s.class_id,
+        s.arm_id,
+
+        scr.id AS student_class_record_id,
+
+        str.id AS student_term_record_id,
+        str.total_marks,
+        str.average_marks,
+        str.position_in_class,
+        str.class_size,
+        str.overall_grade
+
+    FROM terms t
+    CROSS JOIN students s
+    LEFT JOIN student_class_records scr
+        ON scr.student_id = s.id
+        AND scr.session_id = t.session_id
+        AND scr.class_id = s.class_id
+        AND scr.arm_id = s.arm_id
+    LEFT JOIN student_term_records str
+        ON str.student_class_record_id = scr.id
+        AND str.term_id = t.id
+    WHERE t.session_id = ? AND s.class_id = ?
+    ORDER BY t.id, s.name
+");
+$stmt->execute([$session_id, $class_id]);
+$terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ✅ Group results by term
+$grouped = [];
+
+foreach ($terms as $row) {
+    $tid = $row['term_id'];
+
+    if (!isset($grouped[$tid])) {
+        $grouped[$tid] = [
+            'term_id'   => $row['term_id'],
+            'term_name' => $row['term_name'],
+            'students'  => []
+        ];
+    }
+
+    $grouped[$tid]['students'][] = [
+        'student_id'       => $row['student_id'],
+        'student_name'     => $row['student_name'],
+        'admission_number' => $row['admission_number'],
+        'total_marks'      => $row['total_marks'],
+        'average_marks'    => $row['average_marks'],
+        'position_in_class' => $row['position_in_class'],
+        'overall_grade'    => $row['overall_grade'],
+    ];
+}
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -127,17 +132,12 @@ $classes = array_values($classes);
 
                 <!-- Students Table -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-                    <div class="bg-blue-900 text-white px-6 py-4 flex items-center justify-between">
-                        <h3 class="text-lg font-semibold flex flex-row items-center gap-2">
+                    <div class="bg-blue-900 text-white px-6 py-4">
+                        <h3 class="text-lg font-semibold flex items-center gap-2">
                             <i class="fas fa-list"></i>
-                            Class <?= $class['class_name'] . ' ' . $class['arm_name'] ?> Students (<?= count($class['students'])  ?>)
+                            Class Students (<?= $class['class_name'] . ' ' . $class['arm_name'] ?>) - <?= count($class['students']) ?> Students
                         </h3>
-                        <a href="<?= route('class-broadsheet') ?>?class_id=<?= $class['class_id'] ?>&session_id=<?= $currentTerm['session_id'] ?>"
-                            class="bg-white text-blue-900 px-4 py-2 rounded-lg font-semibold hover:bg-blue-100 transition">
-                            <i class="fas fa-eye mr-2"></i>View class broadsheet
-                        </a>
                     </div>
-
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>

@@ -12,42 +12,41 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM subjects WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $subject = $result->fetch_assoc();
-    } else {
-        $_SESSION['success'] = "Subject added successfully!";
-        header('Location: ' .  route('back'));
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM subjects WHERE id = ?');
+    $stmt->execute([$id]);
+    $subject = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$subject) {
+        $_SESSION['failure'] = "Subject not found!";
+        header('Location: ' . route('back'));
+        exit();
     }
 } else {
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit();
 }
 
 $subject_id = $subject['id'];
 
+// Fetch class_subjects
+$stmt = $pdo->prepare('SELECT * FROM class_subjects WHERE subject_id = ? AND deleted_at IS NULL');
+$stmt->execute([$subject_id]);
+$class_subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare('SELECT * FROM class_subjects WHERE subject_id = ? and deleted_at is null');
-$stmt->bind_param('i', $subject['id']);
-$stmt->execute();
-$result = $stmt->get_result();
-$class_subjects = $result->fetch_all(MYSQLI_ASSOC);
-
-$stmt = $conn->prepare("
+// Fetch classes
+$stmt = $pdo->prepare("
     SELECT *
     FROM classes
-    where deleted_at is null
+    WHERE deleted_at IS NULL
     GROUP BY level
 ");
 $stmt->execute();
-$result = $stmt->get_result();
-$classes = $result->fetch_all(MYSQLI_ASSOC);
-$subjects = selectAllData('subjects', null, $subject['id']);
+$classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Assuming selectAllData is already PDO-based
+$subjects = selectAllData('subjects', null, $subject_id);
 
 // Handle POST (update)
 $errors = [];
@@ -56,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $name = trim($_POST['name'] ?? '');
+    $name      = trim($_POST['name'] ?? '');
     $class_ids = isset($_POST['classes']) ? $_POST['classes'] : [];
 
     // Validations
@@ -68,39 +67,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['classes'] = "Please select at least one class.";
     }
 
-
     if (empty($errors)) {
-        // Update subject name
-        $updateStmt = $conn->prepare("UPDATE subjects SET name = ? WHERE id = ?");
-        $updateStmt->bind_param('si', $name, $subject_id);
+        try {
+            $pdo->beginTransaction();
 
-        if ($updateStmt->execute()) {
+            // Update subject name
+            $updateStmt = $pdo->prepare("UPDATE subjects SET name = ? WHERE id = ?");
+            $updateStmt->execute([$name, $subject_id]);
+
             // Replace pivot rows: delete old, insert new
-            $delStmt = $conn->prepare("DELETE FROM class_subjects WHERE subject_id = ?");
-            $delStmt->bind_param('i', $subject_id);
-            $delStmt->execute();
-            $delStmt->close();
+            $delStmt = $pdo->prepare("DELETE FROM class_subjects WHERE subject_id = ?");
+            $delStmt->execute([$subject_id]);
 
-            $insertPivot = $conn->prepare("INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)");
+            $insertPivot = $pdo->prepare("INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)");
             foreach ($class_ids as $cid) {
-                $cid = intval($cid);
-                $insertPivot->bind_param('ii', $cid, $subject_id);
-                $insertPivot->execute();
+                $insertPivot->execute([intval($cid), $subject_id]);
             }
-            $insertPivot->close();
 
+            $pdo->commit();
 
             $_SESSION['success'] = "Subject updated successfully!";
-
             header('Location: ' . route('back'));
-            exit;
-        } else {
-            $errors['general'] = "Failed to update subject. Try again.";
+            exit();
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            $errors['general'] = "Database error: " . htmlspecialchars($e->getMessage());
         }
-        $updateStmt->close();
     }
 }
 ?>
+
 <script>
     const subjects = <?= json_encode($subjects, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

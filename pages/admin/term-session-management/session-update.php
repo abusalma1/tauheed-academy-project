@@ -1,6 +1,6 @@
 <?php
 
-$title = "Class Update Form";
+$title = "Session Update Form";
 include(__DIR__ . '/../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -14,67 +14,76 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM sessions WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM sessions WHERE id = ?');
+    $stmt->execute([$id]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result->num_rows > 0) {
-        $session = $result->fetch_assoc();
+    if ($session) {
         $session_id = $session['id'];
     } else {
         header('Location: ' . route('back'));
-        exit;
+        exit();
     }
 } else {
     header('Location: ' . route('back'));
-    exit;
+    exit();
 }
 
+// Assuming selectAllData is already PDO-based
 $sessions = selectAllData('sessions', null, $session_id);
 
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $id = trim($_POST['sessionId'] ?? '');
-    $name = trim($_POST['sessionName'] ?? '');
+    $id         = (int) trim($_POST['sessionId'] ?? '');
+    $name       = trim($_POST['sessionName'] ?? '');
     $start_date = trim($_POST['startDate'] ?? '');
-    $end_date = trim($_POST['endDate'] ?? '');
+    $end_date   = trim($_POST['endDate'] ?? '');
 
-
-
+    // Validations
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
     }
-
     if (empty($start_date)) {
         $errors['startDateError'] = "Start Date is required";
     }
-
     if (empty($end_date)) {
         $errors['endDateError'] = "End Date is required";
     }
 
-
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            "UPDATE sessions SET name = ? , start_date = ?, end_date = ? WHERE id = ?"
-        );
-        $stmt->bind_param('sssi', $name, $start_date, $end_date, $id);
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Session updated successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
+            $stmt = $pdo->prepare(
+                "UPDATE sessions SET name = ?, start_date = ?, end_date = ? WHERE id = ?"
+            );
+            $success = $stmt->execute([$name, $start_date, $end_date, $id]);
+
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+
+                $_SESSION['success'] = "Session updated successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if update fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update session');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -82,7 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 
 ?>
 

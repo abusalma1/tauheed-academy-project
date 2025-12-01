@@ -2,8 +2,14 @@
 $title = "Fees Assignment";
 include(__DIR__ . '/../../../includes/header.php');
 
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Fetch sections and classes
-$stmt = $conn->prepare("SELECT 
+$stmt = $pdo->prepare("
+    SELECT 
         sections.id AS section_id,
         sections.name AS section_name,
         classes.id AS class_id,
@@ -14,8 +20,7 @@ $stmt = $conn->prepare("SELECT
     ORDER BY classes.level ASC
 ");
 $stmt->execute();
-$result = $stmt->get_result();
-$rows = $result->fetch_all(MYSQLI_ASSOC);
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $sections = [];
 $classFees = []; // to store existing fees
@@ -25,51 +30,52 @@ foreach ($rows as $row) {
 
     if (!isset($sections[$sectionId])) {
         $sections[$sectionId] = [
-            'section_id' => $row['section_id'],
+            'section_id'   => $row['section_id'],
             'section_name' => $row['section_name'],
-            'classes' => []
+            'classes'      => []
         ];
     }
 
     if (!empty($row['class_id'])) {
         $sections[$sectionId]['classes'][] = [
-            'class_id' => $row['class_id'],
+            'class_id'   => $row['class_id'],
             'class_name' => $row['class_name']
         ];
     }
 }
 
 // Fetch existing fees for all classes
-$feeStmt = $conn->prepare("SELECT * FROM fees");
+$feeStmt = $pdo->prepare("SELECT * FROM fees");
 $feeStmt->execute();
-$feeResult = $feeStmt->get_result();
-while ($feeRow = $feeResult->fetch_assoc()) {
+$feeRows = $feeStmt->fetchAll(PDO::FETCH_ASSOC);
+foreach ($feeRows as $feeRow) {
     $classFees[$feeRow['class_id']] = $feeRow;
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }
 
     foreach ($_POST['fees'] as $classId => $fee) {
-
         // sanitize to avoid null numeric fields
-        $first  = $fee['first_term'] ?? 0;
-        $second = $fee['second_term'] ?? 0;
-        $third  = $fee['third_term'] ?? 0;
-        $uniform = $fee['uniform'] ?? 0;
-        $transport = $fee['transport'] ?? 0;
-        $materials = $fee['materials'] ?? 0;
+        $first       = $fee['first_term'] ?? 0;
+        $second      = $fee['second_term'] ?? 0;
+        $third       = $fee['third_term'] ?? 0;
+        $uniform     = $fee['uniform'] ?? 0;
+        $transport   = $fee['transport'] ?? 0;
+        $materials   = $fee['materials'] ?? 0;
         $registration = $fee['registration'] ?? 0;
-        $pta = $fee['pta'] ?? 0;
-
+        $pta         = $fee['pta'] ?? 0;
 
         if (isset($classFees[$classId])) {
             // Update existing
-            $update = $conn->prepare("UPDATE fees 
-                SET first_term=?, second_term=?, third_term=?, uniform=?, transport=?, materials=?,  registration=?, pta=?, updated_at=NOW()
-                WHERE class_id=?");
-            $update->bind_param(
-                "ddddddddi",
+            $update = $pdo->prepare("
+                UPDATE fees 
+                SET first_term=?, second_term=?, third_term=?, uniform=?, transport=?, materials=?, registration=?, pta=?, updated_at=NOW()
+                WHERE class_id=?
+            ");
+            $update->execute([
                 $first,
                 $second,
                 $third,
@@ -79,16 +85,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $registration,
                 $pta,
                 $classId
-            );
-            $update->execute();
-            $update->close();
+            ]);
         } else {
             // Insert new
-            $insert = $conn->prepare("INSERT INTO fees
+            $insert = $pdo->prepare("
+                INSERT INTO fees
                 (class_id, first_term, second_term, third_term, uniform, transport, materials, registration, pta)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $insert->bind_param(
-                "idddddddd",
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $insert->execute([
                 $classId,
                 $first,
                 $second,
@@ -98,9 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $materials,
                 $registration,
                 $pta
-            );
-            $insert->execute();
-            $insert->close();
+            ]);
         }
     }
 
@@ -108,8 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: " . route('back'));
     exit;
 }
-
 ?>
+
 
 
 <body class="bg-gray-50">
@@ -187,6 +190,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
             <form method="post">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
+
                 <!-- Fees Table by Sections -->
                 <div class="space-y-8 text-nowrap">
 

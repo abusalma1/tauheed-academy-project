@@ -9,66 +9,57 @@ if (!$is_logged_in) {
 }
 
 if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_id'])) {
-    $class_id = intval($_GET['class_id']);
-    $session_id = intval($_GET['session_id']);
-    $term_id = intval($_GET['term_id']);
+    $class_id   = (int) $_GET['class_id'];
+    $session_id = (int) $_GET['session_id'];
+    $term_id    = (int) $_GET['term_id'];
+    $subject_id = (int) $_GET['subject_id'];
 
-    $subject_id = intval($_GET['subject_id']);
+    // ✅ Subject
+    $stmt = $pdo->prepare("SELECT name FROM subjects WHERE id = ?");
+    $stmt->execute([$subject_id]);
+    $subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $stmt = $conn->prepare("SELECT name from subjects where id = ?");
-    $stmt->bind_param("i", $subject_id);
-    $stmt->execute();
-    $subject = $stmt->get_result()->fetch_assoc();
+    // ✅ Session
+    $stmt = $pdo->prepare("SELECT id, name FROM sessions WHERE id = ?");
+    $stmt->execute([$session_id]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $stmt = $conn->prepare("SELECT id, name from sessions where id = ?");
-    $stmt->bind_param("i", $session_id);
-    $stmt->execute();
-    $session = $stmt->get_result()->fetch_assoc();
+    // ✅ Term
+    $stmt = $pdo->prepare("SELECT id, name FROM terms WHERE id = ?");
+    $stmt->execute([$term_id]);
+    $term = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $stmt = $conn->prepare("SELECT id, name from terms where id = ?");
-    $stmt->bind_param("i", $term_id);
-    $stmt->execute();
-    $term = $stmt->get_result()->fetch_assoc();
-
-
-    $stmt = $conn->prepare("
+    // ✅ Students + Results
+    $stmt = $pdo->prepare("
         SELECT 
             st.id AS id,
             st.name,
             st.admission_number,
             st.arm_id,
-            
             r.ca,
             r.exam,
             r.total,
             r.grade,
             r.remark
-
         FROM students st
-
         LEFT JOIN student_class_records scr
             ON scr.student_id = st.id 
             AND scr.class_id = ?
-
         LEFT JOIN student_term_records str
             ON str.student_class_record_id = scr.id
             AND str.term_id = ?
-
         LEFT JOIN results r
             ON r.student_term_record_id = str.id
             AND r.subject_id = ?
-
         WHERE st.class_id = ?
         ORDER BY st.admission_number
     ");
-
-    $stmt->bind_param("iiii", $class_id, $term_id, $subject_id, $class_id);
-    $stmt->execute();
-    $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->execute([$class_id, $term_id, $subject_id, $class_id]);
+    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
-    route('back');
+    header("Location: " . route('back'));
+    exit();
 }
-
 ?>
 
 <body class="bg-gray-50">

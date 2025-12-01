@@ -8,7 +8,8 @@ if (!$is_logged_in) {
     exit();
 }
 
-$stmt = $conn->prepare("
+// ✅ Use PDO instead of MySQLi
+$stmt = $pdo->prepare("
     SELECT 
         classes.id AS class_id,
         classes.name AS class_name,
@@ -33,55 +34,57 @@ $stmt = $conn->prepare("
     ORDER BY classes.level, subjects.name
 ");
 $stmt->execute();
-$result = $stmt->get_result();
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $classes = [];
 
-while ($row = $result->fetch_assoc()) {
+foreach ($rows as $row) {
     $classId = $row['class_id'];
 
     if (!isset($classes[$classId])) {
         $classes[$classId] = [
-            'id' => $row['class_id'],
-            'name' => $row['class_name'],
-            'section_name' => $row['section_name'],  // Add section here
-            'subjects' => []  // This stays named 'subjects'
+            'id'           => $row['class_id'],
+            'name'         => $row['class_name'],
+            'section_name' => $row['section_name'],
+            'subjects'     => []
         ];
     }
 
     if (!empty($row['subject_id'])) {
         $classes[$classId]['subjects'][] = [
             'class_subject_id' => $row['class_subject_id'],
-            'id' => $row['subject_id'],
-            'name' => $row['subject_name'],
-            'teacher' => $row['teacher_name'] ?: 'No teacher assigned'
+            'id'               => $row['subject_id'],
+            'name'             => $row['subject_name'],
+            'teacher'          => $row['teacher_name'] ?: 'No teacher assigned'
         ];
     }
 }
 
-
 // Reindex classes by numeric index
 $classes = array_values($classes);
-$stmt = $conn->prepare("SELECT * from classes where deleted_at is null order by level asc");
+
+// ✅ Fetch all classes
+$stmt = $pdo->prepare("SELECT * FROM classes WHERE deleted_at IS NULL ORDER BY level ASC");
 $stmt->execute();
-$allClasses =  $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-$terms = selectAllData('terms');
+$allClasses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ✅ Fetch terms and sessions
+$terms    = selectAllData('terms');
 $sessions = selectAllData('sessions');
 
-$stmt = $conn->prepare("SELECT * from terms where deleted_at is null and status = ?");
-$ongoing = 'ongoing';
-$stmt->bind_param('s', $ongoing);
-$stmt->execute();
-$current_term = $stmt->get_result()->fetch_assoc();
+// ✅ Fetch current term
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
+$stmt->execute(['ongoing']);
+$current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 
+// ✅ Handle missing selection
 if (isset($_POST['missing_selection'])) {
     $_SESSION['failure'] = "Please select a session and a term before creating or updating results.";
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
-
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

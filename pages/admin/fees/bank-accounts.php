@@ -8,11 +8,11 @@ if (!$is_logged_in) {
     exit();
 }
 
-$stmt = $conn->prepare("SELECT * FROM bank_accounts");
+$stmt = $pdo->prepare("SELECT * FROM bank_accounts where deleted_at is null");
 $stmt->execute();
-$accounts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
+$accounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -114,7 +114,7 @@ $accounts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                 <a href="<?= route('update-bank-account') ?>?id=<?= $account['id'] ?>" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition flex items-center justify-center gap-2">
                                     <i class="fas fa-edit"></i>Edit
                                 </a>
-                                <a href="" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                                <a href="<?= route('delete-bank-account') ?>?id=<?= $account['id'] ?>" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition flex items-center justify-center gap-2">
                                     <i class="fas fa-trash"></i>Delete
                                 </a>
                             </div>

@@ -9,64 +9,43 @@ if (!$is_logged_in) {
     exit();
 }
 
-
-
-
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
-$stmt = $conn->prepare("SELECT * FROM class_arms where deleted_At is null order by updated_at desc Limit 10");
+// Fetch latest class arms
+$stmt = $pdo->prepare("SELECT * FROM class_arms WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
 $stmt->execute();
-$result = $stmt->get_result();
-$class_arms_list = $result->fetch_all(MYSQLI_ASSOC);
-
+$class_arms_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $class_arms = selectAllData('class_arms');
-
 $armsCount = countDataTotal('class_arms')['total'];
-
 
 $name = $description = '';
 $errors = [];
 
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
     $name = htmlspecialchars(trim($_POST['armName'] ?? ''), ENT_QUOTES, 'UTF-8');
     $description = htmlspecialchars(trim($_POST['armDescription'] ?? ''), ENT_QUOTES, 'UTF-8');
 
-
-
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
     }
 
-
-    if (empty($description)) {
-        $errors['descriptionError'] = "Description is required";
-    }
-
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            "INSERT INTO class_arms (name, description)
-             VALUES (?, ?)"
-        );
-        $stmt->bind_param('ss', $name, $description);
+        $stmt = $pdo->prepare("INSERT INTO class_arms (name, description) VALUES (?, ?)");
+        $success = $stmt->execute([$name, $description]);
 
-        if ($stmt->execute()) {
+        if ($success) {
             $_SESSION['success'] = "Arm created successfully!";
-            header("Location: " .  route('back'));
+            header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create class arm : " . $stmt->error . "');</script>";
+            echo "<script>alert('Failed to create class arm');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

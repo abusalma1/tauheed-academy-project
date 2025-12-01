@@ -13,43 +13,48 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 if (isset($_GET['id'])) {
-  $id = $_GET['id'];
+  $id = (int) $_GET['id'];
 
-  $stmt = $conn->prepare("SELECT * FROM classes WHERE id=?");
-  $stmt->bind_param('i', $id);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  if ($result->num_rows > 0) {
-    $class = $result->fetch_assoc();
-  } else {
-    header('Location: ' .  route('back'));
+  $stmt = $pdo->prepare("SELECT * FROM classes WHERE id = ?");
+  $stmt->execute([$id]);
+  $class = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if (!$class) {
+    header('Location: ' . route('back'));
+    exit();
   }
 } else {
-  header('Location: ' .  route('back'));
+  header('Location: ' . route('back'));
+  exit();
 }
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (
-    !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-  ) {
+  if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+
     die('CSRF validation failed. Please refresh and try again.');
+  } else {
+
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
 
-  $id = trim($_POST['id'] ?? '');
 
-  if (empty($id)) $errors['id'] = 'Class Not Found';
+  $id = (int) trim($_POST['id'] ?? '');
+
+  if (empty($id)) {
+    $errors['id'] = 'Class Not Found';
+  }
 
   if (empty($errors)) {
-    $stmt = $conn->prepare("UPDATE classes set deleted_at = NOW() where id =?");
-    $stmt->bind_param('i', $id);
+    $stmt = $pdo->prepare("UPDATE classes SET deleted_at = NOW() WHERE id = ?");
+    $success = $stmt->execute([$id]);
 
-    if ($stmt->execute()) {
+    if ($success) {
       $_SESSION['success'] = "Class Deleted successfully!";
-      header("Location: " .  route('back'));
+      header("Location: " . route('back'));
       exit();
     } else {
-      echo "<script>alert('Failed to delete a Class: " . $stmt->error . "');</script>";
+      echo "<script>alert('Failed to delete a Class');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {
@@ -57,9 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 }
-
-
 ?>
+
 
 <body class="bg-gray-50">
   <!-- Navigation -->

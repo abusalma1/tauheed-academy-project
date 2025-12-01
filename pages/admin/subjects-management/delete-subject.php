@@ -13,43 +13,52 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 if (isset($_GET['id'])) {
-  $id = $_GET['id'];
+  $id = (int) $_GET['id'];
 
-  $stmt = $conn->prepare("SELECT * FROM subjects WHERE id=?");
-  $stmt->bind_param('i', $id);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  if ($result->num_rows > 0) {
-    $subject = $result->fetch_assoc();
-  } else {
-    header('Location: ' .  route('back'));
+  $stmt = $pdo->prepare("SELECT * FROM subjects WHERE id = ?");
+  $stmt->execute([$id]);
+  $subject = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if (!$subject) {
+    header('Location: ' . route('back'));
+    exit();
   }
 } else {
-  header('Location: ' .  route('back'));
+  header('Location: ' . route('back'));
+  exit();
 }
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (
-    !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-  ) {
+  if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+
     die('CSRF validation failed. Please refresh and try again.');
+  } else {
+
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
 
-  $id = trim($_POST['id'] ?? '');
 
-  if (empty($id)) $errors['id'] = 'Subjects Not Found';
+  $id = (int) trim($_POST['id'] ?? '');
+
+  if (empty($id)) {
+    $errors['id'] = 'Subject Not Found';
+  }
 
   if (empty($errors)) {
-    $stmt = $conn->prepare("UPDATE subjects set deleted_at = NOW() where id =?");
-    $stmt->bind_param('i', $id);
+    try {
+      $stmt = $pdo->prepare("UPDATE subjects SET deleted_at = NOW() WHERE id = ?");
+      $success = $stmt->execute([$id]);
 
-    if ($stmt->execute()) {
-      $_SESSION['success'] = "Subject Deleted successfully!";
-      header("Location: " .  route('back'));
-      exit();
-    } else {
-      echo "<script>alert('Failed to delete a Subject: " . $stmt->error . "');</script>";
+      if ($success) {
+        $_SESSION['success'] = "Subject Deleted successfully!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        echo "<script>alert('Failed to delete subject');</script>";
+      }
+    } catch (PDOException $e) {
+      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {
@@ -57,8 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 }
-
-
 ?>
 
 <body class="bg-gray-50">

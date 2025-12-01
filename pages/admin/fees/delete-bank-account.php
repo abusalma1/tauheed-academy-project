@@ -15,11 +15,11 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
 
-  $stmt = $pdo->prepare("SELECT * FROM sessions WHERE id = ?");
+  $stmt = $pdo->prepare("SELECT * FROM bank_accounts WHERE id = ?");
   $stmt->execute([$id]);
-  $session = $stmt->fetch(PDO::FETCH_ASSOC);
+  $account = $stmt->fetch(PDO::FETCH_ASSOC);
 
-  if (!$session) {
+  if (!$account) {
     header('Location: ' . route('back'));
     exit();
   }
@@ -31,38 +31,30 @@ if (isset($_GET['id'])) {
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+
     die('CSRF validation failed. Please refresh and try again.');
+  } else {
+
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
+
 
   $id = (int) trim($_POST['id'] ?? '');
 
   if (empty($id)) {
-    $errors['id'] = 'Session Not Found';
+    $errors['id'] = 'Bank Account Not Found';
   }
 
   if (empty($errors)) {
-    try {
-      // ✅ Start transaction
-      $pdo->beginTransaction();
+    $stmt = $pdo->prepare("UPDATE bank_accounts SET deleted_at = NOW() WHERE id = ?");
+    $success = $stmt->execute([$id]);
 
-      $stmt = $pdo->prepare("UPDATE sessions SET deleted_at = NOW() WHERE id = ?");
-      $success = $stmt->execute([$id]);
-
-      if ($success) {
-        // ✅ Commit transaction
-        $pdo->commit();
-
-        $_SESSION['success'] = "Session Deleted successfully!";
-        header("Location: " . route('back'));
-        exit();
-      } else {
-        // ❌ Rollback if update fails
-        $pdo->rollBack();
-        echo "<script>alert('Failed to delete session');</script>";
-      }
-    } catch (PDOException $e) {
-      $pdo->rollBack();
-      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
+    if ($success) {
+      $_SESSION['success'] = "Bank Account Deleted successfully!";
+      header("Location: " . route('back'));
+      exit();
+    } else {
+      echo "<script>alert('Failed to delete a Bank Account');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {
@@ -71,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
+
 
 <body class="bg-gray-50">
   <!-- Navigation -->
@@ -82,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="max-w-md w-full mx-auto px-4">
       <form method="POST" class="bg-white rounded-lg shadow-lg p-8">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
-        <input type="hidden" name="id" value="<?= $session['id'] ?>">
+        <input type="hidden" name="id" value="<?= $account['id'] ?>">
 
         <!-- Warning Icon -->
         <div class="flex justify-center mb-6">
@@ -93,19 +86,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Title -->
         <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">
-          Delete Session
+          Delete Bank Account
         </h2>
         <p class="text-gray-600 text-center mb-6">
-          Are you sure you want to delete this Session?
+          Are you sure you want to delete this Bank Account?
         </p>
 
         <!-- class Details -->
         <div class="bg-gray-50 rounded-lg p-4 mb-6">
           <div class="space-y-3">
             <div>
-              <p class="text-sm text-gray-600">Session Name</p>
-              <p class="text-lg font-semibold text-gray-900" id="sessionName">
-                <?= $session['name'] ?? '-' ?>
+              <p class="text-sm text-gray-600">Bank Account Name</p>
+              <p class="text-lg font-semibold text-gray-900" id="bankAccountName">
+                <?= $account['account_name'] ?? '-' ?>
+              </p>
+            </div>
+
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <p class="text-sm text-gray-600">Bank Name</p>
+              <p class="text-lg font-semibold text-gray-900" id="bankName">
+                <?= $account['bank_name'] ?? '-' ?>
+              </p>
+            </div>
+
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <p class="text-sm text-gray-600">Bank Account Name</p>
+              <p class="text-lg font-semibold text-gray-900" id="bankAccountName">
+                <?= $account['account_name'] ?? '-' ?>
+              </p>
+            </div>
+
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <p class="text-sm text-gray-600">Account Number</p>
+              <p class="text-lg font-semibold text-gray-900" id="bankAccountName">
+                <?= $account['account_number'] ?? '-' ?>
               </p>
             </div>
 

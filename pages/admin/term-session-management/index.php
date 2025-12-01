@@ -9,29 +9,27 @@ if (!$is_logged_in) {
     exit();
 }
 
-$stmt = $conn->prepare("SELECT 
-    sessions.id AS session_id,
-    sessions.name AS session_name,
-    sessions.start_date AS session_start_date,
-    sessions.end_date AS session_end_date,
+$stmt = $pdo->prepare("
+    SELECT 
+        sessions.id AS session_id,
+        sessions.name AS session_name,
+        sessions.start_date AS session_start_date,
+        sessions.end_date AS session_end_date,
 
-    terms.id AS term_id,
-    terms.name AS term_name,
-    terms.start_date AS term_start_date,
-    terms.end_date AS term_end_date
+        terms.id AS term_id,
+        terms.name AS term_name,
+        terms.start_date AS term_start_date,
+        terms.end_date AS term_end_date
 
-FROM sessions
-LEFT JOIN terms 
-    ON sessions.id = terms.session_id 
-    AND terms.deleted_at IS NULL  
-WHERE sessions.deleted_at IS NULL
-order by sessions.created_at desc
+    FROM sessions
+    LEFT JOIN terms 
+        ON sessions.id = terms.session_id 
+        AND terms.deleted_at IS NULL  
+    WHERE sessions.deleted_at IS NULL
+    ORDER BY sessions.created_at DESC
 ");
-
 $stmt->execute();
-$result = $stmt->get_result();
-$rows = $result->fetch_all(MYSQLI_ASSOC);
-
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $sessions = [];
 
@@ -40,27 +38,27 @@ foreach ($rows as $row) {
 
     if (!isset($sessions[$sessionId])) {
         $sessions[$sessionId] = [
-            'session_id' => $row['session_id'],
-            'session_name' => $row['session_name'],
+            'session_id'        => $row['session_id'],
+            'session_name'      => $row['session_name'],
             'session_start_date' => $row['session_start_date'],
-            'session_end_date' => $row['session_end_date'],
-            'terms' => []
-
+            'session_end_date'  => $row['session_end_date'],
+            'terms'             => []
         ];
     }
 
     if (!empty($row['term_id'])) {
         $sessions[$sessionId]['terms'][] = [
-            'term_id' => $row['term_id'],
-            'term_name' => $row['term_name'],
+            'term_id'        => $row['term_id'],
+            'term_name'      => $row['term_name'],
             'term_start_date' => $row['term_start_date'],
-            'term_end_date' => $row['term_end_date']
+            'term_end_date'  => $row['term_end_date']
         ];
     }
 }
 
+// Statistics (assuming countDataTotal is already PDO-based)
 $sessionsCount = countDataTotal('sessions')['total'];
-$termsCount = countDataTotal('terms')['total'];
+$termsCount    = countDataTotal('terms')['total'];
 
 ?>
 

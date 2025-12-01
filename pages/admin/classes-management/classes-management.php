@@ -9,7 +9,8 @@ if (!$is_logged_in) {
     exit();
 }
 
-$stmt = $conn->prepare("SELECT 
+$stmt = $pdo->prepare("
+    SELECT 
         sections.id AS section_id,
         sections.name AS section_name,
         head_teachers.id AS head_teacher_id,
@@ -29,15 +30,12 @@ $stmt = $conn->prepare("SELECT
     LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
     LEFT JOIN teachers AS class_teachers ON class_class_arms.teacher_id = class_teachers.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
-    where classes.deleted_at is null
-    and sections.deleted_at is null
+    WHERE classes.deleted_at IS NULL
+      AND sections.deleted_at IS NULL
     ORDER BY classes.level ASC, class_arms.name ASC
 ");
-
 $stmt->execute();
-$result = $stmt->get_result();
-$rows = $result->fetch_all(MYSQLI_ASSOC);
-
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $sections = [];
 
@@ -46,31 +44,31 @@ foreach ($rows as $row) {
 
     if (!isset($sections[$sectionId])) {
         $sections[$sectionId] = [
-            'section_id' => $row['section_id'],
-            'section_name' => $row['section_name'],
+            'section_id'       => $row['section_id'],
+            'section_name'     => $row['section_name'],
             'head_teacher_name' => $row['head_teacher_name'],
-            'classes' => []
+            'classes'          => []
         ];
     }
 
     if (!empty($row['class_id'])) {
         $sections[$sectionId]['classes'][] = [
-            'class_id' => $row['class_id'],
-            'class_name' => $row['class_name'],
+            'class_id'          => $row['class_id'],
+            'class_name'        => $row['class_name'],
             'class_teacher_name' => $row['class_teacher_name'],
-            'arm_name' => $row['arm_name'],
-            'arm_id' => $row['arm_id']
-
+            'arm_name'          => $row['arm_name'],
+            'arm_id'            => $row['arm_id']
         ];
     }
 }
 
-$classesCount = countDataTotal('classes')['total'];
-$armsCount = countDataTotal('class_arms')['total'];
+$classesCount  = countDataTotal('classes')['total'];
+$armsCount     = countDataTotal('class_arms')['total'];
 $sectionsCount = countDataTotal('sections')['total'];
 $studentsCount = countDataTotal('students')['total'];
 
 ?>
+
 
 
 <body class="bg-gray-50">

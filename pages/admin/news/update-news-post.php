@@ -1,5 +1,5 @@
 <?php
-$title = "Post News";
+$title = "Update News Post";
 include(__DIR__ . '/../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -8,61 +8,68 @@ if (!$is_logged_in) {
     exit();
 }
 
-
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM news WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $story = $result->fetch_assoc();
-    } else {
-        header('Location: ' .  route('back'));
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM news WHERE id = ?');
+    $stmt->execute([$id]);
+    $story = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$story) {
+        header('Location: ' . route('back'));
+        exit();
     }
 } else {
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit();
 }
-
 
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-
-    $id = trim($_POST['id'] ?? '');
-    $newsTitle = trim($_POST['title'] ?? '');
-    $category = trim($_POST['category'] ?? '');
-    $content = trim($_POST['content'] ?? '');
-    $status = trim($_POST['status'] ?? '');
+    $id               = (int) trim($_POST['id'] ?? '');
+    $newsTitle        = trim($_POST['title'] ?? '');
+    $category         = trim($_POST['category'] ?? '');
+    $content          = trim($_POST['content'] ?? '');
+    $status           = trim($_POST['status'] ?? '');
     $publication_date = trim($_POST['date'] ?? '');
 
-
-
-    if (empty($newsTitle)) $errors['titleError'] = "Title is required";
-    if (empty($category)) $errors['categoryError'] = "Category is required";
-    if (empty($content)) $errors['contentError'] = "Content is required";
-    if (empty($status)) $errors['statusError'] = "Title is required";
-    if (empty($publication_date)) $errors['publicationDateError'] = "Publication Date is required";
+    if (empty($newsTitle))        $errors['titleError'] = "Title is required";
+    if (empty($category))         $errors['categoryError'] = "Category is required";
+    if (empty($content))          $errors['contentError'] = "Content is required";
+    if (empty($status))           $errors['statusError'] = "Status is required";
+    if (empty($publication_date) || !strtotime($publication_date)) {
+        $errors['publicationDateError'] = "Valid publication date is required";
+    }
 
     if (empty($errors)) {
-        $stmt = $conn->prepare("UPDATE news set title = ?, category = ?, content = ? , status = ?, publication_date = ? where id = ?");
-        $stmt->bind_param('sssssi', $newsTitle, $category, $content, $status, $publication_date, $id);
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "News Updated successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create news : " . $stmt->error . "');</script>";
+        try {
+            $stmt = $pdo->prepare("
+                UPDATE news 
+                SET title = ?, category = ?, content = ?, status = ?, publication_date = ?
+                WHERE id = ?
+            ");
+            $success = $stmt->execute([$newsTitle, $category, $content, $status, $publication_date, $id]);
+
+            if ($success) {
+                $_SESSION['success'] = "News Updated successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                echo "<script>alert('Failed to update news');</script>";
+            }
+        } catch (PDOException $e) {
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -70,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

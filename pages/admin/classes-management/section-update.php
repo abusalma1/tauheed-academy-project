@@ -13,47 +13,38 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM sections WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $section = $result->fetch_assoc();
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM sections WHERE id = ?');
+    $stmt->execute([$id]);
+    $section = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$section) {
+        header('Location: ' . route('back'));
+        exit();
     }
 } else {
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit();
 }
 
-$stmt = $conn->prepare("SELECT * FROM sections WHERE id != ?");
-$stmt->bind_param('i', $id);
+$stmt = $pdo->prepare("SELECT * FROM sections WHERE id != ?");
+$stmt->execute([$id]);
+$sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->prepare("SELECT * FROM teachers");
 $stmt->execute();
-$result = $stmt->get_result();
-$sections = $result->fetch_all(MYSQLI_ASSOC);
-
-$stmt = $conn->prepare("SELECT * FROM teachers");
-$stmt->execute();
-$result = $stmt->get_result();
-$teachers = $result->fetch_all(MYSQLI_ASSOC);
-
-
+$teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $name = htmlspecialchars(trim($_POST['sectionName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $name        = htmlspecialchars(trim($_POST['sectionName'] ?? ''), ENT_QUOTES, 'UTF-8');
     $description = htmlspecialchars(trim($_POST['sectionDescription'] ?? ''), ENT_QUOTES);
-    $headTeacher = htmlspecialchars(trim($_POST['sectionHead'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $headId = htmlspecialchars(trim($_POST['sectionId'] ?? ''), ENT_QUOTES, 'UTF-8');
-
-
-
+    $headTeacher = (int) htmlspecialchars(trim($_POST['sectionHead'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $headId      = (int) htmlspecialchars(trim($_POST['sectionId'] ?? ''), ENT_QUOTES, 'UTF-8');
 
     if (empty($name)) {
         $nameError = "Name is required";
@@ -67,24 +58,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $headTeacherError = "Head Teacher is required";
     }
 
-    if (empty($nameError)  && empty($descriptionError) && empty($headTeacherError)) {
-        $stmt = $conn->prepare(
-            "UPDATE sections SET name =? , description = ?, head_teacher_id = ?
-             WHERE id = ?"
+    if (empty($nameError) && empty($descriptionError) && empty($headTeacherError)) {
+        $stmt = $pdo->prepare(
+            "UPDATE sections SET name = ?, description = ?, head_teacher_id = ? WHERE id = ?"
         );
-        $stmt->bind_param('ssii', $name, $description, $headTeacher, $id);
+        $success = $stmt->execute([$name, $description, $headTeacher, $id]);
 
-        if ($stmt->execute()) {
+        if ($success) {
             $_SESSION['success'] = "Section Updated successfully!";
-            header("Location: " .  route('back'));
+            header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
+            echo "<script>alert('Failed to update section');</script>";
         }
     }
 }
-
 ?>
+
 
 
 <script>

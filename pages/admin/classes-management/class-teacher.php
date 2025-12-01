@@ -11,32 +11,26 @@ if (!$is_logged_in) {
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
-    $class_id = $_GET['class_id'];
-    $arm_id = $_GET['arm_id'];
 
-    $stmt = $conn->prepare('SELECT
+if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
+    $class_id = (int) $_GET['class_id'];
+    $arm_id   = (int) $_GET['arm_id'];
+
+    $stmt = $pdo->prepare('SELECT
         classes.name as class_name,
         class_arms.name as arm_name,
         class_class_arms.class_id as class_id,
         class_class_arms.arm_id as arm_id,
         class_class_arms.teacher_id as teacher_id
-
-
         FROM class_class_arms 
-        left join classes on
-            classes.id = class_class_arms.class_id
-        left join class_arms on 
-            class_arms.id = class_class_arms.arm_id
-        WHERE class_class_arms.class_id = ? and class_class_arms.arm_id = ?
-         ');
-    $stmt->bind_param('ii', $class_id, $arm_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+        LEFT JOIN classes ON classes.id = class_class_arms.class_id
+        LEFT JOIN class_arms ON class_arms.id = class_class_arms.arm_id
+        WHERE class_class_arms.class_id = ? AND class_class_arms.arm_id = ?
+    ');
+    $stmt->execute([$class_id, $arm_id]);
+    $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result->num_rows > 0) {
-        $class = $result->fetch_assoc();
-    } else {
+    if (!$class) {
         header('Location: ' . route('back'));
         exit;
     }
@@ -44,6 +38,7 @@ if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
     header('Location: ' . route('back'));
     exit;
 }
+
 $current_teacher_id = $class['teacher_id'] ?? '';
 $teachers = selectAllData('teachers');
 
@@ -58,10 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($teacher_id === null) {
         $errors['general'] = "Please select a teacher.";
     } else {
-        $updateStmt = $conn->prepare("UPDATE class_class_arms SET teacher_id = ? WHERE class_id = ? AND arm_id = ?");
-        $updateStmt->bind_param('iii', $teacher_id, $class['class_id'], $class['arm_id']);
+        $updateStmt = $pdo->prepare("UPDATE class_class_arms SET teacher_id = ? WHERE class_id = ? AND arm_id = ?");
+        $success = $updateStmt->execute([$teacher_id, $class['class_id'], $class['arm_id']]);
 
-        if ($updateStmt->execute()) {
+        if ($success) {
             $_SESSION['success'] = "Teacher updated successfully!";
             header("Location: " . route('back'));
             exit();
@@ -70,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
 
 <body class="bg-gray-50">

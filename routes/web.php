@@ -294,6 +294,9 @@ $routes = [
     'submit-fees' => [
         'url' => "$baseUrl/pages/admin/fees/submit-fees.php"
     ],
+    'delete-bank-account' => [
+        'url' => "$baseUrl/pages/admin/fees/delete-bank-account.php"
+    ],
     'add-bank-account' => [
         'url' => "$baseUrl/pages/admin/fees/add-bank-account.php"
     ],
@@ -304,7 +307,7 @@ $routes = [
         'url' => "$baseUrl/pages/admin/fees/bank-accounts.php"
     ],
 
-
+    
     // class teachers
 
     'my-class' => [
@@ -316,6 +319,8 @@ $routes = [
     'update-class-student-password' => [
         'url' => "$baseUrl/pages/teachers/update-student-password.php"
     ],
-
+    'class-broadsheet' => [
+        'url' => "$baseUrl/pages/teachers/class-broadsheet.php"
+    ],
 
 ];

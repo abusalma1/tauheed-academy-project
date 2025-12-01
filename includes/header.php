@@ -3,23 +3,20 @@ include(__DIR__ .  '/../routes/functions.php');
 $is_logged_in = false;
 
 // Step 1: Try to get an existing school record
-$stmt = $conn->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
+$stmt = $pdo->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
 $stmt->execute();
-$result = $stmt->get_result();
-$school = $result->fetch_assoc();
+$school = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Step 2: If no record exists, create one with a default name
 if (!$school) {
     $default_name = 'Tauheed Academy';
-    $insert_stmt = $conn->prepare('INSERT INTO schools (name, created_at, updated_at) VALUES (?, NOW(), NOW())');
-    $insert_stmt->bind_param('s', $default_name);
-    $insert_stmt->execute();
+    $insert_stmt = $pdo->prepare('INSERT INTO schools (name, created_at, updated_at) VALUES (?, NOW(), NOW())');
+    $insert_stmt->execute([$default_name]);
 
     // Fetch again to get the inserted record
-    $stmt = $conn->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
+    $stmt = $pdo->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
     $stmt->execute();
-    $result = $stmt->get_result();
-    $school = $result->fetch_assoc();
+    $school = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 if (isset($_SESSION['user_session'])) {
@@ -31,25 +28,31 @@ if (isset($_SESSION['user_session'])) {
 
     if ($id) {
         if ($user_type === 'student') {
-            $stmt = $conn->prepare("SELECT students.*, classes.name as class_name, class_arms.name as arm_name  from students left join classes on classes.id = students.class_id left join class_arms on class_arms.id = students.arm_id where students.id = ? and students.deleted_at is null");
+            $stmt = $pdo->prepare("SELECT students.*, classes.name as class_name, class_arms.name as arm_name  
+                                   FROM students 
+                                   LEFT JOIN classes ON classes.id = students.class_id 
+                                   LEFT JOIN class_arms ON class_arms.id = students.arm_id 
+                                   WHERE students.id = ? AND students.deleted_at IS NULL");
+            $stmt->execute([$id]);
         } else if ($user_type === 'teacher') {
-            $stmt = $conn->prepare("SELECT * from teachers where id = ?");
+            $stmt = $pdo->prepare("SELECT * FROM teachers WHERE id = ?");
+            $stmt->execute([$id]);
         } else if ($user_type === 'guardian') {
-            $stmt = $conn->prepare("SELECT * from guardians where id = ?");
+            $stmt = $pdo->prepare("SELECT * FROM guardians WHERE id = ?");
+            $stmt->execute([$id]);
         } else if ($user_type === 'admin') {
-            $stmt = $conn->prepare("SELECT * from admins where id = ?");
+            $stmt = $pdo->prepare("SELECT * FROM admins WHERE id = ?");
+            $stmt->execute([$id]);
         }
 
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-        $is_logged_in = true;
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user) {
+            $is_logged_in = true;
+        }
     }
 }
-
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -96,7 +99,6 @@ if (isset($_SESSION['user_session'])) {
             overflow-wrap: normal;
             word-break: normal;
         }
-
     </style>
 </head>
 

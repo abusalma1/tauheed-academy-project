@@ -1,6 +1,5 @@
 <?php
-
-$title = "Students Managment";
+$title = "Students Create Form";
 include(__DIR__ . '/../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -9,187 +8,134 @@ if (!$is_logged_in) {
     exit();
 }
 
-
+// ✅ Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$stmt = $conn->prepare("SELECT * from terms where deleted_at is null and status = ?");
-$ongoing = 'ongoing';
-$stmt->bind_param('s', $ongoing);
+// Current term
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
+$stmt->execute(['ongoing']);
+$current_term = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Last admission number
+$stmt = $pdo->prepare("SELECT admission_number FROM students ORDER BY created_at DESC LIMIT 1");
 $stmt->execute();
-$current_term = $stmt->get_result()->fetch_assoc();
+$lastAdmissionNumberRow = $stmt->fetch(PDO::FETCH_ASSOC);
+$lastAdmissionNumber = $lastAdmissionNumberRow ? $lastAdmissionNumberRow['admission_number'] : 'No student account exists. Check the students list below the form.';
 
-$stmt = $conn->prepare("SELECT admission_number FROM students ORDER BY created_at DESC LIMIT 1");
-$stmt->execute();
-$result = $stmt->get_result();
-$lastAdmissionNumber = $result->fetch_assoc();
-
-if ($lastAdmissionNumber) {
-    // Admission number exists
-    $lastAdmissionNumber = $lastAdmissionNumber['admission_number'];
-} else {
-    // No student found
-    $lastAdmissionNumber = 'No student account exists. Check the students list below the form.';
-}
-
-
-$stmt = $conn->prepare("SELECT 
-    students.id AS id,
-    students.name AS name,
-    students.admission_number AS admission_number,
-    students.status AS status,
-    classes.id AS class_id,
-    classes.name AS class_name,
-    class_arms.name AS class_arm_name
-FROM students
-LEFT JOIN classes 
-    ON students.class_id = classes.id
-LEFT JOIN class_arms 
-    ON students.arm_id = class_arms.id
-    where students.deleted_at is null
+// Students list
+$stmt = $pdo->prepare("
+    SELECT 
+        students.id AS id,
+        students.name AS name,
+        students.admission_number AS admission_number,
+        students.status AS status,
+        classes.id AS class_id,
+        classes.name AS class_name,
+        class_arms.name AS class_arm_name
+    FROM students
+    LEFT JOIN classes ON students.class_id = classes.id
+    LEFT JOIN class_arms ON students.arm_id = class_arms.id
+    WHERE students.deleted_at IS NULL
 ");
-
-
 $stmt->execute();
-$result = $stmt->get_result();
-$students = $result->fetch_all(MYSQLI_ASSOC);
-
+$students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $guardians = selectAllData('guardians');
 
-$stmt = $conn->prepare(" SELECT 
+// Classes and arms
+$stmt = $pdo->prepare("
+    SELECT 
         classes.id AS class_id,
-        classes.name as class_name,
-        classes.level as level,
+        classes.name AS class_name,
+        classes.level AS level,
         teachers.id AS teacher_id,
         teachers.name AS teacher_name,
-        sections.id as section_id,
-        sections.name as section_name,
-        class_arms.id as arm_id,
-        class_arms.name as arm_name
-
+        sections.id AS section_id,
+        sections.name AS section_name,
+        class_arms.id AS arm_id,
+        class_arms.name AS arm_name
     FROM classes
-     LEFT JOIN class_class_arms 
-    ON class_class_arms.class_id = classes.id
-    LEFT JOIN teachers 
-    ON class_class_arms.teacher_id = teachers.id
-     LEFT JOIN sections 
-    ON classes.section_id = sections.id
-     LEFT JOIN class_arms 
-    ON class_class_arms.arm_id = class_arms.id
-    order by classes.level , class_arms.name
+    LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
+    LEFT JOIN teachers ON class_class_arms.teacher_id = teachers.id
+    LEFT JOIN sections ON classes.section_id = sections.id
+    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+    ORDER BY classes.level, class_arms.name
 ");
 $stmt->execute();
-$result = $stmt->get_result();
-$classes = $result->fetch_all(MYSQLI_ASSOC);
+$classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-
-$terms = selectAllData('terms');
+$terms    = selectAllData('terms');
 $sessions = selectAllData('sessions');
 
-
 // Count total students
-$studentsCount =  countDataTotal('students', true);
-
-
+$studentsCount = countDataTotal('students', true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF validation
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    // ✅ CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die("Invalid CSRF token.");
+    } else {
+        // ✅ Regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
     // Collect and sanitize input
-    $name = trim($_POST['fullName'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
+    $name            = trim($_POST['fullName'] ?? '');
+    $email           = trim($_POST['email'] ?? '');
+    $phone           = trim($_POST['phone'] ?? '');
     $admissionNumber = trim($_POST['admissionNumber'] ?? '');
-    $class = trim($_POST['class'] ?? '');
-    $term = trim($_POST['term'] ?? '');
-    $session = trim($_POST['session'] ?? '');
-    $dob = trim($_POST['dob'] ?? '');
-    $gender = trim($_POST['gender'] ?? '');
-    $guardian = trim($_POST['guardian'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $class           = trim($_POST['class'] ?? '');
+    $term            = trim($_POST['term'] ?? '');
+    $session         = trim($_POST['session'] ?? '');
+    $dob             = trim($_POST['dob'] ?? '');
+    $gender          = trim($_POST['gender'] ?? '');
+    $guardian        = trim($_POST['guardian'] ?? '');
+    $password        = $_POST['password'] ?? '';
     $confirmPassword = $_POST['confirmPassword'] ?? '';
-    $status = trim($_POST['status'] ?? 'inactive');
+    $status          = trim($_POST['status'] ?? 'inactive');
 
-    // Initialize error variables
     $errors = [];
 
     // --- VALIDATION RULES ---
-
-    // Required fields
-    if (empty($name)) {
-        $errors['name'] = "Full name is required.";
-    }
-
-    if (empty($admissionNumber)) {
-        $errors['admissionNumber'] = "Admission number is required.";
-    }
-
+    if (empty($name)) $errors['name'] = "Full name is required.";
+    if (empty($admissionNumber)) $errors['admissionNumber'] = "Admission number is required.";
     if (empty($class)) {
         $errors['class'] = "Please select a class.";
     } else {
         list($class_id, $arm_id) = explode('|', $class);
     }
-
-    if (empty($term)) {
-        $errors['term'] = "Please select a term.";
-    }
-
-    if (empty($dob)) {
-        $errors['dob'] = "Date of birth is required.";
-    }
-
-    if (empty($gender)) {
-        $errors['gender'] = "Gender is required.";
-    }
-
-    if (empty($guardian)) {
-        $errors['guardian'] = "Guardian is required.";
-    }
+    if (empty($term)) $errors['term'] = "Please select a term.";
+    if (empty($dob)) $errors['dob'] = "Date of birth is required.";
+    if (empty($gender)) $errors['gender'] = "Gender is required.";
+    if (empty($guardian)) $errors['guardian'] = "Guardian is required.";
 
     if (!empty($password)) {
-        if (strlen($password) < 5) {
-            $errors['password'] = "Password must be at least 5 characters long.";
-        }
-        if ($password !== $confirmPassword) {
-            $errors['confirmPassword'] = "Passwords do not match.";
-        }
+        if (strlen($password) < 5) $errors['password'] = "Password must be at least 5 characters long.";
+        if ($password !== $confirmPassword) $errors['confirmPassword'] = "Passwords do not match.";
     } else {
         $password = $admissionNumber;
     }
 
-
-
-    // Optional fields
     if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = "Invalid email format.";
     }
-
-
     if (!empty($phone) && !preg_match('/^[0-9+\s-]{7,15}$/', $phone)) {
         $errors['phone'] = "Invalid phone number format.";
     }
 
     // Admission number uniqueness
-    $checkAdmission = $conn->prepare("SELECT id FROM students WHERE admission_number = ?");
-    $checkAdmission->bind_param("s", $admissionNumber);
-    $checkAdmission->execute();
-    $checkAdmission->store_result();
-    if ($checkAdmission->num_rows > 0) {
+    $stmt = $pdo->prepare("SELECT id FROM students WHERE admission_number = ?");
+    $stmt->execute([$admissionNumber]);
+    if ($stmt->fetch()) {
         $errors['admissionNumber'] = "Admission number already exists.";
     }
-    $checkAdmission->close();
 
-    // Email uniqueness (only if provided)
-
+    // Email uniqueness
     if (!empty($email)) {
         if (!validateEmail($email)) {
-            $errors['emailError '] = 'Please enter a valid email address';
+            $errors['emailError'] = 'Please enter a valid email address';
         } elseif (emailExist($email, 'students')) {
             $errors['emailError'] = "Email already exists!";
         }
@@ -199,59 +145,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        $stmt = $conn->prepare("INSERT INTO students 
-            (name, email, phone, admission_number,  dob, gender,  password, status, class_id, arm_id, term_id, guardian_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param(
-            "ssssssssiiii",
-            $name,
-            $email,
-            $phone,
-            $admissionNumber,
-            $dob,
-            $gender,
-            $hashed_password,
-            $status,
-            $class_id,
-            $arm_id,
-            $term,
-            $guardian,
-        );
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        if ($stmt->execute()) {
-            $student_id = $stmt->insert_id;
+            // Insert student
+            $stmt = $pdo->prepare("INSERT INTO students 
+                (name, email, phone, admission_number, dob, gender, password, status, class_id, arm_id, term_id, guardian_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([
+                $name,
+                $email,
+                $phone,
+                $admissionNumber,
+                $dob,
+                $gender,
+                $hashed_password,
+                $status,
+                $class_id,
+                $arm_id,
+                $term,
+                $guardian
+            ]);
+            $student_id = $pdo->lastInsertId();
 
+            // Insert student_class_records
+            $stmt2 = $pdo->prepare("INSERT INTO student_class_records (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
+            $stmt2->execute([$student_id, $class_id, $arm_id, $session]);
+            $student_class_record_id = $pdo->lastInsertId();
 
-            $stmt2 = $conn->prepare("INSERT into student_class_records (student_id, class_id, arm_id, session_id) values (?, ?, ?, ?)");
-            $stmt2->bind_param('iiii', $student_id, $class_id, $arm_id, $session);
-            $stmt2->execute();
+            // Insert student_term_records
+            $stmt3 = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
+            $stmt3->execute([$student_class_record_id, $term]);
 
-            $student_class_record_id = $stmt2->insert_id;
-
-
-            $stmt = $conn->prepare("INSERT into student_term_records (student_class_record_id, term_id) values (?, ?)");
-            $stmt->bind_param('ii', $student_class_record_id,  $term);
-            $stmt->execute();
+            // ✅ Commit transaction
+            $pdo->commit();
 
             $_SESSION['success'] = "Student account created successfully!";
-
             header("Location: " . route('back'));
-            exit;
-        } else {
-            echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($stmt->error) . "</p>";
+            exit();
+        } catch (PDOException $e) {
+            // ❌ Rollback on error
+            $pdo->rollBack();
+            echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
-
-        $stmt->close();
     } else {
-        // Display all validation errors
         foreach ($errors as $field => $error) {
             echo "<p class='text-red-600 font-semibold'>$error</p>";
         }
     }
 }
-
-
 ?>
+
 
 <script>
     const students = <?= json_encode($students, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;

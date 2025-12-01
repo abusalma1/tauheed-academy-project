@@ -8,51 +8,51 @@ if (!$is_logged_in) {
     exit();
 }
 
-
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
-$stmt = $conn->prepare("SELECT * FROM news where deleted_at is null ORDER BY updated_at DESC LIMIT 10");
+// Fetch latest news
+$stmt = $pdo->prepare("SELECT * FROM news WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
 $stmt->execute();
-$result =  $stmt->get_result();
-$news = $result->fetch_all(MYSQLI_ASSOC);
+$news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-
-
-    $newsTitle = trim($_POST['title'] ?? '');
-    $category = trim($_POST['category'] ?? '');
-    $content = trim($_POST['content'] ?? '');
-    $status = trim($_POST['status'] ?? '');
+    $newsTitle        = trim($_POST['title'] ?? '');
+    $category         = trim($_POST['category'] ?? '');
+    $content          = trim($_POST['content'] ?? '');
+    $status           = trim($_POST['status'] ?? '');
     $publication_date = trim($_POST['date'] ?? '');
 
-
-
-    if (empty($newsTitle)) $errors['titleError'] = "Title is required";
-    if (empty($category)) $errors['categoryError'] = "Category is required";
-    if (empty($content)) $errors['contentError'] = "Content is required";
-    if (empty($status)) $errors['statusError'] = "Title is required";
+    if (empty($newsTitle))        $errors['titleError'] = "Title is required";
+    if (empty($category))         $errors['categoryError'] = "Category is required";
+    if (empty($content))          $errors['contentError'] = "Content is required";
+    if (empty($status))           $errors['statusError'] = "Status is required";
     if (empty($publication_date)) $errors['publicationDateError'] = "Publication Date is required";
 
     if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT into news (title, category, content, status, publication_date) values (?, ?, ?, ?, ?)");
-        $stmt->bind_param('sssss', $newsTitle, $category, $content, $status, $publication_date);
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "News Posted successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create news : " . $stmt->error . "');</script>";
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO news (title, category, content, status, publication_date) 
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $success = $stmt->execute([$newsTitle, $category, $content, $status, $publication_date]);
+
+            if ($success) {
+                $_SESSION['success'] = "News Posted successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                echo "<script>alert('Failed to create news');</script>";
+            }
+        } catch (PDOException $e) {
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -60,8 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

@@ -13,81 +13,85 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM sessions WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM sessions WHERE id = ?');
+    $stmt->execute([$id]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result->num_rows > 0) {
-        $session = $result->fetch_assoc();
+    if ($session) {
         $session_id = $session['id'];
     } else {
         header('Location: ' . route('back'));
-        exit;
+        exit();
     }
 } else {
     header('Location: ' . route('back'));
-    exit;
+    exit();
 }
 
+// Fetch latest terms
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE session_id = ? AND deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
+$stmt->execute([$session_id]);
+$terms_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT * FROM terms WHERE session_id = ? and deleted_at is null order by updated_at desc limit 10");
-$stmt->bind_param('i', $session_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$terms_list = $result->fetch_all(MYSQLI_ASSOC);
+// Fetch all terms for this session
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE session_id = ? AND deleted_at IS NULL");
+$stmt->execute([$session_id]);
+$terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT * FROM terms WHERE session_id = ? and deleted_at is null");
-$stmt->bind_param('i', $session_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$terms = $result->fetch_all(MYSQLI_ASSOC);
+$termsCount = countDataTotal('terms')['total'];
 
-$termsCount  = countDataTotal('terms')['total'];
-
-$errors  = [];
+$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $name = trim($_POST['termName'] ?? '');
+    $name       = trim($_POST['termName'] ?? '');
     $start_date = trim($_POST['startDate'] ?? '');
-    $end_date = trim($_POST['endDate'] ?? '');
+    $end_date   = trim($_POST['endDate'] ?? '');
 
-
-
+    // Validations
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
     }
-
     if (empty($start_date)) {
         $errors['startDateError'] = "Start Date is required";
     }
-
     if (empty($end_date)) {
         $errors['endDateError'] = "End Date is required";
     }
 
-
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            "INSERT INTO terms (name, start_date, end_date, session_id) VALUES (?, ?, ?, ?)"
-        );
-        $stmt->bind_param('sssi', $name, $start_date, $end_date, $session_id);
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Term created successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
+            $stmt = $pdo->prepare(
+                "INSERT INTO terms (name, start_date, end_date, session_id) VALUES (?, ?, ?, ?)"
+            );
+            $success = $stmt->execute([$name, $start_date, $end_date, $session_id]);
+
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+
+                $_SESSION['success'] = "Term created successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if insert fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to create term');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -97,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 ?>
+
 
 
 <script>

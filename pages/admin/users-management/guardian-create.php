@@ -9,59 +9,57 @@ if (!$is_logged_in) {
     exit();
 }
 
-
+// ✅ Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
 $guardians = selectAllData('guardians');
 
-
 // Count total guardians
-$guardiansCount =  countDataTotal('guardians', true);
+$guardiansCount = countDataTotal('guardians', true);
 
-
-$name =  $email  = $phone  =  $address = $occupation  = $relationship = $status  = $confirmPassword = $password = $hashed_password = '';
-
+$name = $email = $phone = $address = $occupation = $relationship = $status = $confirmPassword = $password = $hashed_password = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // ✅ Validate CSRF
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // ✅ Regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $name = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
-    $phone = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    // Sanitize inputs
+    $name         = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email        = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone        = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address      = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
     $relationship = htmlspecialchars(trim($_POST['relationship'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $occupation = htmlspecialchars(trim($_POST['occupation'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $password = htmlspecialchars(trim($_POST['password'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $occupation   = htmlspecialchars(trim($_POST['occupation'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $password     = htmlspecialchars(trim($_POST['password'] ?? ''), ENT_QUOTES, 'UTF-8');
     $confirmPassword = htmlspecialchars(trim($_POST['confirmPassword'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
-    $gender = trim($_POST['gender'] ?? '');
+    $status       = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender       = trim($_POST['gender'] ?? '');
 
+    // Validations
     if (empty($name)) $errors['nameError'] = 'Full name is required';
-
     if (empty($email)) {
-        $errors['emailError'] = 'Email is required ';
+        $errors['emailError'] = 'Email is required';
     } elseif (!validateEmail($email)) {
-        $errors['emailError '] = 'Please enter a valid email address';
+        $errors['emailError'] = 'Please enter a valid email address';
     } elseif (emailExist($email, 'guardians')) {
         $errors['emailError'] = "Email already exists!";
     }
-    if (empty($gender)) {
-        $errors['gender'] = "Gender is required.";
-    }
-
+    if (empty($gender)) $errors['genderError'] = "Gender is required.";
     if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
-    if (empty($relationship)) $errors['relationshipError'] = 'Relationship is required ';
+    if (empty($relationship)) $errors['relationshipError'] = 'Relationship is required';
 
     if (empty($password)) {
         $errors['passwordError'] = "Password field is required";
     } elseif (strlen($password) < 8) {
-        $errors['passwordError'] = 'Password must be at least 8 characters ';
+        $errors['passwordError'] = 'Password must be at least 8 characters';
     } elseif ($password !== $confirmPassword) {
         $errors['confirmPasswordError'] = 'Passwords do not match';
     } else {
@@ -71,18 +69,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($status)) $errors['statusError'] = "Status is required";
 
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            "INSERT INTO guardians (name, email, gender, phone, occupation, address, relationship, status, password)
-             VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)"
-        );
-        $stmt->bind_param('sssssssss', $name, $email, $gender, $phone, $occupation, $address, $relationship, $status, $hashed_password);
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Guardian account created successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create guardian user account: " . $stmt->error . "');</script>";
+            $stmt = $pdo->prepare("
+                INSERT INTO guardians (name, email, gender, phone, occupation, address, relationship, status, password)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $success = $stmt->execute([
+                $name,
+                $email,
+                $gender,
+                $phone,
+                $occupation,
+                $address,
+                $relationship,
+                $status,
+                $hashed_password
+            ]);
+
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+                $_SESSION['success'] = "Guardian account created successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if insert fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to create guardian user account');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -90,8 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
+
 
 
 <script>

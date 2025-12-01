@@ -8,38 +8,44 @@ if (!$is_logged_in) {
     exit();
 }
 
-
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM news WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM news WHERE id = ?');
+    $stmt->execute([$id]);
+    $story = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result->num_rows > 0) {
-        $story = $result->fetch_assoc();
-
+    if ($story) {
         // Get Previous Article (earlier created_at)
-        $stmtPrev = $conn->prepare('SELECT id, picture_path, created_at, title FROM news WHERE created_at < ? ORDER BY created_at DESC LIMIT 1');
-        $stmtPrev->bind_param('s', $story['created_at']);
-        $stmtPrev->execute();
-        $prevResult = $stmtPrev->get_result();
-        $previous = $prevResult->fetch_assoc();
+        $stmtPrev = $pdo->prepare('
+            SELECT id, picture_path, created_at, title 
+            FROM news 
+            WHERE created_at < ? 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ');
+        $stmtPrev->execute([$story['created_at']]);
+        $previous = $stmtPrev->fetch(PDO::FETCH_ASSOC);
 
         // Get Next Article (later created_at)
-        $stmtNext = $conn->prepare('SELECT id, picture_path, created_at, title FROM news WHERE created_at > ? ORDER BY created_at ASC LIMIT 1');
-        $stmtNext->bind_param('s', $story['created_at']);
-        $stmtNext->execute();
-        $nextResult = $stmtNext->get_result();
-        $next = $nextResult->fetch_assoc();
+        $stmtNext = $pdo->prepare('
+            SELECT id, picture_path, created_at, title 
+            FROM news 
+            WHERE created_at > ? 
+            ORDER BY created_at ASC 
+            LIMIT 1
+        ');
+        $stmtNext->execute([$story['created_at']]);
+        $next = $stmtNext->fetch(PDO::FETCH_ASSOC);
     } else {
         header('Location: ' . route('back'));
+        exit();
     }
 } else {
     header('Location: ' . route('back'));
+    exit();
 }
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

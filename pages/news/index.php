@@ -2,12 +2,12 @@
 $title = "Admin School News";
 include(__DIR__ . '/../../includes/header.php');
 
-$stmt = $conn->prepare("SELECT * FROM news ORDER BY created_at DESC");
+// ✅ Use PDO instead of MySQLi
+$stmt = $pdo->prepare("SELECT * FROM news WHERE deleted_at IS NULL ORDER BY created_at DESC");
 $stmt->execute();
-$result = $stmt->get_result();
-$news = $result->fetch_all(MYSQLI_ASSOC);
-
+$news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

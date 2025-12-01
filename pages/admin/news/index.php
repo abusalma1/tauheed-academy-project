@@ -8,12 +8,11 @@ if (!$is_logged_in) {
     exit();
 }
 
-$stmt = $conn->prepare("SELECT * FROM news  where deleted_at is null  ORDER BY updated_at DESC");
+$stmt = $pdo->prepare("SELECT * FROM news WHERE deleted_at IS NULL ORDER BY updated_at DESC");
 $stmt->execute();
-$result = $stmt->get_result();
-$news = $result->fetch_all(MYSQLI_ASSOC);
-
+$news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

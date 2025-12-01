@@ -9,17 +9,19 @@ if ($is_logged_in === false) {
     exit();
 }
 
-$stmt = $conn->prepare("SELECT 
-    students.*, 
-    classes.name as class_name, 
-    class_arms.name as arm_name
-    from students
-        left join classes on classes.id = students.class_id
-        left join class_arms on class_arms.id = students.arm_id
-    where guardian_id = ? ");
-$stmt->bind_param('i', $user['id']);
-$stmt->execute();
-$children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+// ✅ Use PDO instead of MySQLi
+$stmt = $pdo->prepare("
+    SELECT 
+        students.*, 
+        classes.name AS class_name, 
+        class_arms.name AS arm_name
+    FROM students
+    LEFT JOIN classes ON classes.id = students.class_id
+    LEFT JOIN class_arms ON class_arms.id = students.arm_id
+    WHERE guardian_id = ?
+");
+$stmt->execute([$user['id']]);
+$children = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <body class="bg-gray-50">
@@ -95,7 +97,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                     <?php foreach ($children as $child): ?>
-        
+
                         <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition overflow-hidden">
                             <div class="bg-gradient-to-r from-blue-900 to-blue-700 h-32"></div>
                             <div class="relative px-6 pb-6">

@@ -1,5 +1,4 @@
 <?php
-
 $title = "Subjects Management";
 include(__DIR__ . '/../../../includes/header.php');
 
@@ -9,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-$stmt = $conn->prepare("
+$stmt = $pdo->prepare("
     SELECT 
         classes.id AS class_id,
         classes.name AS class_name,
@@ -24,34 +23,33 @@ $stmt = $conn->prepare("
     LEFT JOIN subjects ON class_subjects.subject_id = subjects.id
     LEFT JOIN teachers ON class_subjects.teacher_id = teachers.id
     LEFT JOIN sections ON classes.section_id = sections.id
-    where classes.deleted_at is null
-   and subjects.deleted_at is null
+    WHERE classes.deleted_at IS NULL
+      AND subjects.deleted_at IS NULL
     ORDER BY classes.level, subjects.name
 ");
-
 $stmt->execute();
-$result = $stmt->get_result();
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $classes = [];
 
-while ($row = $result->fetch_assoc()) {
+foreach ($rows as $row) {
     $classId = $row['class_id'];
 
     if (!isset($classes[$classId])) {
         $classes[$classId] = [
-            'id' => $row['class_id'],
-            'name' => $row['class_name'],
-            'section_name' => $row['section_name'],  // Add section here
-            'subjects' => []  // This stays named 'subjects'
+            'id'          => $row['class_id'],
+            'name'        => $row['class_name'],
+            'section_name' => $row['section_name'],
+            'subjects'    => []
         ];
     }
 
-    if ($row['subject_id']) {
+    if (!empty($row['subject_id'])) {
         $classes[$classId]['subjects'][] = [
             'class_subject_id' => $row['class_subject_id'],
-            'id' => $row['subject_id'],
-            'name' => $row['subject_name'],
-            'teacher' => $row['teacher_name'] ?: 'No teacher assigned'
+            'id'               => $row['subject_id'],
+            'name'             => $row['subject_name'],
+            'teacher'          => $row['teacher_name'] ?: 'No teacher assigned'
         ];
     }
 }
@@ -59,25 +57,22 @@ while ($row = $result->fetch_assoc()) {
 // Reindex classes by numeric index
 $classes = array_values($classes);
 
-
+// Fetch classes for filter (assuming selectAllData is already PDO-based)
 $classesForFilter = selectAllData('classes');
 
-
+// Handle filters/search
 $selectedClass = isset($_GET['class']) ? intval($_GET['class']) : null;
-$searchTerm = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+$searchTerm    = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
 
-// Calculate statistics
+// Calculate statistics (assuming countDataTotal is already PDO-based)
 $totalSubjects = countDataTotal('subjects')['total'];
 $totalStudents = countDataTotal('students')['total'];
 $totalSections = countDataTotal('sections')['total'];
-$totalClasses = countDataTotal('classes')['total'];
-
+$totalClasses  = countDataTotal('classes')['total'];
 
 $totalCapacity = 0;
-
-
-
 ?>
+
 
 
 <body class="bg-slate-50">

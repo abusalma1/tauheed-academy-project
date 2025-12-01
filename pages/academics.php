@@ -1,9 +1,10 @@
 <?php
 $title = 'About & Contact';
 
-include(__DIR__ .  '/../includes/header.php');
+include(__DIR__ . '/../includes/header.php');
 
-$stmt = $conn->prepare("
+// ✅ Use PDO instead of MySQLi
+$stmt = $pdo->prepare("
     SELECT 
         classes.id AS class_id,
         classes.name AS class_name,
@@ -17,16 +18,16 @@ $stmt = $conn->prepare("
     ORDER BY classes.level, subjects.name
 ");
 $stmt->execute();
-$result = $stmt->get_result();
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $classes = [];
-while ($row = $result->fetch_assoc()) {
+foreach ($rows as $row) {
     $classId = $row['class_id'];
 
     // If this class hasn't been added yet, initialize it
     if (!isset($classes[$classId])) {
         $classes[$classId] = [
-            'name' => $row['class_name'],
+            'name'     => $row['class_name'],
             'subjects' => []
         ];
     }
@@ -39,12 +40,10 @@ while ($row = $result->fetch_assoc()) {
     }
 }
 
-// Re-index array to remove numeric keys
+// ✅ Re-index array to remove numeric keys
 $classes = array_values($classes);
-
-
-
 ?>
+
 
 <body class="bg-gray-50">
     <?php include(__DIR__ .  '/../includes/nav.php'); ?>

@@ -3,12 +3,14 @@ $title = 'Dashboard';
 
 include(__DIR__ .  '/./includes/header.php');
 
-$stmt = $conn->prepare("SELECT * FROM news ORDER BY created_at DESC limit 6");
+// Prepare and execute query
+$stmt = $pdo->prepare("SELECT * FROM news ORDER BY created_at DESC LIMIT 6");
 $stmt->execute();
-$result = $stmt->get_result();
-$news = $result->fetch_all(MYSQLI_ASSOC);
 
+// Fetch all rows as associative arrays
+$news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <body class="bg-gray-50">
 

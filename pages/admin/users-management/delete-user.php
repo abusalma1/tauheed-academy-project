@@ -12,46 +12,58 @@ if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-if (isset($_GET['id'])) {
-  $id = $_GET['id'];
-  $table = $_GET['table'];
-  $type = $_GET['type'];
+if (isset($_GET['id'], $_GET['table'], $_GET['type'])) {
+  $id    = (int) $_GET['id'];
+  $table = preg_replace('/[^a-zA-Z0-9_]/', '', $_GET['table']); // sanitize table name
+  $type  = htmlspecialchars($_GET['type'], ENT_QUOTES, 'UTF-8');
 
-  $stmt = $conn->prepare("SELECT * FROM `$table` WHERE id=?");
-  $stmt->bind_param('i', $id);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  if ($result->num_rows > 0) {
-    $user = $result->fetch_assoc();
-  } else {
-    header('Location: ' .  route('back'));
+  $stmt = $pdo->prepare("SELECT * FROM `$table` WHERE id = ?");
+  $stmt->execute([$id]);
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if (!$user) {
+    header('Location: ' . route('back'));
+    exit();
   }
 } else {
-  header('Location: ' .  route('back'));
+  header('Location: ' . route('back'));
+  exit();
 }
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (
-    !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-  ) {
+  if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
     die('CSRF validation failed. Please refresh and try again.');
   }
 
-  $id = trim($_POST['id'] ?? '');
+  $id = (int) trim($_POST['id'] ?? '');
 
-  if (empty($id)) $errors['id'] = 'User Not Found';
+  if (empty($id)) {
+    $errors['id'] = 'User Not Found';
+  }
 
   if (empty($errors)) {
-    $stmt = $conn->prepare("UPDATE `$table` set deleted_at = NOW() where id =?");
-    $stmt->bind_param('i', $id);
+    try {
+      // ✅ Start transaction
+      $pdo->beginTransaction();
 
-    if ($stmt->execute()) {
-      $_SESSION['success'] = "User Deleted successfully!";
-      header("Location: " .  route('back'));
-      exit();
-    } else {
-      echo "<script>alert('Failed to delete a user: " . $stmt->error . "');</script>";
+      $stmt = $pdo->prepare("UPDATE `$table` SET deleted_at = NOW() WHERE id = ?");
+      $success = $stmt->execute([$id]);
+
+      if ($success) {
+        // ✅ Commit transaction
+        $pdo->commit();
+        $_SESSION['success'] = "User Deleted successfully!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        // ❌ Rollback if update fails
+        $pdo->rollBack();
+        echo "<script>alert('Failed to delete user');</script>";
+      }
+    } catch (PDOException $e) {
+      $pdo->rollBack();
+      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {
@@ -59,9 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 }
-
-
 ?>
+
 
 <body class="bg-gray-50">
   <!-- Navigation -->

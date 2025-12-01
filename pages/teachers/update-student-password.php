@@ -8,48 +8,44 @@ if (!$is_logged_in) {
     exit();
 }
 
-
+// ✅ Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+    $id = (int) $_GET['id'];
 
-    $query = "SELECT id, name FROM students WHERE id=?";
+    $query = "SELECT id, name FROM students WHERE id = ?";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$id]);
+    $student = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $student = $result->fetch_assoc();
-    } else {
-        header('Location: ' .  route('back'));
+    if (!$student) {
+        header('Location: ' . route('back'));
+        exit();
     }
 } else {
-    $_SESSION['failure'] = "Student and student type are required";
-    header('Location: ' .  route('back'));
+    $_SESSION['failure'] = "Student ID is required";
+    header('Location: ' . route('back'));
+    exit();
 }
-
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    // ✅ CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $id = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
-
+    $id = (int) htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
     $password = trim($_POST['password'] ?? '');
     $confirmPassword = trim($_POST['confirmPassword'] ?? '');
 
     if (empty($password)) {
-
         $errors['passwordError'] = 'Password is required';
     } elseif (strlen($password) < 8) {
         $errors['passwordError'] = 'Password must be at least 8 characters';
@@ -60,19 +56,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        $query = "UPDATE students SET password = ? WHERE id = ?";
+            $query = "UPDATE students SET password = ? WHERE id = ?";
+            $stmt = $pdo->prepare($query);
+            $success = $stmt->execute([$hashed_password, $id]);
 
-
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param('si',  $hashed_password, $id);
-
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Student Password Reset successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Database error: " . $stmt->error . "');</script>";
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+                $_SESSION['success'] = "Student Password Reset successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if update fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update password');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -80,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
 
 

@@ -2,7 +2,6 @@
 $title = 'View Student Details';
 include(__DIR__ . '/../../includes/header.php');
 
-
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -10,43 +9,45 @@ if (!$is_logged_in) {
 }
 
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare("SELECT * FROM students WHERE id=?");
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $student = $result->fetch_assoc();
-    } else {
-        header('Location: ' .  route('back'));
+    $id = (int) $_GET['id'];
+
+    // ✅ Fetch student
+    $stmt = $pdo->prepare("SELECT * FROM students WHERE id = ?");
+    $stmt->execute([$id]);
+    $student = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$student) {
+        header('Location: ' . route('back'));
+        exit();
     }
 } else {
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit();
 }
 
-$stmt = $conn->prepare("SELECT name from classes where id = ?");
-$stmt->bind_param('i', $student['class_id']);
-$stmt->execute();
-$result = $stmt->get_result();
-$class = $result->fetch_assoc();
-$student['class'] = $class['name'];
+// ✅ Fetch class
+$stmt = $pdo->prepare("SELECT name FROM classes WHERE id = ?");
+$stmt->execute([$student['class_id']]);
+$class = $stmt->fetch(PDO::FETCH_ASSOC);
+$student['class'] = $class['name'] ?? null;
 
-$stmt = $conn->prepare("SELECT name from class_arms where id = ?");
-$stmt->bind_param('i', $student['arm_id']);
-$stmt->execute();
-$result = $stmt->get_result();
-$arm = $result->fetch_assoc();
-$student['arm'] = $arm['name'];
+// ✅ Fetch arm
+$stmt = $pdo->prepare("SELECT name FROM class_arms WHERE id = ?");
+$stmt->execute([$student['arm_id']]);
+$arm = $stmt->fetch(PDO::FETCH_ASSOC);
+$student['arm'] = $arm['name'] ?? null;
 
-$stmt = $conn->prepare("SELECT * from guardians where id = ?");
-$stmt->bind_param('i', $student['guardian_id']);
-$stmt->execute();
-$result = $stmt->get_result();
-$guardian = $result->fetch_assoc();
-$student['guardian'] = $guardian['name'];
-$student['address'] = $guardian['address'];
+// ✅ Fetch guardian
+$stmt = $pdo->prepare("SELECT * FROM guardians WHERE id = ?");
+$stmt->execute([$student['guardian_id']]);
+$guardian = $stmt->fetch(PDO::FETCH_ASSOC);
 
+if ($guardian) {
+    $student['guardian'] = $guardian['name'];
+    $student['address']  = $guardian['address'];
+}
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

@@ -1,5 +1,4 @@
 <?php
-
 $title = 'Update Profile';
 include(__DIR__ . '/../../includes/header.php');
 
@@ -9,43 +8,44 @@ if (!$is_logged_in) {
     exit();
 }
 
-if ($is_logged_in === false) {
-    $_SESSION['failure'] = "Login is Required!";
-    header("Location: " . route('home'));
-    exit();
-}
-
+// ✅ Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
-if (isset($_GET['id'])  && isset($_GET['user_type'])) {
-    $id = $_GET['id'];
+if (isset($_GET['id']) && isset($_GET['user_type'])) {
+    $id        = (int) $_GET['id'];
     $user_type = $_GET['user_type'];
+
     if ($user_type === 'admin') {
-        $query = "SELECT id, name, email, phone, address FROM admins WHERE id=?";
+        $query = "SELECT id, name, email, phone, address FROM admins WHERE id = ?";
     } elseif ($user_type === 'teacher') {
-        $query = "SELECT id, name,email, phone, address FROM teachers WHERE id=?";
+        $query = "SELECT id, name, email, phone, address FROM teachers WHERE id = ?";
     } elseif ($user_type === 'guardian') {
-        $query = "SELECT id, name, email, phone, address FROM guardians WHERE id=?";
+        $query = "SELECT id, name, email, phone, address FROM guardians WHERE id = ?";
     } elseif ($user_type === 'student') {
-        $query = "SELECT id, name, email, phone FROM students WHERE id=?";
-    }
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+        $query = "SELECT id, name, email, phone FROM students WHERE id = ?";
     } else {
-        header('Location: ' .  route('back'));
+        $_SESSION['failure'] = "Invalid user type";
+        header('Location: ' . route('back'));
+        exit();
+    }
+
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        header('Location: ' . route('back'));
+        exit();
     }
 } else {
     $_SESSION['failure'] = "User and user type are required";
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit();
 }
 
+// Load user data for display
 if ($user_type === 'admin') {
     $users = selectAllData('admins', null, $user['id']);
 } elseif ($user_type === 'teacher') {
@@ -58,81 +58,67 @@ if ($user_type === 'admin') {
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    // ✅ CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // ✅ Regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-
-
-    $name = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $id = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $id    = (int) htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $name  = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
     $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
     $phone = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
 
-
-    if (empty($name)) {
-        $errors['nameError'] = 'Full name is required';
-    }
-
-
-
+    if (empty($name)) $errors['nameError'] = 'Full name is required';
     if (empty($email)) {
-
         $errors['emailError'] = 'Email is required';
-    } else {
-        if (!validateEmail($email)) {
-            $errors['emailError'] = 'Please enter a valid email address';
-        } else {
-            if (emailExist($email, 'admins', $id)) {
-                $errors['emailError'] = "Email already exists!";
-            }
-        }
+    } elseif (!validateEmail($email)) {
+        $errors['emailError'] = 'Please enter a valid email address';
+    } elseif (emailExist($email, $user_type . 's', $id)) {
+        $errors['emailError'] = "Email already exists!";
     }
+    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
 
-    if (empty($phone)) {
-        $errors['phoneError'] =  'Phone number is required';
-    }
-
-
-
-    if ($user_type !==  'student') {
+    if ($user_type !== 'student') {
         $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
-
-        if (empty($address)) {
-            $errors['addressError']  = 'Please enter address';
-        }
+        if (empty($address)) $errors['addressError'] = 'Please enter address';
     }
-
-
-
 
     if (empty($errors)) {
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        if ($user_type === 'admin') {
-            $stmt = $conn->prepare("UPDATE admins set name = ?, email = ?, phone = ?, address = ?  where id = ? ");
-        } elseif ($user_type === 'teacher') {
-            $stmt = $conn->prepare("UPDATE teachers set name = ?, email = ?, phone = ?,  address = ? where id = ? ");
-        } elseif ($user_type === 'guardian') {
-            $stmt = $conn->prepare("UPDATE guardians set name = ?, email = ?, phone = ?,  address = ? where id = ? ");
-        }
+            if ($user_type === 'admin') {
+                $stmt = $pdo->prepare("UPDATE admins SET name = ?, email = ?, phone = ?, address = ? WHERE id = ?");
+                $success = $stmt->execute([$name, $email, $phone, $address, $id]);
+            } elseif ($user_type === 'teacher') {
+                $stmt = $pdo->prepare("UPDATE teachers SET name = ?, email = ?, phone = ?, address = ? WHERE id = ?");
+                $success = $stmt->execute([$name, $email, $phone, $address, $id]);
+            } elseif ($user_type === 'guardian') {
+                $stmt = $pdo->prepare("UPDATE guardians SET name = ?, email = ?, phone = ?, address = ? WHERE id = ?");
+                $success = $stmt->execute([$name, $email, $phone, $address, $id]);
+            } elseif ($user_type === 'student') {
+                $stmt = $pdo->prepare("UPDATE students SET name = ?, email = ?, phone = ? WHERE id = ?");
+                $success = $stmt->execute([$name, $email, $phone, $id]);
+            }
 
-        if ($user_type === 'student') {
-            $stmt = $conn->prepare("UPDATE students set name = ?, email = ?, phone = ?  where id = ? ");
-            $stmt->bind_param('sssi', $name, $email, $phone, $id);
-        } else {
-            $stmt->bind_param('ssssi', $name, $email, $phone, $address, $id);
-        }
-
-
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Profile updated successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Failed to create admin/super user account: " . $stmt->error . "');</script>";
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+                $_SESSION['success'] = "Profile updated successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if update fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update profile');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -140,8 +126,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
+
 <script>
     const users = <?= json_encode($users, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

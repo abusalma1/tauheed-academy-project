@@ -8,55 +8,58 @@ if (!$is_logged_in) {
     exit();
 }
 
-
+// ✅ Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
-if (isset($_GET['id'])  && isset($_GET['user_type'])) {
-    $id = $_GET['id'];
+if (isset($_GET['id']) && isset($_GET['user_type'])) {
+    $id        = (int) $_GET['id'];
     $user_type = $_GET['user_type'];
+
     if ($user_type === 'admin') {
-        $query = "SELECT id, name FROM admins WHERE id=?";
+        $query = "SELECT id, name FROM admins WHERE id = ?";
     } elseif ($user_type === 'teacher') {
-        $query = "SELECT id, name FROM teachers WHERE id=?";
+        $query = "SELECT id, name FROM teachers WHERE id = ?";
     } elseif ($user_type === 'guardian') {
-        $query = "SELECT id, name FROM guardians WHERE id=?";
+        $query = "SELECT id, name FROM guardians WHERE id = ?";
     } elseif ($user_type === 'student') {
-        $query = "SELECT id, name FROM students WHERE id=?";
-    }
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+        $query = "SELECT id, name FROM students WHERE id = ?";
     } else {
-        header('Location: ' .  route('back'));
+        $_SESSION['failure'] = "Invalid user type";
+        header('Location: ' . route('back'));
+        exit();
+    }
+
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        header('Location: ' . route('back'));
+        exit();
     }
 } else {
     $_SESSION['failure'] = "User and user type are required";
-    header('Location: ' .  route('back'));
+    header('Location: ' . route('back'));
+    exit();
 }
-
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    // ✅ CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // ✅ Regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $id = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
-
+    $id       = (int) htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
     $password = trim($_POST['password'] ?? '');
     $confirmPassword = trim($_POST['confirmPassword'] ?? '');
 
     if (empty($password)) {
-
         $errors['passwordError'] = 'Password is required';
     } elseif (strlen($password) < 8) {
         $errors['passwordError'] = 'Password must be at least 8 characters';
@@ -77,15 +80,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $query = "UPDATE students SET password = ? WHERE id = ?";
         }
 
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param('si',  $hashed_password, $id);
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "User Password Reset successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Database error: " . $stmt->error . "');</script>";
+            $stmt = $pdo->prepare($query);
+            $success = $stmt->execute([$hashed_password, $id]);
+
+            if ($success) {
+                // ✅ Commit transaction
+                $pdo->commit();
+                $_SESSION['success'] = "User Password Reset successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                // ❌ Rollback if update fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update password');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -93,7 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
 
 

@@ -15,8 +15,9 @@ if (empty($_SESSION['csrf_token'])) {
 // Validate class_subject id
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header('Location: ' . route('back'));
+    exit();
 }
-$class_subject_id = intval($_GET['id']);
+$class_subject_id = (int) $_GET['id'];
 
 // Fetch current class-subject record
 $query = "
@@ -30,17 +31,16 @@ $query = "
     INNER JOIN classes c ON cs.class_id = c.id
     WHERE cs.id = ?
 ";
-$stmt = $conn->prepare($query);
-$stmt->bind_param('i', $class_subject_id);
-$stmt->execute();
-$result = $stmt->get_result();
-if ($result->num_rows === 0) {
+$stmt = $pdo->prepare($query);
+$stmt->execute([$class_subject_id]);
+$class_subject = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$class_subject) {
     die('<p class="text-red-600 font-semibold">Record not found.</p>');
 }
-$class_subject = $result->fetch_assoc();
 $current_teacher_id = $class_subject['teacher_id'];
 
-// Fetch all teachers
+// Fetch all teachers (assuming selectAllData is already PDO-based)
 $teachers = selectAllData('teachers');
 
 $errors = [];
@@ -50,21 +50,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $teacher_id = $_POST['teacher_id'] ? intval($_POST['teacher_id']) : null;
+    $teacher_id = !empty($_POST['teacher_id']) ? (int) $_POST['teacher_id'] : null;
 
-    // Update class_subjects table
-    $updateStmt = $conn->prepare("UPDATE class_subjects SET teacher_id = ? WHERE id = ?");
-    $updateStmt->bind_param('ii', $teacher_id, $class_subject_id);
+    try {
+        $updateStmt = $pdo->prepare("UPDATE class_subjects SET teacher_id = ? WHERE id = ?");
+        $success = $updateStmt->execute([$teacher_id, $class_subject_id]);
 
-    if ($updateStmt->execute()) {
-        $_SESSION['success'] = "Teacher updated successfully!";
-        header("Location: " . route('back'));
-        exit();
-    } else {
-        $errors['general'] = "Failed to update the teacher. Try again.";
+        if ($success) {
+            $_SESSION['success'] = "Teacher updated successfully!";
+            header("Location: " . route('back'));
+            exit();
+        } else {
+            $errors['general'] = "Failed to update the teacher. Try again.";
+        }
+    } catch (PDOException $e) {
+        $errors['general'] = "Database error: " . htmlspecialchars($e->getMessage());
     }
 }
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

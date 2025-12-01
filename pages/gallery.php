@@ -1,5 +1,5 @@
 <?php
-$title = 'About & Contact';
+$title = 'Gallery';
 
 include(__DIR__ .  '/../includes/header.php');
 ?>

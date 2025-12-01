@@ -7,28 +7,22 @@ if (!$is_logged_in) {
     header("Location: " . route('home'));
     exit();
 }
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (
-        !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $bankName = trim($_POST['bankName'] ?? '');
+    $bankName       = trim($_POST['bankName'] ?? '');
     $accountPurpose = trim($_POST['accountPurpose'] ?? '');
-    $accountName = trim($_POST['accountName'] ?? '');
-    $accountNumber = trim($_POST['accountNumber'] ?? '');
-
-
-
-
+    $accountName    = trim($_POST['accountName'] ?? '');
+    $accountNumber  = trim($_POST['accountNumber'] ?? '');
 
     if (empty($bankName)) {
         $errors['nameError'] = "Bank name is required";
@@ -43,22 +37,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($accountNumber)) {
-        $errors['accountNumber'] = "Account number name is required";
+        $errors['accountNumber'] = "Account number is required";
     }
 
-
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            "INSERT INTO bank_accounts (bank_name, purpose, account_name, account_number) VALUES (?, ?, ?, ?)"
+        $stmt = $pdo->prepare(
+            "INSERT INTO bank_accounts (bank_name, purpose, account_name, account_number) 
+             VALUES (?, ?, ?, ?)"
         );
-        $stmt->bind_param('ssss', $bankName, $accountPurpose, $accountName, $accountNumber);
 
-        if ($stmt->execute()) {
+        $success = $stmt->execute([$bankName, $accountPurpose, $accountName, $accountNumber]);
+
+        if ($success) {
             $_SESSION['success'] = "Bank Account Added successfully!";
-            header("Location: " .  route('back'));
+            header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section : " . $stmt->error . "');</script>";
+            echo "<script>alert('Failed to add bank account');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -66,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

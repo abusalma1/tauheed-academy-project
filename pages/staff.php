@@ -1,9 +1,10 @@
 <?php
-$title = 'About & Contact';
+$title = 'Our Staff';
 
-include(__DIR__ .  '/../includes/header.php');
+include(__DIR__ . '/../includes/header.php');
 
-$stmt = $conn->prepare("
+// ✅ Teachers with subjects
+$stmt = $pdo->prepare("
   SELECT 
     t.id,
     t.name,
@@ -26,26 +27,23 @@ $stmt = $conn->prepare("
     LEFT JOIN classes c ON cs.class_id = c.id
     GROUP BY cs.teacher_id, s.id, s.name
   ) sc ON sc.teacher_id = t.id
-  GROUP BY t.id, t.name, t.qualification, t.email
+  GROUP BY t.id, t.name, t.qualification, t.gender, t.experience, t.email
   ORDER BY t.name
 ");
 $stmt->execute();
-$teachers = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT * from admins where type = ? ORDER BY name ");
-$admin = 'admin';
-$stmt->bind_param('s', $admin);
-$stmt->execute();
-$admins = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+// ✅ Admins
+$stmt = $pdo->prepare("SELECT * FROM admins WHERE type = ? ORDER BY name");
+$stmt->execute(['admin']);
+$admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT * from admins where type = ? ORDER BY name ");
-$superAdmin = 'superAdmin';
-$stmt->bind_param('s', $superAdmin);
-$stmt->execute();
-$superAdmins = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-
+// ✅ Super Admins
+$stmt = $pdo->prepare("SELECT * FROM admins WHERE type = ? ORDER BY name");
+$stmt->execute(['superAdmin']);
+$superAdmins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <body class="bg-gray-50">
     <?php include(__DIR__ .  '/../includes/nav.php'); ?>
