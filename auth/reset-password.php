@@ -2,71 +2,88 @@
 $title = "Reset Password";
 include(__DIR__ . '/./includes/non-auth-header.php');
 
-$token = $_GET['token'] ?? null;
+$errorMessage = null;
+$showSuccess  = null;
 
+// ✅ CSRF token generation for GET
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+$token = $_GET['token'] ?? null;
 if (!$token) {
     $errorMessage = "Invalid reset token";
 }
 
-// Hash the incoming token to match what was stored
+// Hash the incoming token to match stored hash
 $tokenHash = $token ? hash('sha256', $token) : null;
 
 // Tables to check
-$tables = ['admins', 'teachers', 'guardians', 'students'];
+$tables   = ['admins', 'teachers', 'guardians', 'students'];
 $userTable = null;
-$userId = null;
+$userId    = null;
 
-// Find token
+// ✅ Find token
 if ($tokenHash) {
     foreach ($tables as $table) {
-        $stmt = $conn->prepare(
-            "SELECT id, reset_expires FROM $table WHERE reset_token=? LIMIT 1"
-        );
-        $stmt->bind_param("s", $tokenHash);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($id, $expires);
-        if ($stmt->fetch()) {
-            if (new DateTime() > new DateTime($expires)) {
+        $stmt = $pdo->prepare("SELECT id, reset_expires FROM $table WHERE reset_token = ? LIMIT 1");
+        $stmt->execute([$tokenHash]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            if (new DateTime() > new DateTime($row['reset_expires'])) {
                 $errorMessage = "Reset link expired";
             } else {
                 $userTable = $table;
-                $userId = $id;
+                $userId    = $row['id'];
             }
             break;
         }
-        $stmt->close();
     }
 }
 
-if (!$userTable && !isset($errorMessage)) {
+if (!$userTable && !$errorMessage) {
     $errorMessage = "Invalid or expired reset token";
 }
 
-// Handle POST (password reset)
+// ✅ Handle POST (password reset)
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $userTable) {
-    $password = $_POST['password'];
-    $confirm = $_POST['confirm_password'];
-
-    if ($password !== $confirm) {
-        $errorMessage = "Passwords do not match";
-    } elseif (strlen($password) < 8) {
-        $errorMessage = "Password must be at least 8 characters long";
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $errorMessage = "Invalid request. Please refresh and try again.";
     } else {
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // regenerate after validation
 
-        // Update password & clear token
-        $stmt = $conn->prepare(
-            "UPDATE $userTable SET password=?, reset_token=NULL, reset_expires=NULL WHERE id=?"
-        );
-        $stmt->bind_param("si", $hashed, $userId);
-        $stmt->execute();
-        $stmt->close();
+        $password = trim($_POST['password'] ?? '');
+        $confirm  = trim($_POST['confirm_password'] ?? '');
 
-        $showSuccess = true;
+        if ($password !== $confirm) {
+            $errorMessage = "Passwords do not match";
+        } elseif (strlen($password) < 8) {
+            $errorMessage = "Password must be at least 8 characters long";
+        } else {
+            $hashed = password_hash($password, PASSWORD_DEFAULT);
+
+            try {
+                // ✅ Transaction ensures atomic update
+                $pdo->beginTransaction();
+
+                $stmt = $pdo->prepare("UPDATE $userTable 
+                    SET password = ?, reset_token = NULL, reset_expires = NULL 
+                    WHERE id = ?");
+                $stmt->execute([$hashed, $userId]);
+
+                $pdo->commit();
+                $showSuccess = true;
+            } catch (PDOException $e) {
+                $pdo->rollBack();
+                $errorMessage = "Database error: " . htmlspecialchars($e->getMessage());
+            }
+        }
     }
 }
 ?>
+
 
 
 <body class="bg-gray-50">
@@ -119,6 +136,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $userTable) {
                     method="POST"
                     class="space-y-6"
                     style="<?php echo isset($showSuccess) ? 'display:none;' : ''; ?>">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+
                     <!-- Password Requirements Info -->
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <h3 class="font-semibold text-blue-900 text-sm mb-2">

@@ -1,67 +1,92 @@
 <?php
 $title = "Login";
 include(__DIR__ . "/./includes/non-auth-header.php");
+
 $error = '';
+
+// ✅ Redirect if already logged in
 if (isset($_SESSION['user_session'])) {
     header('Location: ' . route('home'));
-} else {
-    if (isset($_POST['submit'])) {
-        $email =  trim($_POST['email']);
-        $password = trim($_POST['password']);
-        $user_type = trim($_POST['user_type']);
+    exit();
+}
 
-        if (!empty($email) && !empty($password) && !empty($user_type)) {
+// ✅ Generate CSRF token if missing
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
-            if ($user_type === 'student') {
-                // Allow login using either email OR admission_number
-                $stmt = $pdo->prepare("SELECT * FROM students WHERE email = ? OR admission_number = ?");
-                $stmt->execute([$email, $email]);
-            } else if ($user_type === 'teacher') {
-                $stmt = $pdo->prepare("SELECT * FROM teachers WHERE email = ? OR staff_no = ?");
-                $stmt->execute([$email, $email]);
-            } else if ($user_type === 'guardian') {
-                $stmt = $pdo->prepare("SELECT * FROM guardians WHERE email = ?");
-                $stmt->execute([$email]);
-            } else if ($user_type === 'admin') {
-                $stmt = $pdo->prepare("SELECT * FROM admins WHERE email = ? OR staff_no = ?");
-                $stmt->execute([$email, $email]);
-            }
+// ✅ Handle login submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+    // ✅ CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // regenerate after validation
+    }
 
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $emailOrId = trim($_POST['email'] ?? '');
+    $password  = trim($_POST['password'] ?? '');
 
-            if (count($result) == 1) {
-                $user = $result[0];
+    if (!empty($emailOrId) && !empty($password)) {
+        try {
+            // ✅ Start transaction
+            $pdo->beginTransaction();
 
-                if (password_verify($password, $user["password"])) {
-                    session_regenerate_id(true);
-                    $_SESSION["user_session"] = [
-                        'id' => $user['id'],
-                        'email' => $user['email'],
-                        'user_type' => $user_type
-                    ];
+            // ✅ Define user sources
+            $sources = [
+                'student'  => ["SELECT * FROM students WHERE email = ? OR admission_number = ?", [$emailOrId, $emailOrId]],
+                'teacher'  => ["SELECT * FROM teachers WHERE email = ? OR staff_no = ?", [$emailOrId, $emailOrId]],
+                'guardian' => ["SELECT * FROM guardians WHERE email = ?", [$emailOrId]],
+                'admin'    => ["SELECT * FROM admins WHERE email = ? OR staff_no = ?", [$emailOrId, $emailOrId]],
+            ];
 
-                    $_SESSION['success'] = "Logged in successfully!";
-                    header('Location: ' . route('home'));
-                    exit;
-                } else {
-                    $error = "Incorrect email or password";
+            $user = null;
+            $user_type = null;
+
+            // ✅ Try each source
+            foreach ($sources as $type => [$query, $params]) {
+                $stmt = $pdo->prepare($query);
+                $stmt->execute($params);
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($result) {
+                    $user = $result;
+                    $user_type = $type;
+                    break;
                 }
-            } else {
-                $error = "Account does not exist";
             }
-        } else {
-            $error = 'All fields are required!';
+
+            if ($user && password_verify($password, $user['password'])) {
+                session_regenerate_id(true);
+                $_SESSION['user_session'] = [
+                    'id'        => $user['id'],
+                    'email'     => $user['email'],
+                    'user_type' => $user_type
+                ];
+
+                $_SESSION['success'] = "Logged in successfully!";
+                $pdo->commit();
+                header('Location: ' . route('home'));
+                exit();
+            } else {
+                $pdo->rollBack();
+                $error = $user ? "Incorrect password" : "Account not found";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            $error = "Login error: " . htmlspecialchars($e->getMessage());
         }
+    } else {
+        $error = 'Both fields are required!';
     }
 }
 ?>
 
 
 <body class="bg-gray-50">
-
     <!-- Login Section -->
     <section class="py-16 bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen flex items-center">
-        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full"> <!-- Login Card -->
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div class="bg-white rounded-2xl shadow-2xl p-8">
                 <!-- Header -->
                 <div class="text-center mb-8">
@@ -74,49 +99,15 @@ if (isset($_SESSION['user_session'])) {
 
                 <!-- Login Form -->
                 <form class="space-y-6" method="post" action="">
-                    <!-- Error Message -->
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
                     <?php if (!empty($error)): ?>
                         <div class="mt-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-700 text-sm font-medium flex items-center gap-2">
                             <i class="fas fa-exclamation-circle text-red-600"></i>
                             <?= htmlspecialchars($error) ?>
                         </div>
                     <?php endif; ?>
-                    <!-- User Type Selection -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            <i class="fas fa-users mr-2 text-blue-900"></i>I am a:
-                        </label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <label class="relative">
-                                <input type="radio" name="user_type" value="student" class="peer sr-only" required>
-                                <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
-                                    <i class="fas fa-user-graduate text-2xl text-blue-900 mb-2"></i>
-                                    <p class="font-semibold text-sm">Student</p>
-                                </div>
-                            </label>
-                            <label class="relative">
-                                <input type="radio" name="user_type" value="guardian" class="peer sr-only">
-                                <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
-                                    <i class="fas fa-user-friends text-2xl text-blue-900 mb-2"></i>
-                                    <p class="font-semibold text-sm">Guardian</p>
-                                </div>
-                            </label>
-                            <label class="relative">
-                                <input type="radio" name="user_type" value="teacher" class="peer sr-only">
-                                <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
-                                    <i class="fas fa-chalkboard-teacher text-2xl text-blue-900 mb-2"></i>
-                                    <p class="font-semibold text-sm">Teacher</p>
-                                </div>
-                            </label>
-                            <label class="relative">
-                                <input type="radio" name="user_type" value="admin" class="peer sr-only">
-                                <div class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-blue-900 peer-checked:bg-blue-50 transition text-center">
-                                    <i class="fas fa-crown text-2xl text-blue-900 mb-2"></i>
-                                    <p class="font-semibold text-sm">Admin</p>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
+
                     <!-- Email/Username -->
                     <div>
                         <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -152,13 +143,19 @@ if (isset($_SESSION['user_session'])) {
                             </button>
                         </div>
                     </div>
+                    <!-- Divider -->
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-white text-gray-500"></span>
+                        </div>
+                    </div>
 
                     <!-- Remember Me & Forgot Password -->
-                    <div class="flex items-center justify-between">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="w-4 h-4 text-blue-900 border-gray-300 rounded focus:ring-blue-900">
-                            <span class="ml-2 text-sm text-gray-700">Remember me</span>
-                        </label>
+                    <div class="flex items-center justify-end">
+
                         <a href="<?= route('forgot-password') ?>" class="text-sm text-blue-900 hover:text-blue-700 font-semibold">
                             Forgot Password?
                         </a>
@@ -171,7 +168,6 @@ if (isset($_SESSION['user_session'])) {
                         class="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition shadow-lg hover:shadow-xl">
                         <i class="fas fa-sign-in-alt mr-2"></i>Sign In
                     </button>
-
                 </form>
 
                 <!-- Divider -->
@@ -180,19 +176,11 @@ if (isset($_SESSION['user_session'])) {
                         <div class="w-full border-t border-gray-300"></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
-                        <span class="px-4 bg-white text-gray-500">Or</span>
+                        <span class="px-4 bg-white text-gray-500"></span>
                     </div>
                 </div>
 
-                <!-- Register Link -->
-                <div class="text-center">
-                    <p class="text-gray-600">
-                        Don't have an account?
-                        <a href="<?= route('register') ?>" class="text-blue-900 hover:text-blue-700 font-semibold">
-                            Create Account
-                        </a>
-                    </p>
-                </div>
+
             </div>
 
             <!-- Additional Info -->
@@ -205,11 +193,8 @@ if (isset($_SESSION['user_session'])) {
         </div>
     </section>
 
-
-
     <!-- Scripts -->
     <script>
-        // Password Toggle
         const togglePassword = document.getElementById('toggle-password');
         const passwordInput = document.getElementById('password');
         const eyeIcon = document.getElementById('eye-icon');
@@ -223,7 +208,7 @@ if (isset($_SESSION['user_session'])) {
             });
         }
     </script>
-
 </body>
+
 
 </html>

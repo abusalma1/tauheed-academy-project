@@ -5,28 +5,30 @@ $title = "Forgot Password";
 include(__DIR__ . '/./includes/non-auth-header.php');
 include(__DIR__ . '/../config/mailer.php');
 
-
 $DEV_SHOW_EMAIL_NOT_FOUND = false;
 
 $errorMessage = null;
-$userTable = null;
-$showSuccess = null;
+$userTable    = null;
+$showSuccess  = null;
 
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$host        = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $isLocalhost = in_array($host, ['localhost', '127.0.0.1']);
-$scheme = $isLocalhost ? 'http' : 'https';
-$baseUrl = $scheme . '://' . $host;
+$scheme      = $isLocalhost ? 'http' : 'https';
+$baseUrl     = $scheme . '://' . $host;
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-  if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-  }
+// ✅ Generate CSRF token on GET
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_SESSION['csrf_token'])) {
+  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// ✅ Handle POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  // CSRF validation
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
     $errorMessage = "Invalid request. Please refresh and try again.";
   } else {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // regenerate after validation
+
     $email = strtolower(trim($_POST['email'] ?? ''));
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -38,57 +40,50 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $tables = ['admins', 'teachers', 'guardians', 'students'];
 
     if ($errorMessage === null) {
-      foreach ($tables as $table) {
-        $sql = "SELECT id FROM `$table` WHERE email=? LIMIT 1";
-        $stmt = $pdo->prepare($sql);
-        if (!$stmt) {
-          error_log("Prepare failed (SELECT)");
-          $errorMessage = "An unexpected error occurred. Please try again.";
-          break;
+      try {
+        foreach ($tables as $table) {
+          $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE email=? LIMIT 1");
+          $stmt->execute([$email]);
+          if ($stmt->rowCount() > 0) {
+            $userTable = $table;
+            break;
+          }
         }
-        if (!$stmt->execute([$email])) {
-          error_log("Execute failed (SELECT)");
-          $errorMessage = "An unexpected error occurred. Please try again.";
-          break;
-        }
-        if ($stmt->rowCount() > 0) {
-          $userTable = $table;
-          break;
-        }
-      }
 
-      if ($errorMessage === null) {
         if (!empty($userTable)) {
-          $rawToken = bin2hex(random_bytes(32));
-          $tokenHash = hash('sha256', $rawToken);
+          $rawToken   = bin2hex(random_bytes(32));
+          $tokenHash  = hash('sha256', $rawToken);
           $expires_at = date("Y-m-d H:i:s", strtotime("+1 hour"));
 
-          $updateSql = "UPDATE `$userTable` SET reset_token=?, reset_expires=? WHERE email=?";
+          // ✅ Transaction ensures atomic update
+          $pdo->beginTransaction();
+
+          $updateSql = "UPDATE `$userTable` 
+                                  SET reset_token=?, reset_expires=? 
+                                  WHERE email=?";
           $stmt = $pdo->prepare($updateSql);
-          if (!$stmt) {
-            error_log("Prepare failed (UPDATE)");
-            $errorMessage = "An unexpected error occurred. Please try again.";
-          } else {
-            if (!$stmt->execute([$tokenHash, $expires_at, $email])) {
-              error_log("Execute failed (UPDATE)");
-              $errorMessage = "An unexpected error occurred. Please try again.";
-            }
-          }
+          $stmt->execute([$tokenHash, $expires_at, $email]);
+
+          $pdo->commit();
 
           $projectBase = $isLocalhost ? '/tauheed-academy-project' : '';
-          $resetLink = $baseUrl . $projectBase . "/auth/reset-password.php?token=" . urlencode($rawToken);
+          $resetLink   = $baseUrl . $projectBase . "/auth/reset-password.php?token=" . urlencode($rawToken);
 
           sendResetEmail($email, $resetLink);
         }
 
+        // ✅ Always show success message (prevents email enumeration)
         if ($errorMessage === null) {
           $showSuccess = true;
         }
+      } catch (PDOException $e) {
+        $pdo->rollBack();
+        error_log("Forgot Password DB error: " . $e->getMessage());
+        $errorMessage = "An unexpected error occurred. Please try again.";
       }
     }
   }
 }
-
 ?>
 
 <body class="bg-gray-50">
@@ -149,6 +144,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           method="POST"
           class="space-y-6"
           style="<?php echo isset($showSuccess) ? 'display:none;' : ''; ?>">
+          <input type="hidden" name="csrf_token"
+            value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+
           <div>
             <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
               <i class="fas fa-envelope mr-2 text-blue-900"></i>Email Address
