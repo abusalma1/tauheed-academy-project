@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 exit();
             } else {
                 $pdo->rollBack();
-                $error = $user ? "Incorrect password" : "Account not found";
+                $error = $user ? "Incorrect Email or password" : "Incorrect Email or Password";
             }
         } catch (PDOException $e) {
             $pdo->rollBack();
