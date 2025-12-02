@@ -26,8 +26,10 @@
 
                         <ul class="flex flex-col py-2">
                             <li> <a href="<?= route('subjects-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Subjects </a> </li>
+
                             <li> <a href="<?= route('class-arm-section-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Classes</a> </li>
 
+                            <li> <a href="<?= route('admin-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Resutls Mangement </a> </li>
 
                             <li> <a href="<?= route('term-session-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Terms & Sessions </a> </li>
                             <li> <a href="<?= route('promotion'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Promotion(Term/Sesssion Transition) </a> </li>
@@ -94,7 +96,9 @@
             <div class="mobile-dropdown hidden flex-col mt-2 bg-blue-700 rounded-lg">
                 <a href="<?= route('subjects-management'); ?>" class="block px-4 py-2 hover:bg-blue-600">Subjects</a>
                 <a href="<?= route('class-arm-section-management'); ?>" class="block px-4 py-2 hover:bg-blue-600">Classes</a>
+                <a href="<?= route('admin-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-600"> Results Management</a>
                 <a href="<?= route('term-session-management'); ?>" class="block px-4 py-2 hover:bg-blue-600"> Terms & Sessions</a>
+
                 <a href="<?= route('promotion'); ?>" class="block px-4 py-2 hover:bg-blue-600"> Promotion(Term/Sesssion Transition)</a>
 
             </div>
@@ -124,7 +128,7 @@
                 <a href="<?= route('admin-news'); ?>" class="block px-4 py-2 hover:bg-blue-600"> News</a>
             </div>
         </div>
-       
+
         <a href="<?= route('home') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">back to Site</a>
         <a href="<?= route('logout') ?>"><button class="w-full text-left bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg transition">Logout</button></a>
 

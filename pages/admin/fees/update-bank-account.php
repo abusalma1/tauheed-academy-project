@@ -175,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-plus"></i>
                             Update Account
                         </button>
-                        <a href="<?= route('back') ?>" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                        <a type="button" onclick="window.history.back()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
                             <i class="fas fa-times"></i>
                             Cancel
                         </a>

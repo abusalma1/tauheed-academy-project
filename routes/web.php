@@ -116,6 +116,7 @@ $routes = [
         'url' => "$baseUrl/pages/admin/users-management/admin-update.php"
     ],
 
+
     // guardian
 
     'guardian-create' => [
@@ -250,7 +251,16 @@ $routes = [
     ],
 
 
-
+    // admin resutls results
+    'admin-results-management' => [
+        'url' => "$baseUrl/pages/admin/results-management/"
+    ],
+    'admin-upload-results' => [
+        'url' => "$baseUrl/pages/admin/results-management/upload-results.php"
+    ],
+    'admin-view-subject-result' => [
+        'url' => "$baseUrl/pages/admin/results-management/view-subject-result.php"
+    ],
 
     // results
     'results-management' => [
