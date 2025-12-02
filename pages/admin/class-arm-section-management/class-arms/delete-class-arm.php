@@ -1,6 +1,6 @@
 <?php
 $title = "Delete Confirmation";
-include(__DIR__ . '/../../../includes/header.php');
+include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
   $_SESSION['failure'] = "Login is Required!";
@@ -15,11 +15,11 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
 
-  $stmt = $pdo->prepare("SELECT * FROM classes WHERE id = ?");
+  $stmt = $pdo->prepare("SELECT * FROM class_arms WHERE id = ?");
   $stmt->execute([$id]);
-  $class = $stmt->fetch(PDO::FETCH_ASSOC);
+  $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
-  if (!$class) {
+  if (!$arm) {
     header('Location: ' . route('back'));
     exit();
   }
@@ -42,19 +42,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $id = (int) trim($_POST['id'] ?? '');
 
   if (empty($id)) {
-    $errors['id'] = 'Class Not Found';
+    $errors['id'] = 'Class Arm Not Found';
   }
 
   if (empty($errors)) {
-    $stmt = $pdo->prepare("UPDATE classes SET deleted_at = NOW() WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE class_arms SET deleted_at = NOW() WHERE id = ?");
     $success = $stmt->execute([$id]);
 
     if ($success) {
-      $_SESSION['success'] = "Class Deleted successfully!";
+      $_SESSION['success'] = "Class Arm Deleted successfully!";
       header("Location: " . route('back'));
       exit();
     } else {
-      echo "<script>alert('Failed to delete a Class');</script>";
+      echo "<script>alert('Failed to delete a Class Arm');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="max-w-md w-full mx-auto px-4">
       <form method="POST" class="bg-white rounded-lg shadow-lg p-8">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
-        <input type="hidden" name="id" value="<?= $class['id'] ?>">
+        <input type="hidden" name="id" value="<?= $arm['id'] ?>">
 
         <!-- Warning Icon -->
         <div class="flex justify-center mb-6">
@@ -86,19 +86,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Title -->
         <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">
-          Delete Class
+          Delete Class Arm
         </h2>
         <p class="text-gray-600 text-center mb-6">
-          Are you sure you want to delete this Class?
+          Are you sure you want to delete this Class Arm?
         </p>
 
         <!-- class Details -->
         <div class="bg-gray-50 rounded-lg p-4 mb-6">
           <div class="space-y-3">
             <div>
-              <p class="text-sm text-gray-600">Class Name</p>
-              <p class="text-lg font-semibold text-gray-900" id="className">
-                <?= $class['name'] ?? '-' ?>
+              <p class="text-sm text-gray-600">Class Arm Name</p>
+              <p class="text-lg font-semibold text-gray-900" id="classArmName">
+                <?= $arm['name'] ?? '-' ?>
               </p>
             </div>
 

@@ -146,54 +146,57 @@ $routes = [
     // classes, sections & class arms 
 
     'class-arm-section-management' => [
-        'url' => "$baseUrl/pages/admin/classes-management/"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/"
     ],
 
     // classes
     'classes-management' => [
-        'url' => "$baseUrl/pages/admin/classes-management/classes-management.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/index.php"
     ],
     'update-class' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-update.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/class-update.php"
     ],
     'create-class' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-create.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/class-create.php"
     ],
     'delete-class' => [
-        'url' => "$baseUrl/pages/admin/classes-management/delete-class.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/delete-class.php"
     ],
     'assing-class-teacher' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-teacher.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/class-teacher.php"
+    ],
+    'class-performance' => [
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/classes-records.php"
     ],
 
     // class arms
 
     'arms-management' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-arm-management.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/class-arms/index.php"
     ],
     'create-class-arm' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-arm-create.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/class-arms/class-arm-create.php"
     ],
     'update-class-arm' => [
-        'url' => "$baseUrl/pages/admin/classes-management/class-arm-update.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/class-arms/class-arm-update.php"
     ],
     'delete-class-arm' => [
-        'url' => "$baseUrl/pages/admin/classes-management/delete-class-arm.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/class-arms/delete-class-arm.php"
     ],
 
     // sections
 
     'sections-management' => [
-        'url' => "$baseUrl/pages/admin/classes-management/sections-management.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/sections/index.php"
     ],
     'create-section' => [
-        'url' => "$baseUrl/pages/admin/classes-management/section-create.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/sections/section-create.php"
     ],
     'update-section' => [
-        'url' => "$baseUrl/pages/admin/classes-management/section-update.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/sections/section-update.php"
     ],
     'delete-section' => [
-        'url' => "$baseUrl/pages/admin/classes-management/delete-section.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/sections/delete-section.php"
     ],
 
     // subjects
@@ -307,7 +310,7 @@ $routes = [
         'url' => "$baseUrl/pages/admin/fees/bank-accounts.php"
     ],
 
-    
+
     // class teachers
 
     'my-class' => [

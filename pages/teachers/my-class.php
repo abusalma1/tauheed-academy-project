@@ -7,7 +7,7 @@ if (!$is_logged_in) {
     header("Location: " . route('home'));
     exit();
 }
-    
+
 // Current Term
 $stmt = $pdo->prepare("
     SELECT t.name, s.name AS session_name, s.id AS session_id
@@ -132,7 +132,7 @@ $classes = array_values($classes);
                             <i class="fas fa-list"></i>
                             Class <?= $class['class_name'] . ' ' . $class['arm_name'] ?> Students (<?= count($class['students'])  ?>)
                         </h3>
-                        <a href="<?= route('class-broadsheet-by-term') ?>?class_id=<?= $class['class_id'] ?>&session_id=<?= $currentTerm['session_id'] ?>"
+                        <a href="<?= route('class-broadsheet-by-term') ?>?class_id=<?= $class['class_id'] ?>&arm_id=<?= $class['arm_id'] ?? '' ?>&session_id=<?= $currentTerm['session_id'] ?>"
                             class="bg-white text-blue-900 px-4 py-2 rounded-lg font-semibold hover:bg-blue-100 transition">
                             <i class="fas fa-eye mr-2"></i>View class broadsheet
                         </a>

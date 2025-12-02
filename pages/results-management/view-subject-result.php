@@ -8,28 +8,39 @@ if (!$is_logged_in) {
     exit();
 }
 
-if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_id'])) {
+if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_id']) && isset($_GET['arm_id'])) {
     $class_id   = (int) $_GET['class_id'];
     $session_id = (int) $_GET['session_id'];
     $term_id    = (int) $_GET['term_id'];
     $subject_id = (int) $_GET['subject_id'];
+    $arm_id     = (int) $_GET['arm_id'];   // NEW
 
-    //  Subject
+    // Subject
     $stmt = $pdo->prepare("SELECT name FROM subjects WHERE id = ?");
     $stmt->execute([$subject_id]);
     $subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    //  Session
+    // Session
     $stmt = $pdo->prepare("SELECT id, name FROM sessions WHERE id = ?");
     $stmt->execute([$session_id]);
     $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    //  Term
+    // Term
     $stmt = $pdo->prepare("SELECT id, name FROM terms WHERE id = ?");
     $stmt->execute([$term_id]);
     $term = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    //  Students + Results
+    // class
+    $stmt = $pdo->prepare("SELECT id, name FROM classes WHERE id = ?");
+    $stmt->execute([$class_id]);
+    $class = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // arm
+    $stmt = $pdo->prepare("SELECT id, name FROM class_arms WHERE id = ?");
+    $stmt->execute([$arm_id]);
+    $arm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Students + Results (filtered by arm)
     $stmt = $pdo->prepare("
         SELECT 
             st.id AS id,
@@ -44,17 +55,17 @@ if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_
         FROM students st
         LEFT JOIN student_class_records scr
             ON scr.student_id = st.id 
-            AND scr.class_id = ?
+            AND scr.class_id = ? AND scr.arm_id = ?   -- ✅ filter by arm
         LEFT JOIN student_term_records str
             ON str.student_class_record_id = scr.id
             AND str.term_id = ?
         LEFT JOIN results r
             ON r.student_term_record_id = str.id
             AND r.subject_id = ?
-        WHERE st.class_id = ?
+        WHERE st.class_id = ? AND st.arm_id = ?       -- ✅ filter by arm
         ORDER BY st.admission_number
     ");
-    $stmt->execute([$class_id, $term_id, $subject_id, $class_id]);
+    $stmt->execute([$class_id, $arm_id, $term_id, $subject_id, $class_id, $arm_id]);
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
     header("Location: " . route('back'));
@@ -86,7 +97,7 @@ if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_
 
                 <div class="student-class-group bg-white rounded-lg shadow-lg overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-6">
-                        <h3 class="text-2xl font-bold"><?= $subject['name'] ?></h3>
+                        <h3 class="text-2xl font-bold"><?= $subject['name'] ?> (<?= $class['name'] . ' ' . $arm['name'] ?>)</h3>
                         <p class="text-sm opacity-50 py-2"><?= $term['name'] ?>, <?= $session['name'] ?> Academic Session</p>
                         <p class="text-xs opacity-90"><?= count($students) ?> students</p>
 
@@ -124,10 +135,15 @@ if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_
             </div>
 
             <div class="flex justify-center mt-8">
-                <div class="grid md:grid-cols-3 gap-4">
-                    <a href="<?= route('upload-results') . '?subject_id=' . $subject_id . '&class_id=' . $class_id . '&session_id=' . $session_id . '&term_id=' . $term_id ?>"
+                <div class="grid md:grid-cols-2 gap-4">
+                    <a href="<?= route('upload-results')
+                                    . '?subject_id=' . $subject_id
+                                    . '&term_id=' . $term_id
+                                    . '&session_id=' .  $session_id
+                                    . '&class_id=' . $class_id
+                                    . ($arm_id ? '&arm_id=' . $arm_id : '') ?>"
                         class="bg-gray-400 hover:bg-gray-500 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
-                        <i class="fas fa-upload"></i>Update
+                        <i class="fas fa-edit"></i>Update
                     </a>
                     <button onclick="printTable()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
                         <i class="fas fa-print"></i>Print

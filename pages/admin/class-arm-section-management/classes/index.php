@@ -1,7 +1,7 @@
 <?php
 
 $title = "Classes Management";
-include(__DIR__ . '/../../../includes/header.php');
+include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -73,7 +73,7 @@ $studentsCount = countDataTotal('students')['total'];
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../includes/admins-section-nav.php');  ?>
+    <?php include(__DIR__ . '/../../includes/admins-section-nav.php');  ?>
 
 
     <!-- Page Header -->
@@ -196,7 +196,7 @@ $studentsCount = countDataTotal('students')['total'];
 
                                             <td class="px-6 py-4 text-sm text-slate-600">
                                                 <div class="flex items-center justify-center gap-4">
-                                                    <a href="<?= route('update-class') . '?id=' . $class['class_id'] ?>">
+                                                    <a href="<?= route('class-performance') . '?class_id=' . $class['class_id'] ?>">
                                                         <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
                                                             <i class="fas fa-eye"></i> view class
                                                         </button>
@@ -232,7 +232,7 @@ $studentsCount = countDataTotal('students')['total'];
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../../includes/footer.php');    ?>
+    <?php include(__DIR__ . '/../../../../includes/footer.php');    ?>
 
     <script>
         function filterClasses() {

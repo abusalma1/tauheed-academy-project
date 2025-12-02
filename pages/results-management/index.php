@@ -10,28 +10,27 @@ if (!$is_logged_in) {
 
 //  Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
-    SELECT 
-        classes.id AS class_id,
-        classes.name AS class_name,
-        subjects.id AS subject_id,
-        subjects.name AS subject_name,
-        teachers.id AS teacher_id,
-        teachers.name AS teacher_name,
-        sections.name AS section_name,
-        class_subjects.id AS class_subject_id 
-    FROM classes
-    LEFT JOIN class_subjects 
-        ON classes.id = class_subjects.class_id
-    LEFT JOIN subjects 
-        ON class_subjects.subject_id = subjects.id 
-        AND subjects.deleted_at IS NULL
-    LEFT JOIN teachers 
-        ON class_subjects.teacher_id = teachers.id
-    LEFT JOIN sections 
-        ON classes.section_id = sections.id
-    WHERE classes.deleted_at IS NULL 
-      AND sections.deleted_at IS NULL
-    ORDER BY classes.level, subjects.name
+SELECT 
+    c.id AS class_id,
+    c.name AS class_name,
+    ca.id AS arm_id,
+    ca.name AS arm_name,
+    subj.id AS subject_id,
+    subj.name AS subject_name,
+    t.id AS teacher_id,
+    t.name AS teacher_name,
+    sec.name AS section_name,
+    cs.id AS class_subject_id
+FROM classes c
+JOIN sections sec ON c.section_id = sec.id
+LEFT JOIN class_class_arms cca ON cca.class_id = c.id
+LEFT JOIN class_arms ca ON ca.id = cca.arm_id
+LEFT JOIN class_subjects cs ON cs.class_id = c.id
+LEFT JOIN subjects subj ON cs.subject_id = subj.id AND subj.deleted_at IS NULL
+LEFT JOIN teachers t ON cs.teacher_id = t.id
+WHERE c.deleted_at IS NULL AND sec.deleted_at IS NULL
+ORDER BY c.level, ca.name, subj.name
+
 ");
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -40,18 +39,23 @@ $classes = [];
 
 foreach ($rows as $row) {
     $classId = $row['class_id'];
+    $armId   = $row['arm_id'] ?? null;
 
-    if (!isset($classes[$classId])) {
-        $classes[$classId] = [
-            'id'           => $row['class_id'],
+    $key = $armId ? $classId . '_' . $armId : $classId;
+
+    if (!isset($classes[$key])) {
+        $classes[$key] = [
+            'id'           => $classId,
             'name'         => $row['class_name'],
             'section_name' => $row['section_name'],
+            'arm_id'       => $armId,
+            'arm_name'       => $armId ? ' - ' . $row['arm_name'] : '',      
             'subjects'     => []
         ];
     }
 
     if (!empty($row['subject_id'])) {
-        $classes[$classId]['subjects'][] = [
+        $classes[$key]['subjects'][] = [
             'class_subject_id' => $row['class_subject_id'],
             'id'               => $row['subject_id'],
             'name'             => $row['subject_name'],
@@ -59,6 +63,9 @@ foreach ($rows as $row) {
         ];
     }
 }
+
+
+$classes = array_values($classes);
 
 // Reindex classes by numeric index
 $classes = array_values($classes);
@@ -165,50 +172,6 @@ if (isset($_POST['missing_selection'])) {
                 </div>
             </div>
 
-            <!-- Statistics -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div
-                    class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-900">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm">Total Subjects</p>
-                            <p class="text-3xl font-bold text-blue-900">24</p>
-                        </div>
-                        <i class="fas fa-book text-4xl text-blue-200"></i>
-                    </div>
-                </div>
-                <div
-                    class="bg-white rounded-lg shadow p-4 border-l-4 border-green-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm">Results Uploaded</p>
-                            <p class="text-3xl font-bold text-green-600">18</p>
-                        </div>
-                        <i class="fas fa-check-circle text-4xl text-green-200"></i>
-                    </div>
-                </div>
-                <div
-                    class="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm">Pending</p>
-                            <p class="text-3xl font-bold text-yellow-600">6</p>
-                        </div>
-                        <i class="fas fa-hourglass-half text-4xl text-yellow-200"></i>
-                    </div>
-                </div>
-                <div
-                    class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm">Current Session</p>
-                            <p class="text-2xl font-bold text-purple-600">2024/2025</p>
-                        </div>
-                        <i class="fas fa-calendar text-4xl text-purple-200"></i>
-                    </div>
-                </div>
-            </div>
-
             <!-- Sections with Subjects -->
             <div id="sectionsContainer" class="space-y-8">
                 <?php foreach ($classes as $class) : ?>
@@ -218,7 +181,7 @@ if (isset($_POST['missing_selection'])) {
                         <div class="bg-yellow-900 text-white p-6 flex items-center gap-3">
                             <i class="fas fa-book text-3xl opacity-80"></i>
                             <div>
-                                <h2 class="text-2xl font-bold"><?= $class['name'] ?></h2>
+                                <h2 class="text-2xl font-bold"><?= $class['name'] . $class['arm_name'] ?></h2>
                                 <p class="text-sm opacity-90"><?= count($class['subjects']) ?> subjects</p>
                             </div>
                         </div>
@@ -254,13 +217,19 @@ if (isset($_POST['missing_selection'])) {
                                         </div>
                                         <div class="flex flex-col gap-2 md:w-auto">
                                             <a
-                                                href="<?= route('upload-results') . '?subject_id=' . $subject['id'] . '&class_id=' . $class['id'] ?>"
+                                                href="<?= route('upload-results')
+                                                            . '?subject_id=' . $subject['id']
+                                                            . '&class_id=' . $class['id']
+                                                            . ($class['arm_id'] ? '&arm_id=' . $class['arm_id'] : '') ?>"
                                                 class="createResultBtn bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
                                                 <i class="fas fa-upload"></i> Upload Results
                                             </a>
 
-                                            <a
-                                                href="<?= route('view-subject-result') . '?subject_id=' . $subject['id'] . '&class_id=' . $class['id'] ?>"
+
+                                            <a href="<?= route('view-subject-result')
+                                                            . '?subject_id=' . $subject['id']
+                                                            . '&class_id=' . $class['id']
+                                                            . ($class['arm_id'] ? '&arm_id=' . $class['arm_id'] : '') ?>"
                                                 class="updateResultBtn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
                                                 <i class="fas fa-eye"></i> View Results
                                             </a>
@@ -321,39 +290,40 @@ if (isset($_POST['missing_selection'])) {
         });
 
         function filterSubjects() {
-            const searchTerm = document
-                .getElementById("searchInput")
-                .value.toLowerCase();
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
             const selectedClass = document.getElementById("classFilter").value;
 
             const sections = document.querySelectorAll(".section-container");
-            let visibleSections = 0;
 
-            sections.forEach((section) => {
-                const sectionName = section.getAttribute("data-class");
-
-                if (selectedClass && selectedClass !== sectionName) {
-                    section.style.display = "none";
-                    return;
-                }
+            sections.forEach(section => {
+                const sectionClass = section.getAttribute("data-class");
 
                 const subjectItems = section.querySelectorAll(".subject-item");
                 let visibleSubjects = 0;
 
-                subjectItems.forEach((subjectItem) => {
-                    const subjectName = subjectItem
-                        .getAttribute("data-subject")
-                        .toLowerCase();
-                    const matches = subjectName.includes(searchTerm);
+                subjectItems.forEach(subjectItem => {
+                    const subjectName = subjectItem.getAttribute("data-subject").toLowerCase();
 
-                    subjectItem.style.display = matches ? "block" : "none";
-                    if (matches) visibleSubjects++;
+                    // ✅ Compare against sectionClass, not subjectClass
+                    const matchesClass = !selectedClass || selectedClass === sectionClass;
+                    const matchesSearch = subjectName.includes(searchTerm);
+
+                    if (matchesClass && matchesSearch) {
+                        subjectItem.style.display = "block";
+                        visibleSubjects++;
+                    } else {
+                        subjectItem.style.display = "none";
+                    }
                 });
 
-                section.style.display = visibleSubjects > 0 ? "block" : "none";
-                if (visibleSubjects > 0) visibleSections++;
+                // ✅ Show/hide the entire section based on class filter + search
+                section.style.display = (visibleSubjects > 0 && (!selectedClass || selectedClass === sectionClass)) ?
+                    "block" :
+                    "none";
             });
         }
+
+
 
         document
             .getElementById("searchInput")

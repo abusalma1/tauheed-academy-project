@@ -20,10 +20,20 @@ $sessions  = selectAllData('sessions');
 
 $students = [];
 
-if (isset($_GET['class_id'], $_GET['term_id'], $_GET['subject_id'])) {
+if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_id'])) {
     $class_id   = (int) $_GET['class_id'];
+    $arm_id     = (int) $_GET['arm_id'];   // NEW
     $term_id    = (int) $_GET['term_id'];
     $subject_id = (int) $_GET['subject_id'];
+
+    $stmt = $pdo->prepare("SELECT name FROM class_arms WHERE id = ?");
+    $stmt->execute([$arm_id]);
+    $arm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($arm) {
+        $armName =  $arm['name'];
+    }
+
 
     $stmt = $pdo->prepare("
         SELECT 
@@ -39,19 +49,20 @@ if (isset($_GET['class_id'], $_GET['term_id'], $_GET['subject_id'])) {
         FROM students st
         LEFT JOIN student_class_records scr
             ON scr.student_id = st.id 
-            AND scr.class_id = ?
+            AND scr.class_id = ? AND scr.arm_id = ?   -- NEW
         LEFT JOIN student_term_records str
             ON str.student_class_record_id = scr.id
             AND str.term_id = ?
         LEFT JOIN results r
             ON r.student_term_record_id = str.id
             AND r.subject_id = ?
-        WHERE st.class_id = ?
+        WHERE st.class_id = ? AND st.arm_id = ?       -- NEW
         ORDER BY st.admission_number
     ");
-    $stmt->execute([$class_id, $term_id, $subject_id, $class_id]);
+    $stmt->execute([$class_id, $arm_id, $term_id, $subject_id, $class_id, $arm_id]);
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     //  CSRF validation
@@ -179,23 +190,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $total_marks   = (float) ($res['total_marks'] ?? 0);
             $average_marks = (float) ($res['average_marks'] ?? 0);
 
+            // Determine overall grade based on average
+            if ($average_marks >= 75) $overall_grade = 'A';
+            elseif ($average_marks >= 60) $overall_grade = 'B';
+            elseif ($average_marks >= 50) $overall_grade = 'C';
+            elseif ($average_marks >= 40) $overall_grade = 'D';
+            else $overall_grade = 'E';
+
             $stmt = $pdo->prepare("
                 UPDATE student_term_records
-                SET total_marks = ?, average_marks = ?
+                SET total_marks = ?, average_marks = ?, overall_grade = ?
                 WHERE id = ?
             ");
-            $stmt->execute([$total_marks, $average_marks, $student_term_id]);
+            $stmt->execute([$total_marks, $average_marks, $overall_grade, $student_term_id]);
         }
 
-        // 3. Update positions in class
+        // 3. Update positions in class-arm
         $stmt = $pdo->prepare("
             SELECT str.id, str.total_marks
             FROM student_term_records str
             JOIN student_class_records scr ON str.student_class_record_id = scr.id
-            WHERE str.term_id = ? AND scr.class_id = ?
+            WHERE str.term_id = ? AND scr.class_id = ? AND scr.arm_id = ?
             ORDER BY str.total_marks DESC
         ");
-        $stmt->execute([$term_id, $class_id]);
+
+        $stmt->execute([$term_id, $class_id, $arm_id]);
         $students_ordered = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $position = 0;
@@ -216,12 +235,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $previous_total = $total;
 
             $stmt = $pdo->prepare("
-                UPDATE student_term_records
-                SET position_in_class = ?, class_size = ?
-                WHERE id = ?
-            ");
+        UPDATE student_term_records
+        SET position_in_class = ?, class_size = ?
+        WHERE id = ?
+    ");
             $stmt->execute([$position, $class_size, $student_term_id]);
         }
+
+        // 4. Update session-level totals and averages
+        $stmt = $pdo->prepare("
+    SELECT scr.id AS student_class_record_id,
+           SUM(str.total_marks) AS session_total,
+           AVG(str.average_marks) AS session_average
+    FROM student_class_records scr
+    JOIN student_term_records str ON str.student_class_record_id = scr.id
+    WHERE scr.session_id = ? AND scr.class_id = ? AND scr.arm_id = ?
+    GROUP BY scr.id
+");
+        $stmt->execute([$session_id, $class_id, $arm_id]);
+        $session_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($session_records as $record) {
+            $scr_id = $record['student_class_record_id'];
+            $session_total = (float) ($record['session_total'] ?? 0);
+            $session_average = (float) ($record['session_average'] ?? 0);
+
+            // Overall grade based on session average
+            if ($session_average >= 75) $overall_grade = 'A';
+            elseif ($session_average >= 60) $overall_grade = 'B';
+            elseif ($session_average >= 50) $overall_grade = 'C';
+            elseif ($session_average >= 40) $overall_grade = 'D';
+            else $overall_grade = 'E';
+
+
+            $stmtUpdate = $pdo->prepare("
+        UPDATE student_class_records
+        SET overall_total = ?, overall_average = ?, promotion_status = ?
+        WHERE id = ?
+    ");
+            $stmtUpdate->execute([$session_total, $session_average, 'pending', $scr_id]);
+        }
+
+
+        // 5. Update session positions
+        $stmt = $pdo->prepare("
+    SELECT id, overall_total
+    FROM student_class_records
+    WHERE session_id = ? AND class_id = ? AND arm_id = ?
+    ORDER BY overall_total DESC
+");
+        $stmt->execute([$session_id, $class_id, $arm_id]);
+        $students_ordered = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $position = 0;
+        $previous_total = null;
+        $same_rank_count = 0;
+        $class_size = count($students_ordered);
+
+        foreach ($students_ordered as $student) {
+            $scr_id = $student['id'];
+            $total = (float) $student['overall_total'];
+
+            if ($previous_total !== null && $total == $previous_total) {
+                $same_rank_count++;
+            } else {
+                $position += $same_rank_count + 1;
+                $same_rank_count = 0;
+            }
+            $previous_total = $total;
+
+            $stmt = $pdo->prepare("
+        UPDATE student_class_records
+        SET overall_position = ?
+        WHERE id = ?
+    ");
+            $stmt->execute([$position, $scr_id]);
+        }
+
 
         //  Commit transaction
         $pdo->commit();
@@ -268,6 +358,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php foreach ($classes as $class) : ?>
                                 <option value="<?= $class['id'] ?>" <?= (isset($_GET['class_id']) && $_GET['class_id'] == $class['id']) ? 'selected' : '' ?>>
                                     <?= $class['name'] ?>
+                                    <?= $armName ?>
+
+
                                 </option>
                             <?php endforeach ?>
                         </select>
@@ -378,14 +471,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Action Buttons -->
                 <div class="flex justify-center mt-8">
-                    <div class="grid md:grid-cols-3 gap-4">
+                    <div class="grid md:grid-cols-2 gap-4">
                         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
                             <i class="fas fa-save"></i> Save All Results
                         </button>
 
-                        <button onclick="resetForm()" class="bg-gray-400 hover:bg-gray-500 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
-                            <i class="fas fa-redo"></i>Clear Form
-                        </button>
                         <button onclick="printTable()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
                             <i class="fas fa-print"></i>Print
                         </button>
@@ -500,13 +590,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             localStorage.setItem('bulkResults', JSON.stringify(results));
             alert('Results saved successfully!');
-        }
-
-        function resetForm() {
-            document.getElementById('classSelect').value = '';
-            document.getElementById('subjectSelect').value = '';
-            document.getElementById('termSelect').value = '';
-            document.getElementById('resultsBody').innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500"><i class="fas fa-info-circle mr-2"></i>Select a class to view students</td></tr>';
         }
 
         function validateInput(input) {

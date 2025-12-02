@@ -8,14 +8,28 @@ if (!$is_logged_in) {
     exit();
 }
 
-if (isset($_GET['class_id']) && isset($_GET['session_id'])) {
+if (isset($_GET['class_id']) && isset($_GET['session_id']) && isset($_GET['arm_id'])) {
     $class_id   = (int) $_GET['class_id'];
     $session_id = (int) $_GET['session_id'];
+    $arm_id     = (int) $_GET['arm_id'];   // NEW
 } else {
-    $_SESSION['failure'] = "Class and session are not found";
+    $_SESSION['failure'] = "Class, session or arm not found";
     header('Location: ' . route('back'));
     exit();
 }
+
+$stmt = $pdo->prepare("SELECT id, name from sessions where id = ?");
+$stmt->execute([$session_id]);
+$currentSession = $stmt->fetch(PDO::FETCH_ASSOC);
+
+
+$stmt = $pdo->prepare("SELECT id, name from classes where id = ?");
+$stmt->execute([$class_id]);
+$class = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->prepare("SELECT id, name from class_Arms where id = ?");
+$stmt->execute([$arm_id]);
+$arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
 //  Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
@@ -29,7 +43,6 @@ $stmt = $pdo->prepare("
         s.admission_number,
         s.class_id,
         s.arm_id,
-        
 
         scr.id AS student_class_record_id,
 
@@ -50,11 +63,14 @@ $stmt = $pdo->prepare("
     LEFT JOIN student_term_records str
         ON str.student_class_record_id = scr.id
         AND str.term_id = t.id
-    WHERE t.session_id = ? AND s.class_id = ?
+    WHERE t.session_id = ? 
+      AND s.class_id = ? 
+      AND s.arm_id = ?   -- ✅ filter by arm
     ORDER BY t.id, str.position_in_class, s.name
 ");
-$stmt->execute([$session_id, $class_id]);
+$stmt->execute([$session_id, $class_id, $arm_id]);
 $terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 //  Group results by term
 $grouped = [];
@@ -92,15 +108,16 @@ foreach ($terms as $row) {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Class Results</h1>
             <p class="text-xl text-blue-200">
-                Performance for <?= htmlspecialchars($currentTerm['session_name'] ?? '') ?> session
+                <?= $class['name'] . ' ' . $arm['name']  ?> Performance for <?= htmlspecialchars($currentSession['name'] ?? '') ?> academic session
             </p>
         </div>
     </section>
 
     <section class="py-5 bg-white">
         <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+
             <div class="flex items-center justify-end">
-                <a href="<?= route('class-broadsheet-by-session') ?>?class_id=<?= $class_id ?>&session_id=<?= $session_id ?>"
+                <a href="<?= route('class-broadsheet-by-session') ?>?class_id=<?= $class_id . '&arm_id=' . $arm_id ?>&session_id=<?= $session_id ?>"
                     class="bg-blue-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
                     <i class="fas fa-eye mr-2"></i>View Class Broadsheet for Entire Session
                 </a>

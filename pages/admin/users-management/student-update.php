@@ -49,6 +49,12 @@ if (isset($_GET['id'])) {
     exit();
 }
 
+
+$stmt = $pdo->prepare("SELECT id FROM sessions WHERE id = ?");
+$stmt->execute([$student['session_id']]);
+$session = $stmt->fetch(PDO::FETCH_ASSOC);
+$studentSessionId = $session['id'];
+
 $guardians = selectAllData('guardians');
 $terms     = selectAllData('terms');
 $sessions  = selectAllData('sessions');

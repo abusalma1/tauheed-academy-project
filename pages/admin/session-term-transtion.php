@@ -294,6 +294,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="flex flex-col gap-3">
                                             <span class="text-sm text-gray-600 font-semibold">
                                                 Activating this term will automatically close the current active term and process student demotion (if enabled).
+                                                <br>! All (Promoted (if demotion is allowed)) students will move to next class automatically
                                             </span>
 
                                             <!-- Confirmation Checkbox -->

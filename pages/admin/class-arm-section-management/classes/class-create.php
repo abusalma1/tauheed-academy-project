@@ -1,7 +1,7 @@
 <?php
 
 $title = "Class Creation";
-include(__DIR__ . '/../../../includes/header.php');
+include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 <body class="bg-gray-50">
-    <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
+    <?php include(__DIR__ . '/../../includes/admins-section-nav.php') ?>
 
     <!-- Page Header -->
     <section class="bg-green-900 text-white py-12">
@@ -154,9 +154,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
+                            <?php include(__DIR__ . '/../../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../includes/components/error-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../includes/components/form-loader.php'); ?>
 
 
 
@@ -194,7 +194,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Class Arm -->
                             <div>
                                 <label for="classArm" class="block text-sm font-semibold text-gray-700 mb-2">Class Arm</label>
-                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-class-arm') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Class Arms</a></span>
+                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-class-arm') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Class Arms</a></span><br>
+                                <span class="text-gray-500 text-sm">Assign a single arm to any class that lacks multiple arms due to insufficient student numbers.</span>
+
 
                                 <select id="classArm" name="classArm[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" multiple>
                                     <option value="">Select class arm</option>
@@ -330,7 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </section>
 
-    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../../includes/footer.php'); ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#classArm", {

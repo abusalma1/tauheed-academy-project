@@ -368,14 +368,6 @@ foreach ($scoreRows as $row) {
   <!-- Footer -->
   <?php include __DIR__ . '/../../includes/footer.php'; ?>
 
-
-  <script>
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    mobileMenuBtn.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
-  </script>
 </body>
 
 </html>

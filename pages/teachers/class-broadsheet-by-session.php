@@ -8,14 +8,28 @@ if (!$is_logged_in) {
     exit();
 }
 
-if (isset($_GET['class_id']) && isset($_GET['session_id'])) {
+if (isset($_GET['class_id']) && isset($_GET['session_id']) && isset($_GET['arm_id'])) {
     $class_id   = (int) $_GET['class_id'];
     $session_id = (int) $_GET['session_id'];
+    $arm_id     = (int) $_GET['arm_id'];   // NEW
 } else {
-    $_SESSION['failure'] = "Class and session are not found";
+    $_SESSION['failure'] = "Class, session or arm not found";
     header('Location: ' . route('back'));
     exit();
 }
+
+$stmt = $pdo->prepare("SELECT id, name from sessions where id = ?");
+$stmt->execute([$session_id]);
+$currentSession = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->prepare("SELECT id, name from classes where id = ?");
+$stmt->execute([$class_id]);
+$class = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->prepare("SELECT id, name from class_Arms where id = ?");
+$stmt->execute([$arm_id]);
+$arm = $stmt->fetch(PDO::FETCH_ASSOC);
+
 
 //  Query overall class performance from student_class_records
 $stmt = $pdo->prepare("
@@ -29,11 +43,14 @@ $stmt = $pdo->prepare("
         scr.promotion_status
     FROM student_class_records scr
     INNER JOIN students s ON scr.student_id = s.id
-    WHERE scr.session_id = ? AND scr.class_id = ?
+    WHERE scr.session_id = ? 
+      AND scr.class_id = ? 
+      AND scr.arm_id = ?   -- ✅ filter by arm
     ORDER BY scr.overall_position ASC, s.name ASC
 ");
-$stmt->execute([$session_id, $class_id]);
+$stmt->execute([$session_id, $class_id, $arm_id]);
 $overallResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 ?>
 
@@ -46,7 +63,7 @@ $overallResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Class Results</h1>
             <p class="text-xl text-blue-200">
-                Overall Performance for <?= htmlspecialchars($currentTerm['session_name'] ?? '') ?> Session
+                <?= $class['name'] . ' ' . $arm['name']  ?> Performance for <?= htmlspecialchars($currentSession['name'] ?? '') ?> academic session
             </p>
         </div>
     </section>
