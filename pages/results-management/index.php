@@ -125,7 +125,8 @@ if (isset($_POST['missing_selection'])) {
                         <label class="block text-sm font-semibold mb-2">Session</label>
                         <select
                             id="sessionSelect"
-                            class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                            disabled
+                            class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 nota--">
                             <option value="">-- Select Session --</option>
                             <?php foreach ($sessions as $session): ?>
                                 <option value="<?= $session['id'] ?>" <?= $current_term['session_id'] === $session['id'] ? "selected" : '' ?>><?= $session['name'] ?> <?= $current_term['session_id'] === $session['id'] ? "(Current)" : '' ?></option>
