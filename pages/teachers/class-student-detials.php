@@ -8,6 +8,12 @@ if (!$is_logged_in) {
     exit();
 }
 
+if ($user_type !== 'teacher') {
+    $_SESSION['failure'] = "Only Teachers can access!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
 

@@ -8,6 +8,12 @@ if (!$is_logged_in) {
     exit();
 }
 
+if ($user_type !== 'teacher') {
+    $_SESSION['failure'] = "Only Teachers can access!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 // Current Term
 $stmt = $pdo->prepare("
     SELECT t.name, s.name AS session_name, s.id AS session_id

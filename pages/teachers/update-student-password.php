@@ -8,6 +8,12 @@ if (!$is_logged_in) {
     exit();
 }
 
+if ($user_type !== 'teacher') {
+    $_SESSION['failure'] = "Only Teachers can access!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 //  Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
