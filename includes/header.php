@@ -60,7 +60,9 @@ if (isset($_SESSION['user_session'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? '' ?> | <?= $school['name'] ?? 'Tauheed Academy' ?></title>
+    <link rel="icon" type="image/x-icon" href="<?= asset('images/logo.png') ?>">
+    <title><?= $title ?? '' ?> | <?= $school['name'] ?? 'Tauheed Academy' ?>
+    </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
