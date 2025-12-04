@@ -14,32 +14,34 @@ if (!isset($_GET['class_id'])) {
     exit();
 }
 
+if (!isset($_GET['arm_id'])) {
+    $_SESSION['failure'] = "Class arm not specified";
+    header("Location: " . route('back'));
+    exit();
+}
+
 $class_id = (int) $_GET['class_id'];
+$arm_id   = (int) $_GET['arm_id'];
 
 // Get class info
 $stmt = $pdo->prepare("SELECT id, name, level FROM classes WHERE id = ?");
 $stmt->execute([$class_id]);
 $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get arms for this class
-$stmt = $pdo->prepare("
-    SELECT ca.id, ca.name
-    FROM class_class_arms cca
-    JOIN class_arms ca ON ca.id = cca.arm_id
-    WHERE cca.class_id = ?
-");
-$stmt->execute([$class_id]);
-$arms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Get arm info
+$stmt = $pdo->prepare("SELECT id, name FROM class_arms WHERE id = ?");
+$stmt->execute([$arm_id]);
+$arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get sessions where this class has records
+// Get sessions where this class arm has records
 $stmt = $pdo->prepare("
     SELECT DISTINCT scr.session_id, s.name AS session_name, s.start_date, s.end_date
     FROM student_class_records scr
     JOIN sessions s ON scr.session_id = s.id
-    WHERE scr.class_id = ?
+    WHERE scr.class_id = ? AND scr.arm_id = ?
     ORDER BY s.start_date DESC
 ");
-$stmt->execute([$class_id]);
+$stmt->execute([$class_id, $arm_id]);
 $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // For each session, get terms
@@ -49,7 +51,6 @@ foreach ($sessions as $sess) {
     $stmt->execute([$sess['session_id']]);
     $session_terms[$sess['session_id']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 ?>
 
 <body class="bg-gray-50">
@@ -59,9 +60,9 @@ foreach ($sessions as $sess) {
     <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
         <div class="max-w-7xl mx-auto text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">
-                <?= htmlspecialchars($class['name']) ?> Records
+                <?= htmlspecialchars($class['name']) ?> - <?= htmlspecialchars($arm['name']) ?> Records
             </h1>
-            <p class="text-xl text-blue-200">View sessions, terms, and arms for this class</p>
+            <p class="text-xl text-blue-200">View sessions and terms for this arm</p>
         </div>
     </section>
 
@@ -69,16 +70,12 @@ foreach ($sessions as $sess) {
     <section class="py-12 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <!-- Arms -->
+            <!-- Selected Arm -->
             <div class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Class Arms</h2>
-                <div class="flex flex-wrap gap-4">
-                    <?php foreach ($arms as $arm): ?>
-                        <span class="bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg text-blue-900 font-semibold">
-                            <?= htmlspecialchars($arm['name']) ?>
-                        </span>
-                    <?php endforeach; ?>
-                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Selected Arm</h2>
+                <span class="bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg text-blue-900 font-semibold">
+                    <?= htmlspecialchars($arm['name']) ?>
+                </span>
             </div>
 
             <!-- Sessions -->
@@ -86,19 +83,29 @@ foreach ($sessions as $sess) {
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Available Sessions</h2>
                 <?php foreach ($sessions as $sess): ?>
                     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <h3 class="text-xl font-semibold text-blue-900 mb-4">
-                            <?= htmlspecialchars($sess['session_name']) ?>
-                            <span class="text-gray-500 text-sm">(<?= $sess['start_date'] ?> - <?= $sess['end_date'] ?>)</span>
-                        </h3>
+                        <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-blue-900 mb-2 md:mb-0">
+                                <?= htmlspecialchars($sess['session_name']) ?>
+                                <span class="text-gray-500 text-sm">
+                                    (<?= (new DateTime($sess['start_date']))->format('D d M, Y') ?> - <?= (new DateTime($sess['end_date']))->format('D d M, Y') ?>)
+                                </span>
+                            </h3>
+
+                            <a href="<?= route('class-broadsheet-by-term') ?>?class_id=<?= $class_id ?>&arm_id=<?= $arm_id ?? '' ?>&session_id=<?= $sess[ 'session_id'] ?>"
+                                class="bg-blue-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-800 transition">
+                                <i class="fas fa-eye mr-2"></i>View class broadsheet
+                            </a>
+                        </div>
+
 
                         <!-- Terms -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <?php foreach ($session_terms[$sess['session_id']] as $term): ?>
-                                <a href="<?= route('class-broadsheet-by-term') ?>?class_id=<?= $class_id ?>&session_id=<?= $sess['session_id'] ?>&term_id=<?= $term['id'] ?>"
+                                <a href="<?= route('class-broadsheet-by-term') ?>?class_id=<?= $class_id ?>&arm_id=<?= $arm_id ?>&session_id=<?= $sess['session_id'] ?>&term_id=<?= $term['id'] ?>"
                                     class="bg-gradient-to-br from-blue-900 to-blue-700 text-white rounded-lg p-6 shadow-md hover:shadow-lg transition transform hover:scale-105 text-center">
                                     <i class="fas fa-calendar text-3xl mb-2 opacity-80"></i>
                                     <h4 class="text-lg font-bold"><?= htmlspecialchars($term['name']) ?></h4>
-                                    <p class="text-blue-100 text-sm">View results for all arms</p>
+                                    <p class="text-blue-100 text-sm">View results for this arm</p>
                                 </a>
                             <?php endforeach; ?>
                         </div>
