@@ -108,4 +108,43 @@ if (isset($_SESSION['user_session'])) {
 include(__DIR__ . '/./components/success-notification.php');
 include(__DIR__ . '/./components/failure-notification.php');
 
+
+
+// try {
+//     // List of all tables that have deleted_at column
+//     $tables = [
+//         'admins',
+//         'schools',
+//         'teachers',
+//         'sections',
+//         'class_arms',
+//         'classes',
+//         'class_class_arms',
+//         'teacher_section',
+//         'subjects',
+//         'class_subjects',
+//         'guardians',
+//         'sessions',
+//         'terms',
+//         'students',
+//         'student_class_records',
+//         'student_term_records',
+//         'results',
+//         'news',
+//         'fees',
+//         'bank_accounts'
+//     ];
+
+//     foreach ($tables as $table) {
+//         $stmt = $pdo->prepare("UPDATE `$table` SET deleted_at = NULL");
+//         $stmt->execute();
+//     }
+
+//     echo "All deleted_at values reset successfully.";
+
+// } catch (PDOException $e) {
+//     echo "Error: " . $e->getMessage();
+// }
+
+
 ?>

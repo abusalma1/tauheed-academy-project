@@ -1,5 +1,6 @@
 <!-- Navigation -->
-<nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
+
+<nav class="bg-gradient-to-r from-blue-900 to-blue-800 text-white sticky top-0 z-50 shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <div class="flex items-center gap-3">
@@ -10,7 +11,7 @@
 
                 </div>
             </div>
-            <div class="hidden md:flex items-center gap-6">
+            <div class="hidden md:flex items-center gap-6  text-sm">
                 <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Dashboard</a>
 
                 <div class="relative group">

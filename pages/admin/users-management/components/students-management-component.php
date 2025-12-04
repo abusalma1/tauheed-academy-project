@@ -47,11 +47,11 @@
                     <table class="w-full">
                         <thead class="bg-gray-100 border-b">
                             <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Admission #</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Arm</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Name</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Admission #</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Arm</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Status</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -73,6 +73,11 @@
                                         <a href="<?= route('view-user-details') . '?id=' . $student['student_id'] . '&type=student' ?>" class="text-purple-600 hover:text-green-800 font-semibold">
                                             <i class="fas fa-eye"></i>View Details
                                         </a>
+                                        <a href="<?= route('student-result') . '?id=' . $student['student_id'] ?>" class="text-purple-600 hover:text-green-800 font-semibold">
+                                            <i class="fas fa-eye"></i>View Result history
+                                        </a>
+
+
                                         <a href="<?= route('delete-user') . '?id=' . $student['student_id'] ?>&table=students&type=Student" class="text-red-600 hover:text-red-800 font-semibold">
                                             <i class="fas fa-trash"></i> Delete
                                         </a>
