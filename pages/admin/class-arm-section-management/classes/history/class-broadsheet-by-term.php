@@ -1,6 +1,7 @@
 <?php
 $title = "Class Results  Bu Terms";
-include(__DIR__ . '/../../includes/header.php');
+include(__DIR__ . '/../../../../../includes/header.php');
+
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -8,7 +9,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-if ($user_type !== 'teacher' && $user_type !== 'admin') {
+if ($user_type !== 'admin') {
     $_SESSION['failure'] = "Only Teachers Are Allowed!";
     header("Location: " . route('home'));
     exit();
@@ -99,7 +100,8 @@ foreach ($terms as $row) {
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/nav.php'); ?>
+    <?php include(__DIR__ . '/../../../includes/admins-section-nav.php'); ?>
+
 
     <!-- Page Header Section -->
     <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
@@ -115,7 +117,7 @@ foreach ($terms as $row) {
         <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
 
             <div class="flex items-center justify-end">
-                <a href="<?= route('class-broadsheet-by-session') ?>?class_id=<?= $class_id . '&arm_id=' . $arm_id ?>&session_id=<?= $session_id ?>"
+                <a href="<?= route('admin-class-broadsheet-by-session') ?>?class_id=<?= $class_id . '&arm_id=' . $arm_id ?>&session_id=<?= $session_id ?>"
                     class="bg-blue-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
                     <i class="fas fa-eye mr-2"></i>View Class Broadsheet for Entire Session
                 </a>
@@ -127,6 +129,7 @@ foreach ($terms as $row) {
     <!-- Main Content -->
     <section class="py-5 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
             <?php if (count($grouped) > 0) : ?>
                 <?php foreach ($grouped as $term): ?>
                     <!-- Term Results Table -->
@@ -172,15 +175,18 @@ foreach ($terms as $row) {
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-
-                <div colspan="6" class="text-center block p-5 text-gray-500">No term results available for this class.</div>
-
+              
+                    <div colspan="6" class="text-center block p-5 text-gray-500">No term results available for this class.</div>
+              
             <?php endif ?>
+
         </div>
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../../../includes/footer.php'); ?>
+
+
 </body>
 
 

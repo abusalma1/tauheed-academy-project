@@ -166,8 +166,16 @@ $routes = [
     'assing-class-teacher' => [
         'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/class-teacher.php"
     ],
+    // class records
+
     'class-performance' => [
-        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/classes-records.php"
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/history/classes-records.php"
+    ],
+    'admin-class-broadsheet-by-session' => [
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/history/class-broadsheet-by-session.php"
+    ],
+    'admin-class-broadsheet-by-term' => [
+        'url' => "$baseUrl/pages/admin/class-arm-section-management/classes/history/class-broadsheet-by-term.php"
     ],
 
     // class arms
