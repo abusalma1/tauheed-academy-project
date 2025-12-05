@@ -1,25 +1,33 @@
 <?php
-$title = "Sections Management";
+$title = "Islamiyya Class Arms Management";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
 
-$arms = selectAllData('class_arms');
+// Fetch Islamiyya class arms (selectAllData already filters deleted_at internally)
+$arms = selectAllData('islamiyya_class_arms');
 
-$armsCount = countDataTotal('class_arms')['total'];
-$classesCount = countDataTotal('classes')['total'];
-$studentsCount = countDataTotal('students')['total'];
-
+// Counts (only active rows are considered by countDataTotal)
+$armsCount     = countDataTotal('islamiyya_class_arms')['total'];
+$classesCount  = countDataTotal('islamiyya_classes')['total'];
+$studentsCount = countDataTotal('students')['total']; // shared students table
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/admins-section-nav.php') ?>
+    <?php include(__DIR__ . '/../../../includes/admins-section-nav.php') ?>
 
 
 
@@ -28,10 +36,10 @@ $studentsCount = countDataTotal('students')['total'];
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4">View Class Arms</h1>
-                    <p class="text-xl text-amber-200">Browse and manage all class divisions</p>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">View Islamiyya Class Arms</h1>
+                    <p class="text-xl text-amber-200">Browse and manage all islmiayya class divisions</p>
                 </div>
-                <a href="<?= route('create-class-arm') ?>" class="bg-white text-amber-900 px-6 py-3 rounded-lg font-semibold hover:bg-amber-100 transition">
+                <a href="<?= route('create-islamiyya-class-arm') ?>" class="bg-white text-amber-900 px-6 py-3 rounded-lg font-semibold hover:bg-amber-100 transition">
                     <i class="fas fa-plus mr-2"></i>Create Arm
                 </a>
             </div>
@@ -106,12 +114,12 @@ $studentsCount = countDataTotal('students')['total'];
 
 
                                 <td class="px-6 py-4 text-center">
-                                    <a href="<?= route('update-class-arm') ?>?id=<?= $arm['id'] ?>">
+                                    <a href="<?= route('update-islamiyya-class-arm') ?>?id=<?= $arm['id'] ?>">
                                         <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
                                     </a>
-                                    <a href="<?= route('delete-class-arm') ?>?id=<?= $arm['id'] ?>">
+                                    <a href="<?= route('delete-islamiyya-class-arm') ?>?id=<?= $arm['id'] ?>">
                                         <button class="text-red-600 hover:text-red-900 font-semibold">
                                             <i class="fas fa-trash"></i> Delete
                                         </button>

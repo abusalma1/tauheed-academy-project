@@ -1,10 +1,17 @@
 <?php
 
-$title = "Classe Update Form";
+$title = "Islamiyya Section Update Form";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
@@ -15,7 +22,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare('SELECT * FROM sections WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT * FROM islamiyya_sections WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$id]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -28,11 +35,13 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT * FROM sections WHERE id != ?");
+// Fetch other Islamiyya sections (excluding current one)
+$stmt = $pdo->prepare("SELECT * FROM islamiyya_sections WHERE id != ? AND deleted_at IS NULL");
 $stmt->execute([$id]);
 $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare("SELECT * FROM teachers");
+// Fetch teachers (only active ones)
+$stmt = $pdo->prepare("SELECT * FROM teachers WHERE deleted_at IS NULL");
 $stmt->execute();
 $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -60,21 +69,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($nameError) && empty($descriptionError) && empty($headTeacherError)) {
         $stmt = $pdo->prepare(
-            "UPDATE sections SET name = ?, description = ?, head_teacher_id = ? WHERE id = ?"
+            "UPDATE islamiyya_sections 
+             SET name = ?, description = ?, head_teacher_id = ? 
+             WHERE id = ? AND deleted_at IS NULL"
         );
         $success = $stmt->execute([$name, $description, $headTeacher, $id]);
 
         if ($success) {
-            $_SESSION['success'] = "Section Updated successfully!";
+            $_SESSION['success'] = "Islamiyya Section updated successfully!";
             header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to update section');</script>";
+            echo "<script>alert('Failed to update Islamiyya section');</script>";
         }
     }
 }
 ?>
-
 
 
 <script>
@@ -90,8 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-purple-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Section</h1>
-            <p class="text-xl text-purple-200">Edit section information</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Islmiyya Section</h1>
+            <p class="text-xl text-purple-200">Edit islamiyya section information</p>
         </div>
     </section>
 

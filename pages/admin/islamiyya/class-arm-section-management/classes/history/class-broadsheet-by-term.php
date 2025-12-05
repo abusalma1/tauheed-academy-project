@@ -10,7 +10,7 @@ if (!$is_logged_in) {
 }
 
 if ($user_type !== 'admin') {
-    $_SESSION['failure'] = "Only Teachers Are Allowed!";
+    $_SESSION['failure'] = "Only Admins Are Allowed!";
     header("Location: " . route('home'));
     exit();
 }
@@ -117,7 +117,7 @@ foreach ($terms as $row) {
         <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
 
             <div class="flex items-center justify-end">
-                <a href="<?= route('admin-class-broadsheet-by-session') ?>?class_id=<?= $class_id . '&arm_id=' . $arm_id ?>&session_id=<?= $session_id ?>"
+                <a href="<?= route('admin-islamiyya-class-broadsheet-by-session') ?>?class_id=<?= $class_id . '&arm_id=' . $arm_id ?>&session_id=<?= $session_id ?>"
                     class="bg-blue-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
                     <i class="fas fa-eye mr-2"></i>View Class Broadsheet for Entire Session
                 </a>

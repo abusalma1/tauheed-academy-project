@@ -1,5 +1,5 @@
 <?php
-$title = "Sections Management";
+$title = "Class Arms Management";
 include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {

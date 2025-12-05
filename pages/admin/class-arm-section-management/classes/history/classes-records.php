@@ -103,7 +103,7 @@ foreach ($sessions as $sess) {
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <?php if (count($session_terms) > 0) : ?>
                                     <?php foreach ($session_terms[$sess['session_id']] as $term): ?>
-                                        <a href="<?= route('class-broadsheet-by-term') ?>?class_id=<?= $class_id ?>&arm_id=<?= $arm_id ?>&session_id=<?= $sess['session_id'] ?>&term_id=<?= $term['id'] ?>"
+                                        <a href="<?= route('admin-class-broadsheet-by-term') ?>?class_id=<?= $class_id ?>&arm_id=<?= $arm_id ?>&session_id=<?= $sess['session_id'] ?>&term_id=<?= $term['id'] ?>"
                                             class="bg-gradient-to-br from-blue-900 to-blue-700 text-white rounded-lg p-6 shadow-md hover:shadow-lg transition transform hover:scale-105 text-center">
                                             <i class="fas fa-calendar text-3xl mb-2 opacity-80"></i>
                                             <h4 class="text-lg font-bold"><?= htmlspecialchars($term['name']) ?></h4>

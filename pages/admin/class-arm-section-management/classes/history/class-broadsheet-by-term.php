@@ -9,6 +9,12 @@ if (!$is_logged_in) {
     exit();
 }
 
+if ( $user_type !== 'admin') {
+    $_SESSION['failure'] = "Only Admins can access!";
+    header("Location: " . route('home'));
+    exit();
+}
+
 if ($user_type !== 'admin') {
     $_SESSION['failure'] = "Only Teachers Are Allowed!";
     header("Location: " . route('home'));

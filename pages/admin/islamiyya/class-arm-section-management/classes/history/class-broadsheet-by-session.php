@@ -10,7 +10,7 @@ if (!$is_logged_in) {
 }
 
 if ($user_type !== 'admin') {
-    $_SESSION['failure'] = "Only Teachers can access!";
+    $_SESSION['failure'] = "Only Admins can access!";
     header("Location: " . route('home'));
     exit();
 }

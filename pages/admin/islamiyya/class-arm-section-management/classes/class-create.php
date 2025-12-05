@@ -1,42 +1,57 @@
 <?php
 
-$title = "Class Creation";
+$title = "Islamiyya Class Creation";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+// CSRF token setup
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Fetch classes with arms and sections
+// Fetch Islamiyya classes with arms and sections
 $stmt = $pdo->prepare("
     SELECT 
-        classes.id AS id,
-        classes.name AS name,
-        classes.level AS level,
-        sections.name AS section_name,
-        GROUP_CONCAT(class_arms.name SEPARATOR ', ') AS arm_names
-    FROM classes
-    LEFT JOIN class_class_arms ON classes.id = class_class_arms.class_id
-    LEFT JOIN sections ON classes.section_id = sections.id
-    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
-    WHERE classes.deleted_at IS NULL
-    GROUP BY classes.id 
-    ORDER BY classes.level
+        islamiyya_classes.id AS id,
+        islamiyya_classes.name AS name,
+        islamiyya_classes.level AS level,
+        islamiyya_sections.name AS section_name,
+        GROUP_CONCAT(islamiyya_class_arms.name SEPARATOR ', ') AS arm_names
+    FROM islamiyya_classes
+    LEFT JOIN islamiyya_class_class_arms 
+           ON islamiyya_classes.id = islamiyya_class_class_arms.class_id 
+          AND islamiyya_class_class_arms.deleted_at IS NULL
+    LEFT JOIN islamiyya_sections 
+           ON islamiyya_classes.section_id = islamiyya_sections.id 
+          AND islamiyya_sections.deleted_at IS NULL
+    LEFT JOIN islamiyya_class_arms 
+           ON islamiyya_class_class_arms.arm_id = islamiyya_class_arms.id 
+          AND islamiyya_class_arms.deleted_at IS NULL
+    WHERE islamiyya_classes.deleted_at IS NULL
+    GROUP BY islamiyya_classes.id 
+    ORDER BY islamiyya_classes.level
 ");
 $stmt->execute();
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$sections = selectAllData('sections');
-$class_arms = selectAllData('class_arms');
+// Sections and arms (helpers already filter deleted_at)
+$sections   = selectAllData('islamiyya_sections');
+$class_arms = selectAllData('islamiyya_class_arms');
 
-$studentsCount  = countDataTotal('students')['total'];
-$classesCount   = countDataTotal('classes')['total'];
+$studentsCount  = countDataTotal('students')['total']; // shared students table
+$classesCount   = countDataTotal('islamiyya_classes')['total'];
 
 $errors  = [];
 
@@ -44,6 +59,7 @@ $name = $section = $teacher = $arm = '';
 $nameError = $sectionError = $teacherError = $armError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
@@ -69,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
     } else {
-        $stmt = $pdo->prepare("SELECT id, name FROM classes WHERE level = ?");
+        $stmt = $pdo->prepare("SELECT id, name FROM islamiyya_classes WHERE level = ? AND deleted_at IS NULL");
         $stmt->execute([$level]);
         $exist = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -77,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($shiftLevels)) {
                 $pdo->beginTransaction();
 
-                $shiftStmt = $pdo->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
+                $shiftStmt = $pdo->prepare("UPDATE islamiyya_classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
                 $shiftStmt->execute([$level]);
 
                 $pdo->commit();
@@ -96,24 +112,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $stmt = $pdo->prepare("INSERT INTO classes (name, level, section_id) VALUES (?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO islamiyya_classes (name, level, section_id) VALUES (?, ?, ?)");
         $success = $stmt->execute([$name, $level, $section]);
 
         if ($success) {
             $class_id = $pdo->lastInsertId();
 
-            $pivot_query = "INSERT INTO class_class_arms (arm_id, class_id) VALUES (?, ?)";
+            $pivot_query = "INSERT INTO islamiyya_class_class_arms (arm_id, class_id) VALUES (?, ?)";
             $stmt_pivot = $pdo->prepare($pivot_query);
 
             foreach ($arms as $arm_id) {
                 $stmt_pivot->execute([$arm_id, $class_id]);
             }
 
-            $_SESSION['success'] = "Class created successfully!";
+            $_SESSION['success'] = "Islamiyya Class created successfully!";
             header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section');</script>";
+            echo "<script>alert('Failed to create Islamiyya class');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -136,8 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-green-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Class Management</h1>
-            <p class="text-xl text-green-200">Create, update, and manage school classes</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Islamiyya Class Creation</h1>
+            <p class="text-xl text-green-200">Create, update, and manage islamiyya classes</p>
         </div>
     </section>
 

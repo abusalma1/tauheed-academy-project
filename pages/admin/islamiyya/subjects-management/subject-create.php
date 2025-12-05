@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <div>
                                 <label for="classes" class="block text-sm font-semibold text-gray-700 mb-2">Classes</label>
-                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-class') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Class</a></span>
+                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-islamiyya-class') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Class</a></span>
 
                                 <select id="classes" name="classes[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-900" multiple>
                                     <option value="">Select Classes</option>
@@ -225,12 +225,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <td class="px-6 py-4 text-sm text-gray-900"><?= $subject['name'] ?></td>
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= $subject['class_names'] ?></td>
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <a href="<?= route('update-subject') . '?id=' . $subject['id'] ?>">
+                                            <a href="<?= route('update-islamiyya-subject') . '?id=' . $subject['id'] ?>">
                                                 <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <a href="<?= route('delete-subject') ?>?id=<?= $subject['id'] ?>">
+                                            <a href="<?= route('delete-islamiyya-subject') ?>?id=<?= $subject['id'] ?>">
                                                 <button class="text-red-600 hover:text-red-900 font-semibold">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>

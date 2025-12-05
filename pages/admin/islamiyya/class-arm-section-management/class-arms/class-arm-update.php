@@ -1,21 +1,30 @@
 <?php
 
-$title = "Classe Update Form";
-include(__DIR__ . '/../../../../../../includes/header.php');
+$title = "Islamiyya Class Arm Update Form";
+include(__DIR__ . '/../../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+// CSRF token setup
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Fetch the arm to update
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare('SELECT * FROM class_arms WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT * FROM islamiyya_class_arms WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$id]);
     $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -28,22 +37,24 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT * FROM class_arms WHERE id != ?");
+// Fetch other arms (excluding current one, only active)
+$stmt = $pdo->prepare("SELECT * FROM islamiyya_class_arms WHERE id != ? AND deleted_at IS NULL");
 $stmt->execute([$id]);
 $class_arms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$armsCount = countDataTotal('class_arms')['total'];
+$armsCount = countDataTotal('islamiyya_class_arms')['total'];
 
 $name = $description = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $name = htmlspecialchars(trim($_POST['armName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $id = (int) ($_POST['armId'] ?? 0);
+    $name        = htmlspecialchars(trim($_POST['armName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $id          = (int) ($_POST['armId'] ?? 0);
     $description = htmlspecialchars(trim($_POST['armDescription'] ?? ''), ENT_QUOTES, 'UTF-8');
 
     if (empty($name)) {
@@ -51,15 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $stmt = $pdo->prepare("UPDATE class_arms SET name = ?, description = ? WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE islamiyya_class_arms SET name = ?, description = ? WHERE id = ? AND deleted_at IS NULL");
         $success = $stmt->execute([$name, $description, $id]);
 
         if ($success) {
-            $_SESSION['success'] = "Arm Updated successfully!";
+            $_SESSION['success'] = "Islamiyya Class Arm updated successfully!";
             header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to update class arm');</script>";
+            echo "<script>alert('Failed to update Islamiyya class arm');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -68,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 
 <script>
     const class_arms = <?= json_encode($class_arms, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
@@ -82,8 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-indigo-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Class Arm</h1>
-            <p class="text-xl text-indigo-200">Edit class arm information</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Islamiyya Class Arm</h1>
+            <p class="text-xl text-indigo-200">Edit islamiyya class arm information</p>
         </div>
     </section>
 
@@ -100,9 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="hidden" name="armId" value="<?= htmlspecialchars($arm['id']); ?>">
 
 
-                            <?php include(__DIR__ . '/../../../../../../includes/components/success-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../../../../includes/components/error-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../../../../includes/components/form-loader.php'); ?>
+                            <?php include(__DIR__ . '/../../../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../../includes/components/error-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../../includes/components/form-loader.php'); ?>
 
 
                             <!-- Arm Name -->
@@ -158,7 +168,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../../../../../includes/footer.php');  ?>
+    <?php include(__DIR__ . '/../../../../../includes/footer.php') ?>
+
 
 
     <script>

@@ -1,20 +1,29 @@
 <?php
-$title = "Class Update Form";
+$title = "Islamiyya Class Update Form";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+// CSRF token setup
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Fetch class to update
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare('SELECT * FROM classes WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT * FROM islamiyya_classes WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$id]);
     $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -22,18 +31,20 @@ if (isset($_GET['id'])) {
         $class_id = $class['id'];
     } else {
         header('Location: ' . route('back'));
-        exit;
+        exit();
     }
 } else {
     header('Location: ' . route('back'));
-    exit;
+    exit();
 }
 
-$sections   = selectAllData('sections');
-$classes    = selectAllData('classes', null, $class_id);
-$class_arms = selectAllData('class_arms');
+// Fetch related data (helpers already filter deleted_at)
+$sections   = selectAllData('islamiyya_sections');
+$classes    = selectAllData('islamiyya_classes', null, $class_id);
+$class_arms = selectAllData('islamiyya_class_arms');
 
-$stmt = $pdo->prepare("SELECT * FROM class_class_arms WHERE class_id = ?");
+// Fetch linked arms
+$stmt = $pdo->prepare("SELECT * FROM islamiyya_class_class_arms WHERE class_id = ? AND deleted_at IS NULL");
 $stmt->execute([$class_id]);
 $selected_class_arms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $linked_class_arms   = array_column($selected_class_arms, 'arm_id');
@@ -42,13 +53,14 @@ $name = $section = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $name    = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $section = (int) ($_POST['classSection'] ?? 0);
-    $level   = (int) ($_POST['classLevel'] ?? 0);
+    $name        = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $section     = (int) ($_POST['classSection'] ?? 0);
+    $level       = (int) ($_POST['classLevel'] ?? 0);
     $shiftLevels = $_POST['shiftLevels'] ?? null;
 
     $id   = (int) ($_POST['classId'] ?? 0);
@@ -67,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
     } else {
-        $stmt = $pdo->prepare("SELECT id, name FROM classes WHERE level = ? AND id != ?");
+        $stmt = $pdo->prepare("SELECT id, name FROM islamiyya_classes WHERE level = ? AND id != ? AND deleted_at IS NULL");
         $stmt->execute([$level, $class_id]);
         $exist = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -75,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($shiftLevels)) {
                 $pdo->beginTransaction();
 
-                $shiftStmt = $pdo->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
+                $shiftStmt = $pdo->prepare("UPDATE islamiyya_classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
                 $shiftStmt->execute([$level]);
 
                 $pdo->commit();
@@ -94,23 +106,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $updateStmt = $pdo->prepare("UPDATE classes SET name = ?, level = ?, section_id = ? WHERE id = ?");
+        $updateStmt = $pdo->prepare("UPDATE islamiyya_classes SET name = ?, level = ?, section_id = ? WHERE id = ? AND deleted_at IS NULL");
         $success = $updateStmt->execute([$name, $level, $section, $id]);
 
         if ($success) {
-            $delStmt = $pdo->prepare("DELETE FROM class_class_arms WHERE class_id = ?");
+            // Remove old arms
+            $delStmt = $pdo->prepare("DELETE FROM islamiyya_class_class_arms WHERE class_id = ?");
             $delStmt->execute([$id]);
 
-            $insert_stmt = $pdo->prepare("INSERT INTO class_class_arms (class_id, arm_id) VALUES (?, ?)");
+            // Insert new arms
+            $insert_stmt = $pdo->prepare("INSERT INTO islamiyya_class_class_arms (class_id, arm_id) VALUES (?, ?)");
             foreach ($arms as $arm_id) {
                 $insert_stmt->execute([$id, $arm_id]);
             }
 
-            $_SESSION['success'] = "Class updated successfully!";
+            $_SESSION['success'] = "Islamiyya Class updated successfully!";
             header("Location: " . route('back'));
             exit();
         } else {
-            $errors['general'] = "Failed to update subject. Try again.";
+            $errors['general'] = "Failed to update Islamiyya class. Try again.";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -133,8 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <section class="bg-green-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Class Information</h1>
-            <p class="text-xl text-green-200">Modify class details and settings</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Islamiyya Class Information</h1>
+            <p class="text-xl text-green-200">Modify islamiyya class details and settings</p>
         </div>
     </section>
 

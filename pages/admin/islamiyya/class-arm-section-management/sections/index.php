@@ -1,5 +1,5 @@
 <?php
-$title = "Sections Management";
+$title = "Islamiyya Sections Management";
 include(__DIR__ . '/../../../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -8,38 +8,47 @@ if (!$is_logged_in) {
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
 $stmt = $pdo->prepare("
     SELECT 
-        sections.id AS section_id,
-        sections.name AS section_name,
-        sections.description,
+        islamiyya_sections.id AS section_id,
+        islamiyya_sections.name AS section_name,
+        islamiyya_sections.description,
         teachers.id AS teacher_id,
         teachers.name AS head_teacher_name,
-        COUNT(classes.id) AS class_count
-    FROM sections
+        COUNT(islamiyya_classes.id) AS class_count
+    FROM islamiyya_sections
     LEFT JOIN teachers 
-        ON sections.head_teacher_id = teachers.id
-    LEFT JOIN classes 
-        ON classes.section_id = sections.id
-    WHERE sections.deleted_at IS NULL
+        ON islamiyya_sections.head_teacher_id = teachers.id
+       AND teachers.deleted_at IS NULL
+    LEFT JOIN islamiyya_classes 
+        ON islamiyya_classes.section_id = islamiyya_sections.id
+       AND islamiyya_classes.deleted_at IS NULL
+    WHERE islamiyya_sections.deleted_at IS NULL
     GROUP BY 
-        sections.id, 
-        sections.name, 
-        sections.description,
+        islamiyya_sections.id, 
+        islamiyya_sections.name, 
+        islamiyya_sections.description,
         teachers.id, 
         teachers.name
 ");
 $stmt->execute();
 $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$classesCount  = countDataTotal('classes')['total'];
-$sectionsCount = countDataTotal('sections')['total'];
-$studentsCount = countDataTotal('students')['total'];
+$classesCount   = countDataTotal('islamiyya_classes')['total'];
+$sectionsCount  = countDataTotal('islamiyya_sections')['total'];
+$studentsCount  = countDataTotal('students')['total']; // still shared students table
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/admins-section-nav.php') ?>
+    <?php include(__DIR__ . '/../../../includes/admins-section-nav.php') ?>
 
 
     <!-- Page Header -->
@@ -47,8 +56,8 @@ $studentsCount = countDataTotal('students')['total'];
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4">View Sections</h1>
-                    <p class="text-xl text-indigo-200">Browse and manage all school sections</p>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">View Islamiyya Sections</h1>
+                    <p class="text-xl text-indigo-200">Browse and manage all islamiyya sections</p>
                 </div>
 
             </div>
@@ -101,7 +110,7 @@ $studentsCount = countDataTotal('students')['total'];
                     </div>
                     <div class="flex items-center justify-center">
 
-                        <a href="<?= route('create-section') ?>"
+                        <a href="<?= route('create-islamiyya-section') ?>"
                             class="bg-indigo-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
                             <i class="fas fa-plus mr-2"></i>Create Section
                         </a>
@@ -130,12 +139,12 @@ $studentsCount = countDataTotal('students')['total'];
 
 
                                 <td class="px-6 py-4 text-center">
-                                    <a href="<?= route('update-section') ?>?id=<?= $section['section_id'] ?>">
+                                    <a href="<?= route('update-islamiyya-section') ?>?id=<?= $section['section_id'] ?>">
                                         <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
                                     </a>
-                                    <a href="<?= route('delete-section') ?>?id=<?= $section['section_id'] ?>">
+                                    <a href="<?= route('delete-islamiyya-section') ?>?id=<?= $section['section_id'] ?>">
                                         <button class="text-red-600 hover:text-red-900 font-semibold">
                                             <i class="fas fa-trash"></i> Delete
                                         </button>

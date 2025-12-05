@@ -1,5 +1,5 @@
 <?php
-$title = 'Classes, Sections & Arms Management';
+$title = 'Islamiyya Classes, Sections & Arms Management';
 include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -9,10 +9,10 @@ if (!$is_logged_in) {
 }
 
 
-$armsCount = countDataTotal('class_arms')['total'];
-$classesCount = countDataTotal('classes')['total'];
+$armsCount = countDataTotal('islamiyya_class_arms')['total'];
+$classesCount = countDataTotal('islamiyya_classes')['total'];
 $studentsCount = countDataTotal('students')['total'];
-$sectionsCount = countDataTotal('sections')['total'];
+$sectionsCount = countDataTotal('islamiyya_sections')['total'];
 
 
 
@@ -24,8 +24,8 @@ $sectionsCount = countDataTotal('sections')['total'];
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Classes, Sections & Arms Management</h1>
-            <p class="text-xl text-blue-200">Manage school structure, sections, and class divisions</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Islamiyya Classes, Sections & Arms Management</h1>
+            <p class="text-xl text-blue-200">Manage Islamiyya structure, sections, and class divisions</p>
         </div>
     </section>
 
@@ -43,7 +43,7 @@ $sectionsCount = countDataTotal('sections')['total'];
                         <span class="text-3xl font-bold text-indigo-600" id="classCount"><?= $classesCount ?></span>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Classes</h3>
-                    <p class="text-sm text-gray-600 mb-4">Manage all classes in the school</p>
+                    <p class="text-sm text-gray-600 mb-4">Manage all classes in the Islamiyya Section</p>
                     <a href="<?= route('islamiyya-classes-management') ?>" class="inline-block w-full text-center bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">
                         <i class="fas fa-arrow-right mr-2"></i>Manage
                     </a>
@@ -58,7 +58,7 @@ $sectionsCount = countDataTotal('sections')['total'];
                         <span class="text-3xl font-bold text-cyan-600" id="sectionCount"><?= $sectionsCount ?></span>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Sections</h3>
-                    <p class="text-sm text-gray-600 mb-4">Manage educational sections</p>
+                    <p class="text-sm text-gray-600 mb-4">Manage Islamiyya sections</p>
                     <a href="<?= route('islamiyya-sections-management') ?>" class="inline-block w-full text-center bg-cyan-600 text-white py-2 rounded-lg font-semibold hover:bg-cyan-700 transition">
                         <i class="fas fa-arrow-right mr-2"></i>Manage
                     </a>

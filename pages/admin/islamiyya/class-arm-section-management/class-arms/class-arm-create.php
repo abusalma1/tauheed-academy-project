@@ -1,35 +1,51 @@
 <?php
 
-$title = "Create Class Arm";
+$title = "Create Islamiyya Class Arm";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+// CSRF token setup
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Fetch latest class arms
-$stmt = $pdo->prepare("SELECT * FROM class_arms WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
+// Fetch latest Islamiyya class arms (only active ones)
+$stmt = $pdo->prepare("
+    SELECT * 
+    FROM islamiyya_class_arms 
+    WHERE deleted_at IS NULL 
+    ORDER BY updated_at DESC 
+    LIMIT 10
+");
 $stmt->execute();
 $class_arms_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$class_arms = selectAllData('class_arms');
-$armsCount = countDataTotal('class_arms')['total'];
+// All arms and counts (helpers already filter deleted_at)
+$class_arms   = selectAllData('islamiyya_class_arms');
+$armsCount    = countDataTotal('islamiyya_class_arms')['total'];
 
 $name = $description = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
-    $name = htmlspecialchars(trim($_POST['armName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $name        = htmlspecialchars(trim($_POST['armName'] ?? ''), ENT_QUOTES, 'UTF-8');
     $description = htmlspecialchars(trim($_POST['armDescription'] ?? ''), ENT_QUOTES, 'UTF-8');
 
     if (empty($name)) {
@@ -37,15 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $stmt = $pdo->prepare("INSERT INTO class_arms (name, description) VALUES (?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO islamiyya_class_arms (name, description) VALUES (?, ?)");
         $success = $stmt->execute([$name, $description]);
 
         if ($success) {
-            $_SESSION['success'] = "Arm created successfully!";
+            $_SESSION['success'] = "Islamiyya Class Arm created successfully!";
             header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create class arm');</script>";
+            echo "<script>alert('Failed to create Islamiyya class arm');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -54,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <script>
     const class_arms = <?= json_encode($class_arms, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
@@ -66,8 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-indigo-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Class Arm Management</h1>
-            <p class="text-xl text-indigo-200">Customize and manage class divisions/arms for your school</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Create Isamiyya Class Arm</h1>
+            <p class="text-xl text-indigo-200">Customize and manage class divisions/arms for your Islamiyya section</p>
         </div>
     </section>
 
@@ -189,12 +206,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <td class="px-6 py-4 text-sm text-gray-600"><?= $arm['description']  ?></td>
 
                                         <td class="px-6 py-4 text-sm space-x-2">
-                                            <a href="<?= route('update-class-arm') ?>?id=<?= $arm['id'] ?>">
+                                            <a href="<?= route('update-islamiyya-class-arm') ?>?id=<?= $arm['id'] ?>">
                                                 <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </a>
-                                            <a href="<?= route('delete-class-arm') ?>?id=<?= $arm['id'] ?>">
+                                            <a href="<?= route('delete-islamiyya-class-arm') ?>?id=<?= $arm['id'] ?>">
                                                 <button class="text-red-600 hover:text-red-900 font-semibold">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>

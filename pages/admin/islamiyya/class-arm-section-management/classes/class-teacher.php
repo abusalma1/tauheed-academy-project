@@ -1,49 +1,66 @@
 <?php
-$title = "Class Teacher Assignment";
+$title = "Islamiyya Class Teacher Assignment";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+// CSRF token setup
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Fetch class + arm details
 if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
     $class_id = (int) $_GET['class_id'];
     $arm_id   = (int) $_GET['arm_id'];
 
-    $stmt = $pdo->prepare('SELECT
-        classes.name as class_name,
-        class_arms.name as arm_name,
-        class_class_arms.class_id as class_id,
-        class_class_arms.arm_id as arm_id,
-        class_class_arms.teacher_id as teacher_id
-        FROM class_class_arms 
-        LEFT JOIN classes ON classes.id = class_class_arms.class_id
-        LEFT JOIN class_arms ON class_arms.id = class_class_arms.arm_id
-        WHERE class_class_arms.class_id = ? AND class_class_arms.arm_id = ?
+    $stmt = $pdo->prepare('
+        SELECT
+            islamiyya_classes.name AS class_name,
+            islamiyya_class_arms.name AS arm_name,
+            islamiyya_class_class_arms.class_id AS class_id,
+            islamiyya_class_class_arms.arm_id AS arm_id,
+            islamiyya_class_class_arms.teacher_id AS teacher_id
+        FROM islamiyya_class_class_arms 
+        LEFT JOIN islamiyya_classes 
+               ON islamiyya_classes.id = islamiyya_class_class_arms.class_id 
+              AND islamiyya_classes.deleted_at IS NULL
+        LEFT JOIN islamiyya_class_arms 
+               ON islamiyya_class_arms.id = islamiyya_class_class_arms.arm_id 
+              AND islamiyya_class_arms.deleted_at IS NULL
+        WHERE islamiyya_class_class_arms.class_id = ? 
+          AND islamiyya_class_class_arms.arm_id = ? 
+          AND islamiyya_class_class_arms.deleted_at IS NULL
     ');
     $stmt->execute([$class_id, $arm_id]);
     $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$class) {
         header('Location: ' . route('back'));
-        exit;
+        exit();
     }
 } else {
     header('Location: ' . route('back'));
-    exit;
+    exit();
 }
 
 $current_teacher_id = $class['teacher_id'] ?? '';
-$teachers = selectAllData('teachers');
+$teachers = selectAllData('teachers'); // helper already filters deleted_at
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
@@ -53,11 +70,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($teacher_id === null) {
         $errors['general'] = "Please select a teacher.";
     } else {
-        $updateStmt = $pdo->prepare("UPDATE class_class_arms SET teacher_id = ? WHERE class_id = ? AND arm_id = ?");
+        $updateStmt = $pdo->prepare("
+            UPDATE islamiyya_class_class_arms 
+            SET teacher_id = ? 
+            WHERE class_id = ? AND arm_id = ? AND deleted_at IS NULL
+        ");
         $success = $updateStmt->execute([$teacher_id, $class['class_id'], $class['arm_id']]);
 
         if ($success) {
-            $_SESSION['success'] = "Teacher updated successfully!";
+            $_SESSION['success'] = "Islamiyya class teacher updated successfully!";
             header("Location: " . route('back'));
             exit();
         } else {
@@ -67,14 +88,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+
+
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/admins-section-nav.php') ?>
+    <?php include(__DIR__ . '/../../../includes/admins-section-nav.php') ?>
 
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:texupdatet-5xl font-bold mb-4">Update Teacher for Classes</h1>
+            <h1 class="text-4xl md:texupdatet-5xl font-bold mb-4">Update Teacher for Islamiyya Classes</h1>
             <p class="text-xl text-blue-200">Assign or update the teacher for this class</p>
         </div>
     </section>
@@ -86,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Form Section -->
                 <div class="md:col-span-2">
                     <div class="bg-white rounded-lg shadow-lg p-8">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Update Class Teacher</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Update islamiyya Class Teacher</h2>
 
                         <?php if (!empty($errors['general'])): ?>
                             <div class="mb-4 text-red-600 font-semibold"><?= htmlspecialchars($errors['general']) ?></div>

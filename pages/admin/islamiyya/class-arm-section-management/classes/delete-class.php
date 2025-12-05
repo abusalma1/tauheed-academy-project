@@ -1,21 +1,30 @@
 <?php
-$title = "Delete Confirmation";
+$title = "Islamiyya Class Delete Confirmation";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
   $_SESSION['failure'] = "Login is Required!";
   header("Location: " . route('home'));
   exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+  $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+  header("Location: " . route('home'));
+  exit();
+}
+
+// CSRF token setup
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Fetch class to delete
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
 
-  $stmt = $pdo->prepare("SELECT * FROM classes WHERE id = ?");
+  $stmt = $pdo->prepare("SELECT * FROM islamiyya_classes WHERE id = ? AND deleted_at IS NULL");
   $stmt->execute([$id]);
   $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -30,31 +39,29 @@ if (isset($_GET['id'])) {
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // CSRF validation
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-
     die('CSRF validation failed. Please refresh and try again.');
   } else {
-
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
-
 
   $id = (int) trim($_POST['id'] ?? '');
 
   if (empty($id)) {
-    $errors['id'] = 'Class Not Found';
+    $errors['id'] = 'Islamiyya Class Not Found';
   }
 
   if (empty($errors)) {
-    $stmt = $pdo->prepare("UPDATE classes SET deleted_at = NOW() WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE islamiyya_classes SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL");
     $success = $stmt->execute([$id]);
 
     if ($success) {
-      $_SESSION['success'] = "Class Deleted successfully!";
+      $_SESSION['success'] = "Islamiyya Class deleted successfully!";
       header("Location: " . route('back'));
       exit();
     } else {
-      echo "<script>alert('Failed to delete a Class');</script>";
+      echo "<script>alert('Failed to delete Islamiyya Class');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {
@@ -86,10 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Title -->
         <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">
-          Delete Class
+          Delete Islamiyya Class
         </h2>
         <p class="text-gray-600 text-center mb-6">
-          Are you sure you want to delete this Class?
+          Are you sure you want to delete this Islamiyya Class?
         </p>
 
         <!-- class Details -->

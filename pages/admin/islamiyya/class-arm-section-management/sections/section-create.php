@@ -1,10 +1,17 @@
 <?php
 
-$title = "Create Section";
+$title = "Create Islamiyya Section";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
@@ -13,35 +20,36 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Fetch sections with head teachers
+// Fetch Islamiyya sections with head teachers
 $stmt = $pdo->prepare("
     SELECT 
-        sections.id AS section_id,
-        sections.name AS section_name,
-        sections.description,
+        islamiyya_sections.id AS section_id,
+        islamiyya_sections.name AS section_name,
+        islamiyya_sections.description,
         teachers.id AS teacher_id,
         teachers.name AS head_teacher_name
-    FROM sections
+    FROM islamiyya_sections
     LEFT JOIN teachers 
-      ON sections.head_teacher_id = teachers.id
-    WHERE sections.deleted_at IS NULL
+      ON islamiyya_sections.head_teacher_id = teachers.id
+     AND teachers.deleted_at IS NULL
+    WHERE islamiyya_sections.deleted_at IS NULL
 ");
 $stmt->execute();
 $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch teachers
-$stmt = $pdo->prepare("SELECT * FROM teachers");
+// Fetch teachers (already filtered by deleted_at in selectAllData helper if used)
+$stmt = $pdo->prepare("SELECT * FROM teachers WHERE deleted_at IS NULL");
 $stmt->execute();
 $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$classesCount   = countDataTotal('classes')['total'];
-$sectionsCount  = countDataTotal('sections')['total'];
+$classesCount   = countDataTotal('islamiyya_classes')['total'];
+$sectionsCount  = countDataTotal('islamiyya_sections')['total'];
 
 $name = $description = $headTeacher = '';
 $nameError = $descriptionError = $headTeacherError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_SESSION['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
@@ -62,19 +70,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($nameError) && empty($descriptionError) && empty($headTeacherError)) {
-        $stmt = $pdo->prepare("INSERT INTO sections (name, description, head_teacher_id) VALUES (?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO islamiyya_sections (name, description, head_teacher_id) VALUES (?, ?, ?)");
         $success = $stmt->execute([$name, $description, $headTeacher]);
 
         if ($success) {
-            $_SESSION['success'] = "Section created successfully!";
+            $_SESSION['success'] = "Islamiyya Section created successfully!";
             header("Location: " . route('back'));
             exit();
         } else {
-            echo "<script>alert('Failed to create section');</script>";
+            echo "<script>alert('Failed to create Islamiyya section');</script>";
         }
     }
 }
 ?>
+
 
 
 
@@ -90,8 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-purple-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Section Management</h1>
-            <p class="text-xl text-purple-200">Create and manage school sections</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Islmiyya Section Creation</h1>
+            <p class="text-xl text-purple-200">Create and manage islamiyya sections</p>
         </div>
     </section>
 

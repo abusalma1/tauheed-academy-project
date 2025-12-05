@@ -1,14 +1,21 @@
 <?php
-$title = "Manage Subject";
+$title = "Islamiyya Manage Subject";
 include(__DIR__ . '/../../../../includes/header.php');
 
+// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
-//  Use PDO instead of MySQLi
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+// Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
 SELECT 
     c.id AS class_id,
@@ -21,16 +28,27 @@ SELECT
     t.name AS teacher_name,
     sec.name AS section_name,
     cs.id AS class_subject_id
-FROM classes c
-JOIN sections sec ON c.section_id = sec.id
-LEFT JOIN class_class_arms cca ON cca.class_id = c.id
-LEFT JOIN class_arms ca ON ca.id = cca.arm_id
-LEFT JOIN class_subjects cs ON cs.class_id = c.id
-LEFT JOIN subjects subj ON cs.subject_id = subj.id AND subj.deleted_at IS NULL
-LEFT JOIN teachers t ON cs.teacher_id = t.id
-WHERE c.deleted_at IS NULL AND sec.deleted_at IS NULL
+FROM islamiyya_classes c
+JOIN islamiyya_sections sec 
+      ON c.section_id = sec.id 
+     AND sec.deleted_at IS NULL
+LEFT JOIN islamiyya_class_class_arms cca 
+      ON cca.class_id = c.id 
+     AND cca.deleted_at IS NULL
+LEFT JOIN islamiyya_class_arms ca 
+      ON ca.id = cca.arm_id 
+     AND ca.deleted_at IS NULL
+LEFT JOIN islamiyya_class_subjects cs 
+      ON cs.class_id = c.id 
+     AND cs.deleted_at IS NULL
+LEFT JOIN islamiyya_subjects subj 
+      ON cs.subject_id = subj.id 
+     AND subj.deleted_at IS NULL
+LEFT JOIN teachers t 
+      ON cs.teacher_id = t.id 
+     AND t.deleted_at IS NULL
+WHERE c.deleted_at IS NULL
 ORDER BY c.level, ca.name, subj.name
-
 ");
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -49,7 +67,7 @@ foreach ($rows as $row) {
             'name'         => $row['class_name'],
             'section_name' => $row['section_name'],
             'arm_id'       => $armId,
-            'arm_name'       => $armId ? ' - ' . $row['arm_name'] : '',      
+            'arm_name'     => $armId ? ' - ' . $row['arm_name'] : '',
             'subjects'     => []
         ];
     }
@@ -64,34 +82,30 @@ foreach ($rows as $row) {
     }
 }
 
-
-$classes = array_values($classes);
-
 // Reindex classes by numeric index
 $classes = array_values($classes);
 
-//  Fetch all classes
-$stmt = $pdo->prepare("SELECT * FROM classes WHERE deleted_at IS NULL ORDER BY level ASC");
+// Fetch all Islamiyya classes
+$stmt = $pdo->prepare("SELECT * FROM islamiyya_classes WHERE deleted_at IS NULL ORDER BY level ASC");
 $stmt->execute();
 $allClasses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-//  Fetch terms and sessions
+// Fetch terms and sessions (shared tables)
 $terms    = selectAllData('terms');
 $sessions = selectAllData('sessions');
 
-//  Fetch current term
+// Fetch current term
 $stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
 $stmt->execute(['ongoing']);
 $current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 
-//  Handle missing selection
+// Handle missing selection
 if (isset($_POST['missing_selection'])) {
     $_SESSION['failure'] = "Please select a session and a term before creating or updating results.";
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
 ?>
-
 
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -103,10 +117,10 @@ if (isset($_POST['missing_selection'])) {
         class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">
-                Manage Subjects Results
+                Manage Islamiyya Subjects Results
             </h1>
             <p class="text-xl text-blue-200">
-                Create and update student results by subject
+                Create and update islamiyya student results by subject
             </p>
         </div>
     </section>
