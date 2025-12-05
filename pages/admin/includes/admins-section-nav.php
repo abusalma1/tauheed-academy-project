@@ -17,7 +17,7 @@
                 <div class="relative group">
                     <!-- Hover Button -->
                     <div class="hover:text-blue-300 transition flex items-center gap-1">
-                        Academics
+                        General Stu.
                         <span class="text-sm">▾</span>
                     </div>
 
@@ -32,13 +32,35 @@
 
                             <li> <a href="<?= route('admin-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Resutls Mangement </a> </li>
 
-                            <li> <a href="<?= route('term-session-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Terms & Sessions </a> </li>
-                            <li> <a href="<?= route('promotion'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Promotion(Term/Sesssion Transition) </a> </li>
+
 
                         </ul>
                     </div>
                 </div>
 
+                <div class="relative group">
+                    <!-- Hover Button -->
+                    <div class="hover:text-blue-300 transition flex items-center gap-1">
+                        Islamiyya
+                        <span class="text-sm">▾</span>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div class="absolute left-0 mt-2 w-60 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible 
+                                group-hover:opacity-100 group-hover:visible transition-all duration-200">
+
+                        <ul class="flex flex-col py-2">
+                            <li> <a href="<?= route('islamiyya-subjects-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Subjects </a> </li>
+
+                            <li> <a href="<?= route('islamiyya-class-arm-section-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Classes</a> </li>
+
+                            <li> <a href="<?= route('admin-islamiyya-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Resutls Mangement </a> </li>
+
+
+
+                        </ul>
+                    </div>
+                </div>
                 <div class="relative group">
                     <!-- Hover Button -->
                     <div class="hover:text-blue-300 transition flex items-center gap-1">
@@ -72,6 +94,8 @@
                             <li> <a href="<?= route('users-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Users </a> </li>
                             <li> <a href="<?= route('school-info'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> School Info </a> </li>
                             <li> <a href="<?= route('admin-news'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> News </a> </li>
+                            <li> <a href="<?= route('term-session-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Terms & Sessions </a> </li>
+                            <li> <a href="<?= route('promotion'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Promotion(Term/Sesssion Transition) </a> </li>
                         </ul>
                     </div>
                 </div>
@@ -90,7 +114,7 @@
 
         <div class="py-2 px-3 rounded bg-blue-800">
             <button class="w-full flex justify-between items-center mobile-dropdown-btn">
-                <span>Academics</span>
+                <span>General Stu.</span>
                 <span>▾</span>
             </button>
 
@@ -98,10 +122,19 @@
                 <a href="<?= route('subjects-management'); ?>" class="block px-4 py-2 hover:bg-blue-600">Subjects</a>
                 <a href="<?= route('class-arm-section-management'); ?>" class="block px-4 py-2 hover:bg-blue-600">Classes</a>
                 <a href="<?= route('admin-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-600"> Results Management</a>
-                <a href="<?= route('term-session-management'); ?>" class="block px-4 py-2 hover:bg-blue-600"> Terms & Sessions</a>
+            </div>
+        </div>
 
-                <a href="<?= route('promotion'); ?>" class="block px-4 py-2 hover:bg-blue-600"> Promotion(Term/Sesssion Transition)</a>
+        <div class="py-2 px-3 rounded bg-blue-800">
+            <button class="w-full flex justify-between items-center mobile-dropdown-btn">
+                <span>Islamiyya</span>
+                <span>▾</span>
+            </button>
 
+            <div class="mobile-dropdown hidden flex-col mt-2 bg-blue-700 rounded-lg">
+                <a href="<?= route('islamiyya-subjects-management'); ?>" class="block px-4 py-2 hover:bg-blue-600">Subjects</a>
+                <a href="<?= route('islamiyya-class-arm-section-management'); ?>" class="block px-4 py-2 hover:bg-blue-600">Classes</a>
+                <a href="<?= route('admin-islamiyya-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-600"> Results Management</a>
             </div>
         </div>
 
@@ -119,7 +152,7 @@
 
         <div class="py-2 px-3 rounded bg-blue-800">
             <button class="w-full flex justify-between items-center mobile-dropdown-btn">
-                <span>Academics</span>
+                <span>School Management</span>
                 <span>▾</span>
             </button>
 
@@ -127,6 +160,9 @@
                 <a href="<?= route('users-management'); ?>" class="block px-4 py-2 hover:bg-blue-600">Users</a>
                 <a href="<?= route('school-info'); ?>" class="block px-4 py-2 hover:bg-blue-600">School Info</a>
                 <a href="<?= route('admin-news'); ?>" class="block px-4 py-2 hover:bg-blue-600"> News</a>
+                <a href="<?= route('term-session-management'); ?>" class="block px-4 py-2 hover:bg-blue-600"> Terms & Sessions</a>
+
+                <a href="<?= route('promotion'); ?>" class="block px-4 py-2 hover:bg-blue-600"> Promotion(Term/Sesssion Transition)</a>
             </div>
         </div>
 

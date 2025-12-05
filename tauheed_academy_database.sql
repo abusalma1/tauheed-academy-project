@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 03, 2025 at 10:53 AM
+-- Generation Time: Dec 05, 2025 at 06:15 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -190,9 +190,9 @@ INSERT INTO `class_subjects` (`id`, `class_id`, `subject_id`, `teacher_id`, `cre
 (9, 1, 3, NULL, '2025-12-02 05:15:18', NULL, '2025-12-02 05:15:18'),
 (10, 2, 3, NULL, '2025-12-02 05:15:18', NULL, '2025-12-02 05:15:18'),
 (11, 3, 3, NULL, '2025-12-02 05:15:18', NULL, '2025-12-02 05:15:18'),
-(12, 1, 1, NULL, '2025-12-02 05:15:27', NULL, '2025-12-02 05:15:27'),
+(12, 1, 1, 2, '2025-12-02 05:15:27', NULL, '2025-12-04 03:14:05'),
 (13, 2, 1, NULL, '2025-12-02 05:15:27', NULL, '2025-12-02 05:15:27'),
-(14, 3, 1, NULL, '2025-12-02 05:15:27', NULL, '2025-12-02 05:15:27'),
+(14, 3, 1, 2, '2025-12-02 05:15:27', NULL, '2025-12-04 03:14:00'),
 (15, 4, 1, NULL, '2025-12-02 05:15:27', NULL, '2025-12-02 05:15:27'),
 (16, 5, 1, NULL, '2025-12-02 05:15:27', NULL, '2025-12-02 05:15:27'),
 (17, 1, 2, NULL, '2025-12-02 05:15:36', NULL, '2025-12-02 05:15:36'),
@@ -268,6 +268,159 @@ INSERT INTO `guardians` (`id`, `name`, `email`, `phone`, `address`, `picture_pat
 (1, 'Guardian 1', 'guardian1@email.com', '07012345678', 'Address  Address  Address', NULL, 'father', 'male', 'Occupation', '$2y$10$Jgf5gtWVqYb41E5JC4WmGuj6DaPMtGFoyPXZCFjn88y4P6DGCyYC.', 'active', NULL, NULL, '2025-11-28 04:57:23', NULL, '2025-11-28 04:57:23'),
 (2, 'Guardian 2', 'guardian2@email.com', '09087654321', 'Address Address Address', NULL, 'mother', 'female', 'Occupation', '$2y$10$aJkACwfluMuR78VgfcPi5OPDZD394x2gmsBrkSuy1LTflMGdOxizy', 'active', NULL, NULL, '2025-11-28 05:35:54', NULL, '2025-11-28 05:35:54'),
 (3, 'Guardian 3', 'guardian3@email.com', '07012345678', 'AddressAddressAddress', NULL, 'father', 'male', 'Occupation', '$2y$10$RviQhzqBNnrXJL08xF0B6.pNWdLBtzjbYsPsBeak4TE8qZmnCKG9C', 'active', NULL, NULL, '2025-11-28 06:12:04', NULL, '2025-11-28 06:12:04');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_classes`
+--
+
+CREATE TABLE `islamiyya_classes` (
+  `id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `level` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_class_arms`
+--
+
+CREATE TABLE `islamiyya_class_arms` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_class_class_arms`
+--
+
+CREATE TABLE `islamiyya_class_class_arms` (
+  `class_id` int(11) NOT NULL,
+  `arm_id` int(11) NOT NULL,
+  `teacher_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_class_subjects`
+--
+
+CREATE TABLE `islamiyya_class_subjects` (
+  `id` int(11) NOT NULL,
+  `class_id` int(11) NOT NULL,
+  `subject_id` int(11) NOT NULL,
+  `teacher_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_results`
+--
+
+CREATE TABLE `islamiyya_results` (
+  `id` int(11) NOT NULL,
+  `student_term_record_id` int(11) NOT NULL,
+  `subject_id` int(11) NOT NULL,
+  `ca` decimal(5,2) DEFAULT 0.00,
+  `exam` decimal(5,2) DEFAULT 0.00,
+  `total` decimal(6,2) GENERATED ALWAYS AS (`ca` + `exam`) STORED,
+  `grade` varchar(2) DEFAULT NULL,
+  `remark` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_sections`
+--
+
+CREATE TABLE `islamiyya_sections` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `head_teacher_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_student_class_records`
+--
+
+CREATE TABLE `islamiyya_student_class_records` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `session_id` int(11) NOT NULL,
+  `class_id` int(11) NOT NULL,
+  `arm_id` int(11) NOT NULL,
+  `overall_total` decimal(8,2) DEFAULT 0.00,
+  `overall_average` decimal(5,2) DEFAULT 0.00,
+  `overall_position` int(11) DEFAULT NULL,
+  `promotion_status` enum('promoted','repeat','pending') DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_student_term_records`
+--
+
+CREATE TABLE `islamiyya_student_term_records` (
+  `id` int(11) NOT NULL,
+  `student_class_record_id` int(11) NOT NULL,
+  `term_id` int(11) NOT NULL,
+  `total_marks` decimal(8,2) DEFAULT 0.00,
+  `average_marks` decimal(5,2) DEFAULT 0.00,
+  `position_in_class` int(11) DEFAULT NULL,
+  `class_size` int(11) DEFAULT NULL,
+  `overall_grade` varchar(5) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_subjects`
+--
+
+CREATE TABLE `islamiyya_subjects` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -587,6 +740,8 @@ CREATE TABLE `students` (
   `class_id` int(11) DEFAULT NULL,
   `arm_id` int(11) DEFAULT NULL,
   `term_id` int(11) DEFAULT NULL,
+  `islamiyya_class_id` int(11) DEFAULT NULL,
+  `islamiyya_arm_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `deleted_at` datetime DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -596,16 +751,16 @@ CREATE TABLE `students` (
 -- Dumping data for table `students`
 --
 
-INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `guardian_id`, `dob`, `picture`, `password`, `reset_token`, `reset_expires`, `status`, `gender`, `class_id`, `arm_id`, `term_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
-(1, 'Sudent 1', 'ADM/2025/001', '', '', 1, '2010-01-01', NULL, '$2y$10$I0827bvuAUzAiVVsNEu79.MOsxJJzTMrK1Q.4PFN2ihcoqoXIxPaa', NULL, NULL, 'active', 'male', 3, 1, 7, '2025-11-28 04:58:20', NULL, '2025-12-02 05:14:41'),
-(2, 'Student 2', 'ADM/2025/002', '', '', 2, '2010-12-12', NULL, '$2y$10$Ua3z/RF42cFJnVVMMDnEA.525aV1WPGOAZh5oIOZSFxyeMO9AALQS', NULL, NULL, 'active', 'female', 3, 1, 7, '2025-11-28 06:00:51', NULL, '2025-12-02 05:14:41'),
-(3, 'Student 3', 'ADM/2025/003', '', '', 3, '2011-01-12', NULL, '$2y$10$iLBMhJRjRIHU24WYIZte2Oih1Na5emBd/swu6iQaUbXa1MTmb8I2G', NULL, NULL, 'active', 'male', 3, 1, 7, '2025-11-28 06:13:03', NULL, '2025-12-02 05:14:41'),
-(4, 'student 4', 'ADM/2025/004', '', '', 3, '2011-12-21', NULL, '$2y$10$Wpz3CMkKn6imHNRDda3pCO.lRxzV0gGbW1FENhVz0fudU0UvB2TRS', NULL, NULL, 'active', 'female', 2, 1, 7, '2025-12-01 11:25:58', NULL, '2025-12-02 05:14:41'),
-(5, 'student 5', 'ADM/2025/005', '', '', 1, '2011-12-23', NULL, '$2y$10$xujXEVHiVdBPF73snPL5z.RXNGg3QGkMeDZRzEnu2uCwVNzrn8Mc6', NULL, NULL, 'active', 'male', 2, 1, 7, '2025-12-01 11:26:43', NULL, '2025-12-02 05:14:41'),
-(6, 'Student 6', 'ADM/2025//006', '', '', 2, '2012-01-02', NULL, '$2y$10$YvvD8gmgOLe50zRfkdA4c.JQteJifBFYhsaWY8SxDmtQLJ2dw113u', NULL, NULL, 'active', 'male', 2, 1, 7, '2025-12-01 11:27:55', NULL, '2025-12-02 05:14:41'),
-(7, 'student 7', 'ADM/2025/007', '', '', 1, '2011-01-01', NULL, '$2y$10$RN.08kU3QmyGfe/ktOEFX.I2zdAGpqTq2rfRzZ4zD39TfWsQKYfS2', NULL, NULL, 'active', 'male', 2, 2, 7, '2025-12-01 12:24:49', NULL, '2025-12-02 05:14:41'),
-(8, 'student 8', 'ADM/2025/008', '', '', 1, '2010-01-31', NULL, '$2y$10$BhVZaUhv7eveETTR3SUmd.el/dzIwW.i9Zb/543IWXGjINhJhoXpa', NULL, NULL, 'active', 'female', 2, 2, 7, '2025-12-01 12:25:34', NULL, '2025-12-02 05:14:41'),
-(9, 'Student 9', 'ADM/2025/009', '', '', 3, '2010-12-31', NULL, '$2y$10$F8THskZebiBxT5AtdslSpuSXlJc8l.eI/sTnfnPGzHMpSQ1MojTrK', NULL, NULL, 'active', 'female', 2, 2, 7, '2025-12-01 12:28:40', NULL, '2025-12-02 05:14:41');
+INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `guardian_id`, `dob`, `picture`, `password`, `reset_token`, `reset_expires`, `status`, `gender`, `class_id`, `arm_id`, `term_id`, `islamiyya_class_id`, `islamiyya_arm_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(1, 'Sudent 1', 'ADM/2025/001', '', '', 1, '2010-01-01', NULL, '$2y$10$I0827bvuAUzAiVVsNEu79.MOsxJJzTMrK1Q.4PFN2ihcoqoXIxPaa', NULL, NULL, 'active', 'male', 3, 1, 7, NULL, NULL, '2025-11-28 04:58:20', NULL, '2025-12-02 05:14:41'),
+(2, 'Student 2', 'ADM/2025/002', '', '', 2, '2010-12-12', NULL, '$2y$10$Ua3z/RF42cFJnVVMMDnEA.525aV1WPGOAZh5oIOZSFxyeMO9AALQS', NULL, NULL, 'active', 'female', 3, 1, 7, NULL, NULL, '2025-11-28 06:00:51', NULL, '2025-12-02 05:14:41'),
+(3, 'Student 3', 'ADM/2025/003', '', '', 3, '2011-01-12', NULL, '$2y$10$iLBMhJRjRIHU24WYIZte2Oih1Na5emBd/swu6iQaUbXa1MTmb8I2G', NULL, NULL, 'active', 'male', 3, 1, 7, NULL, NULL, '2025-11-28 06:13:03', NULL, '2025-12-02 05:14:41'),
+(4, 'student 4', 'ADM/2025/004', '', '', 3, '2011-12-21', NULL, '$2y$10$Wpz3CMkKn6imHNRDda3pCO.lRxzV0gGbW1FENhVz0fudU0UvB2TRS', NULL, NULL, 'active', 'female', 2, 1, 7, NULL, NULL, '2025-12-01 11:25:58', NULL, '2025-12-02 05:14:41'),
+(5, 'student 5', 'ADM/2025/005', '', '', 1, '2011-12-23', NULL, '$2y$10$xujXEVHiVdBPF73snPL5z.RXNGg3QGkMeDZRzEnu2uCwVNzrn8Mc6', NULL, NULL, 'active', 'male', 2, 1, 7, NULL, NULL, '2025-12-01 11:26:43', NULL, '2025-12-02 05:14:41'),
+(6, 'Student 6', 'ADM/2025//006', '', '', 2, '2012-01-02', NULL, '$2y$10$YvvD8gmgOLe50zRfkdA4c.JQteJifBFYhsaWY8SxDmtQLJ2dw113u', NULL, NULL, 'active', 'male', 2, 1, 7, NULL, NULL, '2025-12-01 11:27:55', NULL, '2025-12-02 05:14:41'),
+(7, 'student 7', 'ADM/2025/007', '', '', 1, '2011-01-01', NULL, '$2y$10$RN.08kU3QmyGfe/ktOEFX.I2zdAGpqTq2rfRzZ4zD39TfWsQKYfS2', NULL, NULL, 'active', 'male', 2, 2, 7, NULL, NULL, '2025-12-01 12:24:49', NULL, '2025-12-02 05:14:41'),
+(8, 'student 8', 'ADM/2025/008', '', '', 1, '2010-01-31', NULL, '$2y$10$BhVZaUhv7eveETTR3SUmd.el/dzIwW.i9Zb/543IWXGjINhJhoXpa', NULL, NULL, 'active', 'female', 2, 2, 7, NULL, NULL, '2025-12-01 12:25:34', NULL, '2025-12-02 05:14:41'),
+(9, 'Student 9', 'ADM/2025/009', '', '', 3, '2010-12-31', NULL, '$2y$10$F8THskZebiBxT5AtdslSpuSXlJc8l.eI/sTnfnPGzHMpSQ1MojTrK', NULL, NULL, 'active', 'female', 2, 2, 7, NULL, NULL, '2025-12-01 12:28:40', NULL, '2025-12-02 05:14:41');
 
 -- --------------------------------------------------------
 
@@ -902,6 +1057,76 @@ ALTER TABLE `guardians`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `islamiyya_classes`
+--
+ALTER TABLE `islamiyya_classes`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `level` (`level`),
+  ADD KEY `section_id` (`section_id`);
+
+--
+-- Indexes for table `islamiyya_class_arms`
+--
+ALTER TABLE `islamiyya_class_arms`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `islamiyya_class_class_arms`
+--
+ALTER TABLE `islamiyya_class_class_arms`
+  ADD PRIMARY KEY (`class_id`,`arm_id`),
+  ADD KEY `arm_id` (`arm_id`),
+  ADD KEY `teacher_id` (`teacher_id`);
+
+--
+-- Indexes for table `islamiyya_class_subjects`
+--
+ALTER TABLE `islamiyya_class_subjects`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `class_id` (`class_id`,`subject_id`,`teacher_id`),
+  ADD KEY `subject_id` (`subject_id`),
+  ADD KEY `teacher_id` (`teacher_id`);
+
+--
+-- Indexes for table `islamiyya_results`
+--
+ALTER TABLE `islamiyya_results`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `student_term_record_id` (`student_term_record_id`,`subject_id`),
+  ADD KEY `subject_id` (`subject_id`);
+
+--
+-- Indexes for table `islamiyya_sections`
+--
+ALTER TABLE `islamiyya_sections`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `head_teacher_id` (`head_teacher_id`);
+
+--
+-- Indexes for table `islamiyya_student_class_records`
+--
+ALTER TABLE `islamiyya_student_class_records`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `student_id` (`student_id`,`session_id`),
+  ADD KEY `session_id` (`session_id`),
+  ADD KEY `class_id` (`class_id`),
+  ADD KEY `arm_id` (`arm_id`);
+
+--
+-- Indexes for table `islamiyya_student_term_records`
+--
+ALTER TABLE `islamiyya_student_term_records`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `student_class_record_id` (`student_class_record_id`,`term_id`),
+  ADD KEY `term_id` (`term_id`);
+
+--
+-- Indexes for table `islamiyya_subjects`
+--
+ALTER TABLE `islamiyya_subjects`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `news`
 --
 ALTER TABLE `news`
@@ -943,7 +1168,9 @@ ALTER TABLE `students`
   ADD KEY `guardian_id` (`guardian_id`),
   ADD KEY `class_id` (`class_id`),
   ADD KEY `arm_id` (`arm_id`),
-  ADD KEY `term_id` (`term_id`);
+  ADD KEY `term_id` (`term_id`),
+  ADD KEY `fk_students_islamiyya_class` (`islamiyya_class_id`),
+  ADD KEY `fk_students_islamiyya_arm` (`islamiyya_arm_id`);
 
 --
 -- Indexes for table `student_class_records`
@@ -1037,6 +1264,54 @@ ALTER TABLE `fees`
 --
 ALTER TABLE `guardians`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `islamiyya_classes`
+--
+ALTER TABLE `islamiyya_classes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `islamiyya_class_arms`
+--
+ALTER TABLE `islamiyya_class_arms`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `islamiyya_class_subjects`
+--
+ALTER TABLE `islamiyya_class_subjects`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `islamiyya_results`
+--
+ALTER TABLE `islamiyya_results`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `islamiyya_sections`
+--
+ALTER TABLE `islamiyya_sections`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `islamiyya_student_class_records`
+--
+ALTER TABLE `islamiyya_student_class_records`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `islamiyya_student_term_records`
+--
+ALTER TABLE `islamiyya_student_term_records`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `islamiyya_subjects`
+--
+ALTER TABLE `islamiyya_subjects`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `news`
@@ -1143,6 +1418,57 @@ ALTER TABLE `fees`
   ADD CONSTRAINT `fk_fees_class` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `islamiyya_classes`
+--
+ALTER TABLE `islamiyya_classes`
+  ADD CONSTRAINT `islamiyya_classes_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `islamiyya_sections` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `islamiyya_class_class_arms`
+--
+ALTER TABLE `islamiyya_class_class_arms`
+  ADD CONSTRAINT `islamiyya_class_class_arms_ibfk_1` FOREIGN KEY (`class_id`) REFERENCES `islamiyya_classes` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `islamiyya_class_class_arms_ibfk_2` FOREIGN KEY (`arm_id`) REFERENCES `islamiyya_class_arms` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `islamiyya_class_class_arms_ibfk_3` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `islamiyya_class_subjects`
+--
+ALTER TABLE `islamiyya_class_subjects`
+  ADD CONSTRAINT `islamiyya_class_subjects_ibfk_1` FOREIGN KEY (`class_id`) REFERENCES `islamiyya_classes` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `islamiyya_class_subjects_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `islamiyya_subjects` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `islamiyya_class_subjects_ibfk_3` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `islamiyya_results`
+--
+ALTER TABLE `islamiyya_results`
+  ADD CONSTRAINT `islamiyya_results_ibfk_1` FOREIGN KEY (`student_term_record_id`) REFERENCES `islamiyya_student_term_records` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `islamiyya_results_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `islamiyya_subjects` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `islamiyya_sections`
+--
+ALTER TABLE `islamiyya_sections`
+  ADD CONSTRAINT `islamiyya_sections_ibfk_1` FOREIGN KEY (`head_teacher_id`) REFERENCES `teachers` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `islamiyya_student_class_records`
+--
+ALTER TABLE `islamiyya_student_class_records`
+  ADD CONSTRAINT `islamiyya_student_class_records_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `islamiyya_student_class_records_ibfk_2` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `islamiyya_student_class_records_ibfk_3` FOREIGN KEY (`class_id`) REFERENCES `islamiyya_classes` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `islamiyya_student_class_records_ibfk_4` FOREIGN KEY (`arm_id`) REFERENCES `islamiyya_class_arms` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `islamiyya_student_term_records`
+--
+ALTER TABLE `islamiyya_student_term_records`
+  ADD CONSTRAINT `islamiyya_student_term_records_ibfk_1` FOREIGN KEY (`student_class_record_id`) REFERENCES `islamiyya_student_class_records` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `islamiyya_student_term_records_ibfk_2` FOREIGN KEY (`term_id`) REFERENCES `terms` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `results`
 --
 ALTER TABLE `results`
@@ -1159,6 +1485,8 @@ ALTER TABLE `sections`
 -- Constraints for table `students`
 --
 ALTER TABLE `students`
+  ADD CONSTRAINT `fk_students_islamiyya_arm` FOREIGN KEY (`islamiyya_arm_id`) REFERENCES `islamiyya_class_arms` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_students_islamiyya_class` FOREIGN KEY (`islamiyya_class_id`) REFERENCES `islamiyya_classes` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `students_ibfk_1` FOREIGN KEY (`guardian_id`) REFERENCES `guardians` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `students_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `students_ibfk_3` FOREIGN KEY (`arm_id`) REFERENCES `class_arms` (`id`) ON DELETE SET NULL,

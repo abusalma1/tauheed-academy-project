@@ -76,6 +76,57 @@ if (!$is_logged_in) {
                     </div>
                 </div>
 
+                <!-- News Management Card -->
+                <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-8 rounded-t-lg">
+                        <i class="fas fa-newspaper text-white text-5xl mb-4" title="News"></i>
+                        <h3 class="text-2xl font-bold text-white">News Management</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">Publish and manage school news, announcements, and updates</p>
+                        <div class="space-y-3">
+                            <a href="<?= route('admin-news') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold">
+                                <i class="fas fa-list"></i>All News
+                            </a>
+                            <a href="<?= route('post-news') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold">
+                                <i class="fas fa-plus"></i>Create News
+                            </a>
+                        </div>
+                        <a href="<?= route('admin-news') ?>">
+                            <button class="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                                <i class="fas fa-arrow-right mr-2"></i>Manage
+                            </button>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Fees Management Card -->
+                <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-8 rounded-t-lg">
+                        <i class="fas fa-money-bill-wave text-white text-5xl mb-4" title="Fees"></i>
+                        <h3 class="text-2xl font-bold text-white">Fees Management</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">Manage school fees, payments, and financial records</p>
+                        <div class="space-y-3">
+                            <a href="<?= route('admin-fees') ?>" class="flex items-center gap-2 text-yellow-600 hover:text-yellow-700 font-semibold">
+                                <i class="fas fa-list"></i>All Fees
+                            </a>
+                            <a href="<?= route('fees-assginment') ?>" class="flex items-center gap-2 text-yellow-600 hover:text-yellow-700 font-semibold">
+                                <i class="fas fa-plus"></i>Create Fee
+                            </a>
+                        </div>
+                        <a href="<?= route('fees-management') ?>">
+                            <button class="w-full mt-6 bg-yellow-600 text-white py-3 rounded-lg font-semibold hover:bg-yellow-700 transition">
+                                <i class="fas fa-arrow-right mr-2"></i>Manage
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <h1 class="text-3xl text-gray-600 font-bold py-5">General Studies Section</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 <!-- Subjects Management Card -->
                 <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
                     <div class="bg-gradient-to-r from-pink-500 to-pink-600 p-8 rounded-t-lg">
@@ -127,50 +178,116 @@ if (!$is_logged_in) {
                         </a>
                     </div>
                 </div>
+
+                <!-- Results Management Card -->
+                <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-8 rounded-t-lg">
+                        <i class="fas fa-clipboard-check text-white text-5xl mb-4" title="Results"></i>
+                        <h3 class="text-2xl font-bold text-white">Results Management</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">Record, update, and manage student results for all classes and terms</p>
+                        <div class="space-y-3">
+                            <a href="<?= route('admin-results-management') ?>" class="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold">
+                                <i class="fas fa-list"></i>All Results
+                            </a>
+                            <a href="<?= route('admin-upload-results') ?>" class="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold">
+                                <i class="fas fa-upload"></i>Upload Result
+                            </a>
+
+                        </div>
+                        <a href="<?= route('admin-results-management') ?>">
+                            <button class="w-full mt-6 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
+                                <i class="fas fa-arrow-right mr-2"></i>Manage
+                            </button>
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Quick Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm font-semibold">Total Users</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">0</p>
+            <h1 class="text-3xl text-gray-600 font-bold py-5">Qur’anic & Islamic Studies</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <!-- Subjects Management Card -->
+                <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="bg-gradient-to-r from-pink-500 to-pink-600 p-8 rounded-t-lg">
+                        <i class="fas fa-book  text-white text-5xl mb-4" title="Subjects"></i>
+                        <h3 class="text-2xl font-bold text-white">Subjects Management</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">Create and manage Subjects for all classes</p>
+                        <div class="space-y-3">
+                            <a href="<?= route('islamiyya-subjects-management') ?>" class="flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold">
+                                <i class="fas fa-list" title="Subjects"></i>
+                                All Subjects
+                            </a>
+                            <a href="<?= route('create-islamiyya-subject') ?>" class="flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold">
+                                <i class="fas fa-plus"></i>Create Subject
+                            </a>
                         </div>
-                        <i class="fas fa-users text-4xl text-indigo-200"></i>
+                        <a href="<?= route('islamiyya-subjects-management') ?>">
+                            <button class="w-full mt-6 bg-pink-600 text-white py-3 rounded-lg font-semibold hover:bg-pink-700 transition">
+                                <i class="fas fa-arrow-right mr-2"></i>Manage
+                            </button>
+                        </a>
+
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm font-semibold">Total Classes</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">16</p>
+                <!-- Classes Management Card -->
+                <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 p-8 rounded-t-lg">
+                        <!-- <i class="fas fa-book "></i> -->
+                        <i class="fas fa-chalkboard-teacher text-white text-5xl mb-4" title="Classes"></i>
+
+                        <h3 class="text-2xl font-bold text-white">Classes Management</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">Manage classes, sections, arms, and class assignments</p>
+                        <div class="space-y-3">
+                            <a href="<?= route('islamiyya-classes-management') ?>" class="flex items-center gap-2 text-green-600 hover:text-green-700 font-semibold">
+                                <i class="fas fa-list"></i>View Classes
+                            </a>
+                            <a href="<?= route('create-islamiyya-class') ?>" class="flex items-center gap-2 text-green-600 hover:text-green-700 font-semibold">
+                                <i class="fas fa-plus"></i>Create Class
+                            </a>
                         </div>
-                        <i class="fas fa-book text-4xl text-purple-200"></i>
+                        <a href="<?= route('islamiyya-class-arm-section-management') ?>">
+                            <button class="w-full mt-6 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                                <i class="fas fa-arrow-right mr-2"></i>Manage
+                            </button>
+                        </a>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm font-semibold">Total Sections</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">5</p>
+                <!-- Results Management Card -->
+                <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-8 rounded-t-lg">
+                        <i class="fas fa-clipboard-check text-white text-5xl mb-4" title="Results"></i>
+                        <h3 class="text-2xl font-bold text-white">Results Management</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">Record, update, and manage student results for all classes and terms</p>
+                        <div class="space-y-3">
+                            <a href="<?= route('admin-islamiyya-results-management') ?>" class="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold">
+                                <i class="fas fa-list"></i>All Results
+                            </a>
+                            <a href="<?= route('admin-upload-islamiyya-results') ?>" class="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold">
+                                <i class="fas fa-upload"></i>Upload Result
+                            </a>
                         </div>
-                        <i class="fas fa-layer-group text-4xl text-green-200"></i>
+                        <a href="<?= route('admin-islamiyya-results-management') ?>">
+                            <button class="w-full mt-6 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
+                                <i class="fas fa-arrow-right mr-2"></i>Manage
+                            </button>
+                        </a>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm font-semibold">Active Classes</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">16</p>
-                        </div>
-                        <i class="fas fa-check-circle text-4xl text-orange-200"></i>
-                    </div>
-                </div>
             </div>
+
+
+
 
             <!-- Quick Actions -->
             <div class="bg-white rounded-lg shadow-lg p-8">

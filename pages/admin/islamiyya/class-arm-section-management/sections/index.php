@@ -1,6 +1,6 @@
 <?php
 $title = "Sections Management";
-include(__DIR__ . '/../../../../includes/header.php');
+include(__DIR__ . '/../../../../../includes/header.php');
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -39,7 +39,7 @@ $studentsCount = countDataTotal('students')['total'];
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/admins-section-nav.php'); ?>
+    <?php include(__DIR__ . '/../../includes/admins-section-nav.php') ?>
 
 
     <!-- Page Header -->
@@ -101,7 +101,7 @@ $studentsCount = countDataTotal('students')['total'];
                     </div>
                     <div class="flex items-center justify-center">
 
-                        <a href="<?= route('create-islamiyya-section') ?>"
+                        <a href="<?= route('create-section') ?>"
                             class="bg-indigo-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
                             <i class="fas fa-plus mr-2"></i>Create Section
                         </a>
@@ -130,12 +130,12 @@ $studentsCount = countDataTotal('students')['total'];
 
 
                                 <td class="px-6 py-4 text-center">
-                                    <a href="<?= route('update-islamiyya-section') ?>?id=<?= $section['section_id'] ?>">
+                                    <a href="<?= route('update-section') ?>?id=<?= $section['section_id'] ?>">
                                         <button class="text-blue-600 hover:text-blue-900 font-semibold">
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
                                     </a>
-                                    <a href="<?= route('delete-islamiyya-section') ?>?id=<?= $section['section_id'] ?>">
+                                    <a href="<?= route('delete-section') ?>?id=<?= $section['section_id'] ?>">
                                         <button class="text-red-600 hover:text-red-900 font-semibold">
                                             <i class="fas fa-trash"></i> Delete
                                         </button>
@@ -150,7 +150,7 @@ $studentsCount = countDataTotal('students')['total'];
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../../../includes/footer.php'); ?>
 
     <script>
         const searchInput = document.getElementById('searchInput');

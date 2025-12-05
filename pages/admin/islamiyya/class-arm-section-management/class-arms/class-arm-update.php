@@ -1,8 +1,7 @@
 <?php
 
 $title = "Classe Update Form";
-include(__DIR__ . '/../../../../includes/header.php');
-
+include(__DIR__ . '/../../../../../../includes/header.php');
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -77,8 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/admins-section-nav.php'); ?>
-
+    <?php include(__DIR__ . '/../../../includes/admins-section-nav.php'); ?>
 
 
     <!-- Page Header -->
@@ -102,10 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="hidden" name="armId" value="<?= htmlspecialchars($arm['id']); ?>">
 
 
+                            <?php include(__DIR__ . '/../../../../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../../../includes/components/error-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../../../includes/components/form-loader.php'); ?>
 
-                            <?php include(__DIR__ . '/../../../../includes/components/success-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../../includes/components/error-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../../includes/components/form-loader.php'); ?>
 
                             <!-- Arm Name -->
                             <div>
@@ -159,8 +157,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </section>
 
-    <!-- Footer --> <?php include(__DIR__ . '/../../../../includes/footer.php') ?>
-
+    <!-- Footer -->
+    <?php include(__DIR__ . '/../../../../../../includes/footer.php');  ?>
 
 
     <script>

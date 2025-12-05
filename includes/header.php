@@ -112,28 +112,28 @@ include(__DIR__ . '/./components/failure-notification.php');
 
 // try {
 //     // List of all tables that have deleted_at column
-//     $tables = [
-//         'admins',
-//         'schools',
-//         'teachers',
-//         'sections',
-//         'class_arms',
-//         'classes',
-//         'class_class_arms',
-//         'teacher_section',
-//         'subjects',
-//         'class_subjects',
-//         'guardians',
-//         'sessions',
-//         'terms',
-//         'students',
-//         'student_class_records',
-//         'student_term_records',
-//         'results',
-//         'news',
-//         'fees',
-//         'bank_accounts'
-//     ];
+    // $tables = [
+    //     'admins',
+    //     'schools',
+    //     'teachers',
+    //     'sections',
+    //     'class_arms',
+    //     'classes',
+    //     'class_class_arms',
+    //     'teacher_section',
+    //     'subjects',
+    //     'class_subjects',
+    //     'guardians',
+    //     'sessions',
+    //     'terms',
+    //     'students',
+    //     'student_class_records',
+    //     'student_term_records',
+    //     'results',
+    //     'news',
+    //     'fees',
+    //     'bank_accounts'
+    // ];
 
 //     foreach ($tables as $table) {
 //         $stmt = $pdo->prepare("UPDATE `$table` SET deleted_at = NULL");

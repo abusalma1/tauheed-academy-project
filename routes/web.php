@@ -347,4 +347,102 @@ $routes = [
         'url' => "$baseUrl/pages/teachers/class-broadsheet-by-term.php"
     ],
 
+
+
+    // ISLAMIYYA SECTION
+
+    'islamiyya-class-arm-section-management' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/"
+    ],
+
+    // islamiyya classes
+    'islamiyya-classes-management' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/classes/index.php"
+    ],
+    'update-islamiyya-class' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/classes/class-update.php"
+    ],
+    'create-islamiyya-class' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/classes/class-create.php"
+    ],
+    'delete-islamiyya-class' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/classes/delete-class.php"
+    ],
+    'assing-islamiyya-class-teacher' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/classes/class-teacher.php"
+    ],
+
+
+
+    // islamiyya admin resutls
+    'admin-islamiyya-results-management' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/results-management/"
+    ],
+    'admin-upload-islamiyya-results' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/results-management/upload-results.php"
+    ],
+    'admin-view-islamiyya-subject-result' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/results-management/view-subject-result.php"
+    ],
+
+    //islamiyya  subjects
+
+    'islamiyya-subjects-management' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/subjects-management/"
+    ],
+    'create-islamiyya-subject' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/subjects-management/subject-create.php"
+    ],
+    'update-islamiyya-subject' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/subjects-management/subject-update.php"
+    ],
+    'delete-islamiyya-subject' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/subjects-management/delete-subject.php"
+    ],
+    'assing-islamiyya-subject-teacher' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/subjects-management/subject-teacher.php"
+    ],
+
+
+    // islamiyya class records
+
+    'islamiyya-class-performance' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/classes/history/classes-records.php"
+    ],
+    'admin-islamiyya-class-broadsheet-by-session' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/classes/history/class-broadsheet-by-session.php"
+    ],
+    'admin-islamiyya-class-broadsheet-by-term' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/classes/history/class-broadsheet-by-term.php"
+    ],
+
+    // islamiyya class arms
+
+    'islamiyya-arms-management' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/class-arms/index.php"
+    ],
+    'create-islamiyya-class-arm' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/class-arms/class-arm-create.php"
+    ],
+    'update-islamiyya-class-arm' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/class-arms/class-arm-update.php"
+    ],
+    'delete-islamiyya-class-arm' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/class-arms/delete-class-arm.php"
+    ],
+
+    // islamiyya sections
+
+    'islamiyya-sections-management' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/sections/index.php"
+    ],
+    'create-islamiyya-section' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/sections/section-create.php"
+    ],
+    'update-islamiyya-section' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/sections/section-update.php"
+    ],
+    'delete-islamiyya-section' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/sections/delete-section.php"
+    ],
 ];

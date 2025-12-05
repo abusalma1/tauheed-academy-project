@@ -78,7 +78,7 @@ CREATE TABLE teachers (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 4. SECTIONS TABLE
+-- 4.1 SECTIONS TABLE
 -- ===========================================================
 CREATE TABLE sections (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -92,7 +92,21 @@ CREATE TABLE sections (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 5. CLASS_ARMS TABLE
+-- 4.2 ISLAMIYYA_SECTIONS TABLE
+-- ===========================================================
+CREATE TABLE islamiyya_sections (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,          -- e.g. Primary Islamiyya, Junior Islamiyya, Senior Islamiyya
+    description TEXT,
+    head_teacher_id INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (head_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 5.1 CLASS_ARMS TABLE
 -- ===========================================================
 CREATE TABLE class_arms (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -103,9 +117,21 @@ CREATE TABLE class_arms (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- ===========================================================
+-- 5.2 ISLAMIYYA_CLASS_ARMS TABLE
+-- ===========================================================
+CREATE TABLE islamiyya_class_arms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,          -- e.g. Islamiyya Primary 1A, Islamiyya Primary 1B
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 
 -- ===========================================================
--- 6. CLASSES TABLE (unchanged except clearer naming comment)
+-- 6.1.1 CLASSES TABLE (unchanged except clearer naming comment)
 -- ===========================================================
     CREATE TABLE classes (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -118,9 +144,22 @@ CREATE TABLE class_arms (
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
     ) ENGINE=InnoDB;
+-- ===========================================================
+-- 6.1.2 ISLAMIYYA_CLASSES TABLE
+-- ===========================================================
+CREATE TABLE islamiyya_classes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    section_id INT NOT NULL,             -- links to islamiyya_sections
+    name VARCHAR(100) NOT NULL,          -- e.g. Qur’an Level 1, Tajweed Level 2
+    level INT UNIQUE NOT NULL,           -- used for promotion logic
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (section_id) REFERENCES islamiyya_sections(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
 -- ===========================================================
--- 6.1 CLASS_CLASS_ARMS TABLE (pivot for many-to-many)
+-- 6.2.1 CLASS_CLASS_ARMS TABLE (pivot for many-to-many)
 -- ===========================================================
 CREATE TABLE class_class_arms (
     class_id INT NOT NULL,
@@ -132,6 +171,22 @@ CREATE TABLE class_class_arms (
     PRIMARY KEY (class_id, arm_id),
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
     FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 6.2.2 ISLAMIYYA_CLASS_CLASS_ARMS TABLE (pivot for many-to-many)
+-- ===========================================================
+CREATE TABLE islamiyya_class_class_arms (
+    class_id INT NOT NULL,
+    arm_id INT NOT NULL,
+    teacher_id INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (class_id, arm_id),
+    FOREIGN KEY (class_id) REFERENCES islamiyya_classes(id) ON DELETE CASCADE,
+    FOREIGN KEY (arm_id) REFERENCES islamiyya_class_arms(id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
@@ -150,7 +205,7 @@ CREATE TABLE teacher_section (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 8. SUBJECTS TABLE
+-- 8.1.1 SUBJECTS TABLE
 -- ===========================================================
 CREATE TABLE subjects (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -161,7 +216,7 @@ CREATE TABLE subjects (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 8.1 CLASS_SUBJECTS TABLE
+-- 8.1.2 CLASS_SUBJECTS TABLE
 -- ===========================================================
 CREATE TABLE class_subjects (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -176,6 +231,36 @@ CREATE TABLE class_subjects (
     FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
     UNIQUE (class_id, subject_id, teacher_id)
 ) ENGINE=InnoDB;
+
+
+-- ===========================================================
+-- 8.2.1 ISLAMIYYA_SUBJECTS TABLE
+-- ===========================================================
+CREATE TABLE islamiyya_subjects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,          -- e.g. Qur’an, Tajweed, Fiqh, Hadith
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 8.2.2 ISLAMIYYA_CLASS_SUBJECTS TABLE
+-- ===========================================================
+CREATE TABLE islamiyya_class_subjects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    class_id INT NOT NULL,               -- links to islamiyya_classes
+    subject_id INT NOT NULL,             -- links to islamiyya_subjects
+    teacher_id INT NULL,                 -- teacher responsible for subject
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (class_id) REFERENCES islamiyya_classes(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES islamiyya_subjects(id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+    UNIQUE (class_id, subject_id, teacher_id)
+) ENGINE=InnoDB;
+
 
 -- ===========================================================
 -- 9. GUARDIANS TABLE
@@ -234,37 +319,44 @@ CREATE TABLE terms (
 -- 10.2 STUDENTS TABLE (UPDATED for hybrid structure)
 -- ===========================================================
 
-CREATE TABLE students (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    admission_number VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) NULL,
-    phone VARCHAR(20) NULL,
-    guardian_id INT,
-    dob DATE,
-    picture VARCHAR(255),
-    password VARCHAR(255) NOT NULL,
+    CREATE TABLE students (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        admission_number VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(100) NULL,
+        phone VARCHAR(20) NULL,
+        guardian_id INT,
+        dob DATE,
+        picture VARCHAR(255),
+        password VARCHAR(255) NOT NULL,
         reset_token VARCHAR(255) NULL,
-    reset_expires DATETIME NULL,
-    status ENUM('active', 'inactive') DEFAULT 'active',
-    gender ENUM('male', 'female') DEFAULT 'male',
-    
-    class_id INT NULL,
-    arm_id INT NULL,
-    term_id INT NULL,
+        reset_expires DATETIME NULL,
+        status ENUM('active', 'inactive') DEFAULT 'active',
+        gender ENUM('male', 'female') DEFAULT 'male',
+        
+        -- Academic track
+        class_id INT NULL,
+        arm_id INT NULL,
+        term_id INT NULL,
 
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at DATETIME NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        -- Islamiyya track
+        islamiyya_class_id INT NULL,
+        islamiyya_arm_id INT NULL,
 
-    FOREIGN KEY (guardian_id) REFERENCES guardians(id) ON DELETE SET NULL,
-    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL,
-    FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE SET NULL,
-    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at DATETIME NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+        FOREIGN KEY (guardian_id) REFERENCES guardians(id) ON DELETE SET NULL,
+        FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL,
+        FOREIGN KEY (arm_id) REFERENCES class_arms(id) ON DELETE SET NULL,
+        FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE SET NULL,
+        FOREIGN KEY (islamiyya_class_id) REFERENCES islamiyya_classes(id) ON DELETE SET NULL,
+        FOREIGN KEY (islamiyya_arm_id) REFERENCES islamiyya_class_arms(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 10.3 STUDENT_CLASS_RECORDS TABLE (UPDATED hybrid)
+-- 10.3.1 STUDENT_CLASS_RECORDS TABLE (UPDATED hybrid)
 -- ===========================================================
 
 CREATE TABLE student_class_records (
@@ -292,7 +384,34 @@ CREATE TABLE student_class_records (
 ) ENGINE=InnoDB;
 
 -- ===========================================================
--- 10.4 STUDENT_TERM_RECORDS TABLE (UPDATED hybrid)
+-- 10.3.2 ISLAMIYYA_STUDENT_CLASS_RECORDS TABLE
+-- ===========================================================
+CREATE TABLE islamiyya_student_class_records (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    session_id INT NOT NULL,
+    class_id INT NOT NULL,
+    arm_id INT NOT NULL,
+
+    overall_total DECIMAL(8,2) DEFAULT 0,
+    overall_average DECIMAL(5,2) DEFAULT 0,
+    overall_position INT DEFAULT NULL,
+    promotion_status ENUM('promoted', 'repeat', 'pending') DEFAULT 'pending',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (class_id) REFERENCES islamiyya_classes(id) ON DELETE CASCADE,
+    FOREIGN KEY (arm_id) REFERENCES islamiyya_class_arms(id) ON DELETE CASCADE,
+
+    UNIQUE (student_id, session_id)
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 10.4.1 STUDENT_TERM_RECORDS TABLE (UPDATED hybrid)
 -- ===========================================================
 CREATE TABLE student_term_records (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -315,8 +434,33 @@ CREATE TABLE student_term_records (
     UNIQUE (student_class_record_id, term_id)
 ) ENGINE=InnoDB;
 
+
 -- ===========================================================
--- 11. RESULTS TABLE
+-- 10.4.2 ISLAMIYYA_STUDENT_TERM_RECORDS TABLE
+-- ===========================================================
+CREATE TABLE islamiyya_student_term_records (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_class_record_id INT NOT NULL,
+    term_id INT NOT NULL,
+
+    total_marks DECIMAL(8,2) DEFAULT 0,
+    average_marks DECIMAL(5,2) DEFAULT 0,
+    position_in_class INT DEFAULT NULL,
+    class_size INT DEFAULT NULL,
+    overall_grade VARCHAR(5) NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_class_record_id) REFERENCES islamiyya_student_class_records(id) ON DELETE CASCADE,
+    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE,
+
+    UNIQUE (student_class_record_id, term_id)
+) ENGINE=InnoDB;
+
+-- ===========================================================
+-- 11.1 RESULTS TABLE
 -- ===========================================================
 CREATE TABLE results (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -335,6 +479,32 @@ CREATE TABLE results (
 
     FOREIGN KEY (student_term_record_id) REFERENCES student_term_records(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+
+    UNIQUE (student_term_record_id, subject_id)
+) ENGINE=InnoDB;
+
+InnoDB;
+
+-- ===========================================================
+-- 11.2 ISLAMIYYA_RESULTS TABLE
+-- ===========================================================
+CREATE TABLE islamiyya_results (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_term_record_id INT NOT NULL,
+    subject_id INT NOT NULL,
+
+    ca DECIMAL(5,2) DEFAULT 0.00,   -- Continuous Assessment
+    exam DECIMAL(5,2) DEFAULT 0.00, -- Exam score
+    total DECIMAL(6,2) GENERATED ALWAYS AS (ca + exam) STORED,
+    grade VARCHAR(2),
+    remark VARCHAR(50),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_term_record_id) REFERENCES islamiyya_student_term_records(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES islamiyya_subjects(id) ON DELETE CASCADE,
 
     UNIQUE (student_term_record_id, subject_id)
 ) ENGINE=InnoDB;
@@ -393,8 +563,7 @@ CREATE TABLE bank_accounts (
     purpose VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
 ) ENGINE=InnoDB;
 
 

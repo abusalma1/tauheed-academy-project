@@ -19,7 +19,7 @@ $studentsCount = countDataTotal('students')['total'];
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
+    <?php include(__DIR__ . '/../../includes/admins-section-nav.php') ?>
 
 
 
