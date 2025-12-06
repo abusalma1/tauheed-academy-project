@@ -67,8 +67,23 @@
 
                     <?php if ($user_type === 'teacher') : ?>
                         <a href="<?= route('my-class'); ?>" class="hover:text-blue-300 transition">My class</a>
-                        <a href="<?= route('results-management'); ?>" class="hover:text-blue-300 transition">Upload Results</a>
+                        <div class="relative group">
+                            <!-- Hover Button -->
+                            <div class="hover:text-blue-300 transition flex items-center gap-1">
+                                Upload Results
+                                <span class="text-sm">▾</span>
+                            </div>
 
+                            <!-- Dropdown Menu -->
+                            <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+
+                                <ul class="flex flex-col py-2">
+                                    <li> <a href="<?= route('results-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> General Studies </a> </li>
+                                    <li> <a href="<?= route('islamiyya-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Qur'anic & Islamic Studies </a> </li>
+
+                                </ul>
+                            </div>
+                        </div>
                     <?php elseif ($user_type === 'student') : ?>
                         <a href="<?= route('student-result'); ?>" class="hover:text-blue-300 transition">My Result</a>
                     <?php elseif ($user_type === 'guardian') : ?>
@@ -134,8 +149,18 @@
                 <a href="<?= route('student-result'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Results</a>
             <?php elseif ($user_type === 'teacher'): ?>
                 <a href="<?= route('my-class'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My class</a>
-                <a href="<?= route('results-management'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Upload Results</a>
 
+                <div class="py-2 px-3 rounded bg-blue-800">
+                    <button class="w-full flex justify-between items-center mobile-dropdown-btn">
+                        <span>Upload Results</span>
+                        <span>▾</span>
+                    </button>
+
+                    <div class="mobile-dropdown hidden flex-col mt-2 bg-blue-700 rounded-lg">
+                        <a href="<?= route('results-management'); ?>" class="block px-4 py-2 hover:bg-blue-600">General Studies</a>
+                        <a href="<?= route('islamiyya-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-600">Qur'anic & Islamic Studies</a>
+                    </div>
+                </div>
             <?php elseif ($user_type === 'guardian'): ?>
                 <a href="<?= route('my-children') ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Me & My Children</a>
             <?php elseif ($user_type === 'admin'): ?>

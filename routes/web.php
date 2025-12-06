@@ -284,6 +284,20 @@ $routes = [
         'url' => "$baseUrl/pages/results-management/student-results.php"
     ],
 
+    // islamiyya results
+    'islamiyya-results-management' => [
+        'url' => "$baseUrl/pages/results-management/islamiyya/"
+    ],
+    'upload-islamiyya-results' => [
+        'url' => "$baseUrl/pages/results-management/islamiyya/upload-results.php"
+    ],
+    'view-islamiyya-subject-result' => [
+        'url' => "$baseUrl/pages/results-management/islamiyya/view-subject-result.php"
+    ],
+    'student-islamiyya-result' => [
+        'url' => "$baseUrl/pages/results-management/islamiyya/student-results.php"
+    ],
+
 
     //  guardians
     'my-children' => [

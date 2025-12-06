@@ -353,7 +353,7 @@ CREATE TABLE terms (
         FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE SET NULL,
         FOREIGN KEY (islamiyya_class_id) REFERENCES islamiyya_classes(id) ON DELETE SET NULL,
         FOREIGN KEY (islamiyya_arm_id) REFERENCES islamiyya_class_arms(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB;
+) ENGINE=InnoDB;
 
 -- ===========================================================
 -- 10.3.1 STUDENT_CLASS_RECORDS TABLE (UPDATED hybrid)

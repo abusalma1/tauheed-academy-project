@@ -12,16 +12,63 @@ if ($is_logged_in === false) {
 //  Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
     SELECT 
-        students.*, 
-        classes.name AS class_name, 
-        class_arms.name AS arm_name
-    FROM students
-    LEFT JOIN classes ON classes.id = students.class_id
-    LEFT JOIN class_arms ON class_arms.id = students.arm_id
-    WHERE guardian_id = ?
+        s.*, 
+        c.name AS class_name, 
+        ca.name AS arm_name,
+        ic.name AS islamiyya_class_name, 
+        ica.name AS islamiyya_arm_name
+    FROM students s
+    LEFT JOIN classes c ON c.id = s.class_id
+    LEFT JOIN class_arms ca ON ca.id = s.arm_id
+    LEFT JOIN islamiyya_classes ic ON ic.id = s.islamiyya_class_id
+    LEFT JOIN islamiyya_class_arms ica ON ica.id = s.islamiyya_arm_id
+    WHERE s.guardian_id = ?
 ");
+
 $stmt->execute([$user['id']]);
 $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($children as &$child) {
+        // Calculate overall average from General Studies
+        $stmt = $pdo->prepare("
+        SELECT AVG(r.total) AS avg_score
+        FROM results r
+        JOIN student_term_records str ON r.student_term_record_id = str.id
+        JOIN student_class_records scr ON str.student_class_record_id = scr.id
+        WHERE scr.student_id = ?
+    ");
+        $stmt->execute([$child['id']]);
+        $genAvg = $stmt->fetchColumn();
+
+        // Calculate overall average from Islamiyya
+        $stmt = $pdo->prepare("
+        SELECT AVG(r.total) AS avg_score
+        FROM islamiyya_results r
+        JOIN islamiyya_student_term_records str ON r.student_term_record_id = str.id
+        JOIN islamiyya_student_class_records scr ON str.student_class_record_id = scr.id
+        WHERE scr.student_id = ?
+    ");
+        $stmt->execute([$child['id']]);
+        $islamiyyaAvg = $stmt->fetchColumn();
+
+        // Store in child array (rounded to 2 decimals)
+        $child['overall_avg'] = round(($genAvg + $islamiyyaAvg) / 2, 2);
+    }
+
+
+    $totalAvg = 0;
+$count = 0;
+
+foreach ($children as $child) {
+    if (!empty($child['overall_avg'])) {
+        $totalAvg += $child['overall_avg'];
+        $count++;
+    }
+}
+
+$guardianOverallAvg = $count > 0 ? round($totalAvg / $count, 2) : 0;
+
+
 ?>
 
 <body class="bg-gray-50">
@@ -74,7 +121,7 @@ $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-semibold">Average Performance</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">82.5%</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2"><?= $guardianOverallAvg ?>%</p>
                         </div>
                         <i class="fas fa-chart-line text-4xl text-green-200"></i>
                     </div>
@@ -103,7 +150,9 @@ $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="relative px-6 pb-6">
                                 <img src="/placeholder.svg?height=100&width=100" alt="Child Photo" class="h-24 w-24 rounded-full border-4 border-white -mt-16 mx-auto mb-4">
                                 <h3 class="text-xl font-bold text-center text-gray-900"><?= $child['name'] ?></h3>
-                                <p class="text-gray-600 text-center text-sm mb-4"><?= $child['class_name'] . ' - ' .  $child['arm_name'] ?></p>
+                                <p class="text-gray-600 text-center text-sm mb-4">Gen. Stu. Class: <?= $child['class_name'] . ' - ' .  $child['arm_name'] ?></p>
+                                <p class="text-gray-600 text-center text-sm mb-4">Islamiyya Class: <?= $child['islamiyya_class_name'] . ' - ' .  $child['islamiyya_arm_name'] ?></p>
+
                                 <div class="bg-blue-50 p-3 rounded-lg mb-4">
                                     <div class="flex justify-between text-sm mb-2">
                                         <span class="text-gray-600">Admission No:</span>
@@ -111,12 +160,17 @@ $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                     <div class="flex justify-between text-sm">
                                         <span class="text-gray-600">Current Avg:</span>
-                                        <span class="font-semibold text-green-600">87.67%</span>
+                                        <span class="font-semibold text-green-600"><?= $child['overall_avg'] ?>%</span>
                                     </div>
                                 </div>
-                                <a href="<?= route('student-result') . '?id=' . $child['id'] ?>" class="block w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded-lg font-semibold text-center transition">
-                                    <i class="fas fa-eye mr-2"></i>View Results
-                                </a>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <a href="<?= route('student-result') . '?id=' . $child['id'] ?>" class="block w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded-lg font-semibold text-center transition">
+                                        <i class="fas fa-eye mr-2"></i>View Results
+                                    </a>
+                                    <a href="<?= route('student-islamiyya-result') . '?id=' . $child['id'] ?>" class="block w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded-lg font-semibold text-center transition">
+                                        <i class="fas fa-eye mr-2"></i>View Islamiyya Results
+                                    </a>
+                                </div>
                             </div>
                         </div>
 

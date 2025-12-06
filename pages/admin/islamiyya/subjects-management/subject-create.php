@@ -1,5 +1,5 @@
 <?php
-$title = "Create Subject";
+$title = "Create Islamiyya Subject";
 include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -12,27 +12,29 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Fetch classes
+// Fetch Islamiyya classes
 $stmt = $pdo->prepare("
     SELECT *
-    FROM classes
+    FROM islamiyya_classes
     WHERE deleted_at IS NULL
     GROUP BY level
 ");
 $stmt->execute();
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch subjects with class names
+// Fetch Islamiyya subjects with class names
 $stmt = $pdo->prepare("
     SELECT 
-        subjects.id AS id,
-        subjects.name AS name,
-        GROUP_CONCAT(classes.name SEPARATOR ', ') AS class_names
-    FROM subjects
-    LEFT JOIN class_subjects ON class_subjects.subject_id = subjects.id
-    LEFT JOIN classes ON classes.id = class_subjects.class_id
-    WHERE subjects.deleted_at IS NULL
-    GROUP BY subjects.id
+        islamiyya_subjects.id AS id,
+        islamiyya_subjects.name AS name,
+        GROUP_CONCAT(islamiyya_classes.name SEPARATOR ', ') AS class_names
+    FROM islamiyya_subjects
+    LEFT JOIN islamiyya_class_subjects 
+           ON islamiyya_class_subjects.subject_id = islamiyya_subjects.id
+    LEFT JOIN islamiyya_classes 
+           ON islamiyya_classes.id = islamiyya_class_subjects.class_id
+    WHERE islamiyya_subjects.deleted_at IS NULL
+    GROUP BY islamiyya_subjects.id
 ");
 $stmt->execute();
 $subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -60,28 +62,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
-            //  Start transaction
+            // Start transaction
             $pdo->beginTransaction();
 
             // Insert subject
-            $stmt = $pdo->prepare("INSERT INTO subjects (name) VALUES (?)");
+            $stmt = $pdo->prepare("INSERT INTO islamiyya_subjects (name) VALUES (?)");
             $stmt->execute([$name]);
             $subject_id = $pdo->lastInsertId();
 
             // Insert into pivot table
-            $stmt_pivot = $pdo->prepare("INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)");
+            $stmt_pivot = $pdo->prepare("INSERT INTO islamiyya_class_subjects (class_id, subject_id) VALUES (?, ?)");
             foreach ($class_ids as $class_id) {
                 $stmt_pivot->execute([intval($class_id), $subject_id]);
             }
 
-            //  Commit transaction
+            // Commit transaction
             $pdo->commit();
 
-            $_SESSION['success'] = "Subject added successfully!";
+            $_SESSION['success'] = "Islamiyya Subject added successfully!";
             header("Location: " . route('back'));
             exit();
         } catch (PDOException $e) {
-            //  Rollback transaction on error
+            // Rollback transaction on error
             $pdo->rollBack();
             echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
@@ -106,8 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Create Subject</h1>
-            <p class="text-xl text-blue-200">Create and manage subjects</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Create Islamiyya Subject</h1>
+            <p class="text-xl text-blue-200">Create and manage islamiyya subjects</p>
         </div>
     </section>
 

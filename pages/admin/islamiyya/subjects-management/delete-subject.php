@@ -1,5 +1,5 @@
 <?php
-$title = "Delete Confirmation";
+$title = "Islamiyya Subject Delete Confirmation";
 include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -15,7 +15,7 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
 
-  $stmt = $pdo->prepare("SELECT * FROM subjects WHERE id = ?");
+  $stmt = $pdo->prepare("SELECT * FROM islamiyya_subjects WHERE id = ? AND deleted_at IS NULL");
   $stmt->execute([$id]);
   $subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -31,31 +31,28 @@ if (isset($_GET['id'])) {
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-
     die('CSRF validation failed. Please refresh and try again.');
   } else {
-
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
-
 
   $id = (int) trim($_POST['id'] ?? '');
 
   if (empty($id)) {
-    $errors['id'] = 'Subject Not Found';
+    $errors['id'] = 'Islamiyya Subject Not Found';
   }
 
   if (empty($errors)) {
     try {
-      $stmt = $pdo->prepare("UPDATE subjects SET deleted_at = NOW() WHERE id = ?");
+      $stmt = $pdo->prepare("UPDATE islamiyya_subjects SET deleted_at = NOW() WHERE id = ?");
       $success = $stmt->execute([$id]);
 
       if ($success) {
-        $_SESSION['success'] = "Subject Deleted successfully!";
+        $_SESSION['success'] = "Islamiyya Subject deleted successfully!";
         header("Location: " . route('back'));
         exit();
       } else {
-        echo "<script>alert('Failed to delete subject');</script>";
+        echo "<script>alert('Failed to delete Islamiyya Subject');</script>";
       }
     } catch (PDOException $e) {
       echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
@@ -67,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
+
 
 <body class="bg-gray-50">
   <!-- Navigation -->
@@ -89,10 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Title -->
         <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">
-          Delete Subject
+          Delete Islamiyya Subject
         </h2>
         <p class="text-gray-600 text-center mb-6">
-          Are you sure you want to delete this Subject?
+          Are you sure you want to delete this islamiyya Subject?
         </p>
 
         <!-- subject Details -->

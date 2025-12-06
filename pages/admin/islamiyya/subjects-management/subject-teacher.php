@@ -1,5 +1,5 @@
 <?php
-$title = "Subject Teacher Assignment";
+$title = "Islamiyya Subject Teacher Assignment";
 include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -19,17 +19,17 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 $class_subject_id = (int) $_GET['id'];
 
-// Fetch current class-subject record
+// Fetch current Islamiyya class-subject record
 $query = "
     SELECT 
         cs.id AS cs_id,
         cs.teacher_id,
         s.name AS subject_name,
         c.name AS class_name
-    FROM class_subjects cs
-    INNER JOIN subjects s ON cs.subject_id = s.id
-    INNER JOIN classes c ON cs.class_id = c.id
-    WHERE cs.id = ?
+    FROM islamiyya_class_subjects cs
+    INNER JOIN islamiyya_subjects s ON cs.subject_id = s.id
+    INNER JOIN islamiyya_classes c ON cs.class_id = c.id
+    WHERE cs.id = ? AND cs.deleted_at IS NULL
 ";
 $stmt = $pdo->prepare($query);
 $stmt->execute([$class_subject_id]);
@@ -41,7 +41,7 @@ if (!$class_subject) {
 $current_teacher_id = $class_subject['teacher_id'];
 
 // Fetch all teachers (assuming selectAllData is already PDO-based)
-$teachers = selectAllData('teachers');
+$teachers = selectAllData('teachers'); // shared teachers table
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -53,11 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $teacher_id = !empty($_POST['teacher_id']) ? (int) $_POST['teacher_id'] : null;
 
     try {
-        $updateStmt = $pdo->prepare("UPDATE class_subjects SET teacher_id = ? WHERE id = ?");
+        $updateStmt = $pdo->prepare("UPDATE islamiyya_class_subjects SET teacher_id = ? WHERE id = ? AND deleted_at IS NULL");
         $success = $updateStmt->execute([$teacher_id, $class_subject_id]);
 
         if ($success) {
-            $_SESSION['success'] = "Teacher updated successfully!";
+            $_SESSION['success'] = "Islamiyya subject teacher updated successfully!";
             header("Location: " . route('back'));
             exit();
         } else {
@@ -69,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-
 <body class="bg-gray-50">
     <!-- Navigation -->
     <?php include(__DIR__ . '/../../includes/admins-section-nav.php') ?>
@@ -78,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:texupdatet-5xl font-bold mb-4">Update Teacher for Subject</h1>
-            <p class="text-xl text-blue-200">Assign or update the teacher for this subject and class</p>
+            <h1 class="text-4xl md:texupdatet-5xl font-bold mb-4">Update Teacher for islamiyya Subject</h1>
+            <p class="text-xl text-blue-200">Assign or update the teacher for this islamiyya subject and class</p>
         </div>
     </section>
 

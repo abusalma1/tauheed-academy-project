@@ -1,107 +1,104 @@
-    <?php
-    $title = "Manage Subject";
-    include(__DIR__ . '/../../includes/header.php');
+<?php
+$title = "Manage Subject";
+include(__DIR__ . '/../../includes/header.php');
 
-    if (!$is_logged_in) {
-        $_SESSION['failure'] = "Login is Required!";
-        header("Location: " . route('home'));
-        exit();
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+if ($user_type !== 'teacher') {
+    $_SESSION['failure'] = "Only Teachers can access!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+
+
+//  Use PDO instead of MySQLi
+$stmt = $pdo->prepare("
+    SELECT 
+        c.id AS class_id,
+        c.name AS class_name,
+        ca.id AS arm_id,
+        ca.name AS arm_name,
+        subj.id AS subject_id,
+        subj.name AS subject_name,
+        t.id AS teacher_id,
+        t.name AS teacher_name,
+        sec.name AS section_name,
+        cs.id AS class_subject_id
+    FROM classes c
+    JOIN sections sec ON c.section_id = sec.id
+    LEFT JOIN class_class_arms cca ON cca.class_id = c.id
+    LEFT JOIN class_arms ca ON ca.id = cca.arm_id
+    LEFT JOIN class_subjects cs ON cs.class_id = c.id
+    LEFT JOIN subjects subj ON cs.subject_id = subj.id AND subj.deleted_at IS NULL
+    LEFT JOIN teachers t ON cs.teacher_id = t.id
+    WHERE c.deleted_at IS NULL 
+    AND sec.deleted_at IS NULL
+    AND cs.teacher_id = :teacher_id
+    ORDER BY c.level, ca.name, subj.name
+    ");
+
+$stmt->execute(['teacher_id' => $user['id']]);
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$classes = [];
+
+foreach ($rows as $row) {
+    $classId = $row['class_id'];
+    $armId   = $row['arm_id'] ?? null;
+
+    $key = $armId ? $classId . '_' . $armId : $classId;
+
+    if (!isset($classes[$key])) {
+        $classes[$key] = [
+            'id'           => $classId,
+            'name'         => $row['class_name'],
+            'section_name' => $row['section_name'],
+            'arm_id'       => $armId,
+            'arm_name'     => $armId ? ' - ' . $row['arm_name'] : '',
+            'subjects'     => []
+        ];
     }
 
-    if ($user_type !== 'teacher') {
-        $_SESSION['failure'] = "Only Teachers can access!";
-        header("Location: " . route('home'));
-        exit();
+    if (!empty($row['subject_id'])) {
+        $classes[$key]['subjects'][] = [
+            'class_subject_id' => $row['class_subject_id'],
+            'id'               => $row['subject_id'],
+            'name'             => $row['subject_name'],
+            'teacher'          => $row['teacher_name']
+        ];
     }
+}
 
 
+// Reindex classes by numeric index
+$classes = array_values($classes);
 
-    //  Use PDO instead of MySQLi
-    $stmt = $pdo->prepare("
-SELECT 
-    c.id AS class_id,
-    c.name AS class_name,
-    ca.id AS arm_id,
-    ca.name AS arm_name,
-    subj.id AS subject_id,
-    subj.name AS subject_name,
-    t.id AS teacher_id,
-    t.name AS teacher_name,
-    sec.name AS section_name,
-    cs.id AS class_subject_id
-FROM classes c
-JOIN sections sec ON c.section_id = sec.id
-LEFT JOIN class_class_arms cca ON cca.class_id = c.id
-LEFT JOIN class_arms ca ON ca.id = cca.arm_id
-LEFT JOIN class_subjects cs ON cs.class_id = c.id
-LEFT JOIN subjects subj ON cs.subject_id = subj.id AND subj.deleted_at IS NULL
-LEFT JOIN teachers t ON cs.teacher_id = t.id
-WHERE c.deleted_at IS NULL 
-  AND sec.deleted_at IS NULL
-  AND cs.teacher_id = :teacher_id
-ORDER BY c.level, ca.name, subj.name
-");
+//  Fetch all classes
+$stmt = $pdo->prepare("SELECT * FROM classes WHERE deleted_at IS NULL ORDER BY level ASC");
+$stmt->execute();
+$allClasses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $stmt->execute(['teacher_id' => $user['id']]);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+//  Fetch terms and sessions
+$terms    = selectAllData('terms');
+$sessions = selectAllData('sessions');
 
-    $classes = [];
+//  Fetch current term
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
+$stmt->execute(['ongoing']);
+$current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    foreach ($rows as $row) {
-        $classId = $row['class_id'];
-        $armId   = $row['arm_id'] ?? null;
-
-        $key = $armId ? $classId . '_' . $armId : $classId;
-
-        if (!isset($classes[$key])) {
-            $classes[$key] = [
-                'id'           => $classId,
-                'name'         => $row['class_name'],
-                'section_name' => $row['section_name'],
-                'arm_id'       => $armId,
-                'arm_name'     => $armId ? ' - ' . $row['arm_name'] : '',
-                'subjects'     => []
-            ];
-        }
-
-        if (!empty($row['subject_id'])) {
-            $classes[$key]['subjects'][] = [
-                'class_subject_id' => $row['class_subject_id'],
-                'id'               => $row['subject_id'],
-                'name'             => $row['subject_name'],
-                'teacher'          => $row['teacher_name']
-            ];
-        }
-    }
-
-
-
-    $classes = array_values($classes);
-
-    // Reindex classes by numeric index
-    $classes = array_values($classes);
-
-    //  Fetch all classes
-    $stmt = $pdo->prepare("SELECT * FROM classes WHERE deleted_at IS NULL ORDER BY level ASC");
-    $stmt->execute();
-    $allClasses = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    //  Fetch terms and sessions
-    $terms    = selectAllData('terms');
-    $sessions = selectAllData('sessions');
-
-    //  Fetch current term
-    $stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
-    $stmt->execute(['ongoing']);
-    $current_term = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    //  Handle missing selection
-    if (isset($_POST['missing_selection'])) {
-        $_SESSION['failure'] = "Please select a session and a term before creating or updating results.";
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit();
-    }
-    ?>
+//  Handle missing selection
+if (isset($_POST['missing_selection'])) {
+    $_SESSION['failure'] = "Please select a session and a term before creating or updating results.";
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+?>
 
 
     <body class="bg-gray-50">
@@ -212,22 +209,10 @@ ORDER BY c.level, ca.name, subj.name
                                                 </h3>
                                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
 
-                                                    <div>
-                                                        <p class="text-gray-600">Students</p>
-                                                        <p class="font-semibold text-gray-900">218</p>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-gray-600">Status</p>
-                                                        <span
-                                                            class="px-2 py-1 bg-green-100 text-green-900 rounded-full text-xs font-semibold">Uploaded</span>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-gray-600">Last Updated</p>
-                                                        <p class="font-semibold text-gray-900">Nov 10, 2025</p>
-                                                    </div>
+
                                                 </div>
                                             </div>
-                                            <div class="flex flex-col gap-2 md:w-auto">
+                                            <div class="flex flex-row gap-2 md:w-auto">
                                                 <a
                                                     href="<?= route('upload-results')
                                                                 . '?subject_id=' . $subject['id']

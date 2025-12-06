@@ -1,7 +1,6 @@
 <?php
-$title = "Class Results By Session";
+$title = "Islamiyya Class Results By Session";
 include(__DIR__ . '/../../../../../../includes/header.php');
-
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -18,27 +17,29 @@ if ($user_type !== 'admin') {
 if (isset($_GET['class_id']) && isset($_GET['session_id']) && isset($_GET['arm_id'])) {
     $class_id   = (int) $_GET['class_id'];
     $session_id = (int) $_GET['session_id'];
-    $arm_id     = (int) $_GET['arm_id'];   // NEW
+    $arm_id     = (int) $_GET['arm_id'];
 } else {
-    $_SESSION['failure'] = "Class, session or arm not found";
+    $_SESSION['failure'] = "Islamiyya class, session or arm not found";
     header('Location: ' . route('back'));
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT id, name from sessions where id = ?");
+// Get session info
+$stmt = $pdo->prepare("SELECT id, name FROM sessions WHERE id = ?");
 $stmt->execute([$session_id]);
 $currentSession = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare("SELECT id, name from classes where id = ?");
+// Get Islamiyya class info
+$stmt = $pdo->prepare("SELECT id, name FROM islamiyya_classes WHERE id = ?");
 $stmt->execute([$class_id]);
 $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare("SELECT id, name from class_Arms where id = ?");
+// Get Islamiyya arm info
+$stmt = $pdo->prepare("SELECT id, name FROM islamiyya_class_arms WHERE id = ?");
 $stmt->execute([$arm_id]);
 $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
-//  Query overall class performance from student_class_records
+// Query overall class performance from islamiyya_student_class_records
 $stmt = $pdo->prepare("
     SELECT 
         s.id AS student_id,
@@ -48,7 +49,7 @@ $stmt = $pdo->prepare("
         scr.overall_average,
         scr.overall_position,
         scr.promotion_status
-    FROM student_class_records scr
+    FROM islamiyya_student_class_records scr
     INNER JOIN students s ON scr.student_id = s.id
     WHERE scr.session_id = ? 
       AND scr.class_id = ? 
@@ -57,9 +58,8 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$session_id, $class_id, $arm_id]);
 $overallResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->

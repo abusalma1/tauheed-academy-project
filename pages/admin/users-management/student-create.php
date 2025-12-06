@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-//  Ensure CSRF token exists
+// Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -22,7 +22,7 @@ $current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 $stmt = $pdo->prepare("SELECT admission_number FROM students ORDER BY created_at DESC LIMIT 1");
 $stmt->execute();
 $lastAdmissionNumberRow = $stmt->fetch(PDO::FETCH_ASSOC);
-$lastAdmissionNumber = $lastAdmissionNumberRow ? $lastAdmissionNumberRow['admission_number'] : 'No student account exists. Check the students list below the form.';
+$lastAdmissionNumber = $lastAdmissionNumberRow ? $lastAdmissionNumberRow['admission_number'] : 'No student account exists.';
 
 // Students list
 $stmt = $pdo->prepare("
@@ -44,7 +44,7 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $guardians = selectAllData('guardians');
 
-// Classes and arms
+// Fetch classes
 $stmt = $pdo->prepare("
     SELECT 
         classes.id AS class_id,
@@ -61,10 +61,44 @@ $stmt = $pdo->prepare("
     LEFT JOIN teachers ON class_class_arms.teacher_id = teachers.id
     LEFT JOIN sections ON classes.section_id = sections.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+    WHERE classes.deleted_at IS NULL 
+      AND class_arms.deleted_at IS NULL 
+      AND sections.deleted_at IS NULL
     ORDER BY classes.level, class_arms.name
 ");
 $stmt->execute();
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+// Fetch Islamiyya classes
+$stmt = $pdo->prepare("
+    SELECT 
+        islamiyya_classes.id AS class_id,
+        islamiyya_classes.name AS class_name,
+        islamiyya_classes.level AS level,
+        teachers.id AS teacher_id,
+        teachers.name AS teacher_name,
+        islamiyya_sections.id AS section_id,
+        islamiyya_sections.name AS section_name,
+        islamiyya_class_arms.id AS arm_id,
+        islamiyya_class_arms.name AS arm_name
+    FROM islamiyya_classes
+    LEFT JOIN islamiyya_class_class_arms 
+           ON islamiyya_class_class_arms.class_id = islamiyya_classes.id
+    LEFT JOIN teachers 
+           ON islamiyya_class_class_arms.teacher_id = teachers.id
+    LEFT JOIN islamiyya_sections 
+           ON islamiyya_classes.section_id = islamiyya_sections.id
+    LEFT JOIN islamiyya_class_arms 
+           ON islamiyya_class_class_arms.arm_id = islamiyya_class_arms.id
+    WHERE islamiyya_classes.deleted_at IS NULL 
+      AND islamiyya_class_arms.deleted_at IS NULL 
+      AND islamiyya_sections.deleted_at IS NULL
+    ORDER BY islamiyya_classes.level, islamiyya_class_arms.name
+");
+$stmt->execute();
+$islamiyya_classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 $terms    = selectAllData('terms');
 $sessions = selectAllData('sessions');
@@ -73,11 +107,10 @@ $sessions = selectAllData('sessions');
 $studentsCount = countDataTotal('students', true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    //  CSRF validation
+    // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die("Invalid CSRF token.");
     } else {
-        //  Regenerate after successful validation
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
@@ -95,16 +128,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password        = $_POST['password'] ?? '';
     $confirmPassword = $_POST['confirmPassword'] ?? '';
     $status          = trim($_POST['status'] ?? 'inactive');
+    $islamiyyaClass  = trim($_POST['islamiyyaClass'] ?? '');
 
     $errors = [];
 
     // --- VALIDATION RULES ---
     if (empty($name)) $errors['name'] = "Full name is required.";
     if (empty($admissionNumber)) $errors['admissionNumber'] = "Admission number is required.";
-    if (empty($class)) {
-        $errors['class'] = "Please select a class.";
-    } else {
+    if (!empty($class)) {
         list($class_id, $arm_id) = explode('|', $class);
+    } else {
+        $class_id = null;
+        $arm_id   = null;
+    }
+    if (!empty($islamiyyaClass)) {
+        list($islamiyya_class_id, $islamiyya_arm_id) = explode('|', $islamiyyaClass);
+    } else {
+        $islamiyya_class_id = null;
+        $islamiyya_arm_id   = null;
+    }
+
+    if (empty($class) && empty($islamiyyaClass)) {
+        $errors['class'] = "Please select either a General Studies class or an Islamiyya class.";
     }
     if (empty($term)) $errors['term'] = "Please select a term.";
     if (empty($dob)) $errors['dob'] = "Date of birth is required.";
@@ -146,13 +191,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            //  Start transaction
             $pdo->beginTransaction();
 
-            // Insert student
+            // Insert student with both tracks
             $stmt = $pdo->prepare("INSERT INTO students 
-                (name, email, phone, admission_number, dob, gender, password, status, class_id, arm_id, term_id, guardian_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                (name, email, phone, admission_number, dob, gender, password, status, 
+                 class_id, arm_id, term_id, guardian_id, islamiyya_class_id, islamiyya_arm_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
                 $name,
                 $email,
@@ -165,18 +210,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $class_id,
                 $arm_id,
                 $term,
-                $guardian
+                $guardian,
+                $islamiyya_class_id,
+                $islamiyya_arm_id
             ]);
             $student_id = $pdo->lastInsertId();
 
-            // Insert student_class_records
-            $stmt2 = $pdo->prepare("INSERT INTO student_class_records (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
-            $stmt2->execute([$student_id, $class_id, $arm_id, $session]);
-            $student_class_record_id = $pdo->lastInsertId();
+            // Insert general class records
+            if (!empty($class_id) && !empty($arm_id)) {
+                $stmt2 = $pdo->prepare("INSERT INTO student_class_records (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
+                $stmt2->execute([$student_id, $class_id, $arm_id, $session]);
+                $student_class_record_id = $pdo->lastInsertId();
 
-            // Insert student_term_records
-            $stmt3 = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
-            $stmt3->execute([$student_class_record_id, $term]);
+                $stmt3 = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
+                $stmt3->execute([$student_class_record_id, $term]);
+            }
+
+            // Insert Islamiyya class records if selected
+            if (!empty($islamiyya_class_id) && !empty($islamiyya_arm_id)) {
+                $stmtIslamiyya = $pdo->prepare("
+                    INSERT INTO islamiyya_student_class_records (student_id, class_id, arm_id, session_id) 
+                    VALUES (?, ?, ?, ?)
+                ");
+                $stmtIslamiyya->execute([$student_id, $islamiyya_class_id, $islamiyya_arm_id, $session]);
+                $islamiyya_class_record_id = $pdo->lastInsertId();
+
+                $stmtIslamiyyaTerm = $pdo->prepare("
+                    INSERT INTO islamiyya_student_term_records (student_class_record_id, term_id) 
+                    VALUES (?, ?)
+                ");
+                $stmtIslamiyyaTerm->execute([$islamiyya_class_record_id, $term]);
+            }
+
 
             //  Commit transaction
             $pdo->commit();
@@ -263,18 +328,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
 
                             <!-- Class -->
-                            <div>
-                                <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">Class *</label>
-                                <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-class') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Class</a></span>
+                            <div class="flex gap-4 pt-4 w-full justify-center">
+                                <div class="flex-1 max-w-md">
+                                    <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">General Studies Class *</label>
+                                    <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-class') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Class</a></span>
 
-                                <select id="class" name="class" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                    <option value="">Select class</option>
-                                    <?php foreach ($classes as $class): ?>
-                                        <option value="<?= $class['class_id']  . '|' . $class['arm_id'] ?>"><?= $class['class_name'] . $class['arm_name'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <span class="text-red-500 text-sm hidden" id="classError"></span>
+                                    <select id="class" name="class" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select class</option>
+                                        <?php foreach ($classes as $class): ?>
+                                            <option value="<?= $class['class_id']  . '|' . $class['arm_id'] ?>"><?= $class['class_name'] . $class['arm_name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <span class="text-red-500 text-sm hidden" id="classError"></span>
+                                </div>
+
+                                <div class="flex-1 max-w-md">
+                                    <label for="islamiyyaClass" class="block text-sm font-semibold text-gray-700 mb-2">Islamiyya Class *</label>
+                                    <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-islamiyya-class') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Islamiyya Class</a></span>
+
+                                    <select id="islamiyyaClass" name="islamiyyaClass" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select class</option>
+                                        <?php foreach ($islamiyya_classes as $class): ?>
+                                            <option value="<?= $class['class_id']  . '|' . $class['arm_id'] ?>"><?= $class['class_name'] . ' ' . $class['arm_name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <span class="text-red-500 text-sm hidden" id="islamiyyaClassError"></span>
+                                </div>
                             </div>
+
 
                             <!-- Term & Session -->
                             <div class="flex gap-4 pt-4 w-full justify-center">
@@ -611,6 +692,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const phone = document.getElementById('phone').value.trim();
             const admissionNumber = document.getElementById('admissionNumber').value.trim();
             const studentClass = document.getElementById('class').value;
+            const islamiyyaClass = document.getElementById('islamiyyaClass').value;
             const studentTerm = document.getElementById('term').value;
             const studentSession = document.getElementById('session').value;
             const dob = document.getElementById('dob').value;
@@ -671,11 +753,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
-
+            islamiyyaClass
 
             if (!studentClass) {
                 document.getElementById('classError').textContent = 'Please select a class';
                 document.getElementById('classError').classList.remove('hidden');
+                isValid = false;
+            }
+            if (!islamiyyaClass) {
+                document.getElementById('islamiyyaClassError').textContent = 'Please select a islamiyya class';
+                document.getElementById('islamiyyaClassError').classList.remove('hidden');
                 isValid = false;
             }
 

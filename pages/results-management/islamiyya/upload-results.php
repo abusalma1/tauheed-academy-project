@@ -1,16 +1,9 @@
 <?php
 $title = "Islamiyya Upload Results";
-include(__DIR__ . '/../../../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
-// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
-    header("Location: " . route('home'));
-    exit();
-}
-
-if (!isset($user_type) || $user_type !== 'admin') {
-    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
@@ -29,103 +22,51 @@ $sessions  = selectAllData('sessions');   // shared
 $students = [];
 
 if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_id'])) {
-    // Get current ongoing term
-    $stmt = $pdo->prepare("
-            SELECT t.id, t.name, s.id as session_id, s.name as session_name
-            FROM terms t 
-            LEFT JOIN sessions s ON t.session_id = s.id 
-            WHERE t.status = ?
-        ");
-    $stmt->execute(['ongoing']);
-    $currentTerm = $stmt->fetch(PDO::FETCH_ASSOC);
-
     $class_id   = (int) $_GET['class_id'];
     $arm_id     = (int) $_GET['arm_id'];
     $term_id    = (int) $_GET['term_id'];
     $subject_id = (int) $_GET['subject_id'];
 
-    // Get session_id of selected term
-    $stmt = $pdo->prepare("
-            SELECT t.id, t.name, s.id as session_id, s.name as session_name
-            FROM terms t 
-            LEFT JOIN sessions s ON t.session_id = s.id 
-            WHERE t.id = ?
-        ");
-    $stmt->execute([$term_id]);
-    $SelectedTerm = $stmt->fetch(PDO::FETCH_ASSOC);
-    $session_id   = $SelectedTerm['session_id'];
-
     // Get arm name
     $stmt = $pdo->prepare("SELECT name FROM islamiyya_class_arms WHERE id = ?");
     $stmt->execute([$arm_id]);
     $arm = $stmt->fetch(PDO::FETCH_ASSOC);
+
     if ($arm) {
         $armName = $arm['name'];
     }
 
-    // CASE 1: current term → use students table
-    if ($currentTerm && $term_id == $currentTerm['id']) {
-
-        $stmt = $pdo->prepare("
-            SELECT 
-                st.id AS id,
-                st.name,
-                st.admission_number,
-                st.islamiyya_arm_id as arm_id,
-                r.ca,
-                r.exam,
-                r.grade,
-                r.total,
-                r.remark
-            FROM students st
-            LEFT JOIN islamiyya_student_class_records scr 
-                ON scr.student_id = st.id 
-                AND scr.class_id = ? 
-                AND scr.arm_id = ?
-            LEFT JOIN islamiyya_student_term_records str 
-                ON str.student_class_record_id = scr.id 
-                AND str.term_id = ?
-            LEFT JOIN islamiyya_results r 
-                ON r.student_term_record_id = str.id 
-                AND r.subject_id = ?
-            WHERE st.islamiyya_class_id = ? 
-            AND st.islamiyya_arm_id = ?
-            ORDER BY st.admission_number
-        ");
-        $stmt->execute([$class_id, $arm_id, $term_id, $subject_id, $class_id, $arm_id]);
-        $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    // CASE 2: past term → use historical records
-    else {
-        $stmt = $pdo->prepare("
-    SELECT 
-        st.id AS id,
-        st.name,
-        st.admission_number,
-        scr.arm_id,
-        r.ca,
-        r.exam,
-        r.grade,
-        r.total,
-        r.remark
-    FROM islamiyya_student_class_records scr
-    INNER JOIN students st 
-        ON st.id = scr.student_id
-    LEFT JOIN islamiyya_student_term_records str 
-        ON str.student_class_record_id = scr.id 
-        AND str.term_id = ?
-    LEFT JOIN islamiyya_results r 
-        ON r.student_term_record_id = str.id 
-        AND r.subject_id = ?
-    WHERE scr.class_id = ? 
-      AND scr.arm_id = ?
-      AND scr.session_id = ? 
-    ORDER BY st.admission_number
-");
-        $stmt->execute([$term_id, $subject_id, $class_id, $arm_id, $session_id]);
-        $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    // Students + Results (Islamiyya track)
+    $stmt = $pdo->prepare("
+        SELECT 
+            st.id AS id,
+            st.name,
+            st.admission_number,
+            st.islamiyya_arm_id as arm_id,
+            r.ca,
+            r.exam,
+            r.grade,
+            r.total,
+            r.remark
+        FROM students st
+        LEFT JOIN islamiyya_student_class_records scr
+            ON scr.student_id = st.id 
+            AND scr.class_id = ? 
+            AND scr.arm_id = ?
+        LEFT JOIN islamiyya_student_term_records str
+            ON str.student_class_record_id = scr.id
+            AND str.term_id = ?
+        LEFT JOIN islamiyya_results r
+            ON r.student_term_record_id = str.id
+            AND r.subject_id = ?
+        WHERE st.islamiyya_class_id = ? 
+          AND st.islamiyya_arm_id = ?
+        ORDER BY st.admission_number
+    ");
+    $stmt->execute([$class_id, $arm_id, $term_id, $subject_id, $class_id, $arm_id]);
+    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF validation
@@ -170,9 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
             $remark = $remark_map[$grade];
 
-            // STEP 1: islamiyya_student_class_records
+            // STEP 1: islamiyya_student_class_record
             $stmt = $pdo->prepare("
-                SELECT id FROM islamiyya_student_class_records
+                SELECT id FROM islamiyya_student_class_records 
                 WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?
                 LIMIT 1
             ");
@@ -185,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("
                     INSERT INTO islamiyya_student_class_records (student_id, class_id, arm_id, session_id)
                     VALUES (?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE
+                    ON DUPLICATE KEY UPDATE 
                         class_id = VALUES(class_id),
                         arm_id = VALUES(arm_id),
                         updated_at = CURRENT_TIMESTAMP
@@ -194,9 +135,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $student_class_record_id = $pdo->lastInsertId();
             }
 
-            // STEP 2: islamiyya_student_term_records
+            // STEP 2: islamiyya_student_term_record
             $stmt = $pdo->prepare("
-                SELECT id FROM islamiyya_student_term_records
+                SELECT id FROM islamiyya_student_term_records 
                 WHERE student_class_record_id = ? AND term_id = ?
                 LIMIT 1
             ");
@@ -216,29 +157,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // STEP 3: islamiyya_results
             $stmt = $pdo->prepare("
-                INSERT INTO islamiyya_results (student_term_record_id, subject_id, ca, exam, grade, remark, total)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO islamiyya_results (student_term_record_id, subject_id, ca, exam, grade, remark)
+                VALUES (?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                     ca = VALUES(ca),
                     exam = VALUES(exam),
                     grade = VALUES(grade),
-                    remark = VALUES(remark),
-                    total = VALUES(total)
+                    remark = VALUES(remark)
             ");
-            $stmt->execute([$student_term_record_id, $subject_id, $ca, $exam, $grade, $remark, $total]);
+            $stmt->execute([$student_term_record_id, $subject_id, $ca, $exam, $grade, $remark]);
         }
 
         // ===========================================
-        // CALCULATE TERM TOTALS, AVERAGES, AND POSITIONS
+        // CALCULATE TERM TOTALS, AVERAGES, AND POSITIONS (ISLAMIYYA)
         // ===========================================
 
         // 1. Get all students in this class for this term
         $stmt = $pdo->prepare("
-            SELECT str.id AS student_term_record_id
-            FROM islamiyya_student_term_records str
-            JOIN islamiyya_student_class_records scr ON str.student_class_record_id = scr.id
-            WHERE str.term_id = ? AND scr.class_id = ?
-        ");
+        SELECT str.id AS student_term_record_id
+        FROM islamiyya_student_term_records str
+        JOIN islamiyya_student_class_records scr 
+            ON str.student_class_record_id = scr.id
+        WHERE str.term_id = ? AND scr.class_id = ?
+    ");
         $stmt->execute([$term_id, $class_id]);
         $student_term_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -247,10 +188,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $student_term_id = $str['student_term_record_id'];
 
             $stmt = $pdo->prepare("
-                SELECT SUM(total) AS total_marks, AVG(total) AS average_marks
-                FROM islamiyya_results
-                WHERE student_term_record_id = ?
-            ");
+            SELECT SUM(total) AS total_marks, AVG(total) AS average_marks
+            FROM islamiyya_results
+            WHERE student_term_record_id = ?
+        ");
             $stmt->execute([$student_term_id]);
             $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -265,21 +206,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             else $overall_grade = 'E';
 
             $stmt = $pdo->prepare("
-                UPDATE islamiyya_student_term_records
-                SET total_marks = ?, average_marks = ?, overall_grade = ?
-                WHERE id = ?
-            ");
+            UPDATE islamiyya_student_term_records
+            SET total_marks = ?, average_marks = ?, overall_grade = ?
+            WHERE id = ?
+        ");
             $stmt->execute([$total_marks, $average_marks, $overall_grade, $student_term_id]);
         }
 
         // 3. Update positions in class-arm
         $stmt = $pdo->prepare("
-            SELECT str.id, str.total_marks
-            FROM islamiyya_student_term_records str
-            JOIN islamiyya_student_class_records scr ON str.student_class_record_id = scr.id
-            WHERE str.term_id = ? AND scr.class_id = ? AND scr.arm_id = ?
-            ORDER BY str.total_marks DESC
-        ");
+        SELECT str.id, str.total_marks
+        FROM islamiyya_student_term_records str
+        JOIN islamiyya_student_class_records scr 
+            ON str.student_class_record_id = scr.id
+        WHERE str.term_id = ? AND scr.class_id = ? AND scr.arm_id = ?
+        ORDER BY str.total_marks DESC
+    ");
         $stmt->execute([$term_id, $class_id, $arm_id]);
         $students_ordered = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -301,28 +243,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $previous_total = $total;
 
             $stmt = $pdo->prepare("
-                UPDATE islamiyya_student_term_records
-                SET position_in_class = ?, class_size = ?
-                WHERE id = ?
-            ");
+            UPDATE islamiyya_student_term_records
+            SET position_in_class = ?, class_size = ?
+            WHERE id = ?
+        ");
             $stmt->execute([$position, $class_size, $student_term_id]);
         }
 
         // 4. Update session-level totals and averages
         $stmt = $pdo->prepare("
-            SELECT scr.id AS student_class_record_id,
-                SUM(str.total_marks) AS session_total,
-                AVG(str.average_marks) AS session_average
-            FROM islamiyya_student_class_records scr
-            JOIN islamiyya_student_term_records str ON str.student_class_record_id = scr.id
-            WHERE scr.session_id = ? AND scr.class_id = ? AND scr.arm_id = ?
-            GROUP BY scr.id
-        ");
+        SELECT scr.id AS student_class_record_id,
+               SUM(str.total_marks) AS session_total,
+               AVG(str.average_marks) AS session_average
+        FROM islamiyya_student_class_records scr
+        JOIN islamiyya_student_term_records str 
+            ON str.student_class_record_id = scr.id
+        WHERE scr.session_id = ? AND scr.class_id = ? AND scr.arm_id = ?
+        GROUP BY scr.id
+    ");
         $stmt->execute([$session_id, $class_id, $arm_id]);
         $session_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($session_records as $record) {
-            $scr_id          = $record['student_class_record_id'];
+            $scr_id = $record['student_class_record_id'];
             $session_total   = (float) ($record['session_total'] ?? 0);
             $session_average = (float) ($record['session_average'] ?? 0);
 
@@ -334,20 +277,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             else $overall_grade = 'E';
 
             $stmtUpdate = $pdo->prepare("
-                UPDATE islamiyya_student_class_records
-                SET overall_total = ?, overall_average = ?, promotion_status = ?
-                WHERE id = ?
-            ");
+            UPDATE islamiyya_student_class_records
+            SET overall_total = ?, overall_average = ?, promotion_status = ?
+            WHERE id = ?
+        ");
             $stmtUpdate->execute([$session_total, $session_average, 'pending', $scr_id]);
         }
 
         // 5. Update session positions
         $stmt = $pdo->prepare("
-                SELECT id, overall_total
-                FROM islamiyya_student_class_records
-                WHERE session_id = ? AND class_id = ? AND arm_id = ?
-                ORDER BY overall_total DESC
-            ");
+        SELECT id, overall_total
+        FROM islamiyya_student_class_records
+        WHERE session_id = ? AND class_id = ? AND arm_id = ?
+        ORDER BY overall_total DESC
+    ");
         $stmt->execute([$session_id, $class_id, $arm_id]);
         $students_ordered = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -358,7 +301,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         foreach ($students_ordered as $student) {
             $scr_id = $student['id'];
-            $total  = (float) $student['overall_total'];
+            $total = (float) $student['overall_total'];
 
             if ($previous_total !== null && $total == $previous_total) {
                 $same_rank_count++;
@@ -369,10 +312,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $previous_total = $total;
 
             $stmt = $pdo->prepare("
-                UPDATE islamiyya_student_class_records
-                SET overall_position = ?
-                WHERE id = ?
-            ");
+            UPDATE islamiyya_student_class_records
+            SET overall_position = ?
+            WHERE id = ?
+        ");
             $stmt->execute([$position, $scr_id]);
         }
 
@@ -388,20 +331,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<p class='text-red-500'>Database error: " . htmlspecialchars($e->getMessage()) . "</p>";
     }
 }
-
 ?>
 
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/admins-section-nav.php'); ?>
-
+    <?php include(__DIR__ . '/../../../includes/nav.php');  ?>
 
     <!-- Page Header -->
     <section class="bg-gradient-to-r from-blue-900 to-blue-700  text-white py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Upload Islamiyya Class Results</h1>
-            <p class="text-xl text-blue-200">Enter Results for Entire islamiyya Class</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Upload Class Results</h1>
+            <p class="text-xl text-blue-200">Enter Results for Entire Class</p>
         </div>
     </section>
 
@@ -536,13 +477,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Action Buttons -->
                 <div class="flex justify-center mt-8">
-                    <div class="grid md:grid-cols-3 gap-4">
+                    <div class="grid md:grid-cols-2 gap-4">
                         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
                             <i class="fas fa-save"></i> Save All Results
                         </button>
-                        <button type="button" onclick="window.history.back()" class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
-                            <i class="fas fa-arrow-left"></i> Back
-                        </button>
+
                         <button onclick="printTable()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
                             <i class="fas fa-print"></i>Print
                         </button>
@@ -555,7 +494,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <script>
         // Filter terms based on selected session

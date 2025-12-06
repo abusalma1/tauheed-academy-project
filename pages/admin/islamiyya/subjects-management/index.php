@@ -1,5 +1,5 @@
 <?php
-$title = "Subjects Management";
+$title = "Islamiyya Subjects Management";
 include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -10,22 +10,26 @@ if (!$is_logged_in) {
 
 $stmt = $pdo->prepare("
     SELECT 
-        classes.id AS class_id,
-        classes.name AS class_name,
-        subjects.id AS subject_id,
-        subjects.name AS subject_name,
+        islamiyya_classes.id AS class_id,
+        islamiyya_classes.name AS class_name,
+        islamiyya_subjects.id AS subject_id,
+        islamiyya_subjects.name AS subject_name,
         teachers.id AS teacher_id,
         teachers.name AS teacher_name,
-        sections.name AS section_name,
-        class_subjects.id AS class_subject_id 
-    FROM classes
-    LEFT JOIN class_subjects ON classes.id = class_subjects.class_id
-    LEFT JOIN subjects ON class_subjects.subject_id = subjects.id
-    LEFT JOIN teachers ON class_subjects.teacher_id = teachers.id
-    LEFT JOIN sections ON classes.section_id = sections.id
-    WHERE classes.deleted_at IS NULL
-      AND subjects.deleted_at IS NULL
-    ORDER BY classes.level, subjects.name
+        islamiyya_sections.name AS section_name,
+        islamiyya_class_subjects.id AS class_subject_id 
+    FROM islamiyya_classes
+    LEFT JOIN islamiyya_class_subjects 
+           ON islamiyya_classes.id = islamiyya_class_subjects.class_id
+    LEFT JOIN islamiyya_subjects 
+           ON islamiyya_class_subjects.subject_id = islamiyya_subjects.id
+    LEFT JOIN teachers 
+           ON islamiyya_class_subjects.teacher_id = teachers.id
+    LEFT JOIN islamiyya_sections 
+           ON islamiyya_classes.section_id = islamiyya_sections.id
+    WHERE islamiyya_classes.deleted_at IS NULL
+      AND islamiyya_subjects.deleted_at IS NULL
+    ORDER BY islamiyya_classes.level, islamiyya_subjects.name
 ");
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -37,10 +41,10 @@ foreach ($rows as $row) {
 
     if (!isset($classes[$classId])) {
         $classes[$classId] = [
-            'id'          => $row['class_id'],
-            'name'        => $row['class_name'],
+            'id'           => $row['class_id'],
+            'name'         => $row['class_name'],
             'section_name' => $row['section_name'],
-            'subjects'    => []
+            'subjects'     => []
         ];
     }
 
@@ -58,17 +62,17 @@ foreach ($rows as $row) {
 $classes = array_values($classes);
 
 // Fetch classes for filter (assuming selectAllData is already PDO-based)
-$classesForFilter = selectAllData('classes');
+$classesForFilter = selectAllData('islamiyya_classes');
 
 // Handle filters/search
 $selectedClass = isset($_GET['class']) ? intval($_GET['class']) : null;
 $searchTerm    = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
 
 // Calculate statistics (assuming countDataTotal is already PDO-based)
-$totalSubjects = countDataTotal('subjects')['total'];
-$totalStudents = countDataTotal('students')['total'];
-$totalSections = countDataTotal('sections')['total'];
-$totalClasses  = countDataTotal('classes')['total'];
+$totalSubjects = countDataTotal('islamiyya_subjects')['total'];
+$totalStudents = countDataTotal('students')['total']; // shared
+$totalSections = countDataTotal('islamiyya_sections')['total'];
+$totalClasses  = countDataTotal('islamiyya_classes')['total'];
 
 $totalCapacity = 0;
 ?>
@@ -82,8 +86,8 @@ $totalCapacity = 0;
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Subjects By Classes Management</h1>
-            <p class="text-xl text-purple-200">Create and manage Subjects</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Islamiyya Subjects By Classes Management</h1>
+            <p class="text-xl text-purple-200">Create and manage Islamiyya Subjects</p>
         </div>
     </section>
 

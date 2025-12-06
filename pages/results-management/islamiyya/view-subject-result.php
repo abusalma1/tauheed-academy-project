@@ -1,6 +1,6 @@
 <?php
 $title = "Islamiyya Subject Results/Class";
-include(__DIR__ . '/../../../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-if (isset($_GET['class_id'], $_GET['session_id'], $_GET['term_id'], $_GET['subject_id'], $_GET['arm_id'])) {
+if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_id']) && isset($_GET['arm_id']) && isset($_GET['session_id'])) {
     $class_id   = (int) $_GET['class_id'];
     $session_id = (int) $_GET['session_id'];
     $term_id    = (int) $_GET['term_id'];
@@ -20,12 +20,12 @@ if (isset($_GET['class_id'], $_GET['session_id'], $_GET['term_id'], $_GET['subje
     $stmt->execute([$subject_id]);
     $subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Session (shared)
+    // Session
     $stmt = $pdo->prepare("SELECT id, name FROM sessions WHERE id = ?");
     $stmt->execute([$session_id]);
     $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Term (shared)
+    // Term
     $stmt = $pdo->prepare("SELECT id, name FROM terms WHERE id = ?");
     $stmt->execute([$term_id]);
     $term = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -40,33 +40,35 @@ if (isset($_GET['class_id'], $_GET['session_id'], $_GET['term_id'], $_GET['subje
     $stmt->execute([$arm_id]);
     $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Students + Results (anchored on Islamiyya class records, filtered by session/class/arm)
+    // Students + Results (filtered by arm, session, term, subject)
     $stmt = $pdo->prepare("
         SELECT 
             st.id AS id,
             st.name,
             st.admission_number,
-            scr.arm_id,
+            st.islamiyya_arm_id,
             r.ca,
             r.exam,
             r.total,
             r.grade,
             r.remark
-        FROM islamiyya_student_class_records scr
-        INNER JOIN students st 
-            ON st.id = scr.student_id
+        FROM students st
+        LEFT JOIN islamiyya_student_class_records scr
+            ON scr.student_id = st.id 
+            AND scr.class_id = ? 
+            AND scr.arm_id = ? 
+            AND scr.session_id = ?
         LEFT JOIN islamiyya_student_term_records str
             ON str.student_class_record_id = scr.id
             AND str.term_id = ?
         LEFT JOIN islamiyya_results r
             ON r.student_term_record_id = str.id
             AND r.subject_id = ?
-        WHERE scr.class_id = ? 
-          AND scr.arm_id = ? 
-          AND scr.session_id = ?   -- 🔑 filter by session
+        WHERE st.islamiyya_class_id = ? 
+          AND st.islamiyya_arm_id = ? 
         ORDER BY st.admission_number
     ");
-    $stmt->execute([$term_id, $subject_id, $class_id, $arm_id, $session_id]);
+    $stmt->execute([$class_id, $arm_id, $session_id, $term_id, $subject_id, $class_id, $arm_id]);
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
     header("Location: " . route('back'));
@@ -75,11 +77,9 @@ if (isset($_GET['class_id'], $_GET['session_id'], $_GET['term_id'], $_GET['subje
 ?>
 
 
-
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/admins-section-nav.php'); ?>
-
+    <?php include(__DIR__ . '/../../../includes/nav.php');  ?>
 
 
     <!-- Page Header -->
@@ -89,7 +89,7 @@ if (isset($_GET['class_id'], $_GET['session_id'], $_GET['term_id'], $_GET['subje
             <h1 class="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-3">
                 </i>View Islamiyya Class Results
             </h1>
-            <p class="text-xl text-blue-200">See student's islamiyya results per subject</p>
+            <p class="text-xl text-blue-200">See students islamiyya results per subject</p>
         </div>
     </section>
 
@@ -140,7 +140,7 @@ if (isset($_GET['class_id'], $_GET['session_id'], $_GET['term_id'], $_GET['subje
 
             <div class="flex justify-center mt-8">
                 <div class="grid md:grid-cols-2 gap-4">
-                    <a href="<?= route('admin-upload-islamiyya-results')
+                    <a href="<?= route('upload-islamiyya-results')
                                     . '?subject_id=' . $subject_id
                                     . '&term_id=' . $term_id
                                     . '&session_id=' .  $session_id
@@ -158,7 +158,7 @@ if (isset($_GET['class_id'], $_GET['session_id'], $_GET['term_id'], $_GET['subje
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
 
     <script>

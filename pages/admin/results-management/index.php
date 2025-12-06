@@ -199,23 +199,10 @@ if (isset($_POST['missing_selection'])) {
                                                 <?= $subject['name'] ?>
                                             </h3>
                                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-
-                                                <div>
-                                                    <p class="text-gray-600">Students</p>
-                                                    <p class="font-semibold text-gray-900">218</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-gray-600">Status</p>
-                                                    <span
-                                                        class="px-2 py-1 bg-green-100 text-green-900 rounded-full text-xs font-semibold">Uploaded</span>
-                                                </div>
-                                                <div>
-                                                    <p class="text-gray-600">Last Updated</p>
-                                                    <p class="font-semibold text-gray-900">Nov 10, 2025</p>
-                                                </div>
+                                        
                                             </div>
                                         </div>
-                                        <div class="flex flex-col gap-2 md:w-auto">
+                                        <div class="flex flex-row gap-2 md:w-auto">
                                             <a
                                                 href="<?= route('admin-upload-results')
                                                             . '?subject_id=' . $subject['id']

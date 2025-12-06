@@ -1,5 +1,5 @@
 <?php
-$title = "Students Update FPrm";
+$title = "Students Update Form";
 include(__DIR__ . '/../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -8,7 +8,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-//  Ensure CSRF token exists
+// Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -35,7 +35,7 @@ if (isset($_GET['id'])) {
         LEFT JOIN class_arms ON students.arm_id = class_arms.id
         LEFT JOIN terms ON terms.id = students.term_id
         LEFT JOIN sessions ON sessions.id = terms.session_id
-        WHERE students.id = ?
+        WHERE students.id = ? AND students.deleted_at IS NULL
     ");
     $stmt->execute([$id]);
     $student = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -49,18 +49,18 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-
+// Ensure session exists
 $stmt = $pdo->prepare("SELECT id FROM sessions WHERE id = ?");
 $stmt->execute([$student['session_id']]);
 $session = $stmt->fetch(PDO::FETCH_ASSOC);
-$studentSessionId = $session['id'];
+$studentSessionId = $session['id'] ?? null;
 
 $guardians = selectAllData('guardians');
 $terms     = selectAllData('terms');
 $sessions  = selectAllData('sessions');
 $students  = selectAllData('students', null, $id);
 
-// Classes
+// General Studies classes
 $stmt = $pdo->prepare("
     SELECT 
         classes.id AS class_id,
@@ -76,21 +76,52 @@ $stmt = $pdo->prepare("
     LEFT JOIN teachers ON class_class_arms.teacher_id = teachers.id
     LEFT JOIN sections ON classes.section_id = sections.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
-    WHERE classes.deleted_at IS NULL
+    WHERE classes.deleted_at IS NULL 
+      AND class_arms.deleted_at IS NULL 
+      AND sections.deleted_at IS NULL
     ORDER BY classes.level, class_arms.name
 ");
 $stmt->execute();
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Islamiyya classes
+$stmt = $pdo->prepare("
+    SELECT 
+        islamiyya_classes.id AS class_id,
+        islamiyya_classes.name AS class_name,
+        islamiyya_classes.level AS level,
+        teachers.id AS teacher_id,
+        teachers.name AS teacher_name,
+        islamiyya_sections.id AS section_id,
+        islamiyya_sections.name AS section_name,
+        islamiyya_class_arms.id AS arm_id,
+        islamiyya_class_arms.name AS arm_name
+    FROM islamiyya_classes
+    LEFT JOIN islamiyya_class_class_arms 
+           ON islamiyya_class_class_arms.class_id = islamiyya_classes.id
+    LEFT JOIN teachers 
+           ON islamiyya_class_class_arms.teacher_id = teachers.id
+    LEFT JOIN islamiyya_sections 
+           ON islamiyya_classes.section_id = islamiyya_sections.id
+    LEFT JOIN islamiyya_class_arms 
+           ON islamiyya_class_class_arms.arm_id = islamiyya_class_arms.id
+    WHERE islamiyya_classes.deleted_at IS NULL 
+      AND islamiyya_class_arms.deleted_at IS NULL 
+      AND islamiyya_sections.deleted_at IS NULL
+    ORDER BY islamiyya_classes.level, islamiyya_class_arms.name
+");
+$stmt->execute();
+$islamiyya_classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Count total students
 $studentsCount = countDataTotal('students', true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    //  CSRF validation
+    // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die("Invalid CSRF token.");
     } else {
-        //  Regenerate after successful validation
+        // Regenerate after successful validation
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
@@ -107,30 +138,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $gender          = trim($_POST['gender'] ?? '');
     $guardian        = trim($_POST['guardian'] ?? '');
     $status          = trim($_POST['status'] ?? 'inactive');
+    $islamiyyaClass  = trim($_POST['islamiyyaClass'] ?? '');
 
     $errors = [];
 
-    // Validations
+    // --- VALIDATION RULES ---
     if (empty($name)) $errors['name'] = "Full name is required.";
     if (empty($admissionNumber)) $errors['admissionNumber'] = "Admission number is required.";
-    if (empty($class)) {
-        $errors['class'] = "Please select a class.";
-    } else {
+
+    // General Studies class
+    if (!empty($class)) {
         list($class_id, $arm_id) = explode('|', $class);
+    } else {
+        $class_id = null;
+        $arm_id   = null;
     }
+
+    // Islamiyya class
+    if (!empty($islamiyyaClass)) {
+        list($islamiyya_class_id, $islamiyya_arm_id) = explode('|', $islamiyyaClass);
+    } else {
+        $islamiyya_class_id = null;
+        $islamiyya_arm_id   = null;
+    }
+
+    // Require at least one track
+    if (empty($class) && empty($islamiyyaClass)) {
+        $errors['class'] = "Please select either a General Studies class or an Islamiyya class.";
+    }
+
     if (empty($term)) $errors['term'] = "Please select a term.";
     if (empty($session)) $errors['session'] = "Please select a session.";
     if (empty($dob)) $errors['dob'] = "Date of birth is required.";
     if (empty($gender)) $errors['gender'] = "Gender is required.";
     if (empty($guardian)) $errors['guardian'] = "Guardian is required.";
-    if (!empty($phone) && !preg_match('/^[0-9+\s-]{7,15}$/', $phone)) $errors['phone'] = "Invalid phone number format.";
 
-    // Admission number uniqueness
-    $stmt = $pdo->prepare("SELECT id FROM students WHERE admission_number = ? AND id != ?");
+    if (!empty($phone) && !preg_match('/^[0-9+\s-]{7,15}$/', $phone)) {
+        $errors['phone'] = "Invalid phone number format.";
+    }
+
+    // Admission number uniqueness (exclude current student)
+    $stmt = $pdo->prepare("SELECT id FROM students WHERE admission_number = ? AND id != ? AND deleted_at IS NULL");
     $stmt->execute([$admissionNumber, $id]);
-    if ($stmt->fetch()) $errors['admissionNumber'] = "Admission number already exists.";
+    if ($stmt->fetch()) {
+        $errors['admissionNumber'] = "Admission number already exists.";
+    }
 
-    // Email uniqueness
+    // Email uniqueness (exclude current student)
     if (!empty($email)) {
         if (!validateEmail($email)) {
             $errors['emailError'] = 'Please enter a valid email address';
@@ -139,16 +193,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+
     // --- FINAL DECISION ---
     if (empty($errors)) {
         try {
-            //  Start transaction
+            // Start transaction
             $pdo->beginTransaction();
 
-            // Update student
+            // Update student with both tracks
             $stmt = $pdo->prepare("UPDATE students SET
-                name = ?, email = ?, phone = ?, admission_number = ?, dob = ?, gender = ?, status = ?, 
-                class_id = ?, arm_id = ?, term_id = ?, guardian_id = ? WHERE id = ?");
+            name = ?, email = ?, phone = ?, admission_number = ?, dob = ?, gender = ?, status = ?, 
+            class_id = ?, arm_id = ?, term_id = ?, guardian_id = ?, 
+            islamiyya_class_id = ?, islamiyya_arm_id = ?
+            WHERE id = ?");
             $stmt->execute([
                 $name,
                 $email,
@@ -161,50 +218,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $arm_id,
                 $term,
                 $guardian,
+                $islamiyya_class_id,
+                $islamiyya_arm_id,
                 $id
             ]);
 
             $term_id    = (int)$term;
             $session_id = (int)$session;
 
-            // --- Student Class Record ---
-            $stmt = $pdo->prepare("SELECT * FROM student_class_records 
-                WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?");
-            $stmt->execute([$student['id'], $student['class_id'], $student['arm_id'], $student['session_id']]);
-            $student_class_record = $stmt->fetch(PDO::FETCH_ASSOC);
+            // --- General Student Class Record ---
+            if (!empty($class_id) && !empty($arm_id)) {
+                $stmt = $pdo->prepare("SELECT * FROM student_class_records  WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?");
+                $stmt->execute([$student['id'], $student['class_id'], $student['arm_id'], $student['session_id']]);
+                $student_class_record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($student_class_record) {
-                $student_class_record_id = $student_class_record['id'];
-                $stmt = $pdo->prepare("UPDATE student_class_records 
+                if ($student_class_record) {
+                    $student_class_record_id = $student_class_record['id'];
+                    $stmt = $pdo->prepare("UPDATE student_class_records 
                     SET class_id = ?, arm_id = ?, session_id = ? WHERE id = ?");
-                $stmt->execute([$class_id, $arm_id, $session_id, $student_class_record_id]);
-            } else {
-                $stmt = $pdo->prepare("INSERT INTO student_class_records (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$student['id'], $class_id, $arm_id, $session_id]);
-                $student_class_record_id = $pdo->lastInsertId();
+                    $stmt->execute([$class_id, $arm_id, $session_id, $student_class_record_id]);
+                } else {
+                    $stmt = $pdo->prepare("INSERT INTO student_class_records (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
+                    $stmt->execute([$id, $class_id, $arm_id, $session_id]);
+                    $student_class_record_id = $pdo->lastInsertId();
+                }
+
+                // --- Student Term Record ---
+                $stmt = $pdo->prepare("SELECT * FROM student_term_records WHERE student_class_record_id = ? AND term_id = ?");
+                $stmt->execute([$student_class_record_id, $term_id]);
+                $student_term_record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($student_term_record) {
+                    $stmt = $pdo->prepare("UPDATE student_term_records SET student_class_record_id = ?, term_id = ? WHERE id = ?");
+                    $stmt->execute([$student_class_record_id, $term_id, $student_term_record['id']]);
+                } else {
+                    $stmt = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
+                    $stmt->execute([$student_class_record_id, $term_id]);
+                }
             }
 
-            // --- Student Term Record ---
-            $stmt = $pdo->prepare("SELECT * FROM student_term_records WHERE student_class_record_id = ? AND term_id = ?");
-            $stmt->execute([$student_class_record_id, $student['term_id']]);
-            $student_term_record = $stmt->fetch(PDO::FETCH_ASSOC);
+            // --- Islamiyya Student Class Record ---
+            if (!empty($islamiyya_class_id) && !empty($islamiyya_arm_id)) {
+                $stmt = $pdo->prepare("SELECT * FROM islamiyya_student_class_records WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?");
+                $stmt->execute([$student['id'], $student['islamiyya_class_id'], $student['islamiyya_arm_id'], $student['session_id']]);
+                $islamiyya_class_record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($student_term_record) {
-                $stmt = $pdo->prepare("UPDATE student_term_records SET student_class_record_id = ?, term_id = ? WHERE id = ?");
-                $stmt->execute([$student_class_record_id, $term, $student_term_record['id']]);
-            } else {
-                $stmt = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
-                $stmt->execute([$student_class_record_id, $term]);
+                if ($islamiyya_class_record) {
+                    $islamiyya_class_record_id = $islamiyya_class_record['id'];
+                    $stmt = $pdo->prepare("UPDATE islamiyya_student_class_records 
+                    SET class_id = ?, arm_id = ?, session_id = ? WHERE id = ?");
+                    $stmt->execute([$islamiyya_class_id, $islamiyya_arm_id, $session_id, $islamiyya_class_record_id]);
+                } else {
+                    $stmt = $pdo->prepare("INSERT INTO islamiyya_student_class_records (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
+                    $stmt->execute([$id, $islamiyya_class_id, $islamiyya_arm_id, $session_id]);
+                    $islamiyya_class_record_id = $pdo->lastInsertId();
+                }
+
+                // --- Islamiyya Student Term Record ---
+                $stmt = $pdo->prepare("SELECT * FROM islamiyya_student_term_records WHERE student_class_record_id = ? AND term_id = ?");
+                $stmt->execute([$islamiyya_class_record_id, $term_id]);
+                $islamiyya_term_record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($islamiyya_term_record) {
+                    $stmt = $pdo->prepare("UPDATE islamiyya_student_term_records SET student_class_record_id = ?, term_id = ? WHERE id = ?");
+                    $stmt->execute([$islamiyya_class_record_id, $term_id, $islamiyya_term_record['id']]);
+                } else {
+                    $stmt = $pdo->prepare("INSERT INTO islamiyya_student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
+                    $stmt->execute([$islamiyya_class_record_id, $term_id]);
+                }
             }
 
-            //  Commit transaction
+            // Commit transaction
             $pdo->commit();
 
             $_SESSION['success'] = "Student account updated successfully!";
             header("Location: " . route('back'));
             exit();
         } catch (PDOException $e) {
-            //  Rollback on error
+            // Rollback on error
             $pdo->rollBack();
             echo "<p class='text-red-500'>Error updating record: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
@@ -282,50 +373,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="text-red-500 text-sm hidden" id="admissionNumberError"></span>
                             </div>
 
-                            <!-- Class -->
-                            <div>
-                                <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">Class *</label>
-                                <select id="class" name="class" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                    <option value="">Select class</option>
-                                    <?php foreach ($classes as $classItem): ?>
-                                        <option value="<?= $classItem['class_id'] . '|' . $classItem['arm_id'] ?>"
-                                            <?= ($student && $classItem['class_id'] == $student['class_id'] && $classItem['arm_id'] == $student['arm_id']) ? 'selected' : '' ?>>
-                                            <?= $classItem['class_name'] . ' ' . $classItem['arm_name'] ?>
-                                        </option>
-                                    <?php endforeach; ?>
+                            <div class="flex gap-4 pt-4 w-full justify-center">
+                                <!-- Class -->
+                                <div class="flex-1 max-w-md">
+                                    <label for="class" class="block text-sm font-semibold text-gray-700 mb-2">Gen. Stud. Class *</label>
+                                    <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-class') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Class</a></span>
+                                    <select id="class" name="class" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select class</option>
+                                        <?php foreach ($classes as $classItem): ?>
+                                            <option value="<?= $classItem['class_id'] . '|' . $classItem['arm_id'] ?>"
+                                                <?= ($student && $classItem['class_id'] == $student['class_id'] && $classItem['arm_id'] == $student['arm_id']) ? 'selected' : '' ?>>
+                                                <?= $classItem['class_name'] . ' ' . $classItem['arm_name'] ?>
+                                            </option>
+                                        <?php endforeach; ?>
 
-                                </select>
-                                <span class="text-red-500 text-sm hidden" id="classError"></span>
+                                    </select>
+                                    <span class="text-red-500 text-sm hidden" id="classError"></span>
+                                </div>
+
+
+                                <div class="flex-1 max-w-md">
+                                    <label for="islamiyyaClass" class="block text-sm font-semibold text-gray-700 mb-2">Islamiyya Class *</label>
+                                    <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-islamiyya-class') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Islamiyya Class</a></span>
+
+                                    <select id="islamiyyaClass" name="islamiyyaClass" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select class</option>
+                                        <?php foreach ($islamiyya_classes as $classItem): ?>
+                                            <option value="<?= $classItem['class_id'] . '|' . $classItem['arm_id'] ?>"
+                                                <?= ($student && $classItem['class_id'] == $student['islamiyya_class_id'] && $classItem['arm_id'] == $student['islamiyya_arm_id']) ? 'selected' : '' ?>>
+                                                <?= $classItem['class_name'] . ' ' . $classItem['arm_name'] ?>
+                                            </option>
+                                        <?php endforeach; ?>
+
+                                    </select>
+                                    <span class="text-red-500 text-sm hidden" id="islamiyyaClassError"></span>
+                                </div>
                             </div>
+
 
                             <!-- Term & Session -->
                             <div class="flex gap-4 pt-4 w-full justify-center">
                                 <!-- session -->
-                                <select id="session" name="session" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                    <option value="">Select session</option>
-                                    <?php foreach ($sessions as $session): ?>
-                                        <option value="<?= $session['id'] ?>"
-                                            <?= ($studentSessionId && $session['id'] == $studentSessionId) ? 'selected' : '' ?>>
-                                            <?= $session['name'] ?> <?= $current_term['session_id'] === $session['id'] ? "(Current)" : '' ?></option>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <div class="flex-1 max-w-md">
 
+                                    <label for="session" class="block text-sm font-semibold text-gray-700 mb-2">Session *</label>
+                                    <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('create-session') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Session</a></span>
 
-                                <!-- term -->
-                                <select id="term" name="term" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                    <option value="">Select term</option>
-                                    <?php foreach ($terms as $term): ?>
-                                        <option value="<?= $term['id'] ?>"
-                                            data-session="<?= $term['session_id'] ?>"
-                                            <?= ($student && $term['id'] == $student['term_id']) ? 'selected' : '' ?>>
-                                            <?= $term['name'] ?>
-                                            <?= $current_term['id'] === $term['id'] ? "(Current)" : '' ?>
+                                    <select id="session" name="session" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select session</option>
+                                        <?php foreach ($sessions as $session): ?>
+                                            <option value="<?= $session['id'] ?>"
+                                                <?= ($studentSessionId && $session['id'] == $studentSessionId) ? 'selected' : '' ?>>
+                                                <?= $session['name'] ?> <?= $current_term['session_id'] === $session['id'] ? "(Current)" : '' ?></option>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="flex-1 max-w-md">
 
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                    <!-- term -->
+                                    <label for="term" class="block text-sm font-semibold text-gray-700 mb-2">Term *</label>
+                                    <span class="text-gray-500 text-sm">Click Here to <a href="<?= route('term-session-management') ?>" class="text-blue-700 font-bold underline cursor-pointer">Create Term</a></span>
+                                    <select id="term" name="term" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select term</option>
+                                        <?php foreach ($terms as $term): ?>
+                                            <option value="<?= $term['id'] ?>"
+                                                data-session="<?= $term['session_id'] ?>"
+                                                <?= ($student && $term['id'] == $student['term_id']) ? 'selected' : '' ?>>
+                                                <?= $term['name'] ?>
+                                                <?= $current_term['id'] === $term['id'] ? "(Current)" : '' ?>
 
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             </div>
 
 
@@ -493,6 +614,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const phone = document.getElementById('phone').value.trim();
             const admissionNumber = document.getElementById('admissionNumber').value.trim();
             const studentClass = document.getElementById('class').value;
+            const islamiyyaClass = document.getElementById('islamiyyaClass').value;
             const studentTerm = document.getElementById('term').value;
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
@@ -554,6 +676,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!studentClass) {
                 document.getElementById('classError').textContent = 'Please select a class';
                 document.getElementById('classError').classList.remove('hidden');
+                isValid = false;
+            }
+            if (!islamiyyaClass) {
+                document.getElementById('islamiyyaClassError').textContent = 'Please select a islamiyya class';
+                document.getElementById('islamiyyaClassError').classList.remove('hidden');
                 isValid = false;
             }
 

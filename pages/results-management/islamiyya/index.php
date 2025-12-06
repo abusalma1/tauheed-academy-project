@@ -1,56 +1,56 @@
 <?php
 $title = "Islamiyya Manage Subject";
-include(__DIR__ . '/../../../../includes/header.php');
+include(__DIR__ . '/../../../includes/header.php');
 
-// Access control: only logged-in admins allowed
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
-if (!isset($user_type) || $user_type !== 'admin') {
-    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+if ($user_type !== 'teacher') {
+    $_SESSION['failure'] = "Only Teachers can access!";
     header("Location: " . route('home'));
     exit();
 }
 
 // Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
-SELECT 
-    c.id AS class_id,
-    c.name AS class_name,
-    ca.id AS arm_id,
-    ca.name AS arm_name,
-    subj.id AS subject_id,
-    subj.name AS subject_name,
-    t.id AS teacher_id,
-    t.name AS teacher_name,
-    sec.name AS section_name,
-    cs.id AS class_subject_id
-FROM islamiyya_classes c
-JOIN islamiyya_sections sec 
-      ON c.section_id = sec.id 
-     AND sec.deleted_at IS NULL
-LEFT JOIN islamiyya_class_class_arms cca 
-      ON cca.class_id = c.id 
-     AND cca.deleted_at IS NULL
-LEFT JOIN islamiyya_class_arms ca 
-      ON ca.id = cca.arm_id 
-     AND ca.deleted_at IS NULL
-LEFT JOIN islamiyya_class_subjects cs 
-      ON cs.class_id = c.id 
-     AND cs.deleted_at IS NULL
-LEFT JOIN islamiyya_subjects subj 
-      ON cs.subject_id = subj.id 
-     AND subj.deleted_at IS NULL
-LEFT JOIN teachers t 
-      ON cs.teacher_id = t.id 
-     AND t.deleted_at IS NULL
-WHERE c.deleted_at IS NULL
-ORDER BY c.level, ca.name, subj.name
+    SELECT 
+        c.id AS class_id,
+        c.name AS class_name,
+        ca.id AS arm_id,
+        ca.name AS arm_name,
+        subj.id AS subject_id,
+        subj.name AS subject_name,
+        t.id AS teacher_id,
+        t.name AS teacher_name,
+        sec.name AS section_name,
+        cs.id AS class_subject_id
+    FROM islamiyya_classes c
+    JOIN islamiyya_sections sec 
+        ON c.section_id = sec.id
+        AND sec.deleted_at IS NULL
+    LEFT JOIN islamiyya_class_class_arms cca 
+        ON cca.class_id = c.id
+        AND cca.deleted_at IS NULL
+    LEFT JOIN islamiyya_class_arms ca 
+        ON ca.id = cca.arm_id
+        AND ca.deleted_at IS NULL
+    LEFT JOIN islamiyya_class_subjects cs 
+        ON cs.class_id = c.id
+        AND cs.deleted_at IS NULL
+    LEFT JOIN islamiyya_subjects subj 
+        ON cs.subject_id = subj.id
+        AND subj.deleted_at IS NULL
+    LEFT JOIN teachers t 
+        ON cs.teacher_id = t.id
+        AND t.deleted_at IS NULL
+    WHERE c.deleted_at IS NULL 
+      AND cs.teacher_id = :teacher_id
+    ORDER BY c.level, ca.name, subj.name
 ");
-$stmt->execute();
+$stmt->execute(['teacher_id' => $user['id']]);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $classes = [];
@@ -77,7 +77,7 @@ foreach ($rows as $row) {
             'class_subject_id' => $row['class_subject_id'],
             'id'               => $row['subject_id'],
             'name'             => $row['subject_name'],
-            'teacher'          => $row['teacher_name'] ?: 'No teacher assigned'
+            'teacher'          => $row['teacher_name']
         ];
     }
 }
@@ -107,9 +107,11 @@ if (isset($_POST['missing_selection'])) {
 }
 ?>
 
+
+
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../../includes/admins-section-nav.php'); ?>
+    <?php include(__DIR__ . '/../../../includes/nav.php'); ?>
 
 
     <!-- Page Header -->
@@ -120,7 +122,7 @@ if (isset($_POST['missing_selection'])) {
                 Manage Islamiyya Subjects Results
             </h1>
             <p class="text-xl text-blue-200">
-                Create and update islamiyya student results by subject
+                Create and update student Islamiyya results by subject
             </p>
         </div>
     </section>
@@ -139,7 +141,8 @@ if (isset($_POST['missing_selection'])) {
                         <label class="block text-sm font-semibold mb-2">Session</label>
                         <select
                             id="sessionSelect"
-                            class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                            disabled
+                            class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-not-allowed nota--">
                             <option value="">-- Select Session --</option>
                             <?php foreach ($sessions as $session): ?>
                                 <option value="<?= $session['id'] ?>" <?= $current_term['session_id'] === $session['id'] ? "selected" : '' ?>><?= $session['name'] ?> <?= $current_term['session_id'] === $session['id'] ? "(Current)" : '' ?></option>
@@ -151,7 +154,7 @@ if (isset($_POST['missing_selection'])) {
                         <label class="block text-sm font-semibold mb-2">Term</label>
                         <select
                             id="termSelect"
-                            class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400" disabled>
+                            class="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-not-allowed" disabled>
                             <option value="">-- Select Term --</option>
                             <?php foreach ($terms as $term) : ?>
                                 <option value="<?= $term['id'] ?>" data-session="<?= $term['session_id'] ?>" <?= $current_term['id'] === $term['id'] ? "selected" : '' ?>>
@@ -214,12 +217,12 @@ if (isset($_POST['missing_selection'])) {
                                             </h3>
                                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
 
-    
+
                                             </div>
                                         </div>
                                         <div class="flex flex-row gap-2 md:w-auto">
                                             <a
-                                                href="<?= route('admin-upload-islamiyya-results')
+                                                href="<?= route('upload-islamiyya-results')
                                                             . '?subject_id=' . $subject['id']
                                                             . '&class_id=' . $class['id']
                                                             . ($class['arm_id'] ? '&arm_id=' . $class['arm_id'] : '') ?>"
@@ -228,7 +231,7 @@ if (isset($_POST['missing_selection'])) {
                                             </a>
 
 
-                                            <a href="<?= route('admin-view-islamiyya-subject-result')
+                                            <a href="<?= route('view-islamiyya-subject-result')
                                                             . '?subject_id=' . $subject['id']
                                                             . '&class_id=' . $class['id']
                                                             . ($class['arm_id'] ? '&arm_id=' . $class['arm_id'] : '') ?>"
@@ -249,7 +252,7 @@ if (isset($_POST['missing_selection'])) {
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
     <form id="failureForm" action="" method="POST" class="hidden">
         <input type="hidden" name="missing_selection" value="1">

@@ -1,5 +1,5 @@
 <?php
-$title = "Class Records";
+$title = "Islamiyya Class Records";
 include(__DIR__ . '/../../../../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -15,13 +15,13 @@ if ($user_type !== 'admin') {
 }
 
 if (!isset($_GET['class_id'])) {
-    $_SESSION['failure'] = "Class not specified";
+    $_SESSION['failure'] = "Islamiyya class not specified";
     header("Location: " . route('back'));
     exit();
 }
 
 if (!isset($_GET['arm_id'])) {
-    $_SESSION['failure'] = "Class arm not specified";
+    $_SESSION['failure'] = "Islamiyya class arm not specified";
     header("Location: " . route('back'));
     exit();
 }
@@ -29,20 +29,20 @@ if (!isset($_GET['arm_id'])) {
 $class_id = (int) $_GET['class_id'];
 $arm_id   = (int) $_GET['arm_id'];
 
-// Get class info
-$stmt = $pdo->prepare("SELECT id, name, level FROM classes WHERE id = ?");
+// Get Islamiyya class info
+$stmt = $pdo->prepare("SELECT id, name, level FROM islamiyya_classes WHERE id = ?");
 $stmt->execute([$class_id]);
 $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get arm info
-$stmt = $pdo->prepare("SELECT id, name FROM class_arms WHERE id = ?");
+// Get Islamiyya arm info
+$stmt = $pdo->prepare("SELECT id, name FROM islamiyya_class_arms WHERE id = ?");
 $stmt->execute([$arm_id]);
 $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get sessions where this class arm has records
+// Get sessions where this Islamiyya class arm has records
 $stmt = $pdo->prepare("
     SELECT DISTINCT scr.session_id, s.name AS session_name, s.start_date, s.end_date
-    FROM student_class_records scr
+    FROM islamiyya_student_class_records scr
     JOIN sessions s ON scr.session_id = s.id
     WHERE scr.class_id = ? AND scr.arm_id = ?
     ORDER BY s.start_date DESC
@@ -58,6 +58,7 @@ foreach ($sessions as $sess) {
     $session_terms[$sess['session_id']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
+
 
 <body class="bg-gray-50">
     <?php include(__DIR__ . '/../../../../includes/admins-section-nav.php'); ?>
@@ -125,9 +126,9 @@ foreach ($sessions as $sess) {
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                
-                        <div colspan="6" class="text-center block  p-5 text-gray-500">No session record exist.</div>
-                 
+
+                    <div colspan="6" class="text-center block  p-5 text-gray-500">No session record exist.</div>
+
                 <?php endif ?>
             </div>
         </div>

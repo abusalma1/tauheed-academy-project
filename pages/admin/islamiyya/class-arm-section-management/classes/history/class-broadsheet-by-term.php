@@ -1,7 +1,6 @@
 <?php
-$title = "Class Results  Bu Terms";
+$title = "Islamiyya Class Results By Terms";
 include(__DIR__ . '/../../../../../../includes/header.php');
-
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -18,27 +17,29 @@ if ($user_type !== 'admin') {
 if (isset($_GET['class_id']) && isset($_GET['session_id']) && isset($_GET['arm_id'])) {
     $class_id   = (int) $_GET['class_id'];
     $session_id = (int) $_GET['session_id'];
-    $arm_id     = (int) $_GET['arm_id'];   // NEW
+    $arm_id     = (int) $_GET['arm_id'];
 } else {
-    $_SESSION['failure'] = "Class, session or arm not found";
+    $_SESSION['failure'] = "Islamiyya class, session or arm not found";
     header('Location: ' . route('back'));
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT id, name from sessions where id = ?");
+// Get session info
+$stmt = $pdo->prepare("SELECT id, name FROM sessions WHERE id = ?");
 $stmt->execute([$session_id]);
 $currentSession = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
-$stmt = $pdo->prepare("SELECT id, name from classes where id = ?");
+// Get Islamiyya class info
+$stmt = $pdo->prepare("SELECT id, name FROM islamiyya_classes WHERE id = ?");
 $stmt->execute([$class_id]);
 $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare("SELECT id, name from class_Arms where id = ?");
+// Get Islamiyya arm info
+$stmt = $pdo->prepare("SELECT id, name FROM islamiyya_class_arms WHERE id = ?");
 $stmt->execute([$arm_id]);
 $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
-//  Use PDO instead of MySQLi
+// Query results grouped by terms
 $stmt = $pdo->prepare("
     SELECT
         t.id AS term_id,
@@ -54,13 +55,13 @@ $stmt = $pdo->prepare("
         str.overall_grade
 
     FROM terms t
-    INNER JOIN student_class_records scr
+    INNER JOIN islamiyya_student_class_records scr
         ON scr.session_id = t.session_id
         AND scr.class_id = ?
         AND scr.arm_id = ?
     INNER JOIN students s
         ON s.id = scr.student_id
-    LEFT JOIN student_term_records str
+    LEFT JOIN islamiyya_student_term_records str
         ON str.student_class_record_id = scr.id
         AND str.term_id = t.id
     WHERE t.session_id = ?
@@ -69,9 +70,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([$class_id, $arm_id, $session_id]);
 $terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-
-//  Group results by term
+// Group results by term
 $grouped = [];
 
 foreach ($terms as $row) {
@@ -86,17 +85,16 @@ foreach ($terms as $row) {
     }
 
     $grouped[$tid]['students'][] = [
-        'student_id'       => $row['student_id'],
-        'student_name'     => $row['student_name'],
-        'admission_number' => $row['admission_number'],
-        'total_marks'      => $row['total_marks'],
-        'average_marks'    => $row['average_marks'],
+        'student_id'        => $row['student_id'],
+        'student_name'      => $row['student_name'],
+        'admission_number'  => $row['admission_number'],
+        'total_marks'       => $row['total_marks'],
+        'average_marks'     => $row['average_marks'],
         'position_in_class' => $row['position_in_class'],
-        'overall_grade'    => $row['overall_grade'],
+        'overall_grade'     => $row['overall_grade'],
     ];
 }
 ?>
-
 
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -175,9 +173,9 @@ foreach ($terms as $row) {
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-              
-                    <div colspan="6" class="text-center block p-5 text-gray-500">No term results available for this class.</div>
-              
+
+                <div colspan="6" class="text-center block p-5 text-gray-500">No term results available for this class.</div>
+
             <?php endif ?>
 
         </div>

@@ -1,5 +1,5 @@
 <?php
-$title = "Update Subject";
+$title = "Update Islamiyya Subject";
 include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
@@ -14,12 +14,12 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare('SELECT * FROM subjects WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT * FROM islamiyya_subjects WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$id]);
     $subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$subject) {
-        $_SESSION['failure'] = "Subject not found!";
+        $_SESSION['failure'] = "Islamiyya Subject not found!";
         header('Location: ' . route('back'));
         exit();
     }
@@ -30,15 +30,15 @@ if (isset($_GET['id'])) {
 
 $subject_id = $subject['id'];
 
-// Fetch class_subjects
-$stmt = $pdo->prepare('SELECT * FROM class_subjects WHERE subject_id = ? AND deleted_at IS NULL');
+// Fetch islamiyya_class_subjects
+$stmt = $pdo->prepare('SELECT * FROM islamiyya_class_subjects WHERE subject_id = ? AND deleted_at IS NULL');
 $stmt->execute([$subject_id]);
 $class_subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch classes
+// Fetch Islamiyya classes
 $stmt = $pdo->prepare("
     SELECT *
-    FROM classes
+    FROM islamiyya_classes
     WHERE deleted_at IS NULL
     GROUP BY level
 ");
@@ -46,7 +46,7 @@ $stmt->execute();
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Assuming selectAllData is already PDO-based
-$subjects = selectAllData('subjects', null, $subject_id);
+$subjects = selectAllData('islamiyya_subjects', null, $subject_id);
 
 // Handle POST (update)
 $errors = [];
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validations
     if ($name === '') {
-        $errors['name'] = "Subject name is required.";
+        $errors['name'] = "Islamiyya Subject name is required.";
     }
 
     if (empty($class_ids) || !is_array($class_ids)) {
@@ -72,21 +72,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->beginTransaction();
 
             // Update subject name
-            $updateStmt = $pdo->prepare("UPDATE subjects SET name = ? WHERE id = ?");
+            $updateStmt = $pdo->prepare("UPDATE islamiyya_subjects SET name = ? WHERE id = ?");
             $updateStmt->execute([$name, $subject_id]);
 
             // Replace pivot rows: delete old, insert new
-            $delStmt = $pdo->prepare("DELETE FROM class_subjects WHERE subject_id = ?");
+            $delStmt = $pdo->prepare("DELETE FROM islamiyya_class_subjects WHERE subject_id = ?");
             $delStmt->execute([$subject_id]);
 
-            $insertPivot = $pdo->prepare("INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)");
+            $insertPivot = $pdo->prepare("INSERT INTO islamiyya_class_subjects (class_id, subject_id) VALUES (?, ?)");
             foreach ($class_ids as $cid) {
                 $insertPivot->execute([intval($cid), $subject_id]);
             }
 
             $pdo->commit();
 
-            $_SESSION['success'] = "Subject updated successfully!";
+            $_SESSION['success'] = "Islamiyya Subject updated successfully!";
             header('Location: ' . route('back'));
             exit();
         } catch (PDOException $e) {
@@ -96,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <script>
     const subjects = <?= json_encode($subjects, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
@@ -110,8 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <section class="bg-blue-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Subject</h1>
-            <p class="text-xl text-blue-200">Edit subject and its class assignments</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Islamiyya Subject</h1>
+            <p class="text-xl text-blue-200">Edit islamiyya subject and its class assignments</p>
         </div>
     </section>
 
