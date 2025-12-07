@@ -43,6 +43,19 @@ $stmt->execute([$student['arm_id']]);
 $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 $student['arm'] = $arm['name'] ?? null;
 
+
+// Fetch Islamiyya class
+$stmt = $pdo->prepare("SELECT name FROM islamiyya_classes WHERE id = ?");
+$stmt->execute([$student['islamiyya_class_id']]);
+$class = $stmt->fetch(PDO::FETCH_ASSOC);
+$student['islamiyya_class'] = $class['name'] ?? null;
+
+// Fetch Islamiyya arm
+$stmt = $pdo->prepare("SELECT name FROM islamiyya_class_arms WHERE id = ?");
+$stmt->execute([$student['islamiyya_arm_id']]);
+$arm = $stmt->fetch(PDO::FETCH_ASSOC);
+$student['islamiyya_arm'] = $arm['name'] ?? null;
+
 //  Fetch guardian
 $stmt = $pdo->prepare("SELECT * FROM guardians WHERE id = ?");
 $stmt->execute([$student['guardian_id']]);
@@ -137,6 +150,13 @@ if ($guardian) {
                                     <p id="department" class="text-lg font-semibold text-gray-900"><?= $student['class'] . ' ' . $student['arm'] ?></p>
 
                                 </div>
+
+                                <div>
+                                    <p class="text-sm text-gray-600">Islamiyya Class</p>
+                                    <p id="department" class="text-lg font-semibold text-gray-900"><?= $student['islamiyya_class'] . ' ' . $student['islamiyya_arm'] ?></p>
+
+                                </div>
+
 
 
                                 <div>

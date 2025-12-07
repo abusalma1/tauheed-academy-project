@@ -28,11 +28,13 @@ if (isset($_SESSION['user_session'])) {
 
     if ($id) {
         if ($user_type === 'student') {
-            $stmt = $pdo->prepare("SELECT students.*, classes.name as class_name, class_arms.name as arm_name  
-                                   FROM students 
-                                   LEFT JOIN classes ON classes.id = students.class_id 
-                                   LEFT JOIN class_arms ON class_arms.id = students.arm_id 
-                                   WHERE students.id = ? AND students.deleted_at IS NULL");
+            $stmt = $pdo->prepare("SELECT s.*, c.name as class_name, ca.name as arm_name , ic.name as islamiyya_class_name, ica.name as islamiyya_arm_name  
+                                   FROM students  s
+                                   LEFT JOIN classes c ON c.id = s.class_id 
+                                   LEFT JOIN class_arms ca ON ca.id = s.arm_id 
+                                   LEFT JOIN islamiyya_classes ic ON ic.id = s.islamiyya_class_id 
+                                   LEFT JOIN islamiyya_class_arms ica ON ica.id = s.islamiyya_arm_id 
+                                   WHERE s.id = ? AND s.deleted_at IS NULL");
             $stmt->execute([$id]);
         } else if ($user_type === 'teacher') {
             $stmt = $pdo->prepare("SELECT * FROM teachers WHERE id = ?");

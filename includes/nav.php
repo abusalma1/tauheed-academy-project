@@ -66,7 +66,23 @@
                     <a href="<?= route('profile') ?>" class="hover:text-blue-300 transition">Profile</a>
 
                     <?php if ($user_type === 'teacher') : ?>
-                        <a href="<?= route('my-class'); ?>" class="hover:text-blue-300 transition">My class</a>
+                        <div class="relative group">
+                            <!-- Hover Button -->
+                            <div class="hover:text-blue-300 transition flex items-center gap-1">
+                                My class
+                                <span class="text-sm">▾</span>
+                            </div>
+
+                            <!-- Dropdown Menu -->
+                            <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+
+                                <ul class="flex flex-col py-2">
+                                    <li> <a href="<?= route('my-class'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> General Studies </a> </li>
+                                    <li> <a href="<?= route('my-islamiyya-class'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Qur'anic & Islamic Studies </a> </li>
+
+                                </ul>
+                            </div>
+                        </div>
                         <div class="relative group">
                             <!-- Hover Button -->
                             <div class="hover:text-blue-300 transition flex items-center gap-1">
@@ -85,7 +101,23 @@
                             </div>
                         </div>
                     <?php elseif ($user_type === 'student') : ?>
-                        <a href="<?= route('student-result'); ?>" class="hover:text-blue-300 transition">My Result</a>
+                        <div class="relative group">
+                            <!-- Hover Button -->
+                            <div class="hover:text-blue-300 transition flex items-center gap-1">
+                                My Results
+                                <span class="text-sm">▾</span>
+                            </div>
+
+                            <!-- Dropdown Menu -->
+                            <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+
+                                <ul class="flex flex-col py-2">
+                                    <li> <a href="<?= route('student-result'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> General Studies </a> </li>
+                                    <li> <a href="<?= route('student-islamiyya-result'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Qur'anic & Islamic Studies </a> </li>
+
+                                </ul>
+                            </div>
+                        </div>
                     <?php elseif ($user_type === 'guardian') : ?>
                         <a href="<?= route('my-children') ?>" class="hover:text-blue-300 transition">Me & My Children</a>
                     <?php elseif ($user_type === 'admin'): ?>
@@ -146,10 +178,29 @@
             <a href="<?= route('profile'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">Profile</a>
 
             <?php if ($user_type === 'student') : ?>
-                <a href="<?= route('student-result'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My Results</a>
-            <?php elseif ($user_type === 'teacher'): ?>
-                <a href="<?= route('my-class'); ?>" class="block py-2 hover:bg-blue-700 px-3 rounded">My class</a>
+                <div class="py-2 px-3 rounded bg-blue-800">
+                    <button class="w-full flex justify-between items-center mobile-dropdown-btn">
+                        <span>My Results</span>
+                        <span>▾</span>
+                    </button>
 
+                    <div class="mobile-dropdown hidden flex-col mt-2 bg-blue-700 rounded-lg">
+                        <a href="<?= route('student-result'); ?>" class="block px-4 py-2 hover:bg-blue-600">General Studies</a>
+                        <a href="<?= route('student-islamiyya-result'); ?>" class="block px-4 py-2 hover:bg-blue-600">Qur'anic & Islamic Studies</a>
+                    </div>
+                </div>
+            <?php elseif ($user_type === 'teacher'): ?>
+                <div class="py-2 px-3 rounded bg-blue-800">
+                    <button class="w-full flex justify-between items-center mobile-dropdown-btn">
+                        <span>My Class</span>
+                        <span>▾</span>
+                    </button>
+
+                    <div class="mobile-dropdown hidden flex-col mt-2 bg-blue-700 rounded-lg">
+                        <a href="<?= route('my-class'); ?>" class="block px-4 py-2 hover:bg-blue-600">General Studies</a>
+                        <a href="<?= route('my-islamiyya-class'); ?>" class="block px-4 py-2 hover:bg-blue-600">Qur'anic & Islamic Studies</a>
+                    </div>
+                </div>
                 <div class="py-2 px-3 rounded bg-blue-800">
                     <button class="w-full flex justify-between items-center mobile-dropdown-btn">
                         <span>Upload Results</span>

@@ -284,20 +284,6 @@ $routes = [
         'url' => "$baseUrl/pages/results-management/student-results.php"
     ],
 
-    // islamiyya results
-    'islamiyya-results-management' => [
-        'url' => "$baseUrl/pages/results-management/islamiyya/"
-    ],
-    'upload-islamiyya-results' => [
-        'url' => "$baseUrl/pages/results-management/islamiyya/upload-results.php"
-    ],
-    'view-islamiyya-subject-result' => [
-        'url' => "$baseUrl/pages/results-management/islamiyya/view-subject-result.php"
-    ],
-    'student-islamiyya-result' => [
-        'url' => "$baseUrl/pages/results-management/islamiyya/student-results.php"
-    ],
-
 
     //  guardians
     'my-children' => [
@@ -459,4 +445,34 @@ $routes = [
     'delete-islamiyya-section' => [
         'url' => "$baseUrl/pages/admin/islamiyya/class-arm-section-management/sections/delete-section.php"
     ],
+
+
+    // class teachers
+
+    'my-islamiyya-class' => [
+        'url' => "$baseUrl/pages/teachers/islamiyya/my-class.php"
+    ],
+
+    'islamiyya-class-broadsheet-by-session' => [
+        'url' => "$baseUrl/pages/teachers/islamiyya/class-broadsheet-by-session.php"
+    ],
+    'islamiyya-class-broadsheet-by-term' => [
+        'url' => "$baseUrl/pages/teachers/islamiyya/class-broadsheet-by-term.php"
+    ],
+
+
+    // islamiyya results
+    'islamiyya-results-management' => [
+        'url' => "$baseUrl/pages/results-management/islamiyya/"
+    ],
+    'upload-islamiyya-results' => [
+        'url' => "$baseUrl/pages/results-management/islamiyya/upload-results.php"
+    ],
+    'view-islamiyya-subject-result' => [
+        'url' => "$baseUrl/pages/results-management/islamiyya/view-subject-result.php"
+    ],
+    'student-islamiyya-result' => [
+        'url' => "$baseUrl/pages/results-management/islamiyya/student-results.php"
+    ],
+
 ];

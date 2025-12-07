@@ -87,6 +87,9 @@ if (!$is_logged_in) {
                                     <div>
                                         <p class="text-sm text-gray-600">Class/Department</p>
                                         <p id="classInfo" class="text-lg font-semibold text-gray-900"><?= $user_type === 'student' ? $user['class_name'] . " " . $user['arm_name'] : $user['department'] ?></p>
+                                        <?php if ($user_type === 'student') : ?>
+                                            <p id="classInfo" class="text-lg font-semibold text-gray-900"><?= $user['islamiyya_class_name'] . " " . $user['islamiyya_arm_name'] ?></p>
+                                        <?php endif ?>
                                     </div>
                                 <?php endif ?>
                                 <?php if ($user_type !== "guardian"): ?>
