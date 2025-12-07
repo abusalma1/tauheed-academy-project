@@ -3,7 +3,9 @@ $title = 'About & Contact';
 
 include(__DIR__ . '/../includes/header.php');
 
-//  Use PDO instead of MySQLi
+// =======================
+// General Studies Classes
+// =======================
 $stmt = $pdo->prepare("
     SELECT 
         classes.id AS class_id,
@@ -24,7 +26,6 @@ $classes = [];
 foreach ($rows as $row) {
     $classId = $row['class_id'];
 
-    // If this class hasn't been added yet, initialize it
     if (!isset($classes[$classId])) {
         $classes[$classId] = [
             'name'     => $row['class_name'],
@@ -32,17 +33,53 @@ foreach ($rows as $row) {
         ];
     }
 
-    // Add subject if it exists (LEFT JOIN may return NULL)
     if (!empty($row['subject_name'])) {
         $classes[$classId]['subjects'][] = [
             'name' => $row['subject_name']
         ];
     }
 }
-
-//  Re-index array to remove numeric keys
 $classes = array_values($classes);
+
+// =======================
+// Islamiyya Classes
+// =======================
+$stmt = $pdo->prepare("
+    SELECT 
+        islamiyya_classes.id AS islamiyya_class_id,
+        islamiyya_classes.name AS islamiyya_class_name,
+        islamiyya_subjects.id AS islamiyya_subject_id,
+        islamiyya_subjects.name AS islamiyya_subject_name
+    FROM islamiyya_classes
+    LEFT JOIN islamiyya_class_subjects 
+        ON islamiyya_class_subjects.class_id = islamiyya_classes.id
+    LEFT JOIN islamiyya_subjects 
+        ON islamiyya_class_subjects.subject_id = islamiyya_subjects.id
+    ORDER BY islamiyya_classes.level, islamiyya_subjects.name
+");
+$stmt->execute();
+$islamiyyaRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$islamiyyaClasses = [];
+foreach ($islamiyyaRows as $row) {
+    $classId = $row['islamiyya_class_id'];
+
+    if (!isset($islamiyyaClasses[$classId])) {
+        $islamiyyaClasses[$classId] = [
+            'name'     => $row['islamiyya_class_name'],
+            'subjects' => []
+        ];
+    }
+
+    if (!empty($row['islamiyya_subject_name'])) {
+        $islamiyyaClasses[$classId]['subjects'][] = [
+            'name' => $row['islamiyya_subject_name']
+        ];
+    }
+}
+$islamiyyaClasses = array_values($islamiyyaClasses);
 ?>
+
 
 
 <body class="bg-gray-50">
@@ -59,7 +96,7 @@ $classes = array_values($classes);
     <!-- Subjects by Class -->
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Subjects by Class Category</h2>
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Gen. Subjects by Class Category</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
 
 
@@ -75,6 +112,29 @@ $classes = array_values($classes);
                     </div>
                 <?php endforeach; ?>
 
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Islamiyya Subjects by Class -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Islamiyya Subjects by Class Category</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <?php foreach ($islamiyyaClasses as $class) : ?>
+                    <div class="bg-white border-2 border-green-700 rounded-lg p-6 shadow-lg">
+
+                        <h3 class="text-xl font-bold text-gray-900 mb-3"><?= $class['name'] ?></h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <?php foreach ($class['subjects'] as $subject) : ?>
+                                <li><i class="fas fa-check text-green-600 mr-2"></i><?= $subject['name'] ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endforeach; ?>
 
             </div>
         </div>

@@ -3,7 +3,9 @@ $title = 'Our Staff';
 
 include(__DIR__ . '/../includes/header.php');
 
-//  Teachers with subjects
+// =======================
+// General Studies Teachers
+// =======================
 $stmt = $pdo->prepare("
   SELECT 
     t.id,
@@ -33,12 +35,48 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-//  Admins
+// =======================
+// Islamiyya Teachers
+// =======================
+$stmt = $pdo->prepare("
+  SELECT 
+    t.id,
+    t.name,
+    t.qualification,
+    t.gender,
+    t.experience,
+    t.email,
+    GROUP_CONCAT(sc.subject_classes SEPARATOR '<br>') AS islamiyya_subjects
+  FROM teachers t
+  LEFT JOIN (
+    SELECT 
+      cs.teacher_id,
+      CONCAT(
+        s.name, ' (', 
+        GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', '), 
+        ')'
+      ) AS subject_classes
+    FROM islamiyya_class_subjects cs
+    LEFT JOIN islamiyya_subjects s ON cs.subject_id = s.id
+    LEFT JOIN islamiyya_classes c ON cs.class_id = c.id
+    GROUP BY cs.teacher_id, s.id, s.name
+  ) sc ON sc.teacher_id = t.id
+  GROUP BY t.id, t.name, t.qualification, t.gender, t.experience, t.email
+  ORDER BY t.name
+");
+$stmt->execute();
+$islamiyyaTeachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// =======================
+// Admins
+// =======================
 $stmt = $pdo->prepare("SELECT * FROM admins WHERE type = ? ORDER BY name");
 $stmt->execute(['admin']);
 $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-//  Super Admins
+// =======================
+// Super Admins
+// =======================
 $stmt = $pdo->prepare("SELECT * FROM admins WHERE type = ? ORDER BY name");
 $stmt->execute(['superAdmin']);
 $superAdmins = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -71,37 +109,49 @@ $superAdmins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <p class="text-gray-700 text-sm"><?= $admin['experience'] ?></p>
                         </div>
                     </div>
-
                 <?php endforeach ?>
-
             </div>
         </div>
     </section>
 
-    <!-- Teaching Staff -->
+    <!-- Teaching Staff (General Studies) -->
     <section class="py-16 bg-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Teaching Staff</h2>
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">General Studies Teaching Staff</h2>
             <div class="grid md:grid-cols-4 gap-6">
                 <?php foreach ($teachers as $teacher) : ?>
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
                         <img src="/placeholder.svg?height=250&width=250" alt="Teacher" class="w-full h-48 object-cover">
                         <div class="p-4">
                             <h3 class="text-lg font-bold text-gray-900 mb-1"><?= $teacher['gender'] === 'male' ? "Mr. " : 'Mrs.' ?> <?= $teacher['name'] ?></h3>
-
-                            <p class="text-gray-600 text-xs mb-2">
-                                <b>Qualifications: </b><?= $teacher['qualification'] ?>
-                            </p>
-                            <p class="text-gray-600 text-xs mb-2">
-                                <b>Experience: </b><?= $teacher['experience'] ?>
-                            </p>
-
+                            <p class="text-gray-600 text-xs mb-2"><b>Qualifications: </b><?= $teacher['qualification'] ?></p>
+                            <p class="text-gray-600 text-xs mb-2"><b>Experience: </b><?= $teacher['experience'] ?></p>
                             <h4 class="text-lg font-bold text-gray-900 mb-1">Subjects</h4>
                             <p class="text-blue-900 font-semibold text-sm mb-2"><?= $teacher['subjects'] ?></p>
                         </div>
                     </div>
                 <?php endforeach ?>
+            </div>
+        </div>
+    </section>
 
+    <!-- Teaching Staff (Islamiyya) -->
+    <section class="py-16 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Islamiyya Teaching Staff</h2>
+            <div class="grid md:grid-cols-4 gap-6">
+                <?php foreach ($islamiyyaTeachers as $teacher) : ?>
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+                        <img src="/placeholder.svg?height=250&width=250" alt="Islamiyya Teacher" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1"><?= $teacher['gender'] === 'male' ? "Ustaz " : 'Ustazah ' ?> <?= $teacher['name'] ?></h3>
+                            <p class="text-gray-600 text-xs mb-2"><b>Qualifications: </b><?= $teacher['qualification'] ?></p>
+                            <p class="text-gray-600 text-xs mb-2"><b>Experience: </b><?= $teacher['experience'] ?></p>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">Islamiyya Subjects</h4>
+                            <p class="text-green-700 font-semibold text-sm mb-2"><?= $teacher['islamiyya_subjects'] ?></p>
+                        </div>
+                    </div>
+                <?php endforeach ?>
             </div>
         </div>
     </section>

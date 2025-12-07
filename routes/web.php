@@ -312,9 +312,6 @@ $routes = [
     'fees-assginment' => [
         'url' => "$baseUrl/pages/admin/fees/fees-assignment.php"
     ],
-    'submit-fees' => [
-        'url' => "$baseUrl/pages/admin/fees/submit-fees.php"
-    ],
     'delete-bank-account' => [
         'url' => "$baseUrl/pages/admin/fees/delete-bank-account.php"
     ],
@@ -475,4 +472,12 @@ $routes = [
         'url' => "$baseUrl/pages/results-management/islamiyya/student-results.php"
     ],
 
+
+    // fees
+    'admin-islamiyya-fees' => [
+        'url' => "$baseUrl/pages/admin/fees/islamiyya-fees.php"
+    ],
+    'islamiyya-fees-assignment' => [
+        'url' => "$baseUrl/pages/admin/fees/islamiyya-fees-assignment.php"
+    ],
 ];

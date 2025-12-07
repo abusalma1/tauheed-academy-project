@@ -527,7 +527,7 @@ CREATE TABLE news (
 
 
 -- ===========================================================
--- 13. FEES TABLE
+-- 13.1 FEES TABLE
 -- ===========================================================
 CREATE TABLE fees (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -551,9 +551,27 @@ CREATE TABLE fees (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+-- ===========================================================
+-- 13.2 ISLAMIYYA FEES TABLE
+-- ===========================================================
+CREATE TABLE islamiyya_fees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    islamiyya_class_id INT NOT NULL,
+    first_term DECIMAL(10,2),
+    second_term DECIMAL(10,2),
+    third_term DECIMAL(10,2),
+    materials DECIMAL(10,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_islamiyya_fees_class FOREIGN KEY (islamiyya_class_id) REFERENCES islamiyya_classes(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
 
 -- ===========================================================
--- 13. BANK ACCOUNTS TABLE
+-- 14. BANK ACCOUNTS TABLE
 -- ===========================================================
 CREATE TABLE bank_accounts (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 05, 2025 at 06:15 AM
+-- Generation Time: Dec 07, 2025 at 04:15 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -285,6 +285,14 @@ CREATE TABLE `islamiyya_classes` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `islamiyya_classes`
+--
+
+INSERT INTO `islamiyya_classes` (`id`, `section_id`, `name`, `level`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(1, 1, 'Raudah', 1, '2025-12-06 02:44:38', NULL, '2025-12-06 02:44:38'),
+(2, 2, 'Faslu Amirul Mu,uminoon, Abubakar RA', 2, '2025-12-06 02:46:07', NULL, '2025-12-06 02:46:07');
+
 -- --------------------------------------------------------
 
 --
@@ -299,6 +307,15 @@ CREATE TABLE `islamiyya_class_arms` (
   `deleted_at` datetime DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `islamiyya_class_arms`
+--
+
+INSERT INTO `islamiyya_class_arms` (`id`, `name`, `description`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(1, 'Alif', '', '2025-12-05 11:29:14', NULL, '2025-12-05 12:25:13'),
+(2, 'Bauun', 'Bauun', '2025-12-05 11:29:21', '2025-12-05 12:32:03', '2025-12-05 11:32:03'),
+(3, 'Bauun', '', '2025-12-05 12:24:54', '2025-12-05 13:24:58', '2025-12-05 12:24:58');
 
 -- --------------------------------------------------------
 
@@ -315,6 +332,14 @@ CREATE TABLE `islamiyya_class_class_arms` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `islamiyya_class_class_arms`
+--
+
+INSERT INTO `islamiyya_class_class_arms` (`class_id`, `arm_id`, `teacher_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(1, 1, 2, '2025-12-06 02:44:38', NULL, '2025-12-07 02:12:28'),
+(2, 1, NULL, '2025-12-06 02:46:07', NULL, '2025-12-06 02:46:07');
+
 -- --------------------------------------------------------
 
 --
@@ -330,6 +355,43 @@ CREATE TABLE `islamiyya_class_subjects` (
   `deleted_at` datetime DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `islamiyya_class_subjects`
+--
+
+INSERT INTO `islamiyya_class_subjects` (`id`, `class_id`, `subject_id`, `teacher_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(1, 1, 1, 2, '2025-12-06 03:10:02', NULL, '2025-12-06 04:24:06'),
+(2, 2, 1, 2, '2025-12-06 03:10:02', NULL, '2025-12-06 04:24:27'),
+(3, 2, 2, 1, '2025-12-06 03:10:17', NULL, '2025-12-06 04:24:37'),
+(4, 1, 2, 1, '2025-12-06 03:10:17', NULL, '2025-12-06 04:24:18'),
+(5, 1, 3, 2, '2025-12-06 03:10:38', NULL, '2025-12-06 04:24:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `islamiyya_fees`
+--
+
+CREATE TABLE `islamiyya_fees` (
+  `id` int(11) NOT NULL,
+  `islamiyya_class_id` int(11) NOT NULL,
+  `first_term` decimal(10,2) DEFAULT NULL,
+  `second_term` decimal(10,2) DEFAULT NULL,
+  `third_term` decimal(10,2) DEFAULT NULL,
+  `materials` decimal(10,2) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `islamiyya_fees`
+--
+
+INSERT INTO `islamiyya_fees` (`id`, `islamiyya_class_id`, `first_term`, `second_term`, `third_term`, `materials`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(1, 1, '12.00', '12.00', '32.00', '214.00', '2025-12-07 03:06:21', NULL, '2025-12-07 03:06:21'),
+(2, 2, '345.00', '34.00', '543.00', '345.00', '2025-12-07 03:06:21', NULL, '2025-12-07 03:06:21');
 
 -- --------------------------------------------------------
 
@@ -351,6 +413,30 @@ CREATE TABLE `islamiyya_results` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `islamiyya_results`
+--
+
+INSERT INTO `islamiyya_results` (`id`, `student_term_record_id`, `subject_id`, `ca`, `exam`, `grade`, `remark`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(44, 17, 1, '32.00', '52.00', 'A', 'Excellent', '2025-12-06 11:07:54', NULL, '2025-12-06 12:41:31'),
+(45, 18, 1, '32.00', '32.00', 'B', 'Very Good', '2025-12-06 11:07:54', NULL, '2025-12-06 11:07:54'),
+(46, 19, 1, '22.00', '22.00', 'D', 'Fair', '2025-12-06 11:07:54', NULL, '2025-12-06 11:07:54'),
+(47, 20, 1, '40.00', '44.00', 'A', 'Excellent', '2025-12-06 11:07:54', NULL, '2025-12-06 11:07:54'),
+(48, 17, 3, '12.00', '12.00', 'E', 'Poor', '2025-12-06 11:08:17', NULL, '2025-12-06 11:08:17'),
+(49, 18, 3, '32.00', '32.00', 'B', 'Very Good', '2025-12-06 11:08:17', NULL, '2025-12-06 11:08:17'),
+(50, 19, 3, '33.00', '33.00', 'B', 'Very Good', '2025-12-06 11:08:17', NULL, '2025-12-06 11:08:17'),
+(51, 20, 3, '34.00', '43.00', 'A', 'Excellent', '2025-12-06 11:08:17', NULL, '2025-12-06 11:08:17'),
+(52, 17, 2, '12.00', '32.00', 'D', 'Fair', '2025-12-06 11:08:37', NULL, '2025-12-06 11:08:37'),
+(53, 18, 2, '32.00', '32.00', 'B', 'Very Good', '2025-12-06 11:08:37', NULL, '2025-12-06 11:08:37'),
+(54, 19, 2, '12.00', '12.00', 'E', 'Poor', '2025-12-06 11:08:37', NULL, '2025-12-06 11:08:37'),
+(55, 20, 2, '32.00', '32.00', 'B', 'Very Good', '2025-12-06 11:08:37', NULL, '2025-12-06 11:08:37'),
+(56, 21, 2, '12.00', '31.00', 'D', 'Fair', '2025-12-06 11:08:56', NULL, '2025-12-06 11:08:56'),
+(57, 22, 2, '34.00', '43.00', 'A', 'Excellent', '2025-12-06 11:08:56', NULL, '2025-12-06 11:08:56'),
+(58, 23, 2, '23.00', '34.00', 'C', 'Good', '2025-12-06 11:08:56', NULL, '2025-12-06 11:08:56'),
+(59, 21, 1, '32.00', '43.00', 'A', 'Excellent', '2025-12-06 11:09:17', NULL, '2025-12-06 11:09:17'),
+(60, 22, 1, '31.00', '22.00', 'C', 'Good', '2025-12-06 11:09:17', NULL, '2025-12-06 11:09:17'),
+(61, 23, 1, '32.00', '23.00', 'C', 'Good', '2025-12-06 11:09:17', NULL, '2025-12-06 11:09:17');
+
 -- --------------------------------------------------------
 
 --
@@ -366,6 +452,15 @@ CREATE TABLE `islamiyya_sections` (
   `deleted_at` datetime DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `islamiyya_sections`
+--
+
+INSERT INTO `islamiyya_sections` (`id`, `name`, `description`, `head_teacher_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(1, 'Junior Islamiyya Section', 'Junior Islamiyya', 2, '2025-12-05 12:02:27', NULL, '2025-12-05 12:04:26'),
+(2, 'Intermidiete islamiyya section', 'Intermidiete islamiyya section Intermidiete islamiyya sectionIntermidiete islamiyya sectionIntermidiete islamiyya section\r\n\r\nIntermidiete islamiyya sectionIntermidiete islamiyya section', 1, '2025-12-05 12:04:53', NULL, '2025-12-05 12:04:53'),
+(3, 'Senior Islmiyya section', 'Intermidiete islamiyya sectionIntermidiete islamiyya sectionIntermidiete islamiyya section', 1, '2025-12-05 12:05:26', '2025-12-05 13:06:34', '2025-12-05 12:06:34');
 
 -- --------------------------------------------------------
 
@@ -388,6 +483,20 @@ CREATE TABLE `islamiyya_student_class_records` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `islamiyya_student_class_records`
+--
+
+INSERT INTO `islamiyya_student_class_records` (`id`, `student_id`, `session_id`, `class_id`, `arm_id`, `overall_total`, `overall_average`, `overall_position`, `promotion_status`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(18, 3, 3, 1, 1, '152.00', '50.67', 3, 'pending', '2025-12-06 11:07:54', NULL, '2025-12-06 12:41:31'),
+(19, 7, 3, 1, 1, '192.00', '64.00', 2, 'pending', '2025-12-06 11:07:54', NULL, '2025-12-06 11:08:37'),
+(20, 8, 3, 1, 1, '134.00', '44.67', 4, 'pending', '2025-12-06 11:07:54', NULL, '2025-12-06 12:41:31'),
+(21, 9, 3, 1, 1, '225.00', '75.00', 1, 'pending', '2025-12-06 11:07:54', NULL, '2025-12-06 11:08:37'),
+(22, 4, 3, 2, 1, '118.00', '59.00', 2, 'pending', '2025-12-06 11:08:56', NULL, '2025-12-06 11:09:17'),
+(23, 5, 3, 2, 1, '130.00', '65.00', 1, 'pending', '2025-12-06 11:08:56', NULL, '2025-12-06 11:09:17'),
+(24, 10, 3, 2, 1, '112.00', '56.00', 3, 'pending', '2025-12-06 11:08:56', NULL, '2025-12-06 11:09:17'),
+(25, 1, 3, 2, 1, '0.00', '0.00', NULL, 'pending', '2025-12-07 01:53:13', NULL, '2025-12-07 01:53:13');
+
 -- --------------------------------------------------------
 
 --
@@ -408,6 +517,20 @@ CREATE TABLE `islamiyya_student_term_records` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `islamiyya_student_term_records`
+--
+
+INSERT INTO `islamiyya_student_term_records` (`id`, `student_class_record_id`, `term_id`, `total_marks`, `average_marks`, `position_in_class`, `class_size`, `overall_grade`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(17, 18, 8, '152.00', '50.67', 3, 4, 'C', '2025-12-06 11:07:54', NULL, '2025-12-06 12:41:31'),
+(18, 19, 8, '192.00', '64.00', 2, 4, 'B', '2025-12-06 11:07:54', NULL, '2025-12-06 11:08:37'),
+(19, 20, 8, '134.00', '44.67', 4, 4, 'D', '2025-12-06 11:07:54', NULL, '2025-12-06 12:41:31'),
+(20, 21, 8, '225.00', '75.00', 1, 4, 'A', '2025-12-06 11:07:54', NULL, '2025-12-06 11:08:37'),
+(21, 22, 8, '118.00', '59.00', 2, 3, 'C', '2025-12-06 11:08:56', NULL, '2025-12-06 11:09:17'),
+(22, 23, 8, '130.00', '65.00', 1, 3, 'B', '2025-12-06 11:08:56', NULL, '2025-12-06 11:09:17'),
+(23, 24, 8, '112.00', '56.00', 3, 3, 'C', '2025-12-06 11:08:56', NULL, '2025-12-06 11:09:17'),
+(24, 25, 7, '0.00', '0.00', NULL, NULL, NULL, '2025-12-07 01:53:13', NULL, '2025-12-07 01:53:13');
+
 -- --------------------------------------------------------
 
 --
@@ -421,6 +544,15 @@ CREATE TABLE `islamiyya_subjects` (
   `deleted_at` datetime DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `islamiyya_subjects`
+--
+
+INSERT INTO `islamiyya_subjects` (`id`, `name`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(1, 'Hadith', '2025-12-06 03:10:02', NULL, '2025-12-06 03:10:02'),
+(2, 'Qur\'an', '2025-12-06 03:10:17', NULL, '2025-12-06 03:10:17'),
+(3, 'Huruful Hijaa iya', '2025-12-06 03:10:38', NULL, '2025-12-06 03:10:38');
 
 -- --------------------------------------------------------
 
@@ -752,15 +884,16 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `guardian_id`, `dob`, `picture`, `password`, `reset_token`, `reset_expires`, `status`, `gender`, `class_id`, `arm_id`, `term_id`, `islamiyya_class_id`, `islamiyya_arm_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
-(1, 'Sudent 1', 'ADM/2025/001', '', '', 1, '2010-01-01', NULL, '$2y$10$I0827bvuAUzAiVVsNEu79.MOsxJJzTMrK1Q.4PFN2ihcoqoXIxPaa', NULL, NULL, 'active', 'male', 3, 1, 7, NULL, NULL, '2025-11-28 04:58:20', NULL, '2025-12-02 05:14:41'),
+(1, 'Sudent 1', 'ADM/2025/001', '', '', 1, '2010-01-01', NULL, '$2y$10$I0827bvuAUzAiVVsNEu79.MOsxJJzTMrK1Q.4PFN2ihcoqoXIxPaa', NULL, NULL, 'active', 'male', 3, 1, 7, 2, 1, '2025-11-28 04:58:20', NULL, '2025-12-07 01:53:13'),
 (2, 'Student 2', 'ADM/2025/002', '', '', 2, '2010-12-12', NULL, '$2y$10$Ua3z/RF42cFJnVVMMDnEA.525aV1WPGOAZh5oIOZSFxyeMO9AALQS', NULL, NULL, 'active', 'female', 3, 1, 7, NULL, NULL, '2025-11-28 06:00:51', NULL, '2025-12-02 05:14:41'),
-(3, 'Student 3', 'ADM/2025/003', '', '', 3, '2011-01-12', NULL, '$2y$10$iLBMhJRjRIHU24WYIZte2Oih1Na5emBd/swu6iQaUbXa1MTmb8I2G', NULL, NULL, 'active', 'male', 3, 1, 7, NULL, NULL, '2025-11-28 06:13:03', NULL, '2025-12-02 05:14:41'),
-(4, 'student 4', 'ADM/2025/004', '', '', 3, '2011-12-21', NULL, '$2y$10$Wpz3CMkKn6imHNRDda3pCO.lRxzV0gGbW1FENhVz0fudU0UvB2TRS', NULL, NULL, 'active', 'female', 2, 1, 7, NULL, NULL, '2025-12-01 11:25:58', NULL, '2025-12-02 05:14:41'),
-(5, 'student 5', 'ADM/2025/005', '', '', 1, '2011-12-23', NULL, '$2y$10$xujXEVHiVdBPF73snPL5z.RXNGg3QGkMeDZRzEnu2uCwVNzrn8Mc6', NULL, NULL, 'active', 'male', 2, 1, 7, NULL, NULL, '2025-12-01 11:26:43', NULL, '2025-12-02 05:14:41'),
+(3, 'Student 3', 'ADM/2025/003', '', '', 3, '2011-01-12', NULL, '$2y$10$iLBMhJRjRIHU24WYIZte2Oih1Na5emBd/swu6iQaUbXa1MTmb8I2G', NULL, NULL, 'active', 'male', 3, 1, 7, 1, 1, '2025-11-28 06:13:03', NULL, '2025-12-06 03:59:18'),
+(4, 'student 4', 'ADM/2025/004', '', '', 3, '2011-12-21', NULL, '$2y$10$Wpz3CMkKn6imHNRDda3pCO.lRxzV0gGbW1FENhVz0fudU0UvB2TRS', NULL, NULL, 'active', 'female', 2, 1, 7, 2, 1, '2025-12-01 11:25:58', NULL, '2025-12-06 04:21:44'),
+(5, 'student 5', 'ADM/2025/005', '', '', 1, '2011-12-23', NULL, '$2y$10$xujXEVHiVdBPF73snPL5z.RXNGg3QGkMeDZRzEnu2uCwVNzrn8Mc6', NULL, NULL, 'active', 'male', 2, 1, 7, 2, 1, '2025-12-01 11:26:43', NULL, '2025-12-06 04:21:07'),
 (6, 'Student 6', 'ADM/2025//006', '', '', 2, '2012-01-02', NULL, '$2y$10$YvvD8gmgOLe50zRfkdA4c.JQteJifBFYhsaWY8SxDmtQLJ2dw113u', NULL, NULL, 'active', 'male', 2, 1, 7, NULL, NULL, '2025-12-01 11:27:55', NULL, '2025-12-02 05:14:41'),
-(7, 'student 7', 'ADM/2025/007', '', '', 1, '2011-01-01', NULL, '$2y$10$RN.08kU3QmyGfe/ktOEFX.I2zdAGpqTq2rfRzZ4zD39TfWsQKYfS2', NULL, NULL, 'active', 'male', 2, 2, 7, NULL, NULL, '2025-12-01 12:24:49', NULL, '2025-12-02 05:14:41'),
-(8, 'student 8', 'ADM/2025/008', '', '', 1, '2010-01-31', NULL, '$2y$10$BhVZaUhv7eveETTR3SUmd.el/dzIwW.i9Zb/543IWXGjINhJhoXpa', NULL, NULL, 'active', 'female', 2, 2, 7, NULL, NULL, '2025-12-01 12:25:34', NULL, '2025-12-02 05:14:41'),
-(9, 'Student 9', 'ADM/2025/009', '', '', 3, '2010-12-31', NULL, '$2y$10$F8THskZebiBxT5AtdslSpuSXlJc8l.eI/sTnfnPGzHMpSQ1MojTrK', NULL, NULL, 'active', 'female', 2, 2, 7, NULL, NULL, '2025-12-01 12:28:40', NULL, '2025-12-02 05:14:41');
+(7, 'student 7', 'ADM/2025/007', '', '', 1, '2011-01-01', NULL, '$2y$10$RN.08kU3QmyGfe/ktOEFX.I2zdAGpqTq2rfRzZ4zD39TfWsQKYfS2', NULL, NULL, 'active', 'male', 2, 2, 7, 1, 1, '2025-12-01 12:24:49', NULL, '2025-12-06 04:25:56'),
+(8, 'student 8', 'ADM/2025/008', '', '', 1, '2010-01-31', NULL, '$2y$10$BhVZaUhv7eveETTR3SUmd.el/dzIwW.i9Zb/543IWXGjINhJhoXpa', NULL, NULL, 'active', 'female', 2, 2, 7, 1, 1, '2025-12-01 12:25:34', NULL, '2025-12-06 04:25:45'),
+(9, 'Student 9', 'ADM/2025/009', '', '', 3, '2010-12-31', NULL, '$2y$10$F8THskZebiBxT5AtdslSpuSXlJc8l.eI/sTnfnPGzHMpSQ1MojTrK', NULL, NULL, 'active', 'female', 2, 2, 7, 1, 1, '2025-12-01 12:28:40', NULL, '2025-12-06 04:25:36'),
+(10, 'Student 10', 'ADM/2025/010', '', '', 3, '2009-01-01', NULL, '$2y$10$cOa04fInt2mDsAYYd8Hce.FaZ/6i8CBMnh4tUiHjkrY7/t57AnFe6', NULL, NULL, 'active', 'male', 4, 1, 8, 2, 1, '2025-12-06 04:23:18', NULL, '2025-12-06 04:23:18');
 
 -- --------------------------------------------------------
 
@@ -808,7 +941,8 @@ INSERT INTO `student_class_records` (`id`, `student_id`, `session_id`, `class_id
 (18, 6, 3, 2, 1, '432.00', '72.00', 1, 'pending', '2025-12-02 05:14:41', NULL, '2025-12-02 06:12:16'),
 (19, 7, 3, 2, 2, '411.00', '68.50', 3, 'promoted', '2025-12-02 05:14:41', NULL, '2025-12-02 06:02:54'),
 (20, 8, 3, 2, 2, '437.00', '72.84', 2, 'promoted', '2025-12-02 05:14:41', NULL, '2025-12-02 06:02:54'),
-(21, 9, 3, 2, 2, '450.00', '75.00', 1, 'promoted', '2025-12-02 05:14:41', NULL, '2025-12-02 06:02:54');
+(21, 9, 3, 2, 2, '450.00', '75.00', 1, 'promoted', '2025-12-02 05:14:41', NULL, '2025-12-02 06:02:54'),
+(25, 10, 3, 4, 1, '0.00', '0.00', NULL, 'pending', '2025-12-06 04:23:18', NULL, '2025-12-06 04:23:18');
 
 -- --------------------------------------------------------
 
@@ -888,7 +1022,8 @@ INSERT INTO `student_term_records` (`id`, `student_class_record_id`, `term_id`, 
 (52, 18, 8, '246.00', '82.00', 1, 3, 'A', '2025-12-02 05:59:46', NULL, '2025-12-02 06:01:34'),
 (53, 19, 8, '222.00', '74.00', 2, 3, 'B', '2025-12-02 05:59:46', NULL, '2025-12-02 06:02:54'),
 (54, 20, 8, '216.00', '72.00', 3, 3, 'B', '2025-12-02 05:59:46', NULL, '2025-12-02 06:02:54'),
-(55, 21, 8, '227.00', '75.67', 1, 3, 'A', '2025-12-02 05:59:46', NULL, '2025-12-02 06:02:54');
+(55, 21, 8, '227.00', '75.67', 1, 3, 'A', '2025-12-02 05:59:46', NULL, '2025-12-02 06:02:54'),
+(59, 25, 8, '0.00', '0.00', NULL, NULL, NULL, '2025-12-06 04:23:18', NULL, '2025-12-06 04:23:18');
 
 -- --------------------------------------------------------
 
@@ -1088,6 +1223,13 @@ ALTER TABLE `islamiyya_class_subjects`
   ADD KEY `teacher_id` (`teacher_id`);
 
 --
+-- Indexes for table `islamiyya_fees`
+--
+ALTER TABLE `islamiyya_fees`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_islamiyya_fees_class` (`islamiyya_class_id`);
+
+--
 -- Indexes for table `islamiyya_results`
 --
 ALTER TABLE `islamiyya_results`
@@ -1269,49 +1411,55 @@ ALTER TABLE `guardians`
 -- AUTO_INCREMENT for table `islamiyya_classes`
 --
 ALTER TABLE `islamiyya_classes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `islamiyya_class_arms`
 --
 ALTER TABLE `islamiyya_class_arms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `islamiyya_class_subjects`
 --
 ALTER TABLE `islamiyya_class_subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `islamiyya_fees`
+--
+ALTER TABLE `islamiyya_fees`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `islamiyya_results`
 --
 ALTER TABLE `islamiyya_results`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT for table `islamiyya_sections`
 --
 ALTER TABLE `islamiyya_sections`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `islamiyya_student_class_records`
 --
 ALTER TABLE `islamiyya_student_class_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `islamiyya_student_term_records`
 --
 ALTER TABLE `islamiyya_student_term_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `islamiyya_subjects`
 --
 ALTER TABLE `islamiyya_subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `news`
@@ -1323,7 +1471,7 @@ ALTER TABLE `news`
 -- AUTO_INCREMENT for table `results`
 --
 ALTER TABLE `results`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=196;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=199;
 
 --
 -- AUTO_INCREMENT for table `schools`
@@ -1347,19 +1495,19 @@ ALTER TABLE `sessions`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `student_class_records`
 --
 ALTER TABLE `student_class_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `student_term_records`
 --
 ALTER TABLE `student_term_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `subjects`
@@ -1438,6 +1586,12 @@ ALTER TABLE `islamiyya_class_subjects`
   ADD CONSTRAINT `islamiyya_class_subjects_ibfk_1` FOREIGN KEY (`class_id`) REFERENCES `islamiyya_classes` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `islamiyya_class_subjects_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `islamiyya_subjects` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `islamiyya_class_subjects_ibfk_3` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `islamiyya_fees`
+--
+ALTER TABLE `islamiyya_fees`
+  ADD CONSTRAINT `fk_islamiyya_fees_class` FOREIGN KEY (`islamiyya_class_id`) REFERENCES `islamiyya_classes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `islamiyya_results`
