@@ -8,19 +8,9 @@ if (!$is_logged_in) {
     exit();
 }
 
-// Fetch data using helper functions (assuming they are PDO-based)
-$admins    = selectAllData('admins');
-$guardians = selectAllData('guardians');
-$teachers  = selectAllData('teachers');
 
-$adminsCount    = countDataTotal('admins', true);
-$teachersCount  = countDataTotal('teachers', true);
-$guardiansCount = countDataTotal('guardians', true);
 $studentsCount  = countDataTotal('students', true);
 
-$totalUsers          = $adminsCount['total'] + $teachersCount['total'] + $guardiansCount['total'] + $studentsCount['total'];
-$totalActiveUsers    = $adminsCount['active'] + $teachersCount['active'] + $guardiansCount['active'] + $studentsCount['active'];
-$totalInactiveUsers  = $adminsCount['inactive'] + $teachersCount['inactive'] + $guardiansCount['inactive'] + $studentsCount['inactive'];
 
 //  PDO query for students with classes and arms
 $stmt = $pdo->prepare("
@@ -85,7 +75,7 @@ $totalActiveStudents = $studentsCountList['active'];
 
 
     <!-- Page Header -->
-    <section class="bg-purple-900 text-white py-12">
+    <section class="bg-gradient-to-r from-orange-900 to-orange-700 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Students Management</h1>
             <p class="text-xl text-purple-200">Manage students across the school system</p>

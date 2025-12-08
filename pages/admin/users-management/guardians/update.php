@@ -1,7 +1,7 @@
 <?php
 
 $title = 'Update Guardian Account';
-include(__DIR__ . '/../../../includes/header.php');
+include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -123,10 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 <body class="bg-gray-50">
-    <?php include(__DIR__ . '/../includes/admins-section-nav.php')  ?>
+    <?php include(__DIR__ . '/../../includes/admins-section-nav.php')  ?>
 
     <!-- Page Header -->
-    <section class="bg-green-900 text-white py-12">
+    <section class="bg-gradient-to-r from-green-900 to-green-700 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Guardian Account</h1>
             <p class="text-xl text-green-200">Edit guardian account information</p>
@@ -148,9 +148,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
+                            <?php include(__DIR__ . '/../../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../includes/components/error-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../includes/components/form-loader.php'); ?>
 
 
 
@@ -281,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../../includes/footer.php'); ?>
 
 
     <script>

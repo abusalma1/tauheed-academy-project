@@ -1,6 +1,6 @@
 <?php
-$title = "Create Teacher Account";
-include(__DIR__ . '/../../../includes/header.php');
+$title = "Update Teacher Account";
+include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -8,55 +8,52 @@ if (!$is_logged_in) {
     exit();
 }
 
-
+// Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-
+// Fetch teacher by ID
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $conn->prepare('SELECT * FROM teachers WHERE id=?');
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $teacher = $result->fetch_assoc();
-    } else {
-        header('Location: ' .  route('back'));
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare("SELECT * FROM teachers WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    $teacher = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$teacher) {
+        header("Location: " . route('back'));
+        exit();
     }
 } else {
-    header('Location: ' .  route('back'));
+    header("Location: " . route('back'));
+    exit();
 }
 
-
 $teachers = selectAllData('teachers', null, $id);
-
+$teachersCount = countDataTotal('teachers', true);
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+    // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     } else {
-        // regenerate after successful validation
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $id = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
-
-    $name = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
-    $phone = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $address = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $staffNumber = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
+    // Sanitize inputs
+    $id           = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $name         = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email        = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone        = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address      = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $staffNumber  = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
     $qualification = htmlspecialchars(trim($_POST['qualification'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $status = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
-    $gender = trim($_POST['gender'] ?? '');
-    $experience = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $status       = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender       = trim($_POST['gender'] ?? '');
+    $experience   = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
 
-
-    // validations...
+    // Validations
     if (empty($name)) $errors['nameError'] = 'Full name is required';
     if (empty($email)) {
         $errors['emailError'] = 'Email is required';
@@ -65,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (emailExist($email, 'teachers', $id)) {
         $errors['emailError'] = 'Email already exists';
     }
-
     if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
     if (empty($address)) $errors['addressError'] = 'Address is required';
     if (empty($staffNumber)) {
@@ -74,19 +70,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['staffNumberError'] = 'Staff No already exists';
     }
     if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
-    if (empty($gender)) $errors['gender'] = "Gender is required.";
+    if (empty($gender)) $errors['genderError'] = "Gender is required.";
     if (empty($experience)) $errors['experienceError'] = 'Experience is required';
 
     if (empty($errors)) {
-        $stmt = $conn->prepare("UPDATE teachers SET name = ? , email = ?, phone = ?, address = ?, staff_no = ?, qualification = ?,  gender = ?, experience = ?, status = ? WHERE id = ?");
-        $stmt->bind_param('sssssssssi', $name, $email, $phone, $address, $staffNumber, $qualification, $gender, $experience, $status, $id);
+        try {
+            // Start transaction
+            $pdo->beginTransaction();
 
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Teacher account updated successfully!";
-            header("Location: " .  route('back'));
-            exit();
-        } else {
-            echo "<script>alert('Database error: " . $stmt->error . "');</script>";
+            $stmt = $pdo->prepare("
+                UPDATE teachers 
+                SET name = ?, email = ?, phone = ?, address = ?, staff_no = ?, 
+                    qualification = ?, gender = ?, experience = ?, status = ?
+                WHERE id = ?
+            ");
+            $success = $stmt->execute([
+                $name,
+                $email,
+                $phone,
+                $address,
+                $staffNumber,
+                $qualification,
+                $gender,
+                $experience,
+                $status,
+                $id
+            ]);
+
+            if ($success) {
+                $pdo->commit();
+                $_SESSION['success'] = "Teacher account updated successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update teacher account');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {
@@ -94,19 +116,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
+
+
 <script>
     const teachers = <?= json_encode($teachers, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>
 
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>
+    <?php include(__DIR__ . '/../../includes/admins-section-nav.php') ?>
 
 
     <!-- Page Header -->
-    <section class="bg-blue-900 text-white py-12">
+    <section class="bg-gradient-to-r from-blue-900 to-blue-700   text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Update Teacher Account</h1>
             <p class="text-xl text-blue-200">Edit teacher account information</p>
@@ -127,9 +150,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="hidden" name="id" value="<?= $teacher['id'] ?>">
 
 
-                            <?php include(__DIR__ . '/../../../includes/components/success-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../includes/components/error-message.php'); ?>
-                            <?php include(__DIR__ . '/../../../includes/components/form-loader.php'); ?>
+                            <?php include(__DIR__ . '/../../../../includes/components/success-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../includes/components/error-message.php'); ?>
+                            <?php include(__DIR__ . '/../../../../includes/components/form-loader.php'); ?>
 
 
                             <!-- Full Name -->
@@ -257,7 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 
     <!-- Footer -->
-    <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../../../includes/footer.php'); ?>
 
 
     <script>

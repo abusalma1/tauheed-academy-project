@@ -109,39 +109,48 @@ $routes = [
     ],
     // admin 
 
+    'admin-management' => [
+        'url' => "$baseUrl/pages/admin/users-management/admins/"
+    ],
     'admin-create' => [
-        'url' => "$baseUrl/pages/admin/users-management/admin-create.php"
+        'url' => "$baseUrl/pages/admin/users-management/admins/create.php"
     ],
     'admin-update' => [
-        'url' => "$baseUrl/pages/admin/users-management/admin-update.php"
+        'url' => "$baseUrl/pages/admin/users-management/admins/update.php"
     ],
 
 
     // guardian
-
+    'guardian-management' => [
+        'url' => "$baseUrl/pages/admin/users-management/guardians/"
+    ],
     'guardian-create' => [
-        'url' => "$baseUrl/pages/admin/users-management/guardian-create.php"
+        'url' => "$baseUrl/pages/admin/users-management/guardians/create.php"
     ],
     'guardian-update' => [
-        'url' => "$baseUrl/pages/admin/users-management/guardian-update.php"
+        'url' => "$baseUrl/pages/admin/users-management/guardians/update.php"
     ],
 
     // teachers
-
+    'teacher-management' => [
+        'url' => "$baseUrl/pages/admin/users-management/teachers/"
+    ],
     'teacher-create' => [
-        'url' => "$baseUrl/pages/admin/users-management/teacher-create.php"
+        'url' => "$baseUrl/pages/admin/users-management/teachers/create.php"
     ],
     'teacher-update' => [
-        'url' => "$baseUrl/pages/admin/users-management/teacher-update.php"
+        'url' => "$baseUrl/pages/admin/users-management/teachers/update.php"
     ],
 
     // students
-
+    'student-management' => [
+        'url' => "$baseUrl/pages/admin/users-management/students/"
+    ],
     'student-create' => [
-        'url' => "$baseUrl/pages/admin/users-management/student-create.php"
+        'url' => "$baseUrl/pages/admin/users-management/students/create.php"
     ],
     'student-update' => [
-        'url' => "$baseUrl/pages/admin/users-management/student-update.php"
+        'url' => "$baseUrl/pages/admin/users-management/students/update.php"
     ],
 
     // classes, sections & class arms 

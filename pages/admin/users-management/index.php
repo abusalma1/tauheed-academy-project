@@ -8,10 +8,6 @@ if (!$is_logged_in) {
     exit();
 }
 
-// Fetch data using helper functions (assuming they are PDO-based)
-$admins    = selectAllData('admins');
-$guardians = selectAllData('guardians');
-$teachers  = selectAllData('teachers');
 
 $adminsCount    = countDataTotal('admins', true);
 $teachersCount  = countDataTotal('teachers', true);
@@ -22,61 +18,6 @@ $totalUsers          = $adminsCount['total'] + $teachersCount['total'] + $guardi
 $totalActiveUsers    = $adminsCount['active'] + $teachersCount['active'] + $guardiansCount['active'] + $studentsCount['active'];
 $totalInactiveUsers  = $adminsCount['inactive'] + $teachersCount['inactive'] + $guardiansCount['inactive'] + $studentsCount['inactive'];
 
-//  PDO query for students with classes and arms
-$stmt = $pdo->prepare("
-    SELECT 
-        classes.id AS class_id,
-        classes.name AS class_name,
-        class_arms.id AS arm_id,
-        class_arms.name AS arm_name,
-        students.id AS student_id,
-        students.name AS student_name,
-        students.admission_number,
-        students.gender,
-        students.status
-    FROM students
-    LEFT JOIN classes 
-        ON classes.id = students.class_id
-    LEFT JOIN class_arms 
-        ON class_arms.id = students.arm_id
-    WHERE students.deleted_at IS NULL
-    ORDER BY classes.id, class_arms.id, students.name
-");
-$stmt->execute();
-$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$classes = [];
-
-foreach ($rows as $row) {
-    $classId = $row['class_id'];
-
-    if (!isset($classes[$classId])) {
-        $classes[$classId] = [
-            'class_id'   => $row['class_id'],
-            'class_name' => $row['class_name'],
-            'students'   => []
-        ];
-    }
-
-    if (!empty($row['student_id'])) {
-        $classes[$classId]['students'][] = [
-            'student_id'        => $row['student_id'],
-            'student_name'      => $row['student_name'],
-            'gender'            => $row['gender'],
-            'status'            => $row['status'],
-            'admission_number'  => $row['admission_number'],
-            'arm_name'          => $row['arm_name']
-        ];
-    }
-}
-
-// Other counts
-$classesCount        = countDataTotal('classes')['total'];
-$armsCount           = countDataTotal('class_arms')['total'];
-$sectionsCount       = countDataTotal('sections')['total'];
-$studentsCountList   = countDataTotal('students', true);
-$studentsCount       = $studentsCountList['total'];
-$totalActiveStudents = $studentsCountList['active'];
 ?>
 
 
@@ -85,159 +26,164 @@ $totalActiveStudents = $studentsCountList['active'];
 
 
     <!-- Page Header -->
-    <section class="bg-purple-900 text-white py-12">
+    <section class="bg-gradient-to-r from-blue-900 to-blue-700  text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">All Users Management</h1>
-            <p class="text-xl text-purple-200">Manage all users across the school system</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">User Management</h1>
+            <p class="text-xl text-blue-200">Manage all user accounts and roles</p>
         </div>
     </section>
 
     <!-- Main Content -->
     <section class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- User Type Tabs -->
-            <div class="flex flex-wrap gap-2 mb-8 bg-white rounded-lg shadow p-4">
-                <button class="user-type-btn active px-6 py-2 rounded-lg font-semibold transition bg-purple-900 text-white" data-type="admins">
-                    <i class="fas fa-crown mr-2"></i>Admins
-                </button>
-                <button class="user-type-btn px-6 py-2 rounded-lg font-semibold transition bg-gray-200 text-gray-700" data-type="teachers">
-                    <i class="fas fa-chalkboard-user mr-2"></i>Teachers
-                </button>
-                <button class="user-type-btn px-6 py-2 rounded-lg font-semibold transition bg-gray-200 text-gray-700" data-type="guardians">
-                    <i class="fas fa-users mr-2"></i>Guardians
-                </button>
-                <button class="user-type-btn px-6 py-2 rounded-lg font-semibold transition bg-gray-200 text-gray-700" data-type="students">
-                    <i class="fas fa-graduation-cap mr-2"></i>Students
-                </button>
+            <!-- User Type Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <!-- Admins Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-purple-100 p-4 rounded-lg">
+                            <i class="fas fa-crown text-purple-600 text-2xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-purple-600" id="adminCount"><?= $adminsCount['total'] ?></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Admins & Super Users</h3>
+                    <p class="text-sm text-gray-600 mb-4">Manage administrator accounts</p>
+                    <a href="<?= route('admin-management') ?>" class="inline-block w-full text-center bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Manage
+                    </a>
+                </div>
+
+                <!-- Teachers Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-blue-100 p-4 rounded-lg">
+                            <i class="fas fa-chalkboard-user text-blue-600 text-2xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-blue-600" id="teacherCount"><?= $teachersCount['total'] ?></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Teachers</h3>
+                    <p class="text-sm text-gray-600 mb-4">Manage teacher accounts</p>
+                    <a href="<?= route('teacher-management') ?>" class="inline-block w-full text-center bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Manage
+                    </a>
+                </div>
+
+                <!-- Guardians Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-green-100 p-4 rounded-lg">
+                            <i class="fas fa-users text-green-600 text-2xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-green-600" id="guardianCount"><?= $guardiansCount['total'] ?></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Guardians</h3>
+                    <p class="text-sm text-gray-600 mb-4">Manage guardian accounts</p>
+                    <a href="<?= route('guardian-management') ?>" class="inline-block w-full text-center bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Manage
+                    </a>
+                </div>
+
+                <!-- Students Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-orange-100 p-4 rounded-lg">
+                            <i class="fas fa-graduation-cap text-orange-600 text-2xl"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-orange-600" id="studentCount"><?= $studentsCount['total'] ?></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Students</h3>
+                    <p class="text-sm text-gray-600 mb-4">Manage student accounts</p>
+                    <a href="<?= route('student-management') ?>" class="inline-block w-full text-center bg-orange-600 text-white py-2 rounded-lg font-semibold hover:bg-orange-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Manage
+                    </a>
+                </div>
             </div>
 
-            <!-- Search and Filter -->
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
-                        <input type="text" id="searchInput" placeholder="Search by name or email..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
+            <!-- Overall Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Total Users</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2" id="totalUsers"><?= $totalUsers ?></p>
+                        </div>
+                        <i class="fas fa-users text-4xl text-blue-200"></i>
                     </div>
-                    <div id="filterContainer"></div>
-                    <div class="flex items-end">
-                        <a id="createBtn" href="<?= route('admin-create') ?>" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center font-semibold">
-                            <i class="fas fa-plus mr-2"></i>Create New
-                        </a>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Active Users</p>
+                            <p class="text-3xl font-bold text-green-600 mt-2" id="activeUsers"><?= $totalActiveUsers  ?></p>
+                        </div>
+                        <i class="fas fa-check-circle text-4xl text-green-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Inactive Users</p>
+                            <p class="text-3xl font-bold text-red-600 mt-2" id="inactiveUsers"><?= $totalInactiveUsers ?></p>
+                        </div>
+                        <i class="fas fa-times-circle text-4xl text-red-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-semibold">Last Updated</p>
+                            <p class="text-lg font-bold text-gray-900 mt-2" id="lastUpdated">Today</p>
+                        </div>
+                        <i class="fas fa-calendar text-4xl text-purple-200"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- Admins Section -->
-            <?php include(__DIR__ . '/./components/admins-management-component.php'); ?>
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="admin-management.html" class="flex items-center gap-3 p-4 border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition">
+                        <i class="fas fa-plus text-purple-600 text-xl"></i>
+                        <div>
+                            <p class="font-semibold text-gray-900">Create Admin</p>
+                            <p class="text-xs text-gray-600">Add new administrator</p>
+                        </div>
+                    </a>
 
-            <!-- Teachers Section -->
-            <?php include(__DIR__ . '/./components/teachers-management-component.php'); ?>
+                    <a href="teacher-management.html" class="flex items-center gap-3 p-4 border-2 border-blue-200 rounded-lg hover:bg-blue-50 transition">
+                        <i class="fas fa-plus text-blue-600 text-xl"></i>
+                        <div>
+                            <p class="font-semibold text-gray-900">Create Teacher</p>
+                            <p class="text-xs text-gray-600">Add new teacher</p>
+                        </div>
+                    </a>
 
+                    <a href="guardian-management.html" class="flex items-center gap-3 p-4 border-2 border-green-200 rounded-lg hover:bg-green-50 transition">
+                        <i class="fas fa-plus text-green-600 text-xl"></i>
+                        <div>
+                            <p class="font-semibold text-gray-900">Create Guardian</p>
+                            <p class="text-xs text-gray-600">Add new guardian</p>
+                        </div>
+                    </a>
 
-            <!-- Guardians Section -->
-            <?php include(__DIR__ . '/./components/guardians-management-component.php'); ?>
-
-
-            <!-- Students Section -->
-            <?php include(__DIR__ . '/./components/students-management-component.php'); ?>
-
-
+                    <a href="student-management.html" class="flex items-center gap-3 p-4 border-2 border-orange-200 rounded-lg hover:bg-orange-50 transition">
+                        <i class="fas fa-plus text-orange-600 text-xl"></i>
+                        <div>
+                            <p class="font-semibold text-gray-900">Create Student</p>
+                            <p class="text-xs text-gray-600">Add new student</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
 
+
     <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
-
-    <script>
-        document.querySelectorAll('.user-type-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.user-type-btn').forEach(b => {
-                    b.classList.remove('active', 'bg-purple-900', 'text-white');
-                    b.classList.add('bg-gray-200', 'text-gray-700');
-                });
-                btn.classList.add('active', 'bg-purple-900', 'text-white');
-                btn.classList.remove('bg-gray-200', 'text-gray-700');
-
-                document.querySelectorAll('.user-section').forEach(s => s.classList.add('hidden'));
-                const userType = btn.dataset.type;
-                document.getElementById(`${userType}-section`).classList.remove('hidden');
-
-                updateCreateButton(userType);
-            });
-        });
-
-        function updateCreateButton(userType) {
-            const createBtn = document.getElementById('createBtn');
-            const links = {
-                admins: '<?= route('admin-create') ?>',
-                teachers: '<?= route('teacher-create') ?>',
-                guardians: '<?= route('guardian-create') ?>',
-                students: '<?= route('student-create') ?>'
-            };
-            createBtn.href = links[userType];
-        }
-
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-
-            // Filter admins
-            document.querySelectorAll('.admin-card').forEach(card => {
-                const searchData = card.dataset.search.toLowerCase();
-                card.style.display = searchData.includes(searchTerm) ? '' : 'none';
-            });
-
-            // Filter teachers
-            document.querySelectorAll('.teacher-card').forEach(card => {
-                const searchData = card.dataset.search.toLowerCase();
-                card.style.display = searchData.includes(searchTerm) ? '' : 'none';
-            });
-
-            // Filter guardians
-            document.querySelectorAll('.guardian-card').forEach(card => {
-                const searchData = card.dataset.search.toLowerCase();
-                card.style.display = searchData.includes(searchTerm) ? '' : 'none';
-            });
-
-            // Filter students
-            document.querySelectorAll('.student-row').forEach(row => {
-                const searchData = row.dataset.search.toLowerCase();
-                row.style.display = searchData.includes(searchTerm) ? '' : 'none';
-            });
-        });
-
-        document.querySelectorAll('.admin-role-filter').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.admin-role-filter').forEach(b => {
-                    b.classList.remove('border-purple-900', 'text-purple-900');
-                    b.classList.add('border-gray-300', 'text-gray-700');
-                });
-                btn.classList.add('border-purple-900', 'text-purple-900');
-                btn.classList.remove('border-gray-300', 'text-gray-700');
-
-                const selectedRole = btn.dataset.role;
-                document.querySelectorAll('.admin-card').forEach(card => {
-                    if (selectedRole === 'all' || card.dataset.role === selectedRole) {
-                        card.style.display = '';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
-
-        document.getElementById('classFilter').addEventListener('change', function() {
-            const selectedClass = this.value.toLowerCase().replace(/\s+/g, '-');
-            const groups = document.querySelectorAll('.student-class-group');
-
-            groups.forEach(group => {
-                const groupClass = group.dataset.class;
-                if (selectedClass === '' || groupClass === selectedClass) {
-                    group.style.display = '';
-                } else {
-                    group.style.display = 'none';
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>
