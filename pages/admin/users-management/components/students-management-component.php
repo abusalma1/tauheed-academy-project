@@ -71,12 +71,35 @@
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
                                         <a href="<?= route('view-user-details') . '?id=' . $student['student_id'] . '&type=student' ?>" class="text-purple-600 hover:text-green-800 font-semibold">
-                                            <i class="fas fa-eye"></i>View Details
+                                            <i class="fas fa-eye"></i> View Details
                                         </a>
-                                        <a href="<?= route('student-result') . '?id=' . $student['student_id'] ?>" class="text-purple-600 hover:text-green-800 font-semibold">
-                                            <i class="fas fa-eye"></i>View Result history
-                                        </a>
+                                        <!-- Results Dropdown -->
+                                        <div class="relative inline-block text-left">
+                                            <!-- Trigger link -->
+                                            <a href="#"
+                                                onclick="toggleResultsDropdown(event)"
+                                                class="text-purple-600 hover:text-green-800 font-semibold flex items-center">
+                                                <i class="fas fa-eye mr-2"></i> View Results
+                                                <svg class="ml-1 h-4 w-4 text-purple-600 hover:text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </a>
 
+                                            <!-- Dropdown menu -->
+                                            <div id="resultsDropdown"
+                                                class="absolute mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 scale-95 pointer-events-none transition ease-out duration-200 z-10">
+                                                <div class="py-2">
+                                                    <a href="<?= route('admin-student-result') . '?id=' . $student['student_id'] ?>"
+                                                        class="block px-4 py-2 text-sm text-purple-600 hover:bg-gray-100 hover:text-green-800 font-semibold">
+                                                        <i class="fas fa-list mr-2"></i> General Result History
+                                                    </a>
+                                                    <a href="<?= route('admin-student-islamiyya-result') . '?id=' . $student['student_id'] ?>"
+                                                        class="block px-4 py-2 text-sm text-purple-600 hover:bg-gray-100 hover:text-green-800 font-semibold">
+                                                        <i class="fas fa-book-quran mr-2"></i> Islamiyya Result History
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <a href="<?= route('delete-user') . '?id=' . $student['student_id'] ?>&table=students&type=Student" class="text-red-600 hover:text-red-800 font-semibold">
                                             <i class="fas fa-trash"></i> Delete
@@ -91,3 +114,37 @@
         <?php endforeach; ?>
     </div>
 </div>
+
+
+<script>
+    function toggleResultsDropdown(e) {
+        e.preventDefault();
+        const dropdown = document.getElementById('resultsDropdown');
+        const isOpen = !dropdown.classList.contains('pointer-events-none');
+
+        if (isOpen) {
+            closeResultsDropdown();
+        } else {
+            dropdown.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+            dropdown.classList.add('opacity-100', 'scale-100');
+        }
+    }
+
+    // Close dropdown with transition
+    function closeResultsDropdown() {
+        const dropdown = document.getElementById('resultsDropdown');
+        dropdown.classList.remove('opacity-100', 'scale-100');
+        dropdown.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+    }
+
+    // Close when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('resultsDropdown');
+        const trigger = event.target.closest('a[href="#"]');
+        const insideDropdown = event.target.closest('#resultsDropdown');
+
+        if (!insideDropdown && !trigger) {
+            closeResultsDropdown();
+        }
+    });
+</script>

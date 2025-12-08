@@ -269,6 +269,9 @@ $routes = [
     'admin-view-subject-result' => [
         'url' => "$baseUrl/pages/admin/results-management/view-subject-result.php"
     ],
+    'admin-student-result' => [
+        'url' => "$baseUrl/pages/admin/results-management/student-results.php"
+    ],
 
     // results
     'results-management' => [
@@ -380,6 +383,9 @@ $routes = [
     ],
     'admin-view-islamiyya-subject-result' => [
         'url' => "$baseUrl/pages/admin/islamiyya/results-management/view-subject-result.php"
+    ],
+    'admin-student-islamiyya-result' => [
+        'url' => "$baseUrl/pages/admin/islamiyya/results-management/student-results.php"
     ],
 
     //islamiyya  subjects
