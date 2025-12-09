@@ -95,7 +95,7 @@ if ($type === 'student') {
                     <!-- Profile Picture -->
                     <div class="flex flex-col md:flex-row gap-8 -mt-16 mb-8">
                         <div class="flex justify-center md:justify-start">
-                            <img id="profilePic" src="/placeholder.svg?height=150&width=150" alt="User Profile" class="w-32 h-32 rounded-full border-4 border-white shadow-lg">
+                            <img id="profilePic" src="<?= !empty($user['picture_path']) ? asset($user['picture_path']) : asset('/images/avatar.png') ?>" alt="User Profile" class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover">
                         </div>
 
                         <!-- Basic Info -->

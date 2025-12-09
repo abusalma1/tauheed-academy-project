@@ -327,7 +327,9 @@ CREATE TABLE terms (
         phone VARCHAR(20) NULL,
         guardian_id INT,
         dob DATE,
-        picture VARCHAR(255),
+
+         picture_path VARCHAR(255),
+
         password VARCHAR(255) NOT NULL,
         reset_token VARCHAR(255) NULL,
         reset_expires DATETIME NULL,

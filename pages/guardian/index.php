@@ -9,10 +9,13 @@ if ($is_logged_in === false) {
     exit();
 }
 
-//  Use PDO instead of MySQLi
-$stmt = $pdo->prepare("
+// Fetch children
+$stmtChildren = $pdo->prepare("
     SELECT 
-        s.*, 
+        s.id,
+        s.name,
+        s.admission_number,
+        s.picture_path,
         c.name AS class_name, 
         ca.name AS arm_name,
         ic.name AS islamiyya_class_name, 
@@ -22,41 +25,45 @@ $stmt = $pdo->prepare("
     LEFT JOIN class_arms ca ON ca.id = s.arm_id
     LEFT JOIN islamiyya_classes ic ON ic.id = s.islamiyya_class_id
     LEFT JOIN islamiyya_class_arms ica ON ica.id = s.islamiyya_arm_id
-    WHERE s.guardian_id = ?
+    WHERE s.guardian_id = ? AND s.deleted_at IS NULL
+");
+$stmtChildren->execute([$user['id']]);
+$children = $stmtChildren->fetchAll(PDO::FETCH_ASSOC);
+
+// Prepare statements for averages
+$stmtGenAvg = $pdo->prepare("
+    SELECT AVG(r.total) AS avg_score
+    FROM results r
+    JOIN student_term_records str ON r.student_term_record_id = str.id
+    JOIN student_class_records scr ON str.student_class_record_id = scr.id
+    WHERE scr.student_id = ?
 ");
 
-$stmt->execute([$user['id']]);
-$children = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmtIslamiyyaAvg = $pdo->prepare("
+    SELECT AVG(r.total) AS avg_score
+    FROM islamiyya_results r
+    JOIN islamiyya_student_term_records str ON r.student_term_record_id = str.id
+    JOIN islamiyya_student_class_records scr ON str.student_class_record_id = scr.id
+    WHERE scr.student_id = ?
+");
 
-    foreach ($children as &$child) {
-        // Calculate overall average from General Studies
-        $stmt = $pdo->prepare("
-        SELECT AVG(r.total) AS avg_score
-        FROM results r
-        JOIN student_term_records str ON r.student_term_record_id = str.id
-        JOIN student_class_records scr ON str.student_class_record_id = scr.id
-        WHERE scr.student_id = ?
-    ");
-        $stmt->execute([$child['id']]);
-        $genAvg = $stmt->fetchColumn();
+// Update children array safely (no references)
+foreach ($children as $index => $child) {
+    $stmtGenAvg->execute([$child['id']]);
+    $genAvg = $stmtGenAvg->fetchColumn();
+    $genAvg = $genAvg !== null ? (float)$genAvg : 0;
 
-        // Calculate overall average from Islamiyya
-        $stmt = $pdo->prepare("
-        SELECT AVG(r.total) AS avg_score
-        FROM islamiyya_results r
-        JOIN islamiyya_student_term_records str ON r.student_term_record_id = str.id
-        JOIN islamiyya_student_class_records scr ON str.student_class_record_id = scr.id
-        WHERE scr.student_id = ?
-    ");
-        $stmt->execute([$child['id']]);
-        $islamiyyaAvg = $stmt->fetchColumn();
+    $stmtIslamiyyaAvg->execute([$child['id']]);
+    $islamiyyaAvg = $stmtIslamiyyaAvg->fetchColumn();
+    $islamiyyaAvg = $islamiyyaAvg !== null ? (float)$islamiyyaAvg : 0;
 
-        // Store in child array (rounded to 2 decimals)
-        $child['overall_avg'] = round(($genAvg + $islamiyyaAvg) / 2, 2);
-    }
+    $children[$index]['overall_avg'] = ($genAvg > 0 || $islamiyyaAvg > 0)
+        ? round(($genAvg + $islamiyyaAvg) / 2, 2)
+        : 0;
+}
 
-
-    $totalAvg = 0;
+// Guardian overall average
+$totalAvg = 0;
 $count = 0;
 
 foreach ($children as $child) {
@@ -67,9 +74,8 @@ foreach ($children as $child) {
 }
 
 $guardianOverallAvg = $count > 0 ? round($totalAvg / $count, 2) : 0;
-
-
 ?>
+
 
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -89,7 +95,7 @@ $guardianOverallAvg = $count > 0 ? round($totalAvg / $count, 2) : 0;
             <!-- Guardian Profile -->
             <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
                 <div class="flex flex-col md:flex-row items-center gap-6">
-                    <img src="/placeholder.svg?height=120&width=120" alt="Guardian Photo" class="h-28 w-28 rounded-full border-4 border-blue-900">
+                    <img src="<?= !empty($user['picture_path']) ? asset($user['picture_path']) : asset('/images/avatar.png') ?>" alt="Guardian Photo" class="h-28 w-28 rounded-full border-4 border-blue-900 object-cover">
                     <div class="flex-1">
                         <h2 class="text-2xl font-bold text-gray-900">
                             <?= $user['gender'] === 'male' ? "Mr. " : 'Mrs.' ?>
@@ -148,7 +154,7 @@ $guardianOverallAvg = $count > 0 ? round($totalAvg / $count, 2) : 0;
                         <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition overflow-hidden">
                             <div class="bg-gradient-to-r from-blue-900 to-blue-700 h-32"></div>
                             <div class="relative px-6 pb-6">
-                                <img src="/placeholder.svg?height=100&width=100" alt="Child Photo" class="h-24 w-24 rounded-full border-4 border-white -mt-16 mx-auto mb-4">
+                                <img src="<?= !empty($child['picture_path']) ? asset($child['picture_path']) : asset('/images/avatar.png') ?>" alt="Child Photo" class="h-24 w-24 rounded-full border-4 border-white -mt-16 mx-auto mb-4 object-cover">
                                 <h3 class="text-xl font-bold text-center text-gray-900"><?= $child['name'] ?></h3>
                                 <p class="text-gray-600 text-center text-sm mb-4">Gen. Stu. Class: <?= $child['class_name'] . ' - ' .  $child['arm_name'] ?></p>
                                 <p class="text-gray-600 text-center text-sm mb-4">Islamiyya Class: <?= $child['islamiyya_class_name'] . ' - ' .  $child['islamiyya_arm_name'] ?></p>

@@ -77,7 +77,7 @@ $guardiansCount = countDataTotal('guardians', true);
                             <div class="bg-gradient-to-r from-green-900 to-green-700 h-24"></div>
                             <div class="px-6 pb-6">
                                 <div class="flex justify-center -mt-12 mb-4">
-                                    <img src="/placeholder.svg?height=80&width=80" alt="<?= $guardian['name'] ?>" class="w-20 h-20 rounded-full border-4 border-white shadow-lg">
+                                    <img src="<?= !empty($guardian['picture_path']) ? asset($guardian['picture_path']) : asset('/images/avatar.png') ?>" alt="<?= $guardian['name'] ?>" class="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover">
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 text-center mb-1"><?= $guardian['name'] ?></h3>
                                 <p class="text-sm text-gray-600 text-center mb-4"><?= $guardian['email'] ?></p>
@@ -102,6 +102,10 @@ $guardiansCount = countDataTotal('guardians', true);
                                     <a href="<?= route('guardian-update') . '?id=' .  $guardian['id'] ?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
                                         <i class="fas fa-edit mr-1"></i>Edit
                                     </a>
+                                    <a href="<?= route('upload-guardian-picture') . '?id=' .  $guardian['id'] ?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
+                                        <i class="fas fa-upload mr-1"></i>Upload Picture
+                                    </a>
+
                                     <a href="<?= route('update-user-password') . '?id=' . $guardian['id']  . '&user_type=guardian' ?>" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
                                         <i class="fas fa-lock mr-2"></i>Edit Password
                                     </a>

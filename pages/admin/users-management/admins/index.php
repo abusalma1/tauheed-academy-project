@@ -87,7 +87,7 @@ $adminsCount    = countDataTotal('admins', true);
                             <div class="bg-gradient-to-r from-purple-900 to-purple-700 h-24"></div>
                             <div class="px-6 pb-6">
                                 <div class="flex justify-center -mt-12 mb-4">
-                                    <img src="/placeholder.svg?height=80&width=80" alt="<?= $admin['name'] ?>" class="w-20 h-20 rounded-full border-4 border-white shadow-lg">
+                                    <img src="<?= !empty($admin['picture_path']) ? asset($admin['picture_path']) : asset('/images/avatar.png') ?>" alt="<?= $admin['name'] ?>" class="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover">
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 text-center mb-1"><?= $admin['name'] ?></h3>
                                 <p class="text-sm text-gray-600 text-center mb-4"><?= $admin['email'] ?></p>
@@ -116,6 +116,11 @@ $adminsCount    = countDataTotal('admins', true);
                                     <a href="<?= route('admin-update')  . '?id=' . $admin['id']  ?>"
                                         class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
                                         <i class="fas fa-edit mr-1"></i>Edit
+                                    </a>
+
+                                    <a href="<?= route('upload-admin-picture')  . '?id=' . $admin['id']  ?>"
+                                        class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
+                                        <i class="fas fa-upload mr-1"></i>Upload Picture
                                     </a>
 
                                     <!-- Edit Password -->

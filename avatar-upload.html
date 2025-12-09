@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Avatar - Excellence Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="/placeholder.svg?height=50&width=50" alt="School Logo" class="h-12 w-12 rounded-full bg-white p-1">
+                    <div>
+                        <h1 class="text-xl font-bold">Excellence Academy</h1>
+                        <p class="text-xs text-blue-200">Avatar Upload</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="user-profile.html" class="hover:text-blue-300 transition">Back to Profile</a>
+                    <a href="../index.html" class="hover:text-blue-300 transition">Back to Site</a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-800 px-4 py-4 space-y-2">
+            <a href="user-profile.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Profile</a>
+            <a href="../index.html" class="block py-2 hover:bg-blue-700 px-3 rounded">Back to Site</a>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Upload Your Avatar</h1>
+            <p class="text-xl text-blue-200">Update your profile picture across all platforms</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-8">Avatar Management</h2>
+
+                <form id="avatarForm" class="space-y-8">
+                    <!-- Current Avatar Display -->
+                    <div class="bg-gray-50 rounded-lg p-8 border-2 border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Current Avatar</h3>
+                        <div class="flex flex-col items-center gap-6">
+                            <div class="relative">
+                                <img id="currentAvatar" src="/placeholder.svg?height=200&width=200" alt="Current Avatar" class="w-48 h-48 rounded-full border-4 border-blue-900 shadow-lg object-cover">
+                                <div class="absolute bottom-0 right-0 bg-green-500 w-8 h-8 rounded-full border-2 border-white flex items-center justify-center">
+                                    <i class="fas fa-check text-white text-sm"></i>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-600">Last Updated: <span id="lastUpdated" class="font-semibold">Not set</span></p>
+                                <p class="text-xs text-gray-500 mt-2">Size: 200 x 200 px</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Section -->
+                    <div class="border-2 border-dashed border-blue-300 rounded-lg p-8 bg-blue-50">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Upload New Avatar</h3>
+                        
+                        <div class="mb-6">
+                            <label for="avatarFile" class="block mb-4">
+                                <div class="flex flex-col items-center justify-center cursor-pointer hover:bg-blue-100 transition rounded-lg p-8">
+                                    <i class="fas fa-cloud-upload-alt text-5xl text-blue-900 mb-4"></i>
+                                    <p class="text-lg font-semibold text-gray-900 mb-2">Choose or drop image here</p>
+                                    <p class="text-sm text-gray-600">Supported formats: JPG, PNG, GIF, WebP (Max 5MB)</p>
+                                </div>
+                                <input 
+                                    type="file" 
+                                    id="avatarFile" 
+                                    name="avatarFile" 
+                                    accept="image/jpeg,image/png,image/gif,image/webp" 
+                                    class="hidden"
+                                    required
+                                >
+                            </label>
+                            <span class="text-red-500 text-sm hidden" id="fileError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div id="previewSection" class="hidden bg-gray-50 rounded-lg p-8 border-2 border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Preview</h3>
+                        <div class="flex flex-col md:flex-row gap-8 items-center">
+                            <!-- Preview Image -->
+                            <div class="flex-1 flex justify-center">
+                                <div class="relative">
+                                    <img id="previewAvatar" src="/placeholder.svg" alt="Preview Avatar" class="w-48 h-48 rounded-full border-4 border-orange-500 shadow-lg object-cover">
+                                    <div class="absolute bottom-0 right-0 bg-orange-500 w-8 h-8 rounded-full border-2 border-white flex items-center justify-center">
+                                        <i class="fas fa-eye text-white text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Preview Info -->
+                            <div class="flex-1 space-y-4">
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-2">File Name</p>
+                                    <p id="fileName" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-2">File Size</p>
+                                    <p id="fileSize" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-2">Dimensions</p>
+                                    <p id="fileDimensions" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mt-6">
+                                    <p class="text-sm text-green-700"><i class="fas fa-check-circle mr-2"></i>Image is ready to upload</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+               
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col md:flex-row gap-4 pt-4 border-t border-gray-200">
+                        <button type="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
+                            <i class="fas fa-upload mr-2"></i>Upload & Apply Avatar
+                        </button>
+                        <a href="user-profile.html" class="flex-1 bg-gray-300 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </a>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <p class="text-xs text-gray-600">By uploading an avatar, you agree that the image is yours or you have permission to use it. The image will be processed and stored securely.</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Excellence Academy</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Committed to providing quality education and nurturing future leaders.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="user-profile.html" class="text-gray-400 hover:text-white transition">My Profile</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 Education Street, City</li>
+                        <li><i class="fas fa-phone mr-2"></i>+234 800 123 4567</li>
+                        <li><i class="fas fa-envelope mr-2"></i>info@excellenceacademy.edu</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+                    <div class="flex gap-4">
+                        <a href="#" class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="bg-blue-400 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-pink-600 hover:bg-pink-700 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Avatar Upload Handler
+        const avatarFile = document.getElementById('avatarFile');
+        const previewSection = document.getElementById('previewSection');
+        const previewAvatar = document.getElementById('previewAvatar');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileDimensions = document.getElementById('fileDimensions');
+        const fileError = document.getElementById('fileError');
+        const adminWarning = document.getElementById('adminWarning');
+        const applyToRadios = document.querySelectorAll('input[name="applyTo"]');
+        const currentAvatar = document.getElementById('currentAvatar');
+        const lastUpdated = document.getElementById('lastUpdated');
+        const avatarForm = document.getElementById('avatarForm');
+
+        // File input change handler
+        avatarFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            fileError.classList.add('hidden');
+            
+            if (!file) return;
+
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                fileError.textContent = 'File size exceeds 5MB limit';
+                fileError.classList.remove('hidden');
+                previewSection.classList.add('hidden');
+                return;
+            }
+
+            // Validate file type
+            if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+                fileError.textContent = 'Invalid file type. Please use JPG, PNG, GIF, or WebP';
+                fileError.classList.remove('hidden');
+                previewSection.classList.add('hidden');
+                return;
+            }
+
+            // Read and display preview
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    previewAvatar.src = event.target.result;
+                    fileName.textContent = file.name;
+                    fileSize.textContent = (file.size / 1024).toFixed(2) + ' KB';
+                    fileDimensions.textContent = img.width + ' x ' + img.height + ' px';
+                    previewSection.classList.remove('hidden');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Show admin warning for bulk operations
+        applyToRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'current') {
+                    adminWarning.classList.add('hidden');
+                } else {
+                    adminWarning.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Form submission
+        avatarForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (!avatarFile.files[0]) {
+                fileError.textContent = 'Please select an image file';
+                fileError.classList.remove('hidden');
+                return;
+            }
+
+            const applyTo = document.querySelector('input[name="applyTo"]:checked').value;
+
+            // Show success message
+            alert(`Avatar uploaded successfully and applied to: ${applyTo === 'current' ? 'Your profile' : applyTo === 'all-students' ? 'All students' : 'All users'}`);
+
+            // Update current avatar display (simulated)
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                currentAvatar.src = event.target.result;
+                lastUpdated.textContent = new Date().toLocaleDateString();
+            };
+            reader.readAsDataURL(avatarFile.files[0]);
+
+            // Reset form
+            avatarFile.value = '';
+            previewSection.classList.add('hidden');
+            document.querySelector('input[name="applyTo"][value="current"]').checked = true;
+            adminWarning.classList.add('hidden');
+
+            // Persist to localStorage
+            const avatarData = {
+                uploadDate: new Date().toLocaleDateString(),
+                appliedTo: applyTo
+            };
+            localStorage.setItem('userAvatar', JSON.stringify(avatarData));
+        });
+
+        // Load avatar data from localStorage on page load
+        const savedAvatar = localStorage.getItem('userAvatar');
+        if (savedAvatar) {
+            const avatarData = JSON.parse(savedAvatar);
+            lastUpdated.textContent = avatarData.uploadDate;
+        }
+
+        // Drag and drop functionality
+        const dropZone = document.querySelector('label[for="avatarFile"]');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('bg-blue-100');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('bg-blue-100');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            avatarFile.files = files;
+            const event = new Event('change', { bubbles: true });
+            avatarFile.dispatchEvent(event);
+        });
+    </script>
+</body>
+</html>

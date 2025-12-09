@@ -193,7 +193,10 @@ function getStudentResults($student_id)
     return $finalResults;
 }
 
-function asset($path)
+function dd($var)
 {
-    return "/tauheed-academy-project/static/" . $path;
+    echo '<pre>';
+    var_dump($var);
+    echo '</pre>';
+    exit; // stop execution
 }

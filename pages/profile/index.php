@@ -36,7 +36,7 @@ if (!$is_logged_in) {
                     <!-- Profile Picture -->
                     <div class="flex flex-col md:flex-row gap-8 -mt-16 mb-8">
                         <div class="flex justify-center md:justify-start">
-                            <img id="profilePic" src="/placeholder.svg?height=150&width=150" alt="Profile Picture" class="w-32 h-32 rounded-full border-4 border-white shadow-lg">
+                            <img id="profilePic" src="<?= !empty($user['picture_path']) ? asset($user['picture_path']) : asset('/images/avatar.png') ?>" alt="Profile Picture" class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover">
                         </div>
 
                         <!-- Basic Info -->
@@ -105,9 +105,12 @@ if (!$is_logged_in) {
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex flex-col md:flex-row gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <a href="<?= route('update-profile')  . '?id=' . $user['id'] . '&user_type=' . $user_type ?>" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition text-center font-semibold">
                             <i class="fas fa-edit mr-2"></i>Update Profile
+                        </a>
+                        <a href="<?= route('update-profile-picture')  . '?id=' . $user['id'] . '&user_type=' . $user_type ?>" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition text-center font-semibold">
+                            <i class="fas fa-upload mr-2"></i>Upload Profile Picture
                         </a>
                         <a href="<?= route('update-profile-password')  . '?id=' . $user['id'] . '&user_type=' . $user_type ?>" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
                             <i class="fas fa-lock mr-2"></i>Change Password

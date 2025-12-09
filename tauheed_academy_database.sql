@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 07, 2025 at 04:15 AM
+-- Generation Time: Dec 09, 2025 at 11:49 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -54,8 +54,8 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `name`, `email`, `password`, `reset_token`, `reset_expires`, `type`, `staff_no`, `address`, `qualification`, `experience`, `gender`, `department`, `status`, `phone`, `picture_path`, `created_at`, `deleted_at`, `updated_at`) VALUES
-(1, 'Super Admin', 'superadmin@email.com', '$2y$10$bUZPk9sINCfqwty1GQttsOCV0XmbW5vsmsusziT5JtifMQ4br2XjW', NULL, NULL, 'superAdmin', 'STAFF/A/001', 'Address Address', 'Qualification', 'Experiance', 'male', 'Super Admin', 'active', '08012345678', NULL, '2025-11-28 04:02:17', NULL, '2025-11-28 04:42:51'),
-(2, 'Abubakar Ahmad Adili', 'abubakarahmadadili@gmail.com', '$2y$10$Ha.KDetS1lPj8kO7.ue0X.kqnLIAI3ovepoxeydaZW1bbOusMcWfS', NULL, NULL, 'admin', 'STAFF/A/002', 'Address *\r\nAddress *', 'QualificationQualificationQualificationQualification', 'experienceexperience', 'male', 'Super Admin', 'active', '08012345678', NULL, '2025-12-01 03:07:17', NULL, '2025-12-01 03:14:25');
+(1, 'Super Admin', 'superadmin@email.com', '$2y$10$bUZPk9sINCfqwty1GQttsOCV0XmbW5vsmsusziT5JtifMQ4br2XjW', NULL, NULL, 'superAdmin', 'STAFF/A/001', 'Address Address', 'Qualification', 'Experiance', 'male', 'Super Admin', 'active', '08012345678', '/uploads/admins/avatars/admin_1_1765277185.jpeg', '2025-11-28 04:02:17', NULL, '2025-12-09 10:46:25'),
+(2, 'Abubakar Ahmad Adili', 'abubakarahmadadili@gmail.com', '$2y$10$Ha.KDetS1lPj8kO7.ue0X.kqnLIAI3ovepoxeydaZW1bbOusMcWfS', NULL, NULL, 'admin', 'STAFF/A/002', 'Address *\r\nAddress *', 'QualificationQualificationQualificationQualification', 'experienceexperience', 'male', 'Super Admin', 'inactive', '08012345678', '/uploads/admins/avatars/admin_2_1765277260.jpeg', '2025-12-01 03:07:17', NULL, '2025-12-09 10:47:40');
 
 -- --------------------------------------------------------
 
@@ -265,8 +265,8 @@ CREATE TABLE `guardians` (
 --
 
 INSERT INTO `guardians` (`id`, `name`, `email`, `phone`, `address`, `picture_path`, `relationship`, `gender`, `occupation`, `password`, `status`, `reset_token`, `reset_expires`, `created_at`, `deleted_at`, `updated_at`) VALUES
-(1, 'Guardian 1', 'guardian1@email.com', '07012345678', 'Address  Address  Address', NULL, 'father', 'male', 'Occupation', '$2y$10$Jgf5gtWVqYb41E5JC4WmGuj6DaPMtGFoyPXZCFjn88y4P6DGCyYC.', 'active', NULL, NULL, '2025-11-28 04:57:23', NULL, '2025-11-28 04:57:23'),
-(2, 'Guardian 2', 'guardian2@email.com', '09087654321', 'Address Address Address', NULL, 'mother', 'female', 'Occupation', '$2y$10$aJkACwfluMuR78VgfcPi5OPDZD394x2gmsBrkSuy1LTflMGdOxizy', 'active', NULL, NULL, '2025-11-28 05:35:54', NULL, '2025-11-28 05:35:54'),
+(1, 'Guardian 1', 'guardian1@email.com', '07012345678', 'Address  Address  Address', '/uploads/guardians/avatars/guardian_1_1765277303.jpeg', 'father', 'male', 'Occupation', '$2y$10$Jgf5gtWVqYb41E5JC4WmGuj6DaPMtGFoyPXZCFjn88y4P6DGCyYC.', 'active', NULL, NULL, '2025-11-28 04:57:23', NULL, '2025-12-09 10:48:23'),
+(2, 'Guardian 2', 'guardian2@email.com', '09087654321', 'Address Address Address', '/uploads/guardians/avatars/guardian_2_1765273540.jpeg', 'mother', 'female', 'Occupation', '$2y$10$aJkACwfluMuR78VgfcPi5OPDZD394x2gmsBrkSuy1LTflMGdOxizy', 'active', NULL, NULL, '2025-11-28 05:35:54', NULL, '2025-12-09 09:45:40'),
 (3, 'Guardian 3', 'guardian3@email.com', '07012345678', 'AddressAddressAddress', NULL, 'father', 'male', 'Occupation', '$2y$10$RviQhzqBNnrXJL08xF0B6.pNWdLBtzjbYsPsBeak4TE8qZmnCKG9C', 'active', NULL, NULL, '2025-11-28 06:12:04', NULL, '2025-11-28 06:12:04');
 
 -- --------------------------------------------------------
@@ -529,7 +529,16 @@ INSERT INTO `islamiyya_student_term_records` (`id`, `student_class_record_id`, `
 (21, 22, 8, '118.00', '59.00', 2, 3, 'C', '2025-12-06 11:08:56', NULL, '2025-12-06 11:09:17'),
 (22, 23, 8, '130.00', '65.00', 1, 3, 'B', '2025-12-06 11:08:56', NULL, '2025-12-06 11:09:17'),
 (23, 24, 8, '112.00', '56.00', 3, 3, 'C', '2025-12-06 11:08:56', NULL, '2025-12-06 11:09:17'),
-(24, 25, 7, '0.00', '0.00', NULL, NULL, NULL, '2025-12-07 01:53:13', NULL, '2025-12-07 01:53:13');
+(24, 25, 7, '0.00', '0.00', NULL, NULL, NULL, '2025-12-07 01:53:13', NULL, '2025-12-07 01:53:13'),
+(25, 18, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(26, 19, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(27, 20, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(28, 21, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(29, 22, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(30, 23, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(31, 24, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(32, 25, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(33, 21, 7, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 15:08:00', NULL, '2025-12-08 15:08:00');
 
 -- --------------------------------------------------------
 
@@ -863,7 +872,7 @@ CREATE TABLE `students` (
   `phone` varchar(20) DEFAULT NULL,
   `guardian_id` int(11) DEFAULT NULL,
   `dob` date DEFAULT NULL,
-  `picture` varchar(255) DEFAULT NULL,
+  `picture_path` varchar(255) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `reset_token` varchar(255) DEFAULT NULL,
   `reset_expires` datetime DEFAULT NULL,
@@ -883,17 +892,17 @@ CREATE TABLE `students` (
 -- Dumping data for table `students`
 --
 
-INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `guardian_id`, `dob`, `picture`, `password`, `reset_token`, `reset_expires`, `status`, `gender`, `class_id`, `arm_id`, `term_id`, `islamiyya_class_id`, `islamiyya_arm_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
-(1, 'Sudent 1', 'ADM/2025/001', '', '', 1, '2010-01-01', NULL, '$2y$10$I0827bvuAUzAiVVsNEu79.MOsxJJzTMrK1Q.4PFN2ihcoqoXIxPaa', NULL, NULL, 'active', 'male', 3, 1, 7, 2, 1, '2025-11-28 04:58:20', NULL, '2025-12-07 01:53:13'),
-(2, 'Student 2', 'ADM/2025/002', '', '', 2, '2010-12-12', NULL, '$2y$10$Ua3z/RF42cFJnVVMMDnEA.525aV1WPGOAZh5oIOZSFxyeMO9AALQS', NULL, NULL, 'active', 'female', 3, 1, 7, NULL, NULL, '2025-11-28 06:00:51', NULL, '2025-12-02 05:14:41'),
-(3, 'Student 3', 'ADM/2025/003', '', '', 3, '2011-01-12', NULL, '$2y$10$iLBMhJRjRIHU24WYIZte2Oih1Na5emBd/swu6iQaUbXa1MTmb8I2G', NULL, NULL, 'active', 'male', 3, 1, 7, 1, 1, '2025-11-28 06:13:03', NULL, '2025-12-06 03:59:18'),
-(4, 'student 4', 'ADM/2025/004', '', '', 3, '2011-12-21', NULL, '$2y$10$Wpz3CMkKn6imHNRDda3pCO.lRxzV0gGbW1FENhVz0fudU0UvB2TRS', NULL, NULL, 'active', 'female', 2, 1, 7, 2, 1, '2025-12-01 11:25:58', NULL, '2025-12-06 04:21:44'),
+INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `guardian_id`, `dob`, `picture_path`, `password`, `reset_token`, `reset_expires`, `status`, `gender`, `class_id`, `arm_id`, `term_id`, `islamiyya_class_id`, `islamiyya_arm_id`, `created_at`, `deleted_at`, `updated_at`) VALUES
+(1, 'Sudent 1', 'ADM/2025/001', '', '', 1, '2010-01-01', '/uploads/students/avatars/student_1_1765277280.jpeg', '$2y$10$I0827bvuAUzAiVVsNEu79.MOsxJJzTMrK1Q.4PFN2ihcoqoXIxPaa', NULL, NULL, 'active', 'male', 3, 1, 7, 2, 1, '2025-11-28 04:58:20', NULL, '2025-12-09 10:48:00'),
+(2, 'Student 2', 'ADM/2025/002', '', '', 2, '2010-12-12', '/uploads/students/avatars/student_2_1765214653.jpeg', '$2y$10$Ua3z/RF42cFJnVVMMDnEA.525aV1WPGOAZh5oIOZSFxyeMO9AALQS', NULL, NULL, 'active', 'female', 3, 1, 7, NULL, NULL, '2025-11-28 06:00:51', NULL, '2025-12-08 17:24:13'),
+(3, 'Student 3', 'ADM/2025/003', '', '', 3, '2011-01-12', '/uploads/students/avatars/student_3_1765214714.jpeg', '$2y$10$iLBMhJRjRIHU24WYIZte2Oih1Na5emBd/swu6iQaUbXa1MTmb8I2G', NULL, NULL, 'active', 'male', 3, 1, 7, 1, 1, '2025-11-28 06:13:03', NULL, '2025-12-08 17:25:14'),
+(4, 'student 4', 'ADM/2025/004', '', '', 3, '2011-12-21', '/uploads/students/avatars/student_4_1765213837.jpeg', '$2y$10$Wpz3CMkKn6imHNRDda3pCO.lRxzV0gGbW1FENhVz0fudU0UvB2TRS', NULL, NULL, 'active', 'female', 2, 1, 7, 2, 1, '2025-12-01 11:25:58', NULL, '2025-12-08 17:10:37'),
 (5, 'student 5', 'ADM/2025/005', '', '', 1, '2011-12-23', NULL, '$2y$10$xujXEVHiVdBPF73snPL5z.RXNGg3QGkMeDZRzEnu2uCwVNzrn8Mc6', NULL, NULL, 'active', 'male', 2, 1, 7, 2, 1, '2025-12-01 11:26:43', NULL, '2025-12-06 04:21:07'),
 (6, 'Student 6', 'ADM/2025//006', '', '', 2, '2012-01-02', NULL, '$2y$10$YvvD8gmgOLe50zRfkdA4c.JQteJifBFYhsaWY8SxDmtQLJ2dw113u', NULL, NULL, 'active', 'male', 2, 1, 7, NULL, NULL, '2025-12-01 11:27:55', NULL, '2025-12-02 05:14:41'),
-(7, 'student 7', 'ADM/2025/007', '', '', 1, '2011-01-01', NULL, '$2y$10$RN.08kU3QmyGfe/ktOEFX.I2zdAGpqTq2rfRzZ4zD39TfWsQKYfS2', NULL, NULL, 'active', 'male', 2, 2, 7, 1, 1, '2025-12-01 12:24:49', NULL, '2025-12-06 04:25:56'),
+(7, 'student 7', 'ADM/2025/007', '', '', 1, '2011-01-01', '/uploads/avatars/student_7_1765210587.png', '$2y$10$RN.08kU3QmyGfe/ktOEFX.I2zdAGpqTq2rfRzZ4zD39TfWsQKYfS2', NULL, NULL, 'active', 'male', 2, 2, 7, 1, 1, '2025-12-01 12:24:49', NULL, '2025-12-08 16:16:27'),
 (8, 'student 8', 'ADM/2025/008', '', '', 1, '2010-01-31', NULL, '$2y$10$BhVZaUhv7eveETTR3SUmd.el/dzIwW.i9Zb/543IWXGjINhJhoXpa', NULL, NULL, 'active', 'female', 2, 2, 7, 1, 1, '2025-12-01 12:25:34', NULL, '2025-12-06 04:25:45'),
 (9, 'Student 9', 'ADM/2025/009', '', '', 3, '2010-12-31', NULL, '$2y$10$F8THskZebiBxT5AtdslSpuSXlJc8l.eI/sTnfnPGzHMpSQ1MojTrK', NULL, NULL, 'active', 'female', 2, 2, 7, 1, 1, '2025-12-01 12:28:40', NULL, '2025-12-06 04:25:36'),
-(10, 'Student 10', 'ADM/2025/010', '', '', 3, '2009-01-01', NULL, '$2y$10$cOa04fInt2mDsAYYd8Hce.FaZ/6i8CBMnh4tUiHjkrY7/t57AnFe6', NULL, NULL, 'active', 'male', 4, 1, 8, 2, 1, '2025-12-06 04:23:18', NULL, '2025-12-06 04:23:18');
+(10, 'Student 10', 'ADM/2025/010', '', '', 3, '2009-01-01', '/uploads/avatars/student_10_1765212978.jpeg', '$2y$10$cOa04fInt2mDsAYYd8Hce.FaZ/6i8CBMnh4tUiHjkrY7/t57AnFe6', NULL, NULL, 'active', 'male', 4, 1, 8, 2, 1, '2025-12-06 04:23:18', NULL, '2025-12-08 16:56:18');
 
 -- --------------------------------------------------------
 
@@ -1023,7 +1032,17 @@ INSERT INTO `student_term_records` (`id`, `student_class_record_id`, `term_id`, 
 (53, 19, 8, '222.00', '74.00', 2, 3, 'B', '2025-12-02 05:59:46', NULL, '2025-12-02 06:02:54'),
 (54, 20, 8, '216.00', '72.00', 3, 3, 'B', '2025-12-02 05:59:46', NULL, '2025-12-02 06:02:54'),
 (55, 21, 8, '227.00', '75.67', 1, 3, 'A', '2025-12-02 05:59:46', NULL, '2025-12-02 06:02:54'),
-(59, 25, 8, '0.00', '0.00', NULL, NULL, NULL, '2025-12-06 04:23:18', NULL, '2025-12-06 04:23:18');
+(59, 25, 8, '0.00', '0.00', NULL, NULL, NULL, '2025-12-06 04:23:18', NULL, '2025-12-06 04:23:18'),
+(60, 13, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(61, 14, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(62, 15, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(63, 16, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(64, 17, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(65, 18, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(66, 19, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(67, 20, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(68, 21, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
+(69, 25, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07');
 
 -- --------------------------------------------------------
 
@@ -1079,8 +1098,8 @@ CREATE TABLE `teachers` (
 --
 
 INSERT INTO `teachers` (`id`, `name`, `email`, `phone`, `address`, `qualification`, `experience`, `gender`, `staff_no`, `status`, `picture_path`, `password`, `reset_token`, `reset_expires`, `created_at`, `deleted_at`, `updated_at`) VALUES
-(1, 'Teacher 1', 'teacher1@email.com', '09012346578', 'Teacher 1 Address', 'Qualification', 'experiaence', 'male', 'STAFF/T/001', 'active', NULL, '$2y$10$MEvKbvKpm2rSa94LtHtGAegNxBUEyFxiRV5KBymYUgDjREwIKqNcu', NULL, NULL, '2025-11-28 04:45:04', NULL, '2025-11-28 04:45:04'),
-(2, 'Teacher 2', 'teacher2@email.com', '07012345678', 'Address Adress', 'B.Sc Mathematics', 'abubcocn boiasb asofnoief', 'female', 'STAFF/T/002', 'active', NULL, '$2y$10$GjkGQHiYABXxWOGe07LCMuA8TBLRQskS841Efm3ILi79.2nQitxHW', NULL, NULL, '2025-11-29 18:59:29', NULL, '2025-11-29 18:59:29');
+(1, 'Teacher 1', 'teacher1@email.com', '09012346578', 'Teacher 1 Address', 'Qualification', 'experiaence', 'male', 'STAFF/T/001', 'active', '/uploads/teachers/avatars/teacher_1_1765273486.jpeg', '$2y$10$MEvKbvKpm2rSa94LtHtGAegNxBUEyFxiRV5KBymYUgDjREwIKqNcu', NULL, NULL, '2025-11-28 04:45:04', NULL, '2025-12-09 09:44:46'),
+(2, 'Teacher 2', 'teacher2@email.com', '07012345678', 'Address Adress', 'B.Sc Mathematics', 'abubcocn boiasb asofnoief', 'female', 'STAFF/T/002', 'active', '/uploads/teachers/avatars/teacher_2_1765275935.jpeg', '$2y$10$GjkGQHiYABXxWOGe07LCMuA8TBLRQskS841Efm3ILi79.2nQitxHW', NULL, NULL, '2025-11-29 18:59:29', NULL, '2025-12-09 10:25:35');
 
 -- --------------------------------------------------------
 
@@ -1127,7 +1146,8 @@ INSERT INTO `terms` (`id`, `name`, `session_id`, `start_date`, `end_date`, `stat
 (5, 'Second Term', 2, '2021-05-01', '2021-08-31', 'finished', '2025-11-28 06:38:34', NULL, '2025-12-02 04:44:51'),
 (6, 'Third Term', 2, '2021-09-01', '2021-12-31', 'finished', '2025-11-28 06:39:02', NULL, '2025-12-02 05:18:53'),
 (7, 'First Term', 3, '2022-01-01', '2022-04-30', 'finished', '2025-12-02 04:46:09', NULL, '2025-12-02 05:59:46'),
-(8, 'Second Term', 3, '2022-05-01', '2022-08-31', 'ongoing', '2025-12-02 05:34:06', NULL, '2025-12-02 05:59:46');
+(8, 'Second Term', 3, '2022-05-01', '2022-08-31', 'finished', '2025-12-02 05:34:06', NULL, '2025-12-08 04:39:07'),
+(9, 'Third Term', 3, '2022-09-01', '2022-12-31', 'ongoing', '2025-12-08 04:38:52', NULL, '2025-12-08 04:39:07');
 
 --
 -- Indexes for dumped tables
@@ -1453,7 +1473,7 @@ ALTER TABLE `islamiyya_student_class_records`
 -- AUTO_INCREMENT for table `islamiyya_student_term_records`
 --
 ALTER TABLE `islamiyya_student_term_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `islamiyya_subjects`
@@ -1507,7 +1527,7 @@ ALTER TABLE `student_class_records`
 -- AUTO_INCREMENT for table `student_term_records`
 --
 ALTER TABLE `student_term_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
 
 --
 -- AUTO_INCREMENT for table `subjects`
@@ -1531,7 +1551,7 @@ ALTER TABLE `teacher_section`
 -- AUTO_INCREMENT for table `terms`
 --
 ALTER TABLE `terms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables

@@ -77,7 +77,7 @@ $teachersCount  = countDataTotal('teachers', true);
                             <div class="bg-gradient-to-r from-blue-900 to-blue-700 h-24"></div>
                             <div class="px-6 pb-6">
                                 <div class="flex justify-center -mt-12 mb-4">
-                                    <img src="/placeholder.svg?height=80&width=80" alt="<?= $teacher['name'] ?>" class="w-20 h-20 rounded-full border-4 border-white shadow-lg">
+                                    <img src="<?= !empty($teacher['picture_path']) ? asset($teacher['picture_path']) : asset('/images/avatar.png') ?>" alt="<?= $teacher['name'] ?>" class="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover">
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 text-center mb-1"><?= $teacher['name'] ?></h3>
                                 <p class="text-sm text-gray-600 text-center mb-4"><?= $teacher['email'] ?></p>
@@ -101,6 +101,9 @@ $teachersCount  = countDataTotal('teachers', true);
 
                                     <a href="<?= route('teacher-update') . '?id=' . $teacher['id'] ?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
                                         <i class="fas fa-edit mr-1"></i>Edit
+                                    </a>
+                                    <a href="<?= route('upload-teacher-picture') . '?id=' . $teacher['id'] ?>" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center text-sm font-semibold">
+                                        <i class="fas fa-upload mr-1"></i>Upload Picture
                                     </a>
                                     <a href="<?= route('update-user-password') . '?id=' . $teacher['id']  . '&user_type=teacher' ?>" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
                                         <i class="fas fa-lock mr-2"></i>Edit Password

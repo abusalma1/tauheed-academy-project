@@ -36,7 +36,8 @@ if (isset($_GET['id'])) {
 
 // 1. Get basic student info (Islamiyya track)
 $stmt = $pdo->prepare("
-    SELECT s.id, s.name, s.admission_number,
+    SELECT s.id, s.name, s.admission_number, s.picture_path,
+
            c.name AS class_name,
            a.name AS arm_name,
            t.name AS term_name,
@@ -173,10 +174,10 @@ foreach ($scoreRows as $row) {
   <!-- Page Header -->
   <section class="bg-gradient-to-r from-blue-900 to-blue-700  text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-     
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Student's Islamiyya Results</h1>
-        <p class="text-xl text-blue-200">View Student's Islamiyya Academic Performance</p>
-   
+
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Student's Islamiyya Results</h1>
+      <p class="text-xl text-blue-200">View Student's Islamiyya Academic Performance</p>
+
     </div>
   </section>
   <!-- Main Content -->
@@ -184,17 +185,18 @@ foreach ($scoreRows as $row) {
     <div class="max-w-4xl mx-auto">
       <!-- Student Header Information -->
       <div class="bg-gradient-to-r from-blue-900 to-blue-700 text-white rounded-lg shadow-lg p-8 mb-8 no-print">
-        <div class="grid md:grid-cols-3 gap-6">
-          <div class="flex items-center gap-4">
-            <img src="/placeholder.svg?height=100&width=100" alt="Student Photo" class="h-24 w-24 rounded-full border-4 border-white">
-            <div>
-              <h2 class="text-2xl font-bold"><?= $studentInfo['name'] ?></h2>
-              <p class="text-blue-200"><?= $studentInfo['class_name']  . ' - ' . $studentInfo['arm_name'] ?></p>
-              <p class="text-blue-200">Admission: <?= $studentInfo['admission_number'] ?></p>
-            </div>
+        <div class="flex items-center gap-6">
+          <img src="<?= !empty($studentInfo['picture_path']) ? asset($studentInfo['picture_path']) : asset('/images/avatar.png') ?>"
+            alt="Student Photo"
+            class="h-24 w-24 rounded-full border-4 border-white object-cover">
+          <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold truncate"><?= $studentInfo['name'] ?></h2>
+            <p class="text-blue-200"><?= $studentInfo['class_name']  . ' - ' . $studentInfo['arm_name'] ?></p>
+            <p class="text-blue-200">Admission: <?= $studentInfo['admission_number'] ?></p>
           </div>
         </div>
       </div>
+
 
 
       <?php if (!empty($records)): ?>

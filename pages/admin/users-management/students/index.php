@@ -166,30 +166,59 @@ $totalActiveStudents = $studentsCountList['active'];
                                                     <span class="px-3 py-1 <?= $student['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $student['status'] ?></span>
                                                 </td>
                                                 <td class="px-6 py-4 text-sm space-x-2">
-                                                    <a href="<?= route('update-user-password') . '?id=' . $student['student_id']  . '&user_type=student' ?>" class="text-blue-600 hover:text-blue-800 font-semibold">
-                                                        <i class="fas fa-lock"></i> Edit Password
-                                                    </a>
-                                                    <a href="<?= route('student-update') . '?id=' . $student['student_id'] ?>" class="text-green-600 hover:text-green-800 font-semibold">
-                                                        <i class="fas fa-edit"></i> Edit
-                                                    </a>
-                                                    <a href="<?= route('view-user-details') . '?id=' . $student['student_id'] . '&type=student' ?>" class="text-purple-600 hover:text-green-800 font-semibold">
+                                                    <!-- Details link stays separate -->
+                                                    <a href="<?= route('view-user-details') . '?id=' . $student['student_id'] . '&type=student' ?>"
+                                                        class="text-purple-600 hover:text-green-800 font-semibold">
                                                         <i class="fas fa-eye"></i> View Details
                                                     </a>
-                                                    <!-- Results Dropdown -->
+
+                                                    <!-- Edit dropdown -->
                                                     <div class="relative inline-block text-left">
                                                         <!-- Trigger link -->
                                                         <a href="#"
                                                             onclick="toggleResultsDropdown(event)"
-                                                            class="resultsTrigger text-purple-600 hover:text-green-800 font-semibold flex items-center">
-                                                            <i class="fas fa-eye mr-2"></i> View Results
-                                                            <svg class="ml-1 h-4 w-4 text-purple-600 hover:text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            class="resultsTrigger text-green-600 hover:text-green-800 font-semibold flex items-center">
+                                                            <i class="fas fa-edit mr-2"></i> Manage Account
+                                                            <svg class="ml-1 h-4 w-4 text-green-600 hover:text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                                             </svg>
                                                         </a>
 
                                                         <!-- Dropdown menu -->
-                                                        <div class="resultsDropdown absolute mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5  opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out z-10">
+                                                        <div class="resultsDropdown absolute mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5  
+                    opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out z-10">
+                                                            <div class="py-2">
+                                                                <a href="<?= route('update-user-password') . '?id=' . $student['student_id'] . '&user_type=student' ?>"
+                                                                    class="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100 hover:text-blue-800 font-semibold">
+                                                                    <i class="fas fa-lock mr-2"></i> Edit Password
+                                                                </a>
+                                                                <a href="<?= route('student-update') . '?id=' . $student['student_id'] ?>"
+                                                                    class="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100 hover:text-green-800 font-semibold">
+                                                                    <i class="fas fa-edit mr-2"></i> Edit Profile
+                                                                </a>
+                                                                <a href="<?= route('upload-student-picture') . '?id=' . $student['student_id'] ?>"
+                                                                    class="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100 hover:text-green-800 font-semibold">
+                                                                    <i class="fas fa-upload mr-2"></i> Upload Picture
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
+                                                    <!-- Results dropdown (unchanged) -->
+                                                    <div class="relative inline-block text-left">
+                                                        <a href="#"
+                                                            onclick="toggleResultsDropdown(event)"
+                                                            class="resultsTrigger text-purple-600 hover:text-green-800 font-semibold flex items-center">
+                                                            <i class="fas fa-eye mr-2"></i> View Results
+                                                            <svg class="ml-1 h-4 w-4 text-purple-600 hover:text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                            </svg>
+                                                        </a>
+
+                                                        <div class="resultsDropdown absolute mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5  
+                    opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out z-10">
                                                             <div class="py-2">
                                                                 <a href="<?= route('admin-student-result') . '?id=' . $student['student_id'] ?>"
                                                                     class="block px-4 py-2 text-sm text-purple-600 hover:bg-gray-100 hover:text-green-800 font-semibold">
@@ -203,10 +232,13 @@ $totalActiveStudents = $studentsCountList['active'];
                                                         </div>
                                                     </div>
 
-                                                    <a href="<?= route('delete-user') . '?id=' . $student['student_id'] ?>&table=students&type=Student" class="text-red-600 hover:text-red-800 font-semibold">
+                                                    <!-- Delete link -->
+                                                    <a href="<?= route('delete-user') . '?id=' . $student['student_id'] ?>&table=students&type=Student"
+                                                        class="text-red-600 hover:text-red-800 font-semibold">
                                                         <i class="fas fa-trash"></i> Delete
                                                     </a>
                                                 </td>
+
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>

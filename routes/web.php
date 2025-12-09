@@ -13,6 +13,15 @@ if ($host === 'localhost' || preg_match('/^192\.168\./', $host)) {
 }
 
 
+
+function asset($path)
+{
+    // bring $baseUrl into scope
+    global $baseUrl;
+    // ensure single slash
+    return $baseUrl . "/static/" . ltrim($path, '/');
+}
+
 $routes = [
     'back' => [
         'url' => $_SESSION['previous_page'] ?? $baseUrl . "/index.php"
@@ -118,6 +127,9 @@ $routes = [
     'admin-update' => [
         'url' => "$baseUrl/pages/admin/users-management/admins/update.php"
     ],
+    'upload-admin-picture' => [
+        'url' => "$baseUrl/pages/admin/users-management/admins/upload-picture.php"
+    ],
 
 
     // guardian
@@ -130,6 +142,9 @@ $routes = [
     'guardian-update' => [
         'url' => "$baseUrl/pages/admin/users-management/guardians/update.php"
     ],
+    'upload-guardian-picture' => [
+        'url' => "$baseUrl/pages/admin/users-management/guardians/upload-picture.php"
+    ],
 
     // teachers
     'teacher-management' => [
@@ -140,6 +155,9 @@ $routes = [
     ],
     'teacher-update' => [
         'url' => "$baseUrl/pages/admin/users-management/teachers/update.php"
+    ],
+    'upload-teacher-picture' => [
+        'url' => "$baseUrl/pages/admin/users-management/teachers/upload-picture.php"
     ],
 
     // students
@@ -152,6 +170,10 @@ $routes = [
     'student-update' => [
         'url' => "$baseUrl/pages/admin/users-management/students/update.php"
     ],
+    'upload-student-picture' => [
+        'url' => "$baseUrl/pages/admin/users-management/students/upload-picture.php"
+    ],
+
 
     // classes, sections & class arms 
 
@@ -309,6 +331,9 @@ $routes = [
     ],
     'update-profile' => [
         'url' => "$baseUrl/pages/profile/user-update-profile.php"
+    ],
+    'update-profile-picture' => [
+        'url' => "$baseUrl/pages/profile/upload-picture.php"
     ],
     'update-profile-password' => [
         'url' => "$baseUrl/pages/profile/user-change-password.php"
