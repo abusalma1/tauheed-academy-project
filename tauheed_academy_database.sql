@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 09, 2025 at 11:49 AM
+-- Generation Time: Dec 12, 2025 at 06:31 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -538,7 +538,8 @@ INSERT INTO `islamiyya_student_term_records` (`id`, `student_class_record_id`, `
 (30, 23, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
 (31, 24, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
 (32, 25, 9, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 04:39:07', NULL, '2025-12-08 04:39:07'),
-(33, 21, 7, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 15:08:00', NULL, '2025-12-08 15:08:00');
+(33, 21, 7, '0.00', '0.00', NULL, NULL, NULL, '2025-12-08 15:08:00', NULL, '2025-12-08 15:08:00'),
+(34, 19, 7, '0.00', '0.00', NULL, NULL, NULL, '2025-12-09 10:59:57', NULL, '2025-12-09 10:59:57');
 
 -- --------------------------------------------------------
 
@@ -899,8 +900,8 @@ INSERT INTO `students` (`id`, `name`, `admission_number`, `email`, `phone`, `gua
 (4, 'student 4', 'ADM/2025/004', '', '', 3, '2011-12-21', '/uploads/students/avatars/student_4_1765213837.jpeg', '$2y$10$Wpz3CMkKn6imHNRDda3pCO.lRxzV0gGbW1FENhVz0fudU0UvB2TRS', NULL, NULL, 'active', 'female', 2, 1, 7, 2, 1, '2025-12-01 11:25:58', NULL, '2025-12-08 17:10:37'),
 (5, 'student 5', 'ADM/2025/005', '', '', 1, '2011-12-23', NULL, '$2y$10$xujXEVHiVdBPF73snPL5z.RXNGg3QGkMeDZRzEnu2uCwVNzrn8Mc6', NULL, NULL, 'active', 'male', 2, 1, 7, 2, 1, '2025-12-01 11:26:43', NULL, '2025-12-06 04:21:07'),
 (6, 'Student 6', 'ADM/2025//006', '', '', 2, '2012-01-02', NULL, '$2y$10$YvvD8gmgOLe50zRfkdA4c.JQteJifBFYhsaWY8SxDmtQLJ2dw113u', NULL, NULL, 'active', 'male', 2, 1, 7, NULL, NULL, '2025-12-01 11:27:55', NULL, '2025-12-02 05:14:41'),
-(7, 'student 7', 'ADM/2025/007', '', '', 1, '2011-01-01', '/uploads/avatars/student_7_1765210587.png', '$2y$10$RN.08kU3QmyGfe/ktOEFX.I2zdAGpqTq2rfRzZ4zD39TfWsQKYfS2', NULL, NULL, 'active', 'male', 2, 2, 7, 1, 1, '2025-12-01 12:24:49', NULL, '2025-12-08 16:16:27'),
-(8, 'student 8', 'ADM/2025/008', '', '', 1, '2010-01-31', NULL, '$2y$10$BhVZaUhv7eveETTR3SUmd.el/dzIwW.i9Zb/543IWXGjINhJhoXpa', NULL, NULL, 'active', 'female', 2, 2, 7, 1, 1, '2025-12-01 12:25:34', NULL, '2025-12-06 04:25:45'),
+(7, 'student 7', 'ADM/2025/007', '', '', 2, '2011-01-01', '/uploads/students/avatars/student_7_1765277800.jpeg', '$2y$10$RN.08kU3QmyGfe/ktOEFX.I2zdAGpqTq2rfRzZ4zD39TfWsQKYfS2', NULL, NULL, 'active', 'male', 2, 2, 7, 1, 1, '2025-12-01 12:24:49', NULL, '2025-12-09 10:59:57'),
+(8, 'student 8', 'ADM/2025/008', '', '', 1, '2010-01-31', '/uploads/students/avatars/student_8_1765279120.jpeg', '$2y$10$BhVZaUhv7eveETTR3SUmd.el/dzIwW.i9Zb/543IWXGjINhJhoXpa', NULL, NULL, 'active', 'female', 2, 2, 7, 1, 1, '2025-12-01 12:25:34', NULL, '2025-12-09 11:18:41'),
 (9, 'Student 9', 'ADM/2025/009', '', '', 3, '2010-12-31', NULL, '$2y$10$F8THskZebiBxT5AtdslSpuSXlJc8l.eI/sTnfnPGzHMpSQ1MojTrK', NULL, NULL, 'active', 'female', 2, 2, 7, 1, 1, '2025-12-01 12:28:40', NULL, '2025-12-06 04:25:36'),
 (10, 'Student 10', 'ADM/2025/010', '', '', 3, '2009-01-01', '/uploads/avatars/student_10_1765212978.jpeg', '$2y$10$cOa04fInt2mDsAYYd8Hce.FaZ/6i8CBMnh4tUiHjkrY7/t57AnFe6', NULL, NULL, 'active', 'male', 4, 1, 8, 2, 1, '2025-12-06 04:23:18', NULL, '2025-12-08 16:56:18');
 
@@ -1473,7 +1474,7 @@ ALTER TABLE `islamiyya_student_class_records`
 -- AUTO_INCREMENT for table `islamiyya_student_term_records`
 --
 ALTER TABLE `islamiyya_student_term_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `islamiyya_subjects`

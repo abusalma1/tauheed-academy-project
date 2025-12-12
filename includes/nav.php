@@ -17,104 +17,72 @@
                 <a href="<?= route('home') ?>" class="hover:text-blue-300 transition">Home</a>
                 <a href="<?= route('news') ?>" class="hover:text-blue-300 transition">News</a>
 
-
-                <div class="relative group">
-                    <!-- Hover Button -->
-                    <div class="hover:text-blue-300 transition flex items-center gap-1">
-                        School Info
-                        <span class="text-sm">▾</span>
-                    </div>
-
-                    <!-- Dropdown Menu -->
-                    <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible 
-                                group-hover:opacity-100 group-hover:visible transition-all duration-200">
-
+                <!-- School Info Dropdown -->
+                <div class="relative">
+                    <button class="dropdown-btn flex items-center gap-1 hover:text-blue-300 transition">
+                        School Info <span class="text-sm">▾</span>
+                    </button>
+                    <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg hidden">
                         <ul class="flex flex-col py-2">
-                            <li> <a href="<?= route('about'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> About </a> </li>
-                            <li> <a href="<?= route('contact'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Contact Us </a> </li>
-
-
-                            <li> <a href="<?= route('admission'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Admissions </a> </li>
-                            <li> <a href="<?= route('fees'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Fees </a> </li>
-
-                            <li> <a href="<?= route('gallery'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Gallery </a> </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="relative group">
-                    <!-- Hover Button -->
-                    <div class="hover:text-blue-300 transition flex items-center gap-1">
-                        Academics
-                        <span class="text-sm">▾</span>
-                    </div>
-
-                    <!-- Dropdown Menu -->
-                    <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-
-                        <ul class="flex flex-col py-2">
-                            <li> <a href="<?= route('academics'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Academics </a> </li>
-                            <li> <a href="<?= route('staff'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Staff </a> </li>
-
+                            <li><a href="<?= route('about'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">About</a></li>
+                            <li><a href="<?= route('contact'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Contact Us</a></li>
+                            <li><a href="<?= route('admission'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Admissions</a></li>
+                            <li><a href="<?= route('fees'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Fees</a></li>
+                            <li><a href="<?= route('gallery'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Gallery</a></li>
                         </ul>
                     </div>
                 </div>
 
-
-
+                <!-- Academics Dropdown -->
+                <div class="relative">
+                    <button class="dropdown-btn flex items-center gap-1 hover:text-blue-300 transition">
+                        Academics <span class="text-sm">▾</span>
+                    </button>
+                    <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg hidden">
+                        <ul class="flex flex-col py-2">
+                            <li><a href="<?= route('academics'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Academics</a></li>
+                            <li><a href="<?= route('staff'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Staff</a></li>
+                        </ul>
+                    </div>
+                </div>
 
                 <?php if ($is_logged_in): ?>
                     <a href="<?= route('profile') ?>" class="hover:text-blue-300 transition">Profile</a>
 
                     <?php if ($user_type === 'teacher') : ?>
-                        <div class="relative group">
-                            <!-- Hover Button -->
-                            <div class="hover:text-blue-300 transition flex items-center gap-1">
-                                My class
-                                <span class="text-sm">▾</span>
-                            </div>
-
-                            <!-- Dropdown Menu -->
-                            <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-
+                        <!-- Teacher Dropdowns -->
+                        <div class="relative">
+                            <button class="dropdown-btn flex items-center gap-1 hover:text-blue-300 transition">
+                                My Class <span class="text-sm">▾</span>
+                            </button>
+                            <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg hidden">
                                 <ul class="flex flex-col py-2">
-                                    <li> <a href="<?= route('my-class'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> General Studies </a> </li>
-                                    <li> <a href="<?= route('my-islamiyya-class'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Qur'anic & Islamic Studies </a> </li>
-
+                                    <li><a href="<?= route('my-class'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">General Studies</a></li>
+                                    <li><a href="<?= route('my-islamiyya-class'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Qur'anic & Islamic Studies</a></li>
                                 </ul>
                             </div>
                         </div>
-                        <div class="relative group">
-                            <!-- Hover Button -->
-                            <div class="hover:text-blue-300 transition flex items-center gap-1">
-                                Upload Results
-                                <span class="text-sm">▾</span>
-                            </div>
 
-                            <!-- Dropdown Menu -->
-                            <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-
+                        <div class="relative">
+                            <button class="dropdown-btn flex items-center gap-1 hover:text-blue-300 transition">
+                                Upload Results <span class="text-sm">▾</span>
+                            </button>
+                            <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg hidden">
                                 <ul class="flex flex-col py-2">
-                                    <li> <a href="<?= route('results-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> General Studies </a> </li>
-                                    <li> <a href="<?= route('islamiyya-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Qur'anic & Islamic Studies </a> </li>
-
+                                    <li><a href="<?= route('results-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">General Studies</a></li>
+                                    <li><a href="<?= route('islamiyya-results-management'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Qur'anic & Islamic Studies</a></li>
                                 </ul>
                             </div>
                         </div>
                     <?php elseif ($user_type === 'student') : ?>
-                        <div class="relative group">
-                            <!-- Hover Button -->
-                            <div class="hover:text-blue-300 transition flex items-center gap-1">
-                                My Results
-                                <span class="text-sm">▾</span>
-                            </div>
-
-                            <!-- Dropdown Menu -->
-                            <div class="absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-
+                        <div class="relative">
+                            <button class="dropdown-btn flex items-center gap-1 hover:text-blue-300 transition">
+                                My Results <span class="text-sm">▾</span>
+                            </button>
+                            <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-blue-800 rounded-lg shadow-lg hidden">
                                 <ul class="flex flex-col py-2">
-                                    <li> <a href="<?= route('student-result'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> General Studies </a> </li>
-                                    <li> <a href="<?= route('student-islamiyya-result'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded"> Qur'anic & Islamic Studies </a> </li>
-
+                                    <li><a href="<?= route('student-result'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">General Studies</a></li>
+                                    <li><a href="<?= route('student-islamiyya-result'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Qur'anic & Islamic Studies</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -124,13 +92,16 @@
                         <a href="<?= route('admin-section'); ?>" class="hover:text-blue-300 transition">Admin Section</a>
                     <?php endif ?>
 
-                    <a href="<?= route('logout'); ?>"> <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button></a>
+                    <a href="<?= route('logout'); ?>">
+                        <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Logout</button>
+                    </a>
                 <?php else: ?>
-                    <a href="<?= route('login'); ?>"> <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Login</button></a>
+                    <a href="<?= route('login'); ?>">
+                        <button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">Login</button>
+                    </a>
                 <?php endif ?>
-
-
             </div>
+
 
             <!-- Mobile Menu Button -->
             <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
@@ -225,3 +196,7 @@
 
     </div>
 </nav>
+
+<?php
+include(__DIR__ . '/./components/success-notification.php');
+include(__DIR__ . '/./components/failure-notification.php');

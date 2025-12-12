@@ -26,6 +26,12 @@ $routes = [
     'back' => [
         'url' => $_SESSION['previous_page'] ?? $baseUrl . "/index.php"
     ],
+    'print' => [
+        'url' => "$baseUrl/config/print.php"
+    ],
+    '404' => [
+        'url' => "$baseUrl/404.php"
+    ],
     'home' => [
         'url' => "$baseUrl/index.php"
     ],

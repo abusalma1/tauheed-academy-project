@@ -65,11 +65,14 @@ if (isset($_SESSION['user_session'])) {
     <link rel="icon" type="image/x-icon" href="<?= asset('images/logo.png') ?>">
     <title><?= $title ?? '' ?> | <?= $school['name'] ?? 'Tauheed Academy' ?>
     </title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <link href="<?= asset('css/tailwind.css') ?>" rel="stylesheet">
+    <link href="<?= asset('css/fontawesome.css') ?>" rel="stylesheet">
+    <link href="<?= asset('css/tom-select.css') ?>" rel="stylesheet">
+
+
+
+    <script src="<?= asset('js/tom-select.complete.min.js') ?>"></script>
 
     <style>
         @media print {
@@ -106,47 +109,4 @@ if (isset($_SESSION['user_session'])) {
     </style>
 </head>
 
-<?php
-include(__DIR__ . '/./components/success-notification.php');
-include(__DIR__ . '/./components/failure-notification.php');
 
-
-
-// try {
-//     // List of all tables that have deleted_at column
-    // $tables = [
-    //     'admins',
-    //     'schools',
-    //     'teachers',
-    //     'sections',
-    //     'class_arms',
-    //     'classes',
-    //     'class_class_arms',
-    //     'teacher_section',
-    //     'subjects',
-    //     'class_subjects',
-    //     'guardians',
-    //     'sessions',
-    //     'terms',
-    //     'students',
-    //     'student_class_records',
-    //     'student_term_records',
-    //     'results',
-    //     'news',
-    //     'fees',
-    //     'bank_accounts'
-    // ];
-
-//     foreach ($tables as $table) {
-//         $stmt = $pdo->prepare("UPDATE `$table` SET deleted_at = NULL");
-//         $stmt->execute();
-//     }
-
-//     echo "All deleted_at values reset successfully.";
-
-// } catch (PDOException $e) {
-//     echo "Error: " . $e->getMessage();
-// }
-
-
-?>
