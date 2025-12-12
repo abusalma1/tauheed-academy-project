@@ -4,6 +4,8 @@ $title = 'About';
 include(__DIR__ .  '/../includes/header.php');
 ?>
 
+
+
 <body class="bg-gray-50">
     <?php include(__DIR__ .  '/../includes/nav.php'); ?>
 
