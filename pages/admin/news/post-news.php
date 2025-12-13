@@ -20,10 +20,73 @@ $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // CSRF validation
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
+    $errors = [];
+    $picturePath = null; // default
+
+    // ✅ Check if an image was uploaded
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+
+        $file = $_FILES['image'];
+
+        // ✅ Validate size (max 5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            $errors[] = "Image size exceeds 5MB limit.";
+        }
+
+        // ✅ Validate MIME type
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mimeType, $allowedTypes)) {
+            $errors[] = "Invalid image type. Only JPG, PNG, GIF, WebP allowed.";
+        }
+
+        // ✅ Validate extension
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        if (!in_array($ext, $allowedExts)) {
+            $errors[] = "Invalid image extension.";
+        }
+
+        // ✅ If no errors, process upload
+        if (empty($errors)) {
+
+            // ✅ Generate unique filename
+            $newFileName = 'news_' . time() . '_' . bin2hex(random_bytes(5)) . '.' . $ext;
+
+            // ✅ Upload directory
+            $uploadDir = __DIR__ . "/../../../static/uploads/news/";
+            $uploadPath = $uploadDir . $newFileName;
+
+            // ✅ Create folder if missing
+            if (!is_dir($uploadDir)) {
+                if (!mkdir($uploadDir, 0755, true)) {
+                    $errors[] = "Failed to create upload directory.";
+                }
+            }
+
+            // ✅ Move uploaded file
+            if (empty($errors) && move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                // ✅ Path stored in DB
+                $picturePath = "/uploads/news/" . $newFileName;
+            } else {
+                $errors[] = "Failed to upload image.";
+            }
+        }
+    }
+
+    // ✅ Continue with your existing validation
     $newsTitle        = trim($_POST['title'] ?? '');
     $category         = trim($_POST['category'] ?? '');
     $content          = trim($_POST['content'] ?? '');
@@ -36,13 +99,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($status))           $errors['statusError'] = "Status is required";
     if (empty($publication_date)) $errors['publicationDateError'] = "Publication Date is required";
 
+    // ✅ If no errors, insert into DB
     if (empty($errors)) {
         try {
             $stmt = $pdo->prepare("
-                INSERT INTO news (title, category, content, status, publication_date) 
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO news (title, category, content, status, publication_date, picture_path)
+                VALUES (?, ?, ?, ?, ?, ?)
             ");
-            $success = $stmt->execute([$newsTitle, $category, $content, $status, $publication_date]);
+
+            $success = $stmt->execute([
+                $newsTitle,
+                $category,
+                $content,
+                $status,
+                $publication_date,
+                $picturePath // ✅ NULL if no image uploaded
+            ]);
 
             if ($success) {
                 $_SESSION['success'] = "News Posted successfully!";
@@ -54,12 +126,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (PDOException $e) {
             echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
-    } else {
-        foreach ($errors as $field => $error) {
-            echo "<p class='text-red-600 font-semibold'>$error</p>";
-        }
+    }
+
+    // ✅ Show errors
+    foreach ($errors as $error) {
+        echo "<p class='text-red-600 font-semibold'>$error</p>";
     }
 }
+
 ?>
 
 
@@ -121,22 +195,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     </div>
 
-                    <!-- Featured Image -->
-                    <div>
-                        <label for="image" class="block text-gray-700 font-semibold mb-2">Featured Image</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition cursor-pointer">
-                            <input type="file" id="image" name="image" accept="image/*" class="hidden">
-                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
-                            <p class="text-gray-600 font-semibold">Click to upload image or drag and drop</p>
-                            <p class="text-sm text-gray-500">PNG, JPG, GIF up to 5MB</p>
-                        </div>
-                        <div id="imagePreview" class="mt-4 hidden">
-                            <img id="previewImg" src="/placeholder.svg" alt="Preview" class="w-full h-64 object-cover rounded-lg">
-                            <button type="button" onclick="clearImage()" class="mt-2 text-red-600 hover:text-red-700 text-sm font-semibold">
-                                <i class="fas fa-trash mr-2"></i>Remove Image
-                            </button>
+                    <!-- Upload Section -->
+                    <div class="border-2 border-dashed border-blue-300 rounded-lg p-8 bg-blue-50">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Upload Featured Image</h3>
+
+                        <div class="mb-6">
+                            <label for="image" class="block mb-4">
+                                <div class="flex flex-col items-center justify-center cursor-pointer hover:bg-blue-100 transition rounded-lg p-8">
+                                    <i class="fas fa-cloud-upload-alt text-5xl text-blue-900 mb-4"></i>
+                                    <p class="text-lg font-semibold text-gray-900 mb-2">Choose or drop image here</p>
+                                    <p class="text-sm text-gray-600">Supported formats: JPG, PNG, GIF, WebP (Max 5MB)</p>
+                                </div>
+
+                                <!-- ✅ Correct field name -->
+                                <input
+                                    type="file"
+                                    id="image"
+                                    name="image"
+                                    accept="image/jpeg,image/png,image/gif,image/webp"
+                                    class="sr-only">
+                            </label>
+
+                            <span class="text-red-500 text-sm hidden" id="fileError"></span>
                         </div>
                     </div>
+
+                    <!-- Preview Section -->
+                    <div id="previewSection" class="hidden bg-gray-50 rounded-lg p-8 border-2 border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Preview</h3>
+
+                        <div class="flex flex-col md:flex-row gap-8 items-center">
+
+                            <!-- ✅ Rectangular preview for news -->
+                            <div class="flex-1 flex justify-center">
+                                <div class="relative">
+                                    <img id="previewImage" src="/placeholder.svg"
+                                        alt="Preview Image"
+                                        class="w-64 h-40 rounded-lg border-4 border-orange-500 shadow-lg object-cover">
+                                </div>
+                            </div>
+
+                            <!-- Preview Info -->
+                            <div class="flex-1 space-y-4">
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-2">File Name</p>
+                                    <p id="fileName" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-2">File Size</p>
+                                    <p id="fileSize" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-2">Dimensions</p>
+                                    <p id="fileDimensions" class="text-lg font-semibold text-gray-900">-</p>
+                                </div>
+
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mt-6">
+                                    <p class="text-sm text-green-700">
+                                        <i class="fas fa-check-circle mr-2"></i>Image is ready to upload
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- Publication Date -->
                     <div>
@@ -219,31 +341,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Footer -->
     <?php include(__DIR__ . "/../../../includes/footer.php"); ?>
 
-
     <script>
-        // Image upload handling
+        // ============================
+        // IMAGE UPLOAD + PREVIEW
+        // ============================
+
         const imageInput = document.getElementById('image');
-        const imagePreview = document.getElementById('imagePreview');
-        const previewImg = document.getElementById('previewImg');
+        const previewSection = document.getElementById('previewSection');
+        const previewImage = document.getElementById('previewImage');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileDimensions = document.getElementById('fileDimensions');
+        const fileError = document.getElementById('fileError');
 
         imageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    previewImg.src = event.target.result;
-                    imagePreview.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+            fileError.classList.add('hidden');
+
+            if (!file) return;
+
+            // ✅ Validate size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                fileError.textContent = 'File size exceeds 5MB limit';
+                fileError.classList.remove('hidden');
+                previewSection.classList.add('hidden');
+                return;
             }
+
+            // ✅ Validate type
+            if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+                fileError.textContent = 'Invalid file type. Only JPG, PNG, GIF, WebP allowed.';
+                fileError.classList.remove('hidden');
+                previewSection.classList.add('hidden');
+                return;
+            }
+
+            // ✅ Read file and show preview
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    previewImage.src = event.target.result;
+                    fileName.textContent = file.name;
+                    fileSize.textContent = (file.size / 1024).toFixed(2) + ' KB';
+                    fileDimensions.textContent = img.width + ' x ' + img.height + ' px';
+                    previewSection.classList.remove('hidden');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
         });
 
         function clearImage() {
             imageInput.value = '';
-            imagePreview.classList.add('hidden');
+            previewSection.classList.add('hidden');
         }
 
-        // Character counter
+        // ============================
+        // CHARACTER COUNTER
+        // ============================
+
         const contentInput = document.getElementById('content');
         const charCount = document.getElementById('charCount');
 
@@ -251,12 +408,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             charCount.textContent = contentInput.value.length;
         });
 
-        // Set today's date as default
+        // ============================
+        // SET TODAY'S DATE
+        // ============================
+
         document.getElementById('date').valueAsDate = new Date();
 
-        // Form submission
-        const newsFrom = document.getElementById('newsForm');
-        newsFrom.addEventListener('submit', (e) => {
+        // ============================
+        // FORM VALIDATION
+        // ============================
+
+        const newsForm = document.getElementById('newsForm');
+
+        newsForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
             document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
@@ -288,7 +452,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (!publicationDate) {
-                document.getElementById('publicationDateError').textContent = 'Publication Date  is required';
+                document.getElementById('publicationDateError').textContent = 'Publication Date is required';
                 document.getElementById('publicationDateError').classList.remove('hidden');
                 isValid = false;
             }
@@ -299,24 +463,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
-
             if (isValid) {
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
                 showLoader();
-                newsFrom.submit();
+                newsForm.submit();
             } else {
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
-
                 showErrorMessage();
             }
         });
     </script>
+
 </body>
 
 </html>

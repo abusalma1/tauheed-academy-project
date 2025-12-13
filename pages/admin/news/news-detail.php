@@ -67,7 +67,7 @@ if (isset($_GET['id'])) {
             <article class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <!-- Featured Image -->
                 <div class="relative overflow-hidden h-96 md:h-96">
-                    <img src="/placeholder.svg?height=500&width=800" alt="News" class="w-full h-full object-cover">
+                    <img src="<?= asset($story['picture_path']) ?>" alt="News" class="w-full h-full object-cover">
                     <!-- Category badge in top-right corner -->
                     <?php if ($story['category'] === 'event'): ?>
                         <div class="absolute top-4 right-4 bg-green-600  text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">

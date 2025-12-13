@@ -64,7 +64,7 @@ $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php foreach ($news as $story) : ?>
                         <div class="news-item <?= $story['category'] ?> bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:scale-105">
                             <div class="relative overflow-hidden h-48">
-                                <img src="/placeholder.svg?height=300&width=400" alt="News" class="w-full h-full object-cover">
+                                <img src="<?= asset($story['picture_path']) ?>" alt="News" class="w-full h-full object-cover">
 
                                 <?php if ($story['category'] === 'event'): ?>
                                     <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
