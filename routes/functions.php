@@ -215,16 +215,39 @@ function ordinal($number)
 
 function getNextTermForRecord(PDO $pdo, int $classId, int $sessionId, string $termName): array
 {
-    // Normalize term name
     $termName = strtolower(trim($termName));
 
     // Determine next term label
     if (strpos($termName, 'first') !== false) {
         $desired = 'second';
+        $nextSessionId = $sessionId; // same session
     } elseif (strpos($termName, 'second') !== false) {
         $desired = 'third';
+        $nextSessionId = $sessionId; // same session
     } elseif (strpos($termName, 'third') !== false) {
-        $desired = 'first'; // move to next class
+        $desired = 'first';
+
+        // ✅ Move to next session
+        $stmt = $pdo->prepare("
+            SELECT id FROM sessions
+            WHERE id > ?
+            ORDER BY id ASC
+            LIMIT 1
+        ");
+        $stmt->execute([$sessionId]);
+        $nextSession = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$nextSession) {
+            // ✅ No next session → no next term
+            return [
+                'term'  => null,
+                'start' => null,
+                'fee'   => null,
+                'class' => null
+            ];
+        }
+
+        $nextSessionId = (int)$nextSession['id'];
     } else {
         return [
             'term'  => null,
@@ -236,9 +259,8 @@ function getNextTermForRecord(PDO $pdo, int $classId, int $sessionId, string $te
 
     $nextClassId = $classId;
 
-    // If current term is THIRD → move to next class
-    if ($desired === 'first' && strpos($termName, 'third') !== false) {
-
+    // ✅ Move to next class ONLY when leaving Third Term
+    if (strpos($termName, 'third') !== false) {
         $stmt = $pdo->prepare("
             SELECT * FROM classes
             WHERE level > (SELECT level FROM classes WHERE id = ?)
@@ -249,7 +271,6 @@ function getNextTermForRecord(PDO $pdo, int $classId, int $sessionId, string $te
         $nextClass = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$nextClass) {
-            // No next class exists
             return [
                 'term'  => null,
                 'start' => null,
@@ -261,17 +282,17 @@ function getNextTermForRecord(PDO $pdo, int $classId, int $sessionId, string $te
         $nextClassId = (int)$nextClass['id'];
     }
 
-    // Fetch the next term in the SAME session
+    // ✅ Fetch next term in the CORRECT session
     $stmt = $pdo->prepare("
         SELECT * FROM terms
         WHERE session_id = ? AND LOWER(name) LIKE ?
         LIMIT 1
     ");
-    $stmt->execute([$sessionId, '%' . $desired . '%']);
+    $stmt->execute([$nextSessionId, '%' . $desired . '%']);
     $nextTerm = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$nextTerm) {
-        // No next term found in this session
+        // ✅ No next term in next session → return N/A
         return [
             'term'  => null,
             'start' => null,
@@ -280,7 +301,7 @@ function getNextTermForRecord(PDO $pdo, int $classId, int $sessionId, string $te
         ];
     }
 
-    // Fetch fee for the next class
+    // ✅ Fetch fee for next class
     $stmt = $pdo->prepare("SELECT * FROM fees WHERE class_id = ?");
     $stmt->execute([$nextClassId]);
     $feeRow = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -295,7 +316,88 @@ function getNextTermForRecord(PDO $pdo, int $classId, int $sessionId, string $te
 
     return [
         'term'  => $nextTerm['name'] ?? null,
-        'start' => $nextTerm['start_date'] ?? null,   // ✅ safe access
+        'start' => $nextTerm['start_date'] ?? null,
+        'fee'   => $fee,
+        'class' => $nextClassId
+    ];
+}
+
+function getNextIslamiyyaTerm(PDO $pdo, int $classId, int $sessionId, string $termName): array
+{
+    $termName = strtolower(trim($termName));
+
+    if (strpos($termName, 'first') !== false) {
+        $desired = 'second';
+        $nextSessionId = $sessionId;
+    } elseif (strpos($termName, 'second') !== false) {
+        $desired = 'third';
+        $nextSessionId = $sessionId;
+    } elseif (strpos($termName, 'third') !== false) {
+        $desired = 'first';
+
+        $stmt = $pdo->prepare("
+            SELECT id FROM sessions
+            WHERE id > ?
+            ORDER BY id ASC
+            LIMIT 1
+        ");
+        $stmt->execute([$sessionId]);
+        $nextSession = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$nextSession) {
+            return ['term' => null, 'start' => null, 'fee' => null, 'class' => null];
+        }
+
+        $nextSessionId = (int)$nextSession['id'];
+    } else {
+        return ['term' => null, 'start' => null, 'fee' => null, 'class' => null];
+    }
+
+    $nextClassId = $classId;
+
+    if (strpos($termName, 'third') !== false) {
+        $stmt = $pdo->prepare("
+            SELECT * FROM islamiyya_classes
+            WHERE level > (SELECT level FROM islamiyya_classes WHERE id = ?)
+            ORDER BY level ASC
+            LIMIT 1
+        ");
+        $stmt->execute([$classId]);
+        $nextClass = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$nextClass) {
+            return ['term' => null, 'start' => null, 'fee' => null, 'class' => null];
+        }
+
+        $nextClassId = (int)$nextClass['id'];
+    }
+
+    $stmt = $pdo->prepare("
+        SELECT * FROM terms
+        WHERE session_id = ? AND LOWER(name) LIKE ?
+        LIMIT 1
+    ");
+    $stmt->execute([$nextSessionId, '%' . $desired . '%']);
+    $nextTerm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$nextTerm) {
+        return ['term' => null, 'start' => null, 'fee' => null, 'class' => $nextClassId];
+    }
+
+    $stmt = $pdo->prepare("SELECT * FROM islamiyya_fees WHERE islamiyya_class_id = ?");
+    $stmt->execute([$nextClassId]);
+    $feeRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $fee = null;
+    if ($feeRow) {
+        if ($desired === 'first')  $fee = $feeRow['first_term'];
+        if ($desired === 'second') $fee = $feeRow['second_term'];
+        if ($desired === 'third')  $fee = $feeRow['third_term'];
+    }
+
+    return [
+        'term'  => $nextTerm['name'] ?? null,
+        'start' => $nextTerm['start_date'] ?? null,
         'fee'   => $fee,
         'class' => $nextClassId
     ];

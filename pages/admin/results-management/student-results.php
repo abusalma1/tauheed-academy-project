@@ -244,7 +244,7 @@ foreach ($records as $sessionName => $classes) {
 
 
               <!-- Printable Student Header -->
-              <div style="
+              <div class="hidden" style="
                           width:210mm;
                           height:297mm;
                           margin-left:auto;
@@ -255,7 +255,7 @@ foreach ($records as $sessionName => $classes) {
                           border: 1px solid black;
                       ">
                 <!-- A4 Container -->
-                <div style="width:100%; padding-left: 5px;  padding-right: 5px;" id="result-1">
+                <div style="width:100%; padding-left: 5px;  padding-right: 5px;" id="result-<?= $term['str_id'] ?>">
 
                   <!-- HEADER -->
                   <div style="text-align:center; border-bottom:3px solid #000; padding-bottom:8px; margin-bottom:8px;">
@@ -297,10 +297,10 @@ foreach ($records as $sessionName => $classes) {
                       <td style="font-weight:bold; width:40px; font-size: 11px;">CLASS:</td>
                       <td style="border-bottom:1px solid #000; "><?= htmlspecialchars($class['class_name']) . ' ' . htmlspecialchars($class['arm_name']) ?></td>
                       <td style="font-weight:bold; width:40px; font-size: 11px;">TERM:</td>
-                      <td style="border-bottom:1px solid #000; width:60px;"> <?= htmlspecialchars($term['term_name']) ?>
+                      <td style="border-bottom:1px solid #000; text-align:center; "> <?= htmlspecialchars($term['term_name']) ?>
                       </td>
                       <td style="font-weight:bold; width:40px; font-size: 11px;">SESSION:</td>
-                      <td style="border-bottom:1px solid #000; width:60px;"> <?= htmlspecialchars($sessionName) ?>
+                      <td style="border-bottom:1px solid #000; text-align:center; "> <?= htmlspecialchars($sessionName) ?>
                       </td>
 
                       <!-- Position -->
@@ -320,13 +320,13 @@ foreach ($records as $sessionName => $classes) {
                     <tr>
 
                       <!-- 1st Term -->
-                      <td style="font-weight:bold; width:95px; text-align:center;">1st Term Average</td>
+                      <td style="font-weight:bold; width:100px; text-align:center;">1st Term Average</td>
                       <td style="border-bottom:1px solid #000; text-align:center;">
                         <?= $sessionAverages[$sessionName][$classId]['first'] ?? 'N/A' ?> %
                       </td>
 
                       <!-- 2nd Term -->
-                      <td style="font-weight:bold; width:95px; text-align:center;">2nd Term Average</td>
+                      <td style="font-weight:bold; width:100px; text-align:center;">2nd Term Average</td>
                       <td style="border-bottom:1px solid #000; text-align:center;">
                         <?= $sessionAverages[$sessionName][$classId]['second'] ?? 'N/A' ?>%
                       </td>
@@ -585,7 +585,7 @@ foreach ($records as $sessionName => $classes) {
                   <div style="margin-top:20px; font-size:13px;">
                     <table style="width:100%; border-collapse:collapse; margin-bottom:12px;">
                       <tr>
-                        <td style="font-weight:bold; width:140px;">PROMOTION STATUS:</td>
+                        <td style="font-weight:bold; width:145px;">PROMOTION STATUS:</td>
                         <td style="border-bottom:1px solid   #000;">
                           <?= ucfirst($class['promotion_status'] ?? 'pending') ?>
                         </td>
@@ -612,11 +612,13 @@ foreach ($records as $sessionName => $classes) {
                     <table style="width:100%; border-collapse:collapse; margin-bottom:12px;">
                       <tr>
                         <td style="font-weight:bold; width:135px;">NEXT TERM BEGINS:</td>
-                        <td style="border-bottom:1px solid #000; "><?= $next['start_date'] ? date('D d M, Y', strtotime($next['start'])) : 'N/A' ?>
+                        <td style="border-bottom:1px solid #000; "><?= $next['start'] ? date('D d M, Y', strtotime($next['start'])) : 'N/A' ?>
                         </td>
 
                         <td style="font-weight:bold; width:120px;">NEXT TERM FEES:</td>
-                        <td style="border-bottom:1px solid #000; "><?= $next['fee'] ? '₦' . number_format($next['fee'], 2) : 'N/A' ?></td>
+                        <td style="border-bottom:1px solid #000; ">
+                          <?= $next['fee'] ? '<span style="font-family: DejaVu Sans, sans-serif;">₦</span>' . number_format($next['fee'], 2) : 'N/A' ?>
+                        </td>
                       </tr>
                     </table>
                     <table style="width:100%; border-collapse:collapse; margin-bottom:12px;">
@@ -638,10 +640,10 @@ foreach ($records as $sessionName => $classes) {
 
                     <table style="width:100%; border-collapse:collapse; margin-bottom:6px;">
                       <tr>
-                        <td style="font-weight:bold; width:100px;">Signature:</td>
+                        <td style="font-weight:bold; width:70px;">Signature:</td>
                         <td style="border-bottom:1px solid #000; width:120px;"></td>
                         <td style="text-align:right; font-weight:bold;">Date:</td>
-                        <td style="border-bottom:1px solid #000; width:80px;">Mar 2025</td>
+                        <td style="border-bottom:1px solid #000; width:80px;"></td>
                       </tr>
                     </table>
 
@@ -663,7 +665,7 @@ foreach ($records as $sessionName => $classes) {
                       </div>
                     </div>
                   </div>
-                  <button onclick="window.print()" class="no-print bg-blue-900 hover:bg-blue-800 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2">
+                  <button onclick="printReportCard('result-<?= $term['str_id'] ?>')" class="no-print bg-blue-900 hover:bg-blue-800 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2">
                     <i class="fas fa-print"></i>Print
                   </button>
                 </div>
@@ -787,6 +789,26 @@ foreach ($records as $sessionName => $classes) {
   <?php include(__DIR__ . '/../../../includes/footer.php'); ?>
 
 
+  <script>
+    function printReportCard(divId) {
+      // Grab only the div content
+      var html = document.getElementById(divId).outerHTML;
+
+      // Send to PHP
+      fetch("<?= route('print') ?>", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: "html=" + encodeURIComponent(html),
+        })
+        .then((response) => response.blob())
+        .then((blob) => {
+          var url = window.URL.createObjectURL(blob);
+          window.open(url); // open PDF in new tab
+        });
+    }
+  </script>
 </body>
 
 </html>

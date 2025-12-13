@@ -191,53 +191,7 @@ $classes = array_values($classes);
                     </div>
                 </div>
 
-                <!-- Bulk Print Section -->
-                <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                        <i class="fas fa-print text-blue-900"></i>
-                        Print Results for All <?= $class['class_name'] . ' ' . $class['arm_name'] ?> Students
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- First Term Print -->
-                        <div class="bg-gradient-to-br from-blue-900 to-blue-800 text-white rounded-lg p-8 shadow-md hover:shadow-lg transition transform hover:scale-105">
-                            <div class="text-center">
-                                <i class="fas fa-calendar text-4xl mb-4 opacity-80"></i>
-                                <h4 class="text-xl font-bold mb-2">First Term</h4>
-                                <p class="text-blue-100 text-sm mb-6">Print all student results</p>
-                                <button class="w-full bg-white text-blue-900 hover:bg-blue-50 px-6 py-3 rounded font-semibold transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-file-pdf"></i>
-                                    Generate & Print
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Second Term Print -->
-                        <div class="bg-gradient-to-br from-green-700 to-green-600 text-white rounded-lg p-8 shadow-md hover:shadow-lg transition transform hover:scale-105">
-                            <div class="text-center">
-                                <i class="fas fa-calendar text-4xl mb-4 opacity-80"></i>
-                                <h4 class="text-xl font-bold mb-2">Second Term</h4>
-                                <p class="text-green-100 text-sm mb-6">Print all student results</p>
-                                <button class="w-full bg-white text-green-700 hover:bg-green-50 px-6 py-3 rounded font-semibold transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-file-pdf"></i>
-                                    Generate & Print
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Third Term Print -->
-                        <div class="bg-gradient-to-br from-purple-700 to-purple-600 text-white rounded-lg p-8 shadow-md hover:shadow-lg transition transform hover:scale-105">
-                            <div class="text-center">
-                                <i class="fas fa-calendar text-4xl mb-4 opacity-80"></i>
-                                <h4 class="text-xl font-bold mb-2">Third Term</h4>
-                                <p class="text-purple-100 text-sm mb-6">Print all student results</p>
-                                <button class="w-full bg-white text-purple-700 hover:bg-purple-50 px-6 py-3 rounded font-semibold transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-file-pdf"></i>
-                                    Generate & Print
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        
             <?php endforeach ?>
         </div>
     </section>
