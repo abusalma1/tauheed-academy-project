@@ -212,3 +212,91 @@ function ordinal($number)
 
     return $number . $ends[$number % 10];
 }
+
+function getNextTermForRecord(PDO $pdo, int $classId, int $sessionId, string $termName): array
+{
+    // Normalize term name
+    $termName = strtolower(trim($termName));
+
+    // Determine next term label
+    if (strpos($termName, 'first') !== false) {
+        $desired = 'second';
+    } elseif (strpos($termName, 'second') !== false) {
+        $desired = 'third';
+    } elseif (strpos($termName, 'third') !== false) {
+        $desired = 'first'; // move to next class
+    } else {
+        return [
+            'term'  => null,
+            'start' => null,
+            'fee'   => null,
+            'class' => null
+        ];
+    }
+
+    $nextClassId = $classId;
+
+    // If current term is THIRD → move to next class
+    if ($desired === 'first' && strpos($termName, 'third') !== false) {
+
+        $stmt = $pdo->prepare("
+            SELECT * FROM classes
+            WHERE level > (SELECT level FROM classes WHERE id = ?)
+            ORDER BY level ASC
+            LIMIT 1
+        ");
+        $stmt->execute([$classId]);
+        $nextClass = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$nextClass) {
+            // No next class exists
+            return [
+                'term'  => null,
+                'start' => null,
+                'fee'   => null,
+                'class' => null
+            ];
+        }
+
+        $nextClassId = (int)$nextClass['id'];
+    }
+
+    // Fetch the next term in the SAME session
+    $stmt = $pdo->prepare("
+        SELECT * FROM terms
+        WHERE session_id = ? AND LOWER(name) LIKE ?
+        LIMIT 1
+    ");
+    $stmt->execute([$sessionId, '%' . $desired . '%']);
+    $nextTerm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$nextTerm) {
+        // No next term found in this session
+        return [
+            'term'  => null,
+            'start' => null,
+            'fee'   => null,
+            'class' => $nextClassId
+        ];
+    }
+
+    // Fetch fee for the next class
+    $stmt = $pdo->prepare("SELECT * FROM fees WHERE class_id = ?");
+    $stmt->execute([$nextClassId]);
+    $feeRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $fee = null;
+    if ($feeRow) {
+        $desiredLower = strtolower($desired);
+        if ($desiredLower === 'first')  $fee = $feeRow['first_term'];
+        if ($desiredLower === 'second') $fee = $feeRow['second_term'];
+        if ($desiredLower === 'third')  $fee = $feeRow['third_term'];
+    }
+
+    return [
+        'term'  => $nextTerm['name'] ?? null,
+        'start' => $nextTerm['start_date'] ?? null,   // ✅ safe access
+        'fee'   => $fee,
+        'class' => $nextClassId
+    ];
+}

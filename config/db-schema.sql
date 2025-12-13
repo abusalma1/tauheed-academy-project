@@ -541,7 +541,7 @@ CREATE TABLE fees (
     transport DECIMAL(10,2),
     materials DECIMAL(10,2),
     registration DECIMAL(10,2),
-    pta DECIMAL(10,2);
+    pta DECIMAL(10,2),
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
