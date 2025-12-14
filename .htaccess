@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# If the requested file or directory does NOT exist
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Send everything to router.php
+RewriteRule ^(.*)$ router.php [L,QSA]

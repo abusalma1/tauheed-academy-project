@@ -2,6 +2,7 @@
 include(__DIR__ .  '/../routes/functions.php');
 $is_logged_in = false;
 
+
 // Step 1: Try to get an existing school record
 $stmt = $pdo->prepare('SELECT * FROM schools ORDER BY created_at ASC LIMIT 1');
 $stmt->execute();

@@ -11,7 +11,7 @@ function route($name)
     }
 
     // fallback: go to home
-    return $baseUrl . "/index.php";
+    return $baseUrl . "/404.php";
 }
 
 function validateEmail($email)
