@@ -32,6 +32,10 @@ $routes = [
     '404' => [
         'url' => "$baseUrl/404.php"
     ],
+    'current' => [
+        'url' => $protocol . "://" . $host . $_SERVER['REQUEST_URI']
+    ],
+
     'home' => [
         'url' => "$baseUrl/index.php"
     ],

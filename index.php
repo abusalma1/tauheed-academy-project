@@ -4,7 +4,7 @@ $title = 'Dashboard';
 include(__DIR__ .  '/./includes/header.php');
 
 // Prepare and execute query
-$stmt = $pdo->prepare("SELECT * FROM news ORDER BY created_at DESC LIMIT 6");
+$stmt = $pdo->prepare("SELECT * FROM news where deleted_at is null ORDER BY created_at DESC LIMIT 6");
 $stmt->execute();
 
 // Fetch all rows as associative arrays
@@ -64,7 +64,7 @@ $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php foreach ($news as $story) : ?>
                         <div class="news-item <?= $story['category'] ?> bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:scale-105">
                             <div class="relative overflow-hidden h-48">
-                                <img src="<?= asset($story['picture_path']) ?>" alt="News" class="w-full h-full object-cover">
+                                <img src="<?= !empty($story['picture_path']) ? asset($story['picture_path']) : asset('/images/news.png') ?>" alt="News" class="w-full h-full object-cover">
 
                                 <?php if ($story['category'] === 'event'): ?>
                                     <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">

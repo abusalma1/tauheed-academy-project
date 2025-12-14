@@ -63,7 +63,7 @@ $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <!-- Announcement -->
                         <div class="news-item  <?= $story['category'] ?> bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:scale-105">
                             <div class="relative overflow-hidden h-48">
-                                <img src="<?= asset($story['picture_path']) ?>" alt="News" class="w-full h-full object-cover">
+                                <img src="<?= !empty($story['picture_path']) ? asset($story['picture_path']) : asset('/images/news.png') ?>" alt="News" class="w-full h-full object-cover">
 
                                 <?php if ($story['category'] === 'event'): ?>
                                     <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">

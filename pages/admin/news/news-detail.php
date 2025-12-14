@@ -67,7 +67,7 @@ if (isset($_GET['id'])) {
             <article class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <!-- Featured Image -->
                 <div class="relative overflow-hidden h-96 md:h-96">
-                    <img src="<?= asset($story['picture_path']) ?>" alt="News" class="w-full h-full object-cover">
+                    <img src="<?= !empty($story['picture_path']) ? asset($story['picture_path']) : asset('/images/news.png') ?>" alt="News" class="w-full h-full object-cover">
                     <!-- Category badge in top-right corner -->
                     <?php if ($story['category'] === 'event'): ?>
                         <div class="absolute top-4 right-4 bg-green-600  text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
@@ -117,20 +117,9 @@ if (isset($_GET['id'])) {
                 <div class="p-8 bg-gray-50 border-t">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div class="mb-4 md:mb-0">
-                            <p class="text-gray-600 text-sm mb-3">Share this article:</p>
-                            <div class="flex gap-3">
-                                <a href="#" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm">
-                                    <i class="fab fa-facebook-f"></i>Facebook
-                                </a>
-                                <a href="#" class="inline-flex items-center gap-2 bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500 transition text-sm">
-                                    <i class="fab fa-twitter"></i>Twitter
-                                </a>
-                                <a href="#" class="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm">
-                                    <i class="fab fa-whatsapp"></i>WhatsApp
-                                </a>
-                            </div>
+                           
                         </div>
-                        <a href="school-news.html" class="inline-flex items-center gap-2 bg-blue-900 text-white px-6 py-2 rounded hover:bg-blue-800 transition font-semibold">
+                        <a href="<?= route('back') ?>" class="inline-flex items-center gap-2 bg-blue-900 text-white px-6 py-2 rounded hover:bg-blue-800 transition font-semibold">
                             <i class="fas fa-arrow-left"></i>Back to News
                         </a>
                     </div>
@@ -146,7 +135,7 @@ if (isset($_GET['id'])) {
                     <?php if ($previous): ?>
                         <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
                             <div class="relative overflow-hidden h-40">
-                                <img src="/placeholder.svg?height=200&width=400" alt="Previous Article" class="w-full h-full object-cover">
+                                <img src="<?= !empty($previous['picture_path']) ? asset($previous['picture_path']) : asset('/images/news.png') ?>" alt="Previous Article" class="w-full h-full object-cover">
                                 <div class="absolute top-2 left-2 bg-blue-600 text-white px-3 py-1 rounded text-xs font-semibold">
                                     <i class="fas fa-arrow-left mr-1"></i>Previous
                                 </div>
@@ -164,7 +153,7 @@ if (isset($_GET['id'])) {
                         <!-- Next Article -->
                         <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
                             <div class="relative overflow-hidden h-40">
-                                <img src="/placeholder.svg?height=200&width=400" alt="Next Article" class="w-full h-full object-cover">
+                                <img src="<?= !empty($next['picture_path']) ? asset($next['picture_path']) : asset('/images/news.png') ?>" alt="Next Article" class="w-full h-full object-cover">
                                 <div class="absolute top-2 right-2 bg-purple-600 text-white px-3 py-1 rounded text-xs font-semibold">
                                     <i class="fas fa-arrow-right mr-1"></i>Next
                                 </div>

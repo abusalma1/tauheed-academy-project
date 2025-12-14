@@ -53,6 +53,7 @@ if (isset($_SESSION['user_session'])) {
         }
     }
 }
+
 ?>
 
 
@@ -108,5 +109,3 @@ if (isset($_SESSION['user_session'])) {
         }
     </style>
 </head>
-
-

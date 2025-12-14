@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <section class="py-12 bg-gray-50">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-lg shadow-lg p-8">
-                <form id="newsForm" class="space-y-6" method="post">
+                <form id="newsForm" class="space-y-6" method="post" enctype="multipart/form-data">
 
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
 
