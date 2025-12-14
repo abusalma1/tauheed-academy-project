@@ -113,6 +113,14 @@ function selectAllData($table, $whereIdIs = null, $whereIdIsNot = null)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function asset($path)
+{
+    // bring $baseUrl into scope
+    global $baseUrl;
+    // ensure single slash
+    return $baseUrl . "/static/" . ltrim($path, '/');
+}
+
 function getStudentResults($student_id)
 {
     global $pdo;

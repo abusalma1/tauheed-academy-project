@@ -1,30 +1,43 @@
 <?php
-include __DIR__ . "/includes/header.php";
 
-// Get the requested path
-$path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+require_once __DIR__ . '/routes/web.php';
 
-// Remove project folder name on localhost
-$path = str_replace("tauheed-academy-project/", "", $path);
-
-// Default route
-if ($path === "") {
-    $path = "home";
+function normalize_url($url)
+{
+    return rtrim(strtolower($url), '/');
 }
 
-// Check if route exists
-if (isset($routes[$path])) {
+$fullUrl = normalize_url(
+    (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')
+        . '://' . $_SERVER['HTTP_HOST']
+        . strtok($_SERVER['REQUEST_URI'], '?')
+);
 
-    // Convert URL → file path
-    $file = str_replace($baseUrl, "", $routes[$path]['url']);
-    $file = __DIR__ . $file;
+$routeFound = false;
 
-    if (file_exists($file)) {
-        include $file;
+foreach ($routes as $name => $route) {
+
+    if (!isset($route['url'])) continue;
+
+    if (normalize_url($route['url']) === $fullUrl) {
+        $routeFound = true;
+
+        // Convert full URL → local file path
+        $path = str_replace($baseUrl, '', $route['url']);
+
+        // ✅ Prevent empty path
+        if ($path === '' || $path === '/') {
+            $path = '/pages/dashboard.php'; // your home page
+        }
+
+        require __DIR__ . $path;
         exit;
     }
 }
 
-// If route does NOT exist → 404
-include __DIR__ . "/404.php";
+// ✅ If no route matched → show 404
+http_response_code(404);
+
+$path404 = str_replace($baseUrl, '', $routes['404']['url']);
+require __DIR__ . $path404;
 exit;

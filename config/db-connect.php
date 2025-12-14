@@ -2,15 +2,7 @@
 ini_set("display_errors", 1);
 error_reporting(E_ALL);
 
-session_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['submitted'])) {
-    if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] !== $_SERVER['PHP_SELF']) {
-        $_SESSION['previous_page'] = $_SERVER['HTTP_REFERER'];
-    } else {
-        $_SESSION['previous_page'] = route('home');
-    }
-}
 
 // Load environment variables
 require_once __DIR__ . '/config.php'; // this calls loadEnv()
@@ -28,3 +20,4 @@ try {
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());
 }
+gi t a

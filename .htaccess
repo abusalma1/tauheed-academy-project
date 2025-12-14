@@ -1,8 +1,10 @@
 RewriteEngine On
 
-# If the requested file or directory does NOT exist
+# If the request is NOT a real file
 RewriteCond %{REQUEST_FILENAME} !-f
+
+# And NOT a real directory
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Send everything to router.php
-RewriteRule ^(.*)$ router.php [L,QSA]
+# Send everything to index.php (your router)
+RewriteRule ^ index.php [L]

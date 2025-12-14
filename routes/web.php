@@ -14,13 +14,6 @@ if ($host === 'localhost' || preg_match('/^192\.168\./', $host)) {
 
 
 
-function asset($path)
-{
-    // bring $baseUrl into scope
-    global $baseUrl;
-    // ensure single slash
-    return $baseUrl . "/static/" . ltrim($path, '/');
-}
 
 $routes = [
     'back' => [
@@ -37,7 +30,7 @@ $routes = [
     ],
 
     'home' => [
-        'url' => "$baseUrl/index.php"
+        'url' => "$baseUrl/pages/dashboard.php"
     ],
     'about' => [
         'url' => "$baseUrl/pages/about.php"
