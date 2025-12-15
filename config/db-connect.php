@@ -2,6 +2,9 @@
 ini_set("display_errors", 1);
 error_reporting(E_ALL);
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 
 // Load environment variables
@@ -20,4 +23,3 @@ try {
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());
 }
-gi t a
