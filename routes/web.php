@@ -25,12 +25,15 @@ $routes = [
     '404' => [
         'url' => "$baseUrl/404.php"
     ],
+    '403' => [
+        'url' => "$baseUrl/403.php"
+    ],
     'current' => [
         'url' => $protocol . "://" . $host . $_SERVER['REQUEST_URI']
     ],
 
     'home' => [
-        'url' => "$baseUrl/pages/dashboard.php"
+        'url' => $baseUrl
     ],
     'about' => [
         'url' => "$baseUrl/pages/about.php"

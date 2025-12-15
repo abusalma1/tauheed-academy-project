@@ -1,10 +1,13 @@
 RewriteEngine On
+RewriteOptions AllowNoSlash
 
-# If the request is NOT a real file
+# ✅ Force directory requests to go through index.php
+RewriteRule ^(.*/)$ index.php [L]
+
+# ✅ Route non-existing files and directories to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
-
-# And NOT a real directory
 RewriteCond %{REQUEST_FILENAME} !-d
-
-# Send everything to index.php (your router)
 RewriteRule ^ index.php [L]
+
+# ✅ Disable directory listing
+Options -Indexes
