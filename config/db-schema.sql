@@ -485,7 +485,6 @@ CREATE TABLE results (
     UNIQUE (student_term_record_id, subject_id)
 ) ENGINE=InnoDB;
 
-InnoDB;
 
 -- ===========================================================
 -- 11.2 ISLAMIYYA_RESULTS TABLE
@@ -585,5 +584,3 @@ CREATE TABLE bank_accounts (
     deleted_at DATETIME NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
 ) ENGINE=InnoDB;
-
-
