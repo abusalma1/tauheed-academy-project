@@ -7,6 +7,11 @@ if (!$is_logged_in) {
     header("Location: " . route('home'));
     exit();
 }
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
 
 // Fetch data using helper functions (assuming they are PDO-based)
 $teachers  = selectAllData('teachers');
@@ -51,7 +56,7 @@ $teachersCount  = countDataTotal('teachers', true);
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Teachers</h2>
 
                 <!-- Teacher Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div class="bg-white rounded-lg shadow p-4">
                         <p class="text-gray-600 text-sm">Total Teachers</p>
                         <p class="text-2xl font-bold text-blue-900"><?= $teachersCount['total'] ?></p>
@@ -60,14 +65,7 @@ $teachersCount  = countDataTotal('teachers', true);
                         <p class="text-gray-600 text-sm">Active</p>
                         <p class="text-2xl font-bold text-green-600"><?= $teachersCount['active'] ?></p>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <p class="text-gray-600 text-sm">Subjects</p>
-                        <p class="text-2xl font-bold text-orange-600">nill</p>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <p class="text-gray-600 text-sm">Departments</p>
-                        <p class="text-2xl font-bold text-purple-600">nill</p>
-                    </div>
+                   
                 </div>
 
                 <!-- Teachers Grid - Hardcoded HTML -->
@@ -83,10 +81,7 @@ $teachersCount  = countDataTotal('teachers', true);
                                 <p class="text-sm text-gray-600 text-center mb-4"><?= $teacher['email'] ?></p>
 
                                 <div class="space-y-2 mb-4">
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span class="text-gray-600">Subject:</span>
-                                        <span class="font-semibold text-gray-900">Nill</span>
-                                    </div>
+    
                                     <div class="flex justify-between items-center text-sm">
                                         <span class="text-gray-600">Qualification:</span>
                                         <span class="font-semibold text-gray-900"><?= $teacher['qualification'] ?></span>

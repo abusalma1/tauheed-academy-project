@@ -8,6 +8,7 @@ if (!$is_logged_in || $is_logged_in === false) {
   exit();
 }
 
+
 if ($user_type !== 'student') {
   if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];

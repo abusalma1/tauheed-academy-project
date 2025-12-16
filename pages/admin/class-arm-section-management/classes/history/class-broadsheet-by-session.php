@@ -2,6 +2,11 @@
 $title = "Class Results By Session";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";

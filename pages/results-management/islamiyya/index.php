@@ -8,11 +8,13 @@ if (!$is_logged_in) {
     exit();
 }
 
-if ($user_type !== 'teacher') {
+if (!isset($user_type) || $user_type !== 'teacher') {
     $_SESSION['failure'] = "Only Teachers can access!";
     header("Location: " . route('home'));
     exit();
 }
+
+
 
 // Use PDO instead of MySQLi
 $stmt = $pdo->prepare("

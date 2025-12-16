@@ -8,6 +8,11 @@ if (!$is_logged_in) {
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
 ?>
 
 <body class="bg-gray-50">
@@ -51,6 +56,7 @@ if (!$is_logged_in) {
                     </div>
                 </div>
 
+
                 <!-- User Management Card -->
                 <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">
                     <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-8 rounded-t-lg">
@@ -75,6 +81,7 @@ if (!$is_logged_in) {
 
                     </div>
                 </div>
+
 
                 <!-- News Management Card -->
                 <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105">

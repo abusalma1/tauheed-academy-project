@@ -8,6 +8,12 @@ if (!$is_logged_in) {
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
 if (!isset($_GET['class_id'])) {
     $_SESSION['failure'] = "Class not specified";
     header("Location: " . route('back'));
@@ -119,9 +125,9 @@ foreach ($sessions as $sess) {
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                
-                        <div colspan="6" class="text-center block  p-5 text-gray-500">No session record exist.</div>
-                 
+
+                    <div colspan="6" class="text-center block  p-5 text-gray-500">No session record exist.</div>
+
                 <?php endif ?>
             </div>
         </div>

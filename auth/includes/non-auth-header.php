@@ -14,6 +14,12 @@ if (!in_array($requestPath, $allowedPaths)) {
   exit();
 }
 
+//  Redirect if already logged in
+if (isset($_SESSION['user_session'])) {
+  $_SESSION['failure'] = "Access Denied!";
+  header('Location: ' . route('home'));
+  exit();
+}
 
 ?>
 

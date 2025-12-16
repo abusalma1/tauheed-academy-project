@@ -8,6 +8,13 @@ if (!$is_logged_in) {
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+
 //  Use PDO instead of MySQLi
 $stmt = $pdo->prepare("
 SELECT 
@@ -49,7 +56,7 @@ foreach ($rows as $row) {
             'name'         => $row['class_name'],
             'section_name' => $row['section_name'],
             'arm_id'       => $armId,
-            'arm_name'       => $armId ? ' - ' . $row['arm_name'] : '',      
+            'arm_name'       => $armId ? ' - ' . $row['arm_name'] : '',
             'subjects'     => []
         ];
     }
@@ -199,7 +206,7 @@ if (isset($_POST['missing_selection'])) {
                                                 <?= $subject['name'] ?>
                                             </h3>
                                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                        
+
                                             </div>
                                         </div>
                                         <div class="flex flex-row gap-2 md:w-auto">

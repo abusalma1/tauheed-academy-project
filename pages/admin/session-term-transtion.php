@@ -8,6 +8,11 @@ if (!$is_logged_in) {
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
 // Fetch all terms with session names
 $stmt = $pdo->prepare("
     SELECT terms.*, sessions.name AS session_name

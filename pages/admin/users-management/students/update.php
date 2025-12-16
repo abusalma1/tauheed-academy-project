@@ -7,6 +7,11 @@ if (!$is_logged_in) {
     header("Location: " . route('home'));
     exit();
 }
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
 
 // Ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {

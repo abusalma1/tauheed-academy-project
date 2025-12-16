@@ -14,8 +14,14 @@ function sendResetEmail($email, $resetLink)
     $mail->isSMTP();
     $mail->Host       = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
+
+    // 🔥 REQUIRED FOR OFFICE365
+    $mail->AuthType   = 'LOGIN';   // <-- ADD THIS
+
     $mail->Username   = $_ENV['SMTP_USERNAME'] ?? '';
     $mail->Password   = $_ENV['SMTP_PASSWORD'] ?? '';
+
+    // 🔥 Office365 requires STARTTLS on port 587
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = (int) ($_ENV['SMTP_PORT'] ?? 587);
 
@@ -45,7 +51,6 @@ function sendResetEmail($email, $resetLink)
             </div>
         ";
     $mail->AltBody = "Click the following link to reset your password: $resetLink";
-
 
     $mail->send();
   } catch (Exception $e) {

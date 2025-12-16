@@ -7,6 +7,12 @@ if (!$is_logged_in) {
     header("Location: " . route('home'));
     exit();
 }
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
 
 
 $arms = selectAllData('class_arms');

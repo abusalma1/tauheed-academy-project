@@ -9,6 +9,13 @@ if ($is_logged_in === false) {
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'guardian') {
+    $_SESSION['failure'] = "Access denied! Only Guardian are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+
 // Fetch children
 $stmtChildren = $pdo->prepare("
     SELECT 

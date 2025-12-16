@@ -8,11 +8,14 @@ if (!$is_logged_in) {
     exit();
 }
 
-if ($user_type !== 'admin') {
-    $_SESSION['failure'] = "Only Admins can access!";
+
+
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
+
 
 $armsCount = countDataTotal('class_arms')['total'];
 $classesCount = countDataTotal('classes')['total'];

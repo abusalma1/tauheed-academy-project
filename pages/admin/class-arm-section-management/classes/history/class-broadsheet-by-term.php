@@ -2,6 +2,12 @@
 $title = "Class Results  Bu Terms";
 include(__DIR__ . '/../../../../../includes/header.php');
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -9,7 +15,7 @@ if (!$is_logged_in) {
     exit();
 }
 
-if ( $user_type !== 'admin') {
+if ($user_type !== 'admin') {
     $_SESSION['failure'] = "Only Admins can access!";
     header("Location: " . route('home'));
     exit();
@@ -181,9 +187,9 @@ foreach ($terms as $row) {
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-              
-                    <div colspan="6" class="text-center block p-5 text-gray-500">No term results available for this class.</div>
-              
+
+                <div colspan="6" class="text-center block p-5 text-gray-500">No term results available for this class.</div>
+
             <?php endif ?>
 
         </div>

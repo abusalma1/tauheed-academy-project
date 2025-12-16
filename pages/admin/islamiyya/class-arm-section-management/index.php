@@ -8,6 +8,13 @@ if (!$is_logged_in) {
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+
 
 $armsCount = countDataTotal('islamiyya_class_arms')['total'];
 $classesCount = countDataTotal('islamiyya_classes')['total'];

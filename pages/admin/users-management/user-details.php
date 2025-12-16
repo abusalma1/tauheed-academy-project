@@ -8,6 +8,12 @@ if (!$is_logged_in) {
     exit();
 }
 
+
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
 if (isset($_GET['id'])) {
     $id   = (int) $_GET['id'];
     $type = $_GET['type'];

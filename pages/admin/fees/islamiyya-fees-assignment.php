@@ -6,6 +6,13 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+
 // Fetch Islamiyya sections and classes
 $stmt = $pdo->prepare("
     SELECT 
@@ -196,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">First Term</th>
                                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Second Term</th>
                                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Third Term</th>
-        
+
                                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Books & Materials</th>
 
                                             <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Total Annual Fee</th>
@@ -212,9 +219,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 'first_term' => '',
                                                 'second_term' => '',
                                                 'third_term' => '',
-                    
+
                                                 'materials' => '',
-       
+
 
                                             ];
                                             ?>
@@ -269,7 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         placeholder="0">
                                                 </td>
 
-            
+
 
                                                 <!-- TOTAL (STATIC – NO JS) -->
                                                 <td class="px-6 py-4 text-right">
@@ -279,10 +286,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                                 $fee['first_term'] ?? 0,
                                                                 $fee['second_term'] ?? 0,
                                                                 $fee['third_term'] ?? 0,
-                                                     
+
                                                                 $fee['materials'] ?? 0,
-                                                             
-                                                        
+
+
                                                             ]);
                                                             ?>
                                                     </span>

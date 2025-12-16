@@ -8,7 +8,31 @@ if (!$is_logged_in) {
     exit();
 }
 
-$guardians = selectAllData('guardians');
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+$sql = "
+    SELECT 
+        g.*,
+        COUNT(s.id) AS children_count
+    FROM guardians g
+    LEFT JOIN students s 
+        ON s.guardian_id = g.id
+        AND s.deleted_at IS NULL
+    WHERE g.deleted_at IS NULL
+    GROUP BY g.id
+    ORDER BY g.name ASC
+";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$guardians = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
 
 $guardiansCount = countDataTotal('guardians', true);
 
@@ -51,7 +75,7 @@ $guardiansCount = countDataTotal('guardians', true);
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Guardians</h2>
 
                 <!-- Guardian Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div class="bg-white rounded-lg shadow p-4">
                         <p class="text-gray-600 text-sm">Total Guardians</p>
                         <p class="text-2xl font-bold text-green-900"><?= $guardiansCount['total'] ?></p>
@@ -60,14 +84,7 @@ $guardiansCount = countDataTotal('guardians', true);
                         <p class="text-gray-600 text-sm">Active</p>
                         <p class="text-2xl font-bold text-green-600"><?= $guardiansCount['total'] ?></p>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <p class="text-gray-600 text-sm">Students Linked</p>
-                        <p class="text-2xl font-bold text-blue-600">nill</p>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <p class="text-gray-600 text-sm">Occupations</p>
-                        <p class="text-2xl font-bold text-purple-600">Nill</p>
-                    </div>
+                    
                 </div>
 
                 <!-- Guardians Grid - Hardcoded HTML -->
@@ -93,7 +110,7 @@ $guardiansCount = countDataTotal('guardians', true);
                                     </div>
                                     <div class="flex justify-between items-center text-sm">
                                         <span class="text-gray-600">Students Linked:</span>
-                                        <span class="font-semibold text-gray-900">nill</span>
+                                        <span class="font-semibold text-gray-900"><?= $guardian['children_count'] ?></span>
                                     </div>
                                 </div>
 

@@ -8,6 +8,13 @@ if (!$is_logged_in) {
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
+
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
     $stmt = $pdo->prepare('SELECT * FROM news WHERE id = ?');
@@ -117,7 +124,7 @@ if (isset($_GET['id'])) {
                 <div class="p-8 bg-gray-50 border-t">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div class="mb-4 md:mb-0">
-                           
+
                         </div>
                         <a href="<?= route('back') ?>" class="inline-flex items-center gap-2 bg-blue-900 text-white px-6 py-2 rounded hover:bg-blue-800 transition font-semibold">
                             <i class="fas fa-arrow-left"></i>Back to News

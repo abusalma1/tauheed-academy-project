@@ -9,6 +9,13 @@ if (!$is_logged_in || $is_logged_in === false) {
   exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+  $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+  header("Location: " . route('home'));
+  exit();
+}
+
+
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
   $stmt = $pdo->prepare('SELECT * FROM students WHERE id = ?');

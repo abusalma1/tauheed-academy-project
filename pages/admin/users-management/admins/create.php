@@ -9,6 +9,19 @@ if (!$is_logged_in) {
     exit();
 }
 
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+} else if ($user_type === 'admin') {
+    if ($user['type'] !== 'superAdmin') {
+        $_SESSION['failure'] = "Access denied! Only Super Admins are allowed.";
+        header("Location: " . route('home'));
+        exit();
+    }
+}
+
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
