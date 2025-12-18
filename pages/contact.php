@@ -79,29 +79,6 @@ include(__DIR__ .  '/../includes/header.php');
         </div>
     </section>
 
-    <!-- Contact Form -->
-    <section class="py-16 bg-gray-100">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Send Us a Message</h2>
-            <form class="bg-white p-8 rounded-lg shadow-lg">
-                <div class="mb-6">
-                    <label for="name" class="block text-gray-700 font-semibold mb-2">Full Name</label>
-                    <input type="text" id="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter your full name" required>
-                </div>
-                <div class="mb-6">
-                    <label for="email" class="block text-gray-700 font-semibold mb-2">Email Address</label>
-                    <input type="email" id="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Enter your email" required>
-                </div>
-                <div class="mb-6">
-                    <label for="message" class="block text-gray-700 font-semibold mb-2">Message</label>
-                    <textarea id="message" rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900" placeholder="Write your message here..." required></textarea>
-                </div>
-                <button type="submit" class="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
-                    Send Message
-                </button>
-            </form>
-        </div>
-    </section>
 
     <?php include(__DIR__ . '/../includes/footer.php') ?>
 

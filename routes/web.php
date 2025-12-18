@@ -50,9 +50,6 @@ $routes = [
     'fees' => [
         'url' => "$baseUrl/pages/fees.php"
     ],
-    'gallery' => [
-        'url' => "$baseUrl/pages/gallery.php"
-    ],
     'staff' => [
         'url' => "$baseUrl/pages/staff.php"
     ],

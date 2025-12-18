@@ -108,49 +108,6 @@ $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
     <!-- Gallery Slider -->
-    <section class="py-16 bg-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Our Campus & Activities</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                    <img src="/placeholder.svg?height=300&width=400" alt="School Building" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                        <p class="text-white font-semibold">Modern School Building</p>
-                    </div>
-                </div>
-                <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                    <img src="/placeholder.svg?height=300&width=400" alt="Classroom" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                        <p class="text-white font-semibold">Interactive Classrooms</p>
-                    </div>
-                </div>
-                <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                    <img src="/placeholder.svg?height=300&width=400" alt="Sports" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                        <p class="text-white font-semibold">Sports & Recreation</p>
-                    </div>
-                </div>
-                <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                    <img src="/placeholder.svg?height=300&width=400" alt="Library" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                        <p class="text-white font-semibold">Well-Stocked Library</p>
-                    </div>
-                </div>
-                <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                    <img src="/placeholder.svg?height=300&width=400" alt="Laboratory" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                        <p class="text-white font-semibold">Science Laboratories</p>
-                    </div>
-                </div>
-                <div class="relative overflow-hidden rounded-lg shadow-lg group">
-                    <img src="/placeholder.svg?height=300&width=400" alt="Computer Lab" class="w-full h-64 object-cover group-hover:scale-110 transition duration-300">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                        <p class="text-white font-semibold">Computer Laboratory</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Quick Links -->
     <section class="py-16 bg-white">

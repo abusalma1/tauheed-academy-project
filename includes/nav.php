@@ -28,7 +28,7 @@
                             <li><a href="<?= route('contact'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Contact Us</a></li>
                             <li><a href="<?= route('admission'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Admissions</a></li>
                             <li><a href="<?= route('fees'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Fees</a></li>
-                            <li><a href="<?= route('gallery'); ?>" class="block px-4 py-2 hover:bg-blue-700 rounded">Gallery</a></li>
+                 
                         </ul>
                     </div>
                 </div>
@@ -128,7 +128,6 @@
                 <a href="<?= route('contact'); ?>" class="block px-4 py-2 hover:bg-blue-600">Contact Us</a>
                 <a href="<?= route('admission'); ?>" class="block px-4 py-2 hover:bg-blue-600">Admissions</a>
                 <a href="<?= route('fees'); ?>" class="block px-4 py-2 hover:bg-blue-600">Fees</a>
-                <a href="<?= route('gallery'); ?>" class="block px-4 py-2 hover:bg-blue-600">Gallery</a>
             </div>
         </div>
         <div class="py-2 px-3 rounded bg-blue-800">

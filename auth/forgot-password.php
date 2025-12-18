@@ -42,13 +42,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($errorMessage === null) {
       try {
         foreach ($tables as $table) {
-          $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE email=? LIMIT 1");
+          $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE email=? AND deleted_at IS NULL LIMIT 1");
           $stmt->execute([$email]);
+
           if ($stmt->rowCount() > 0) {
             $userTable = $table;
             break;
           }
         }
+
 
         if (!empty($userTable)) {
           $rawToken   = bin2hex(random_bytes(32));

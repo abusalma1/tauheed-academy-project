@@ -30,13 +30,20 @@ $stmt = $pdo->prepare("
         sections.name AS section_name,
         GROUP_CONCAT(class_arms.name SEPARATOR ', ') AS arm_names
     FROM classes
-    LEFT JOIN class_class_arms ON classes.id = class_class_arms.class_id
-    LEFT JOIN sections ON classes.section_id = sections.id
-    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+    LEFT JOIN class_class_arms 
+        ON classes.id = class_class_arms.class_id
+        AND class_class_arms.deleted_at IS NULL
+    LEFT JOIN sections 
+        ON classes.section_id = sections.id
+        AND sections.deleted_at IS NULL
+    LEFT JOIN class_arms 
+        ON class_class_arms.arm_id = class_arms.id
+        AND class_arms.deleted_at IS NULL
     WHERE classes.deleted_at IS NULL
     GROUP BY classes.id 
     ORDER BY classes.level
 ");
+
 $stmt->execute();
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

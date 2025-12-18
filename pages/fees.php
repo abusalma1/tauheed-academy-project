@@ -18,10 +18,12 @@ $stmt = $pdo->prepare("
         ) AS total
     FROM fees
     LEFT JOIN classes ON fees.class_id = classes.id
+    WHERE fees.deleted_at IS NULL
+      AND classes.deleted_at IS NULL
     ORDER BY classes.level ASC
 ");
 $stmt->execute();
-$fees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$fees = $stmt->fetchAll(PDO::FETCH_ASSOC);;
 
 
 // Islamiyya fees query
@@ -38,10 +40,13 @@ $stmt = $pdo->prepare("
     FROM islamiyya_fees
     LEFT JOIN islamiyya_classes ic 
         ON islamiyya_fees.islamiyya_class_id = ic.id
+    WHERE islamiyya_fees.deleted_at IS NULL
+      AND ic.deleted_at IS NULL
     ORDER BY ic.level ASC
 ");
 $stmt->execute();
 $islamiyyaFees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 

@@ -33,15 +33,30 @@ $stmt = $pdo->prepare("
         class_arms.id AS arm_id,
         class_arms.name AS arm_name
     FROM sections
-    LEFT JOIN teachers AS head_teachers ON sections.head_teacher_id = head_teachers.id
-    LEFT JOIN classes ON classes.section_id = sections.id
-    LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
-    LEFT JOIN teachers AS class_teachers ON class_class_arms.teacher_id = class_teachers.id
-    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
-    WHERE classes.deleted_at IS NULL
-      AND sections.deleted_at IS NULL
+    LEFT JOIN teachers AS head_teachers 
+        ON sections.head_teacher_id = head_teachers.id
+        AND head_teachers.deleted_at IS NULL
+
+    LEFT JOIN classes 
+        ON classes.section_id = sections.id
+        AND classes.deleted_at IS NULL
+
+    LEFT JOIN class_class_arms 
+        ON class_class_arms.class_id = classes.id
+        AND class_class_arms.deleted_at IS NULL
+
+    LEFT JOIN teachers AS class_teachers 
+        ON class_class_arms.teacher_id = class_teachers.id
+        AND class_teachers.deleted_at IS NULL
+
+    LEFT JOIN class_arms 
+        ON class_class_arms.arm_id = class_arms.id
+        AND class_arms.deleted_at IS NULL
+
+    WHERE sections.deleted_at IS NULL
     ORDER BY classes.level ASC, class_arms.name ASC
 ");
+
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

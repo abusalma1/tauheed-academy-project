@@ -44,15 +44,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $stmt = $pdo->prepare("INSERT INTO class_arms (name, description) VALUES (?, ?)");
-        $success = $stmt->execute([$name, $description]);
+        try {
+            $pdo->beginTransaction();
 
-        if ($success) {
-            $_SESSION['success'] = "Arm created successfully!";
+            $stmt = $pdo->prepare("
+            INSERT INTO class_arms (name, description, created_at, updated_at) 
+            VALUES (?, ?, NOW(), NOW())
+        ");
+            $success = $stmt->execute([$name, $description]);
+
+            if ($success) {
+                $pdo->commit();
+                $_SESSION['success'] = "Arm created successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                $pdo->rollBack();
+                $_SESSION['failure'] = "Failed to create class arm.";
+                header("Location: " . route('back'));
+                exit();
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            error_log("Create Class Arm error: " . $e->getMessage());
+            $_SESSION['failure'] = "An unexpected error occurred.";
             header("Location: " . route('back'));
             exit();
-        } else {
-            echo "<script>alert('Failed to create class arm');</script>";
         }
     } else {
         foreach ($errors as $field => $error) {

@@ -17,8 +17,11 @@ $stmt = $pdo->prepare("
         ON class_subjects.class_id = classes.id
     LEFT JOIN subjects 
         ON class_subjects.subject_id = subjects.id
+    WHERE classes.deleted_at IS NULL
+      AND (subjects.deleted_at IS NULL OR subjects.deleted_at IS NULL)
     ORDER BY classes.level, subjects.name
 ");
+
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -55,8 +58,11 @@ $stmt = $pdo->prepare("
         ON islamiyya_class_subjects.class_id = islamiyya_classes.id
     LEFT JOIN islamiyya_subjects 
         ON islamiyya_class_subjects.subject_id = islamiyya_subjects.id
+    WHERE islamiyya_classes.deleted_at IS NULL
+      AND (islamiyya_subjects.deleted_at IS NULL OR islamiyya_subjects.deleted_at IS NULL)
     ORDER BY islamiyya_classes.level, islamiyya_subjects.name
 ");
+
 $stmt->execute();
 $islamiyyaRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -27,13 +27,18 @@ $stmt = $pdo->prepare("
     FROM class_subjects cs
     LEFT JOIN subjects s ON cs.subject_id = s.id
     LEFT JOIN classes c ON cs.class_id = c.id
+    WHERE cs.deleted_at IS NULL
+      AND s.deleted_at IS NULL
+      AND c.deleted_at IS NULL
     GROUP BY cs.teacher_id, s.id, s.name
   ) sc ON sc.teacher_id = t.id
+  WHERE t.deleted_at IS NULL
   GROUP BY t.id, t.name, t.qualification, t.gender, t.experience, t.email
   ORDER BY t.name
 ");
 $stmt->execute();
 $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 // =======================
 // Islamiyya Teachers
@@ -59,27 +64,46 @@ $stmt = $pdo->prepare("
     FROM islamiyya_class_subjects cs
     LEFT JOIN islamiyya_subjects s ON cs.subject_id = s.id
     LEFT JOIN islamiyya_classes c ON cs.class_id = c.id
+    WHERE cs.deleted_at IS NULL
+      AND s.deleted_at IS NULL
+      AND c.deleted_at IS NULL
     GROUP BY cs.teacher_id, s.id, s.name
   ) sc ON sc.teacher_id = t.id
+  WHERE t.deleted_at IS NULL
   GROUP BY t.id, t.name, t.qualification, t.gender, t.experience, t.email
   ORDER BY t.name
 ");
 $stmt->execute();
 $islamiyyaTeachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
 // =======================
 // Admins
 // =======================
-$stmt = $pdo->prepare("SELECT * FROM admins WHERE type = ? ORDER BY name");
+$stmt = $pdo->prepare("
+  SELECT * 
+  FROM admins 
+  WHERE type = ? 
+    AND deleted_at IS NULL
+  ORDER BY name
+");
 $stmt->execute(['admin']);
 $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 // =======================
 // Super Admins
 // =======================
-$stmt = $pdo->prepare("SELECT * FROM admins WHERE type = ? ORDER BY name");
+$stmt = $pdo->prepare("
+  SELECT * 
+  FROM admins 
+  WHERE type = ? 
+    AND deleted_at IS NULL
+  ORDER BY name
+");
 $stmt->execute(['superAdmin']);
 $superAdmins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 
