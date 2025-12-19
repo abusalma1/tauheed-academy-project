@@ -1,0 +1,88 @@
+<?php
+$title = 'Contact Us';
+
+include(__DIR__ .  '/../includes/header.php');
+?>
+
+<body class="bg-gray-50">
+    <?php include(__DIR__ .  '/../includes/nav.php'); ?>
+
+    <!-- Page Header -->
+    <section class="bg-blue-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
+            <p class="text-xl text-blue-200">Get in touch with <?= $school['name'] ?? 'Tauheed Academy' ?></p>
+        </div>
+    </section>
+
+  
+    <!-- Contact Information -->
+    <section class="py-16 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Contact Information</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Address -->
+                <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-map-marker-alt text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Address</h3>
+                    <p class="text-gray-700"><?= $school['address'] ?? '' ?></p>
+                </div>
+
+                <!-- Phone & Email -->
+                <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-phone text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Phone & Email</h3>
+                    <p class="text-gray-700">
+                        <i class="fas fa-phone mr-2"></i><?= $school['phone'] ?? '' ?><br>
+                        <i class="fas fa-envelope mr-2"></i><?= $school['email'] ?? '' ?><br>
+                        <i class="fab fa-whatsapp mr-2"></i><?= $school['whatsapp_number'] ?? '' ?>
+                    </p>
+                </div>
+
+                <!-- Social Media -->
+                <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+                    <div class="bg-blue-900 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-share-alt text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Social Media</h3>
+                    <div class="flex justify-center gap-4 mt-4">
+                        <a href="<?= $school['facebook'] ?? '#' ?>" class="bg-blue-600 hover:bg-blue-700 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="<?= $school['twitter'] ?? '#' ?>" class="bg-blue-400 hover:bg-blue-500 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="<?= $school['instagram'] ?? '#' ?>" class="bg-pink-600 hover:bg-pink-700 w-12 h-12 rounded-full flex items-center justify-center transition text-white">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Find Us</h2>
+            <div class="bg-gray-300 h-96 rounded-lg shadow-lg flex items-center justify-center">
+                <div class="text-center">
+                    <i class="fas fa-map-marked-alt text-6xl text-gray-500 mb-4"></i>
+                    <p class="text-gray-700 font-semibold">Map Placeholder</p>
+                    <p class="text-gray-600 text-sm">Embed Google Maps or other map service here</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <?php include(__DIR__ . '/../includes/footer.php') ?>
+
+
+</body>
+
+</html>

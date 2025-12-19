@@ -1,0 +1,13 @@
+RewriteEngine On
+RewriteOptions AllowNoSlash
+
+# ✅ Force directory requests to go through index.php
+RewriteRule ^(.*/)$ index.php [L]
+
+# ✅ Route non-existing files and directories to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
+
+# ✅ Disable directory listing
+Options -Indexes
