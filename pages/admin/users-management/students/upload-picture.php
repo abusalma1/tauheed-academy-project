@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Upload Students Avatar";
 include(__DIR__ . '/../../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Upload Students Avatar";
+include(__DIR__ . '/../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -18,24 +24,44 @@ if (!isset($user_type) || $user_type !== 'admin') {
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+// Ensure CSRF token exists
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH STUDENT BY ID
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+// Fetch student by ID
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare("SELECT picture_path, id FROM students WHERE id = ? AND deleted_at IS NULL");
+    $stmt->execute([$id]);
+    $student = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$student) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -80,39 +106,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Validate size (max 5MB)
         if (isset($file['size']) && (int)$file['size'] > 5 * 1024 * 1024) {
+=======
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $errors = [];
+
+    if (!isset($_FILES['avatarFile']) || $_FILES['avatarFile']['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = "No file uploaded or upload error.";
+    } else {
+        $file = $_FILES['avatarFile'];
+
+        // Validate size (max 5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $errors[] = "File size exceeds 5MB limit.";
         }
 
         // Validate type
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
+<<<<<<< HEAD
         $mimeType = $finfo ? finfo_file($finfo, $file['tmp_name']) : null;
         if ($finfo) {
             finfo_close($finfo);
         }
 
         if (!$mimeType || !in_array($mimeType, $allowedTypes, true)) {
+=======
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mimeType, $allowedTypes)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $errors[] = "Invalid file type. Only JPG, PNG, GIF, WebP allowed.";
         }
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        PROCESS UPLOAD
     ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($errors)) {
         try {
             // Generate unique filename (sanitize extension)
             $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
             $allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+<<<<<<< HEAD
 
             if (!in_array($ext, $allowedExts, true)) {
+=======
+            if (!in_array($ext, $allowedExts)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $errors[] = "Invalid file extension.";
             } else {
                 $newFileName = 'student_' . $id . '_' . time() . '.' . $ext;
 
+<<<<<<< HEAD
                 // Dedicated folder for students
                 $uploadDir  = __DIR__ . '/../../../../static/uploads/students/avatars/';
+=======
+                // ✅ Dedicated folder for students
+                $uploadDir = __DIR__ . '/../../../../static/uploads/students/avatars/';
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $uploadPath = $uploadDir . $newFileName;
 
                 // Ensure upload directory exists
@@ -124,6 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Move uploaded file
                 if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+<<<<<<< HEAD
 
                     $relativePath = '/uploads/students/avatars/' . $newFileName;
 
@@ -141,6 +207,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         SET picture_path = :path, updated_at = NOW()
                         WHERE id = :id AND deleted_at IS NULL
                     ");
+=======
+                    $relativePath = '/uploads/students/avatars/' . $newFileName;
+
+                    // ✅ Delete old avatar if it exists (but not default)
+                    if (!empty($student['picture_path']) && $student['picture_path'] !== '/images/avatar.png') {
+                        $oldFile = __DIR__ . '/../../../../static' . $student['picture_path'];
+                        if (file_exists($oldFile)) {
+                            unlink($oldFile);
+                        }
+                    }
+
+                    // Update DB
+                    $stmt = $pdo->prepare("UPDATE students SET picture_path = :path WHERE id = :id");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                     $stmt->execute([
                         ':path' => $relativePath,
                         ':id'   => $id
@@ -154,14 +234,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         } catch (PDOException $e) {
+<<<<<<< HEAD
             $errors[] = "Database error: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
         } catch (RuntimeException $e) {
             $errors[] = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+=======
+            $errors[] = "Database error: " . htmlspecialchars($e->getMessage());
+        } catch (RuntimeException $e) {
+            $errors[] = $e->getMessage();
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         }
     }
 
     // Show errors if any
     foreach ($errors as $error) {
+<<<<<<< HEAD
         echo "<p class='text-red-600 font-semibold'>" . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . "</p>";
     }
 }
@@ -169,6 +256,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 
+=======
+        echo "<p class='text-red-600 font-semibold'>$error</p>";
+    }
+}
+?>
+
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
 
     <?php include(__DIR__ . '/../../includes/admins-section-nav.php'); ?>

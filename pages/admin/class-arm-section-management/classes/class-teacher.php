@@ -2,30 +2,40 @@
 $title = "Class Teacher Assignment";
 include(__DIR__ . '/../../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH CLASS + ARM RELATIONSHIP
 ------------------------------ */
@@ -55,11 +65,29 @@ if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
           AND class_class_arms.deleted_at IS NULL
     ");
 
+=======
+if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
+    $class_id = (int) $_GET['class_id'];
+    $arm_id   = (int) $_GET['arm_id'];
+
+    $stmt = $pdo->prepare('SELECT
+        classes.name as class_name,
+        class_arms.name as arm_name,
+        class_class_arms.class_id as class_id,
+        class_class_arms.arm_id as arm_id,
+        class_class_arms.teacher_id as teacher_id
+        FROM class_class_arms 
+        LEFT JOIN classes ON classes.id = class_class_arms.class_id
+        LEFT JOIN class_arms ON class_arms.id = class_class_arms.arm_id
+        WHERE class_class_arms.class_id = ? AND class_class_arms.arm_id = ?
+    ');
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $stmt->execute([$class_id, $arm_id]);
     $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$class) {
         header('Location: ' . route('back'));
+<<<<<<< HEAD
         exit();
     }
 } else {
@@ -87,10 +115,25 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // CSRF validation
+=======
+        exit;
+    }
+} else {
+    header('Location: ' . route('back'));
+    exit;
+}
+
+$current_teacher_id = $class['teacher_id'] ?? '';
+$teachers = selectAllData('teachers');
+
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
+<<<<<<< HEAD
     $teacher_id = isset($_POST['teacher_id']) ? intval($_POST['teacher_id']) : null;
 
     // Validate teacher selection
@@ -118,6 +161,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               AND deleted_at IS NULL
         ");
 
+=======
+    $teacher_id = $_POST['teacher_id'] ? intval($_POST['teacher_id']) : null;
+
+    if ($teacher_id === null) {
+        $errors['general'] = "Please select a teacher.";
+    } else {
+        $updateStmt = $pdo->prepare("UPDATE class_class_arms SET teacher_id = ? WHERE class_id = ? AND arm_id = ?");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $success = $updateStmt->execute([$teacher_id, $class['class_id'], $class['arm_id']]);
 
         if ($success) {
@@ -131,7 +182,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
     <!-- Navigation -->
     <?php include(__DIR__ . '/../../includes/admins-section-nav.php') ?>

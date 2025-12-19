@@ -3,34 +3,49 @@
 $title = "Create Section";
 include(__DIR__ . '/../../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE SECTIONS + HEAD TEACHERS
 ------------------------------ */
 
+=======
+// Fetch sections with head teachers
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt = $pdo->prepare("
     SELECT 
         sections.id AS section_id,
@@ -40,13 +55,18 @@ $stmt = $pdo->prepare("
         teachers.name AS head_teacher_name
     FROM sections
     LEFT JOIN teachers 
+<<<<<<< HEAD
         ON sections.head_teacher_id = teachers.id
         AND teachers.deleted_at IS NULL
+=======
+      ON sections.head_teacher_id = teachers.id
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     WHERE sections.deleted_at IS NULL
 ");
 $stmt->execute();
 $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE TEACHERS ONLY
 ------------------------------ */
@@ -70,19 +90,32 @@ $sectionsCount = countDataTotal('sections')['total'];
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
+=======
+// Fetch teachers
+$stmt = $pdo->prepare("SELECT * FROM teachers");
+$stmt->execute();
+$teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$classesCount   = countDataTotal('classes')['total'];
+$sectionsCount  = countDataTotal('sections')['total'];
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 $name = $description = $headTeacher = '';
 $nameError = $descriptionError = $headTeacherError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+<<<<<<< HEAD
 
     /* ------------------------------
        CSRF VALIDATION
     ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        SANITIZE INPUT
     ------------------------------ */
@@ -93,6 +126,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        VALIDATION
     ------------------------------ */
+=======
+    $name        = htmlspecialchars(trim($_POST['sectionName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $description = htmlspecialchars(trim($_POST['sectionDescription'] ?? ''), ENT_QUOTES);
+    $headTeacher = (int) htmlspecialchars(trim($_POST['sectionHead'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($name)) {
         $nameError = "Name is required";
     }
@@ -103,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($headTeacher)) {
         $headTeacherError = "Head Teacher is required";
+<<<<<<< HEAD
     } else {
         // Ensure selected teacher is active
         $checkTeacher = $pdo->prepare("
@@ -126,18 +166,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             VALUES (?, ?, ?, NOW(), NOW())
         ");
 
+=======
+    }
+
+    if (empty($nameError) && empty($descriptionError) && empty($headTeacherError)) {
+        $stmt = $pdo->prepare("INSERT INTO sections (name, description, head_teacher_id) VALUES (?, ?, ?)");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $success = $stmt->execute([$name, $description, $headTeacher]);
 
         if ($success) {
             $_SESSION['success'] = "Section created successfully!";
             header("Location: " . route('back'));
             exit();
+<<<<<<< HEAD
         }
 
         echo "<script>alert('Failed to create section');</script>";
     }
 }
 
+=======
+        } else {
+            echo "<script>alert('Failed to create section');</script>";
+        }
+    }
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

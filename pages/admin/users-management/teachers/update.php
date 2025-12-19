@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Update Teacher Account";
 include(__DIR__ . '/../../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Update Teacher Account";
+include(__DIR__ . '/../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -18,24 +24,44 @@ if (!isset($user_type) || $user_type !== 'admin') {
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+// Ensure CSRF token exists
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH TEACHER BY ID
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+// Fetch teacher by ID
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare("SELECT * FROM teachers WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    $teacher = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$teacher) {
+        header("Location: " . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header("Location: " . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -135,10 +161,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($staffNumber === '') {
+=======
+$teachers = selectAllData('teachers', null, $id);
+$teachersCount = countDataTotal('teachers', true);
+
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    // Sanitize inputs
+    $id           = htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $name         = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email        = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone        = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address      = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $staffNumber  = htmlspecialchars(trim($_POST['staffNumber'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $qualification = htmlspecialchars(trim($_POST['qualification'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $status       = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender       = trim($_POST['gender'] ?? '');
+    $experience   = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+    // Validations
+    if (empty($name)) $errors['nameError'] = 'Full name is required';
+    if (empty($email)) {
+        $errors['emailError'] = 'Email is required';
+    } elseif (!validateEmail($email)) {
+        $errors['emailError'] = 'Invalid email format';
+    } elseif (emailExist($email, 'teachers', $id)) {
+        $errors['emailError'] = 'Email already exists';
+    }
+    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
+    if (empty($address)) $errors['addressError'] = 'Address is required';
+    if (empty($staffNumber)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $errors['staffNumberError'] = 'Staff number is required';
     } elseif (staffNumberExist($staffNumber, 'teachers', $id)) {
         $errors['staffNumberError'] = 'Staff No already exists';
     }
+<<<<<<< HEAD
 
     if ($qualification === '') {
         $errors['qualificationError'] = 'Qualification is required';
@@ -162,10 +227,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
+=======
+    if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
+    if (empty($gender)) $errors['genderError'] = "Gender is required.";
+    if (empty($experience)) $errors['experienceError'] = 'Experience is required';
+
+    if (empty($errors)) {
+        try {
+            // Start transaction
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare("
                 UPDATE teachers 
+<<<<<<< HEAD
                 SET name          = ?, 
                     email         = ?, 
                     phone         = ?, 
@@ -182,6 +257,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = $stmt->execute([
                 $name,
                 $emailRaw,        // store original email
+=======
+                SET name = ?, email = ?, phone = ?, address = ?, staff_no = ?, 
+                    qualification = ?, gender = ?, experience = ?, status = ?
+                WHERE id = ?
+            ");
+            $success = $stmt->execute([
+                $name,
+                $email,
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $phone,
                 $address,
                 $staffNumber,
@@ -197,6 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['success'] = "Teacher account updated successfully!";
                 header("Location: " . route('back'));
                 exit();
+<<<<<<< HEAD
             }
 
             $pdo->rollBack();
@@ -216,6 +301,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
+=======
+            } else {
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update teacher account');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+?>
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <script>
     const teachers = <?= json_encode($teachers, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

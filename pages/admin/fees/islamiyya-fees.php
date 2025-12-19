@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = 'Islamiyya Fees (Admin section)';
 include(__DIR__ . '/../../../includes/header.php');
@@ -6,6 +7,10 @@ include(__DIR__ . '/../../../includes/header.php');
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
+=======
+$title = 'Islamiyya Fees (Admin section)';
+include(__DIR__ .  '/../../../includes/header.php');
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -19,14 +24,20 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE ISLAMIYYA FEES + ACTIVE CLASSES
 ------------------------------ */
 
+=======
+
+// Islamiyya fees query
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt = $pdo->prepare("
     SELECT 
         ic.name AS class_name,
         islamiyya_fees.*,
+<<<<<<< HEAD
 
         (
             COALESCE(islamiyya_fees.first_term, 0) +
@@ -53,6 +64,24 @@ $islamiyyaFees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
+=======
+        (
+            COALESCE(islamiyya_fees.first_term,0) +
+            COALESCE(islamiyya_fees.second_term,0) +
+            COALESCE(islamiyya_fees.third_term,0) +
+            COALESCE(islamiyya_fees.materials,0)
+        ) AS total
+    FROM islamiyya_fees
+    LEFT JOIN islamiyya_classes ic 
+        ON islamiyya_fees.islamiyya_class_id = ic.id
+    ORDER BY ic.level ASC
+");
+$stmt->execute();
+$islamiyyaFees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
     <?php include(__DIR__ . "/../includes/admins-section-nav.php") ?>
 

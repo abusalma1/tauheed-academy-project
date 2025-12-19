@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Create Subject";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Create Subject";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -19,14 +25,18 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE CLASSES
 ------------------------------ */
@@ -36,10 +46,19 @@ $stmt = $pdo->prepare("
     FROM classes
     WHERE deleted_at IS NULL
     ORDER BY level ASC, name ASC
+=======
+// Fetch classes
+$stmt = $pdo->prepare("
+    SELECT *
+    FROM classes
+    WHERE deleted_at IS NULL
+    GROUP BY level
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ");
 $stmt->execute();
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH SUBJECTS WITH CLASS NAMES
 ------------------------------ */
@@ -62,10 +81,24 @@ $stmt = $pdo->prepare("
 
     WHERE subj.deleted_at IS NULL
     GROUP BY subj.id
+=======
+// Fetch subjects with class names
+$stmt = $pdo->prepare("
+    SELECT 
+        subjects.id AS id,
+        subjects.name AS name,
+        GROUP_CONCAT(classes.name SEPARATOR ', ') AS class_names
+    FROM subjects
+    LEFT JOIN class_subjects ON class_subjects.subject_id = subjects.id
+    LEFT JOIN classes ON classes.id = class_subjects.class_id
+    WHERE subjects.deleted_at IS NULL
+    GROUP BY subjects.id
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ");
 $stmt->execute();
 $subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
@@ -96,10 +129,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        VALIDATION
     ------------------------------ */
 
+=======
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $name      = trim($_POST['name']);
+    $class_ids = isset($_POST['classes']) ? $_POST['classes'] : [];
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($name)) {
         $errors['name'] = "Subject name is required.";
     }
 
+<<<<<<< HEAD
     // Prevent duplicate subject names
     $stmt = $pdo->prepare("
         SELECT id FROM subjects 
@@ -110,10 +159,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['name'] = "Subject already exists.";
     }
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($class_ids) || !is_array($class_ids)) {
         $errors['classes'] = "Please select at least one class.";
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        INSERT SUBJECT + PIVOT
     ------------------------------ */
@@ -140,12 +192,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_pivot->execute([(int)$class_id, $subject_id]);
             }
 
+=======
+    if (empty($errors)) {
+        try {
+            //  Start transaction
+            $pdo->beginTransaction();
+
+            // Insert subject
+            $stmt = $pdo->prepare("INSERT INTO subjects (name) VALUES (?)");
+            $stmt->execute([$name]);
+            $subject_id = $pdo->lastInsertId();
+
+            // Insert into pivot table
+            $stmt_pivot = $pdo->prepare("INSERT INTO class_subjects (class_id, subject_id) VALUES (?, ?)");
+            foreach ($class_ids as $class_id) {
+                $stmt_pivot->execute([intval($class_id), $subject_id]);
+            }
+
+            //  Commit transaction
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $pdo->commit();
 
             $_SESSION['success'] = "Subject added successfully!";
             header("Location: " . route('back'));
             exit();
         } catch (PDOException $e) {
+<<<<<<< HEAD
             $pdo->rollBack();
             echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
@@ -163,6 +235,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
+=======
+            //  Rollback transaction on error
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+?>
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <script>
     const subjects = <?= json_encode($subjects, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

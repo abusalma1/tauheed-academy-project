@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Delete Confirmation";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,18 +8,31 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Delete Confirmation";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
   $_SESSION['failure'] = "Login is Required!";
   header("Location: " . route('home'));
   exit();
 }
 
+<<<<<<< HEAD
+=======
+if (empty($_SESSION['csrf_token'])) {
+  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
   $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
   header("Location: " . route('home'));
   exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
@@ -32,10 +46,26 @@ if (empty($_SESSION['csrf_token'])) {
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+
+if (isset($_GET['id'])) {
+  $id = (int) $_GET['id'];
+
+  $stmt = $pdo->prepare("SELECT * FROM subjects WHERE id = ?");
+  $stmt->execute([$id]);
+  $subject = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if (!$subject) {
+    header('Location: ' . route('back'));
+    exit();
+  }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
   header('Location: ' . route('back'));
   exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -114,6 +144,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
+=======
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+
+    die('CSRF validation failed. Please refresh and try again.');
+  } else {
+
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+  }
+
+
+  $id = (int) trim($_POST['id'] ?? '');
+
+  if (empty($id)) {
+    $errors['id'] = 'Subject Not Found';
+  }
+
+  if (empty($errors)) {
+    try {
+      $stmt = $pdo->prepare("UPDATE subjects SET deleted_at = NOW() WHERE id = ?");
+      $success = $stmt->execute([$id]);
+
+      if ($success) {
+        $_SESSION['success'] = "Subject Deleted successfully!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        echo "<script>alert('Failed to delete subject');</script>";
+      }
+    } catch (PDOException $e) {
+      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
+    }
+  } else {
+    foreach ($errors as $field => $error) {
+      echo "<p class='text-red-600 font-semibold'>$error</p>";
+    }
+  }
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 <body class="bg-gray-50">

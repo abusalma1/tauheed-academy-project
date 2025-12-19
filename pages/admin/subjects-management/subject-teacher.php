@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Subject Teacher Assignment";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Subject Teacher Assignment";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -14,27 +20,39 @@ if (!$is_logged_in) {
 }
 
 if (!isset($user_type) || $user_type !== 'admin') {
+<<<<<<< HEAD
     $_SESSION['failure'] = "Access denied. Only Admins are allowed.";
+=======
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    VALIDATE class_subject ID
 ------------------------------ */
 
+=======
+// Validate class_subject id
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header('Location: ' . route('back'));
     exit();
 }
+<<<<<<< HEAD
 
 $class_subject_id = (int) $_GET['id'];
 
@@ -43,11 +61,18 @@ $class_subject_id = (int) $_GET['id'];
 ------------------------------ */
 
 $stmt = $pdo->prepare("
+=======
+$class_subject_id = (int) $_GET['id'];
+
+// Fetch current class-subject record
+$query = "
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     SELECT 
         cs.id AS cs_id,
         cs.teacher_id,
         s.name AS subject_name,
         c.name AS class_name
+<<<<<<< HEAD
 
     FROM class_subjects cs
 
@@ -62,12 +87,21 @@ $stmt = $pdo->prepare("
     WHERE cs.id = ?
       AND cs.deleted_at IS NULL
 ");
+=======
+    FROM class_subjects cs
+    INNER JOIN subjects s ON cs.subject_id = s.id
+    INNER JOIN classes c ON cs.class_id = c.id
+    WHERE cs.id = ?
+";
+$stmt = $pdo->prepare($query);
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt->execute([$class_subject_id]);
 $class_subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$class_subject) {
     die('<p class="text-red-600 font-semibold">Record not found.</p>');
 }
+<<<<<<< HEAD
 
 $current_teacher_id = $class_subject['teacher_id'];
 
@@ -154,6 +188,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ?>
 
+=======
+$current_teacher_id = $class_subject['teacher_id'];
+
+// Fetch all teachers (assuming selectAllData is already PDO-based)
+$teachers = selectAllData('teachers');
+
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }
+
+    $teacher_id = !empty($_POST['teacher_id']) ? (int) $_POST['teacher_id'] : null;
+
+    try {
+        $updateStmt = $pdo->prepare("UPDATE class_subjects SET teacher_id = ? WHERE id = ?");
+        $success = $updateStmt->execute([$teacher_id, $class_subject_id]);
+
+        if ($success) {
+            $_SESSION['success'] = "Teacher updated successfully!";
+            header("Location: " . route('back'));
+            exit();
+        } else {
+            $errors['general'] = "Failed to update the teacher. Try again.";
+        }
+    } catch (PDOException $e) {
+        $errors['general'] = "Database error: " . htmlspecialchars($e->getMessage());
+    }
+}
+?>
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
     <!-- Navigation -->
     <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>

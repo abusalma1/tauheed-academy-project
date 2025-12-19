@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Class Results By Session";
 include(__DIR__ . '/../../../../../includes/header.php');
@@ -13,12 +14,18 @@ if (!$is_logged_in) {
     exit();
 }
 
+=======
+$title = "Class Results By Session";
+include(__DIR__ . '/../../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    VALIDATE REQUIRED PARAMETERS
 ------------------------------ */
@@ -28,11 +35,31 @@ if (
     !isset($_GET['session_id']) ||
     !isset($_GET['arm_id'])
 ) {
+=======
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+if ($user_type !== 'admin') {
+    $_SESSION['failure'] = "Only Admins can access!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+if (isset($_GET['class_id']) && isset($_GET['session_id']) && isset($_GET['arm_id'])) {
+    $class_id   = (int) $_GET['class_id'];
+    $session_id = (int) $_GET['session_id'];
+    $arm_id     = (int) $_GET['arm_id'];   // NEW
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $_SESSION['failure'] = "Class, session or arm not found";
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $class_id   = (int) $_GET['class_id'];
 $session_id = (int) $_GET['session_id'];
 $arm_id     = (int) $_GET['arm_id'];
@@ -95,6 +122,22 @@ if (!$arm) {
    FETCH OVERALL RESULTS
 ------------------------------ */
 
+=======
+$stmt = $pdo->prepare("SELECT id, name from sessions where id = ?");
+$stmt->execute([$session_id]);
+$currentSession = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->prepare("SELECT id, name from classes where id = ?");
+$stmt->execute([$class_id]);
+$class = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->prepare("SELECT id, name from class_Arms where id = ?");
+$stmt->execute([$arm_id]);
+$arm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+
+//  Query overall class performance from student_class_records
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt = $pdo->prepare("
     SELECT 
         s.id AS student_id,
@@ -105,6 +148,7 @@ $stmt = $pdo->prepare("
         scr.overall_position,
         scr.promotion_status
     FROM student_class_records scr
+<<<<<<< HEAD
     INNER JOIN students s 
         ON scr.student_id = s.id
         AND s.deleted_at IS NULL
@@ -118,6 +162,18 @@ $stmt = $pdo->prepare("
 $stmt->execute([$session_id, $class_id, $arm_id]);
 $overallResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+=======
+    INNER JOIN students s ON scr.student_id = s.id
+    WHERE scr.session_id = ? 
+      AND scr.class_id = ? 
+      AND scr.arm_id = ?   -- ✅ filter by arm
+    ORDER BY scr.overall_position ASC, s.name ASC
+");
+$stmt->execute([$session_id, $class_id, $arm_id]);
+$overallResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 <body class="bg-gray-50">

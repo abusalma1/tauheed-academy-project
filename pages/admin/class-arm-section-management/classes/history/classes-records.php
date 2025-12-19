@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Class Records";
 include(__DIR__ . '/../../../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../../../includes/header.php');
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+$title = "Class Records";
+include(__DIR__ . '/../../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -19,10 +25,13 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    VALIDATE REQUIRED PARAMETERS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($_GET['class_id'])) {
     $_SESSION['failure'] = "Class not specified";
     header("Location: " . route('back'));
@@ -38,6 +47,7 @@ if (!isset($_GET['arm_id'])) {
 $class_id = (int) $_GET['class_id'];
 $arm_id   = (int) $_GET['arm_id'];
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH CLASS (ACTIVE ONLY)
 ------------------------------ */
@@ -91,11 +101,30 @@ $stmt = $pdo->prepare("
     WHERE scr.class_id = ?
       AND scr.arm_id = ?
       AND scr.deleted_at IS NULL
+=======
+// Get class info
+$stmt = $pdo->prepare("SELECT id, name, level FROM classes WHERE id = ?");
+$stmt->execute([$class_id]);
+$class = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Get arm info
+$stmt = $pdo->prepare("SELECT id, name FROM class_arms WHERE id = ?");
+$stmt->execute([$arm_id]);
+$arm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Get sessions where this class arm has records
+$stmt = $pdo->prepare("
+    SELECT DISTINCT scr.session_id, s.name AS session_name, s.start_date, s.end_date
+    FROM student_class_records scr
+    JOIN sessions s ON scr.session_id = s.id
+    WHERE scr.class_id = ? AND scr.arm_id = ?
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     ORDER BY s.start_date DESC
 ");
 $stmt->execute([$class_id, $arm_id]);
 $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH TERMS FOR EACH SESSION (ACTIVE ONLY)
 ------------------------------ */
@@ -116,6 +145,17 @@ foreach ($sessions as $sess) {
 ?>
 
 
+=======
+// For each session, get terms
+$session_terms = [];
+foreach ($sessions as $sess) {
+    $stmt = $pdo->prepare("SELECT id, name FROM terms WHERE session_id = ? ORDER BY start_date");
+    $stmt->execute([$sess['session_id']]);
+    $session_terms[$sess['session_id']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+?>
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
     <?php include(__DIR__ . '/../../../includes/admins-section-nav.php'); ?>
 

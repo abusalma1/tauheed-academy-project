@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 $title = "Section Update Form";
 include(__DIR__ . '/../../../../includes/header.php');
 
@@ -7,35 +8,63 @@ include(__DIR__ . '/../../../../includes/header.php');
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+$title = "Classe Update Form";
+include(__DIR__ . '/../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH SECTION TO EDIT
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM sections WHERE id = ?');
+    $stmt->execute([$id]);
+    $section = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$section) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -87,10 +116,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        CSRF VALIDATION
     ------------------------------ */
+=======
+$stmt = $pdo->prepare("SELECT * FROM sections WHERE id != ?");
+$stmt->execute([$id]);
+$sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->prepare("SELECT * FROM teachers");
+$stmt->execute();
+$teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
+<<<<<<< HEAD
     // Regenerate token after validation
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
@@ -104,6 +145,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        VALIDATION
     ------------------------------ */
+=======
+    $name        = htmlspecialchars(trim($_POST['sectionName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $description = htmlspecialchars(trim($_POST['sectionDescription'] ?? ''), ENT_QUOTES);
+    $headTeacher = (int) htmlspecialchars(trim($_POST['sectionHead'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $headId      = (int) htmlspecialchars(trim($_POST['sectionId'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($name)) {
         $nameError = "Name is required";
     }
@@ -114,6 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($headTeacher)) {
         $headTeacherError = "Head Teacher is required";
+<<<<<<< HEAD
     } else {
         // Ensure selected teacher is active
         $checkTeacher = $pdo->prepare("
@@ -153,6 +202,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 
+=======
+    }
+
+    if (empty($nameError) && empty($descriptionError) && empty($headTeacherError)) {
+        $stmt = $pdo->prepare(
+            "UPDATE sections SET name = ?, description = ?, head_teacher_id = ? WHERE id = ?"
+        );
+        $success = $stmt->execute([$name, $description, $headTeacher, $id]);
+
+        if ($success) {
+            $_SESSION['success'] = "Section Updated successfully!";
+            header("Location: " . route('back'));
+            exit();
+        } else {
+            echo "<script>alert('Failed to update section');</script>";
+        }
+    }
+}
+?>
+
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <script>
     const sections = <?= json_encode($sections, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

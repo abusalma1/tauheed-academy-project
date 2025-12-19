@@ -3,10 +3,13 @@
 $title = "Create Class Arm";
 include(__DIR__ . '/../../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -19,14 +22,18 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH LATEST ACTIVE CLASS ARMS
 ------------------------------ */
@@ -51,19 +58,32 @@ $armsCount  = countDataTotal('class_arms')['total'];
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
+=======
+// Fetch latest class arms
+$stmt = $pdo->prepare("SELECT * FROM class_arms WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
+$stmt->execute();
+$class_arms_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$class_arms = selectAllData('class_arms');
+$armsCount = countDataTotal('class_arms')['total'];
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 $name = $description = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+<<<<<<< HEAD
 
     /* ------------------------------
        CSRF VALIDATION
     ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        SANITIZE INPUT
     ------------------------------ */
@@ -73,22 +93,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        VALIDATION
     ------------------------------ */
+=======
+    $name = htmlspecialchars(trim($_POST['armName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $description = htmlspecialchars(trim($_POST['armDescription'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        INSERT NEW CLASS ARM
     ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($errors)) {
         try {
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare("
+<<<<<<< HEAD
                 INSERT INTO class_arms (name, description, created_at, updated_at)
                 VALUES (?, ?, NOW(), NOW())
             ");
 
+=======
+            INSERT INTO class_arms (name, description, created_at, updated_at) 
+            VALUES (?, ?, NOW(), NOW())
+        ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $success = $stmt->execute([$name, $description]);
 
             if ($success) {
@@ -96,12 +130,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['success'] = "Arm created successfully!";
                 header("Location: " . route('back'));
                 exit();
+<<<<<<< HEAD
             }
 
             $pdo->rollBack();
             $_SESSION['failure'] = "Failed to create class arm.";
             header("Location: " . route('back'));
             exit();
+=======
+            } else {
+                $pdo->rollBack();
+                $_SESSION['failure'] = "Failed to create class arm.";
+                header("Location: " . route('back'));
+                exit();
+            }
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         } catch (PDOException $e) {
             $pdo->rollBack();
             error_log("Create Class Arm error: " . $e->getMessage());
@@ -109,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: " . route('back'));
             exit();
         }
+<<<<<<< HEAD
     }
 
     /* ------------------------------
@@ -119,6 +163,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+=======
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 <script>

@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "News Detail";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+$title = "News Detail";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -19,6 +25,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    VALIDATE NEWS ID
 ------------------------------ */
@@ -81,6 +88,48 @@ $next = $stmtNext->fetch(PDO::FETCH_ASSOC);
 
 
 
+=======
+
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM news WHERE id = ?');
+    $stmt->execute([$id]);
+    $story = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($story) {
+        // Get Previous Article (earlier created_at)
+        $stmtPrev = $pdo->prepare('
+            SELECT id, picture_path, created_at, title 
+            FROM news 
+            WHERE created_at < ? 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ');
+        $stmtPrev->execute([$story['created_at']]);
+        $previous = $stmtPrev->fetch(PDO::FETCH_ASSOC);
+
+        // Get Next Article (later created_at)
+        $stmtNext = $pdo->prepare('
+            SELECT id, picture_path, created_at, title 
+            FROM news 
+            WHERE created_at > ? 
+            ORDER BY created_at ASC 
+            LIMIT 1
+        ');
+        $stmtNext->execute([$story['created_at']]);
+        $next = $stmtNext->fetch(PDO::FETCH_ASSOC);
+    } else {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+    header('Location: ' . route('back'));
+    exit();
+}
+?>
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
     <!-- Navigation -->
     <?php include(__DIR__ . "/../includes/admins-section-nav.php") ?>

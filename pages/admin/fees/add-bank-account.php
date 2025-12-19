@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Add Bank Account";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,26 +8,40 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+$title = "Add Bank Account";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
@@ -38,10 +53,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        CSRF VALIDATION
     ------------------------------ */
+=======
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
+<<<<<<< HEAD
     // Regenerate token after validation
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
@@ -56,6 +77,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        VALIDATION
     ------------------------------ */
+=======
+    $bankName       = trim($_POST['bankName'] ?? '');
+    $accountPurpose = trim($_POST['accountPurpose'] ?? '');
+    $accountName    = trim($_POST['accountName'] ?? '');
+    $accountNumber  = trim($_POST['accountNumber'] ?? '');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($bankName)) {
         $errors['nameError'] = "Bank name is required";
     }
@@ -72,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['accountNumber'] = "Account number is required";
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        INSERT NEW BANK ACCOUNT
     ------------------------------ */
@@ -107,6 +136,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+=======
+    if (empty($errors)) {
+        $stmt = $pdo->prepare(
+            "INSERT INTO bank_accounts (bank_name, purpose, account_name, account_number) 
+             VALUES (?, ?, ?, ?)"
+        );
+
+        $success = $stmt->execute([$bankName, $accountPurpose, $accountName, $accountNumber]);
+
+        if ($success) {
+            $_SESSION['success'] = "Bank Account Added successfully!";
+            header("Location: " . route('back'));
+            exit();
+        } else {
+            echo "<script>alert('Failed to add bank account');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

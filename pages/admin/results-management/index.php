@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Manage Subject";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Manage Subject";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -14,11 +20,16 @@ if (!$is_logged_in) {
 }
 
 if (!isset($user_type) || $user_type !== 'admin') {
+<<<<<<< HEAD
     $_SESSION['failure'] = "Access denied. Only Admins are allowed.";
+=======
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH CLASSES + ARMS + SUBJECTS + TEACHERS
 ------------------------------ */
@@ -87,6 +98,43 @@ foreach ($rows as $row) {
     $armId   = $row['arm_id'] ?? null;
 
     $key = $armId ? "{$classId}_{$armId}" : "{$classId}";
+=======
+
+//  Use PDO instead of MySQLi
+$stmt = $pdo->prepare("
+SELECT 
+    c.id AS class_id,
+    c.name AS class_name,
+    ca.id AS arm_id,
+    ca.name AS arm_name,
+    subj.id AS subject_id,
+    subj.name AS subject_name,
+    t.id AS teacher_id,
+    t.name AS teacher_name,
+    sec.name AS section_name,
+    cs.id AS class_subject_id
+FROM classes c
+JOIN sections sec ON c.section_id = sec.id
+LEFT JOIN class_class_arms cca ON cca.class_id = c.id
+LEFT JOIN class_arms ca ON ca.id = cca.arm_id
+LEFT JOIN class_subjects cs ON cs.class_id = c.id
+LEFT JOIN subjects subj ON cs.subject_id = subj.id AND subj.deleted_at IS NULL
+LEFT JOIN teachers t ON cs.teacher_id = t.id
+WHERE c.deleted_at IS NULL AND sec.deleted_at IS NULL
+ORDER BY c.level, ca.name, subj.name
+
+");
+$stmt->execute();
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$classes = [];
+
+foreach ($rows as $row) {
+    $classId = $row['class_id'];
+    $armId   = $row['arm_id'] ?? null;
+
+    $key = $armId ? $classId . '_' . $armId : $classId;
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
     if (!isset($classes[$key])) {
         $classes[$key] = [
@@ -94,7 +142,11 @@ foreach ($rows as $row) {
             'name'         => $row['class_name'],
             'section_name' => $row['section_name'],
             'arm_id'       => $armId,
+<<<<<<< HEAD
             'arm_name'     => $armId ? ' - ' . $row['arm_name'] : '',
+=======
+            'arm_name'       => $armId ? ' - ' . $row['arm_name'] : '',
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             'subjects'     => []
         ];
     }
@@ -109,6 +161,7 @@ foreach ($rows as $row) {
     }
 }
 
+<<<<<<< HEAD
 $classes = array_values($classes);
 
 /* ------------------------------
@@ -148,16 +201,45 @@ $current_term = $stmt->fetch(PDO::FETCH_ASSOC);
    HANDLE MISSING SELECTION
 ------------------------------ */
 
+=======
+
+$classes = array_values($classes);
+
+// Reindex classes by numeric index
+$classes = array_values($classes);
+
+//  Fetch all classes
+$stmt = $pdo->prepare("SELECT * FROM classes WHERE deleted_at IS NULL ORDER BY level ASC");
+$stmt->execute();
+$allClasses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+//  Fetch terms and sessions
+$terms    = selectAllData('terms');
+$sessions = selectAllData('sessions');
+
+//  Fetch current term
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
+$stmt->execute(['ongoing']);
+$current_term = $stmt->fetch(PDO::FETCH_ASSOC);
+
+//  Handle missing selection
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (isset($_POST['missing_selection'])) {
     $_SESSION['failure'] = "Please select a session and a term before creating or updating results.";
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
+<<<<<<< HEAD
 
 ?>
 
 
 
+=======
+?>
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
     <!-- Navigation -->
     <?php include(__DIR__ . '/../includes/admins-section-nav.php'); ?>

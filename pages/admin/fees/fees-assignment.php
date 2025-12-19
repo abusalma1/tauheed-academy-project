@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Fees Assignment";
 include(__DIR__ . '/../../../includes/header.php');
@@ -6,6 +7,11 @@ include(__DIR__ . '/../../../includes/header.php');
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
+=======
+$title = "Fees Assignment";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -19,22 +25,30 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE SECTIONS + CLASSES
 ------------------------------ */
 
+=======
+// Fetch sections and classes
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt = $pdo->prepare("
     SELECT 
         sections.id AS section_id,
         sections.name AS section_name,
+<<<<<<< HEAD
 
         classes.id AS class_id,
         classes.name AS class_name,
@@ -50,15 +64,28 @@ $stmt = $pdo->prepare("
     ORDER BY classes.level ASC
 ");
 
+=======
+        classes.id AS class_id,
+        classes.name AS class_name,
+        classes.level AS class_level
+    FROM sections
+    LEFT JOIN classes ON classes.section_id = sections.id
+    ORDER BY classes.level ASC
+");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $sections = [];
+<<<<<<< HEAD
 $classFees = [];
 
 /* ------------------------------
    GROUP CLASSES BY SECTION
 ------------------------------ */
+=======
+$classFees = []; // to store existing fees
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 foreach ($rows as $row) {
     $sectionId = $row['section_id'];
@@ -79,6 +106,7 @@ foreach ($rows as $row) {
     }
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH EXISTING ACTIVE FEES
 ------------------------------ */
@@ -91,10 +119,17 @@ $feeStmt = $pdo->prepare("
 $feeStmt->execute();
 $feeRows = $feeStmt->fetchAll(PDO::FETCH_ASSOC);
 
+=======
+// Fetch existing fees for all classes
+$feeStmt = $pdo->prepare("SELECT * FROM fees");
+$feeStmt->execute();
+$feeRows = $feeStmt->fetchAll(PDO::FETCH_ASSOC);
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 foreach ($feeRows as $feeRow) {
     $classFees[$feeRow['class_id']] = $feeRow;
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
@@ -104,10 +139,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        CSRF VALIDATION
     ------------------------------ */
+=======
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
+<<<<<<< HEAD
     // Regenerate token after validation
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
@@ -147,6 +186,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 WHERE class_id = ? AND deleted_at IS NULL
             ");
 
+=======
+    foreach ($_POST['fees'] as $classId => $fee) {
+        // sanitize to avoid null numeric fields
+        $first       = $fee['first_term'] ?? 0;
+        $second      = $fee['second_term'] ?? 0;
+        $third       = $fee['third_term'] ?? 0;
+        $uniform     = $fee['uniform'] ?? 0;
+        $transport   = $fee['transport'] ?? 0;
+        $materials   = $fee['materials'] ?? 0;
+        $registration = $fee['registration'] ?? 0;
+        $pta         = $fee['pta'] ?? 0;
+
+        if (isset($classFees[$classId])) {
+            // Update existing
+            $update = $pdo->prepare("
+                UPDATE fees 
+                SET first_term=?, second_term=?, third_term=?, uniform=?, transport=?, materials=?, registration=?, pta=?, updated_at=NOW()
+                WHERE class_id=?
+            ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $update->execute([
                 $first,
                 $second,
@@ -159,6 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $classId
             ]);
         } else {
+<<<<<<< HEAD
 
             /* ------------------------------
                INSERT NEW FEE RECORD
@@ -170,6 +230,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ");
 
+=======
+            // Insert new
+            $insert = $pdo->prepare("
+                INSERT INTO fees
+                (class_id, first_term, second_term, third_term, uniform, transport, materials, registration, pta)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $insert->execute([
                 $classId,
                 $first,
@@ -186,11 +254,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $_SESSION['success'] = "Fees saved successfully!";
     header("Location: " . route('back'));
+<<<<<<< HEAD
     exit();
 }
 
 ?>
     
+=======
+    exit;
+}
+?>
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 
 

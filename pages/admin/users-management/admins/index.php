@@ -1,5 +1,9 @@
 <?php
+<<<<<<< HEAD
 $title = 'Admins & Super Users Management';
+=======
+$title = 'Users Management';
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 include(__DIR__ . '/../../../../includes/header.php');
 
 if (!$is_logged_in) {

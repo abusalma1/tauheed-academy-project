@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Update News Post";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Update News Post";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -14,19 +20,27 @@ if (!$is_logged_in) {
 }
 
 if (!isset($user_type) || $user_type !== 'admin') {
+<<<<<<< HEAD
     $_SESSION['failure'] = "Access denied. Only Admins are allowed.";
+=======
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE NEWS STORY
 ------------------------------ */
@@ -47,12 +61,26 @@ $stmt->execute([$id]);
 $story = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$story) {
+=======
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM news WHERE id = ?');
+    $stmt->execute([$id]);
+    $story = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$story) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
 $errors = [];
 
+<<<<<<< HEAD
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
@@ -73,12 +101,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ------------------------------ */
 
     $id               = (int) ($_POST['id'] ?? 0);
+=======
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $errors = [];
+
+    $id               = (int) trim($_POST['id'] ?? '');
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $newsTitle        = trim($_POST['title'] ?? '');
     $category         = trim($_POST['category'] ?? '');
     $content          = trim($_POST['content'] ?? '');
     $status           = trim($_POST['status'] ?? '');
     $publication_date = trim($_POST['date'] ?? '');
 
+<<<<<<< HEAD
     /* ------------------------------
        FETCH OLD IMAGE
     ------------------------------ */
@@ -102,14 +145,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        HANDLE IMAGE UPLOAD
     ------------------------------ */
 
+=======
+    // ✅ Fetch old image path from DB
+    $stmt = $pdo->prepare("SELECT picture_path FROM news WHERE id = ?");
+    $stmt->execute([$id]);
+    $oldData = $stmt->fetch(PDO::FETCH_ASSOC);
+    $oldImage = $oldData['picture_path'] ?? null;
+
+    $newImagePath = $oldImage; // default: keep old image
+
+    // ✅ Check if a new image was uploaded
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 
         $file = $_FILES['image'];
 
+<<<<<<< HEAD
+=======
+        // ✅ Validate size (max 5MB)
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         if ($file['size'] > 5 * 1024 * 1024) {
             $errors[] = "Image size exceeds 5MB limit.";
         }
 
+<<<<<<< HEAD
+=======
+        // ✅ Validate MIME type
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $file['tmp_name']);
@@ -119,6 +181,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Invalid image type. Only JPG, PNG, GIF, WebP allowed.";
         }
 
+<<<<<<< HEAD
+=======
+        // ✅ Validate extension
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         $allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
@@ -126,6 +192,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Invalid image extension.";
         }
 
+<<<<<<< HEAD
+=======
+        // ✅ If no errors, upload new image
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         if (empty($errors)) {
 
             $newFileName = 'news_' . time() . '_' . bin2hex(random_bytes(5)) . '.' . $ext;
@@ -139,8 +209,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
 
+<<<<<<< HEAD
                 $newImagePath = "/uploads/news/" . $newFileName;
 
+=======
+                // ✅ Save new image path
+                $newImagePath = "/uploads/news/" . $newFileName;
+
+                // ✅ Delete old image if exists
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 if ($oldImage) {
                     $oldFilePath = __DIR__ . "/../../../static" . $oldImage;
                     if (file_exists($oldFilePath)) {
@@ -153,6 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        VALIDATE TEXT FIELDS
     ------------------------------ */
@@ -169,10 +247,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        UPDATE NEWS POST
     ------------------------------ */
 
+=======
+    // ✅ Validate text fields
+    if (empty($newsTitle))        $errors['titleError'] = "Title is required";
+    if (empty($category))         $errors['categoryError'] = "Category is required";
+    if (empty($content))          $errors['contentError'] = "Content is required";
+    if (empty($status))           $errors['statusError'] = "Status is required";
+    if (empty($publication_date) || !strtotime($publication_date)) {
+        $errors['publicationDateError'] = "Valid publication date is required";
+    }
+
+    // ✅ Update DB
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($errors)) {
         try {
             $stmt = $pdo->prepare("
                 UPDATE news 
+<<<<<<< HEAD
                 SET 
                     title = ?, 
                     category = ?, 
@@ -182,6 +273,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     picture_path = ?, 
                     updated_at = NOW()
                 WHERE id = ? AND deleted_at IS NULL
+=======
+                SET title = ?, category = ?, content = ?, status = ?, publication_date = ?, picture_path = ?
+                WHERE id = ?
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             ");
 
             $success = $stmt->execute([
@@ -195,17 +290,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             if ($success) {
+<<<<<<< HEAD
                 $_SESSION['success'] = "News updated successfully.";
                 header("Location: " . route('back'));
                 exit();
             }
 
             echo "<script>alert('Failed to update news');</script>";
+=======
+                $_SESSION['success'] = "News Updated successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                echo "<script>alert('Failed to update news');</script>";
+            }
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         } catch (PDOException $e) {
             echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     }
 
+<<<<<<< HEAD
+=======
+    // ✅ Show errors
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     foreach ($errors as $error) {
         echo "<p class='text-red-600 font-semibold'>$error</p>";
     }
@@ -214,7 +322,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
     <!-- Navigation -->
     <?php include(__DIR__ . "/../includes/admins-section-nav.php") ?>

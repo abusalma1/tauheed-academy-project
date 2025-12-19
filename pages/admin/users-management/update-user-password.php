@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Update User Password";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTH CHECKS
 ------------------------------ */
 
+=======
+$title = "Update User Password";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -18,15 +24,20 @@ if (!isset($user_type) || $user_type !== 'admin') {
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+//  Ensure CSRF token exists
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    VALID USER TYPES
 ------------------------------ */
@@ -38,11 +49,41 @@ $allowedTypes = ['admin', 'teacher', 'guardian', 'student'];
 ------------------------------ */
 
 if (!isset($_GET['id'], $_GET['user_type'])) {
+=======
+if (isset($_GET['id']) && isset($_GET['user_type'])) {
+    $id        = (int) $_GET['id'];
+    $user_type = $_GET['user_type'];
+
+    if ($user_type === 'admin') {
+        $query = "SELECT id, name FROM admins WHERE id = ?";
+    } elseif ($user_type === 'teacher') {
+        $query = "SELECT id, name FROM teachers WHERE id = ?";
+    } elseif ($user_type === 'guardian') {
+        $query = "SELECT id, name FROM guardians WHERE id = ?";
+    } elseif ($user_type === 'student') {
+        $query = "SELECT id, name FROM students WHERE id = ?";
+    } else {
+        $_SESSION['failure'] = "Invalid user type";
+        header('Location: ' . route('back'));
+        exit();
+    }
+
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $_SESSION['failure'] = "User and user type are required";
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id        = (int) $_GET['id'];
 $user_type = $_GET['user_type'];
 
@@ -105,6 +146,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Password validation
     if ($password === '') {
+=======
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    //  CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        //  Regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $id       = (int) htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $password = trim($_POST['password'] ?? '');
+    $confirmPassword = trim($_POST['confirmPassword'] ?? '');
+
+    if (empty($password)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $errors['passwordError'] = 'Password is required';
     } elseif (strlen($password) < 8) {
         $errors['passwordError'] = 'Password must be at least 8 characters';
@@ -115,16 +173,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
+<<<<<<< HEAD
 
         $query = "UPDATE `$table` SET password = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL";
 
         try {
+=======
+        if ($user_type === 'admin') {
+            $query = "UPDATE admins SET password = ? WHERE id = ?";
+        } elseif ($user_type === 'teacher') {
+            $query = "UPDATE teachers SET password = ? WHERE id = ?";
+        } elseif ($user_type === 'guardian') {
+            $query = "UPDATE guardians SET password = ? WHERE id = ?";
+        } elseif ($user_type === 'student') {
+            $query = "UPDATE students SET password = ? WHERE id = ?";
+        }
+
+        try {
+            //  Start transaction
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare($query);
             $success = $stmt->execute([$hashed_password, $id]);
 
             if ($success) {
+<<<<<<< HEAD
                 $pdo->commit();
                 $_SESSION['success'] = "Password reset successfully!";
                 header("Location: " . route('back'));
@@ -146,6 +220,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+=======
+                //  Commit transaction
+                $pdo->commit();
+                $_SESSION['success'] = "User Password Reset successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                //  Rollback if update fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update password');</script>";
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

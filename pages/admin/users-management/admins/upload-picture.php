@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Upload Admin Avatar";
 include(__DIR__ . '/../../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Upload Admin Avatar";
+include(__DIR__ . '/../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -17,6 +23,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
+<<<<<<< HEAD
 }
 
 if ($user_type === 'admin' && ($user['type'] ?? null) !== 'superAdmin') {
@@ -28,20 +35,47 @@ if ($user_type === 'admin' && ($user['type'] ?? null) !== 'superAdmin') {
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+} else if ($user_type === 'admin') {
+    if ($user['type'] !== 'superAdmin') {
+        $_SESSION['failure'] = "Access denied! Only Super Admins are allowed.";
+        header("Location: " . route('home'));
+        exit();
+    }
+}
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ADMIN BY ID
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+// Fetch admin by ID
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare("SELECT picture_path, id FROM admins WHERE id = ? AND deleted_at IS NULL");
+    $stmt->execute([$id]);
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$admin) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -82,16 +116,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        FILE VALIDATION
     ------------------------------ */
 
+=======
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $errors = [];
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_FILES['avatarFile']) || $_FILES['avatarFile']['error'] !== UPLOAD_ERR_OK) {
         $errors[] = "No file uploaded or upload error.";
     } else {
         $file = $_FILES['avatarFile'];
 
+<<<<<<< HEAD
         // Max 5MB
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         if (isset($file['size']) && (int)$file['size'] > 5 * 1024 * 1024) {
             $errors[] = "File size exceeds 5MB limit.";
         }
 
+<<<<<<< HEAD
         // MIME type validation
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -101,25 +150,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (!$mimeType || !in_array($mimeType, $allowedTypes, true)) {
+=======
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mimeType, $allowedTypes)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $errors[] = "Invalid file type. Only JPG, PNG, GIF, WebP allowed.";
         }
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        PROCESS UPLOAD
     ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($errors)) {
         try {
             $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
             $allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+<<<<<<< HEAD
 
             if (!in_array($ext, $allowedExts, true)) {
+=======
+            if (!in_array($ext, $allowedExts)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $errors[] = "Invalid file extension.";
             } else {
                 $newFileName = 'admin_' . $id . '_' . time() . '.' . $ext;
 
+<<<<<<< HEAD
                 $uploadDir  = __DIR__ . '/../../../../static/uploads/admins/avatars/';
+=======
+                $uploadDir = __DIR__ . '/../../../../static/uploads/admins/avatars/';
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $uploadPath = $uploadDir . $newFileName;
 
                 if (!is_dir($uploadDir)) {
@@ -127,6 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+<<<<<<< HEAD
 
                     $relativePath = '/uploads/admins/avatars/' . $newFileName;
 
@@ -148,6 +217,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':path' => $relativePath,
                         ':id'   => $id
                     ]);
+=======
+                    $relativePath = '/uploads/admins/avatars/' . $newFileName;
+
+                    if (!empty($admin['picture_path']) && $admin['picture_path'] !== '/images/avatar.png') {
+                        $oldFile = __DIR__ . '/../../../../static' . $admin['picture_path'];
+                        if (file_exists($oldFile)) {
+                            unlink($oldFile);
+                        }
+                    }
+
+                    $stmt = $pdo->prepare("UPDATE admins SET picture_path = :path WHERE id = :id");
+                    $stmt->execute([':path' => $relativePath, ':id' => $id]);
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
                     $_SESSION['success'] = "Avatar updated successfully!";
                     header("Location: " . route('back'));
@@ -162,6 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     foreach ($errors as $error) {
+<<<<<<< HEAD
         echo "<p class='text-red-600 font-semibold'>" . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . "</p>";
     }
 }
@@ -170,6 +253,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
+=======
+        echo "<p class='text-red-600 font-semibold'>$error</p>";
+    }
+}
+?>
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
 
     <?php include(__DIR__ . '/../../includes/admins-section-nav.php'); ?>

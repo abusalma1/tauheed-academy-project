@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Class Results By Terms";
 include(__DIR__ . '/../../../../../includes/header.php');
@@ -13,12 +14,18 @@ if (!$is_logged_in) {
     exit();
 }
 
+=======
+$title = "Class Results  Bu Terms";
+include(__DIR__ . '/../../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    VALIDATE REQUIRED PARAMETERS
 ------------------------------ */
@@ -28,11 +35,38 @@ if (
     !isset($_GET['session_id']) ||
     !isset($_GET['arm_id'])
 ) {
+=======
+
+if (!$is_logged_in) {
+    $_SESSION['failure'] = "Login is Required!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+if ($user_type !== 'admin') {
+    $_SESSION['failure'] = "Only Admins can access!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+if ($user_type !== 'admin') {
+    $_SESSION['failure'] = "Only Teachers Are Allowed!";
+    header("Location: " . route('home'));
+    exit();
+}
+
+if (isset($_GET['class_id']) && isset($_GET['session_id']) && isset($_GET['arm_id'])) {
+    $class_id   = (int) $_GET['class_id'];
+    $session_id = (int) $_GET['session_id'];
+    $arm_id     = (int) $_GET['arm_id'];   // NEW
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $_SESSION['failure'] = "Class, session or arm not found";
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $class_id   = (int) $_GET['class_id'];
 $session_id = (int) $_GET['session_id'];
 $arm_id     = (int) $_GET['arm_id'];
@@ -95,6 +129,22 @@ if (!$arm) {
    FETCH TERM‑WISE RESULTS
 ------------------------------ */
 
+=======
+$stmt = $pdo->prepare("SELECT id, name from sessions where id = ?");
+$stmt->execute([$session_id]);
+$currentSession = $stmt->fetch(PDO::FETCH_ASSOC);
+
+
+$stmt = $pdo->prepare("SELECT id, name from classes where id = ?");
+$stmt->execute([$class_id]);
+$class = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->prepare("SELECT id, name from class_Arms where id = ?");
+$stmt->execute([$arm_id]);
+$arm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+//  Use PDO instead of MySQLi
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt = $pdo->prepare("
     SELECT
         t.id AS term_id,
@@ -110,11 +160,15 @@ $stmt = $pdo->prepare("
         str.overall_grade
 
     FROM terms t
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     INNER JOIN student_class_records scr
         ON scr.session_id = t.session_id
         AND scr.class_id = ?
         AND scr.arm_id = ?
+<<<<<<< HEAD
         AND scr.deleted_at IS NULL
 
     INNER JOIN students s
@@ -139,6 +193,22 @@ $terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
    GROUP RESULTS BY TERM
 ------------------------------ */
 
+=======
+    INNER JOIN students s
+        ON s.id = scr.student_id
+    LEFT JOIN student_term_records str
+        ON str.student_class_record_id = scr.id
+        AND str.term_id = t.id
+    WHERE t.session_id = ?
+    ORDER BY t.id, str.position_in_class, s.name
+");
+$stmt->execute([$class_id, $arm_id, $session_id]);
+$terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+//  Group results by term
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $grouped = [];
 
 foreach ($terms as $row) {
@@ -153,6 +223,7 @@ foreach ($terms as $row) {
     }
 
     $grouped[$tid]['students'][] = [
+<<<<<<< HEAD
         'student_id'        => $row['student_id'],
         'student_name'      => $row['student_name'],
         'admission_number'  => $row['admission_number'],
@@ -163,6 +234,17 @@ foreach ($terms as $row) {
     ];
 }
 
+=======
+        'student_id'       => $row['student_id'],
+        'student_name'     => $row['student_name'],
+        'admission_number' => $row['admission_number'],
+        'total_marks'      => $row['total_marks'],
+        'average_marks'    => $row['average_marks'],
+        'position_in_class' => $row['position_in_class'],
+        'overall_grade'    => $row['overall_grade'],
+    ];
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

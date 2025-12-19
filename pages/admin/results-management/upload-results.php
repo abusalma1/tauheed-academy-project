@@ -27,6 +27,7 @@ $sessions  = selectAllData('sessions');
 
 $students = [];
 
+<<<<<<< HEAD
 
 if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_id'])) {
 
@@ -43,6 +44,15 @@ if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_i
             AND s.deleted_at IS NULL
         WHERE t.status = ? 
           AND t.deleted_at IS NULL
+=======
+if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_id'])) {
+    // Get current ongoing term
+    $stmt = $pdo->prepare("
+        SELECT t.id, t.name, s.id as session_id, s.name as session_name
+        FROM terms t 
+        LEFT JOIN sessions s ON t.session_id = s.id 
+        WHERE t.status = ?
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     ");
     $stmt->execute(['ongoing']);
     $currentTerm = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -52,6 +62,7 @@ if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_i
     $term_id    = (int) $_GET['term_id'];
     $subject_id = (int) $_GET['subject_id'];
 
+<<<<<<< HEAD
     /* ------------------------------
        FETCH SELECTED TERM + SESSION
     ------------------------------ */
@@ -95,18 +106,45 @@ if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_i
     ------------------------------ */
     if ($currentTerm && $term_id == $currentTerm['id']) {
 
+=======
+    // Get session_id of selected term
+    $stmt = $pdo->prepare("
+        SELECT t.id, t.name, s.id as session_id, s.name as session_name
+        FROM terms t 
+        LEFT JOIN sessions s ON t.session_id = s.id 
+        WHERE t.id = ?
+    ");
+    $stmt->execute([$term_id]);
+    $SelectedTerm = $stmt->fetch(PDO::FETCH_ASSOC);
+    $session_id   = $SelectedTerm['session_id'];
+
+    // Get arm name
+    $stmt = $pdo->prepare("SELECT name FROM class_arms WHERE id = ?");
+    $stmt->execute([$arm_id]);
+    $arm = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($arm) {
+        $armName = $arm['name'];
+    }
+
+    // CASE 1: current term → use students table
+    if ($currentTerm && $term_id == $currentTerm['id']) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $stmt = $pdo->prepare("
             SELECT 
                 st.id AS id,
                 st.name,
                 st.admission_number,
                 st.arm_id,
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 r.ca,
                 r.exam,
                 r.grade,
                 r.total,
                 r.remark
+<<<<<<< HEAD
 
             FROM students st
 
@@ -150,18 +188,44 @@ if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_i
        Use historical records
     ------------------------------ */ else {
 
+=======
+            FROM students st
+            LEFT JOIN student_class_records scr 
+                ON scr.student_id = st.id 
+                AND scr.class_id = ? 
+                AND scr.arm_id = ?
+            LEFT JOIN student_term_records str 
+                ON str.student_class_record_id = scr.id 
+                AND str.term_id = ?
+            LEFT JOIN results r 
+                ON r.student_term_record_id = str.id 
+                AND r.subject_id = ?
+            WHERE st.class_id = ? 
+              AND st.arm_id = ?
+            ORDER BY st.admission_number
+        ");
+        $stmt->execute([$class_id, $arm_id, $term_id, $subject_id, $class_id, $arm_id]);
+        $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    // CASE 2: past term → use historical records
+    else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $stmt = $pdo->prepare("
             SELECT 
                 st.id AS id,
                 st.name,
                 st.admission_number,
                 scr.arm_id,
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 r.ca,
                 r.exam,
                 r.grade,
                 r.total,
                 r.remark
+<<<<<<< HEAD
 
             FROM student_class_records scr
 
@@ -195,10 +259,28 @@ if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_i
             $session_id
         ]);
 
+=======
+            FROM student_class_records scr
+            INNER JOIN students st 
+                ON st.id = scr.student_id
+            LEFT JOIN student_term_records str 
+                ON str.student_class_record_id = scr.id 
+                AND str.term_id = ?
+            LEFT JOIN results r 
+                ON r.student_term_record_id = str.id 
+                AND r.subject_id = ?
+            WHERE scr.class_id = ? 
+              AND scr.arm_id = ?
+              AND scr.session_id = ? 
+            ORDER BY st.admission_number
+        ");
+        $stmt->execute([$term_id, $subject_id, $class_id, $arm_id, $session_id]);
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 
+<<<<<<< HEAD
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // CSRF validation
@@ -236,6 +318,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $arm_id = (int) $arm_ids[$student_id];
 
             // Grade
+=======
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // regenerate after validation
+    }
+
+    $class_id = (int) $_POST['class_id'];
+    $term_id = (int) $_POST['term_id'];
+    $session_id = (int) $_POST['session_id'];
+    $subject_id = (int) $_POST['subject_id'];
+
+    $ca_scores = $_POST['ca'] ?? [];
+    $exam_scores = $_POST['exam'] ?? [];
+    $arm_ids = $_POST['arm'] ?? [];
+
+    try {
+        // Start transaction
+        $pdo->beginTransaction();
+
+        foreach ($ca_scores as $student_id => $ca_value) {
+            $ca = max(0, min(40, (int) $ca_value));
+            $exam = max(0, min(60, (int) ($exam_scores[$student_id] ?? 0)));
+            $total = $ca + $exam;
+            $arm_id = (int) $arm_ids[$student_id];
+
+            // Grade + remark
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             if ($total >= 75) $grade = 'A';
             elseif ($total >= 60) $grade = 'B';
             elseif ($total >= 50) $grade = 'C';
@@ -253,6 +368,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // STEP 1: student_class_record
             $stmt = $pdo->prepare("
+<<<<<<< HEAD
                 SELECT id 
                 FROM student_class_records
                 WHERE student_id = ? 
@@ -260,6 +376,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   AND arm_id = ? 
                   AND session_id = ?
                   AND deleted_at IS NULL
+=======
+                SELECT id FROM student_class_records
+                WHERE student_id = ? AND class_id = ? AND arm_id = ? AND session_id = ?
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 LIMIT 1
             ");
             $stmt->execute([$student_id, $class_id, $arm_id, $session_id]);
@@ -269,8 +389,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $student_class_record_id = $class_record['id'];
             } else {
                 $stmt = $pdo->prepare("
+<<<<<<< HEAD
                     INSERT INTO student_class_records (student_id, class_id, arm_id, session_id, created_at, updated_at)
                     VALUES (?, ?, ?, ?, NOW(), NOW())
+=======
+                INSERT INTO student_class_records (student_id, class_id, arm_id, session_id)
+                VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                class_id = VALUES(class_id),
+                arm_id = VALUES(arm_id),
+                updated_at = CURRENT_TIMESTAMP
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 ");
                 $stmt->execute([$student_id, $class_id, $arm_id, $session_id]);
                 $student_class_record_id = $pdo->lastInsertId();
@@ -278,6 +407,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // STEP 2: student_term_record
             $stmt = $pdo->prepare("
+<<<<<<< HEAD
                 SELECT id 
                 FROM student_term_records
                 WHERE student_class_record_id = ? 
@@ -285,22 +415,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   AND deleted_at IS NULL
                 LIMIT 1
             ");
+=======
+                SELECT id FROM student_term_records
+                WHERE student_class_record_id = ? AND term_id = ?
+                LIMIT 1
+                ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $stmt->execute([$student_class_record_id, $term_id]);
             $term_record = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($term_record) {
                 $student_term_record_id = $term_record['id'];
             } else {
+<<<<<<< HEAD
                 $stmt = $pdo->prepare("
                     INSERT INTO student_term_records (student_class_record_id, term_id, created_at, updated_at)
                     VALUES (?, ?, NOW(), NOW())
                 ");
+=======
+                $stmt = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $stmt->execute([$student_class_record_id, $term_id]);
                 $student_term_record_id = $pdo->lastInsertId();
             }
 
             // STEP 3: results
             $stmt = $pdo->prepare("
+<<<<<<< HEAD
                 INSERT INTO results (student_term_record_id, subject_id, ca, exam, total, grade, remark, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
                 ON DUPLICATE KEY UPDATE
@@ -315,10 +456,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // TERM TOTALS AND AVERAGES
+=======
+                INSERT INTO results (student_term_record_id, subject_id, ca, exam, grade, remark)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                ca = VALUES(ca),
+                exam = VALUES(exam),
+                grade = VALUES(grade),
+                remark = VALUES(remark)
+                ");
+            $stmt->execute([$student_term_record_id, $subject_id, $ca, $exam, $grade, $remark]);
+        }
+
+        // ===========================================
+        // CALCULATE TERM TOTALS, AVERAGES, AND POSITIONS
+        // ===========================================
+
+        // 1. Get all students in this class for this term
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $stmt = $pdo->prepare("
             SELECT str.id AS student_term_record_id
             FROM student_term_records str
             JOIN student_class_records scr ON str.student_class_record_id = scr.id
+<<<<<<< HEAD
             WHERE str.term_id = ?
               AND scr.class_id = ?
               AND str.deleted_at IS NULL
@@ -327,6 +487,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$term_id, $class_id]);
         $student_term_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+=======
+            WHERE str.term_id = ? AND scr.class_id = ?
+            ");
+        $stmt->execute([$term_id, $class_id]);
+        $student_term_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 2. Loop through each student to calculate total and average
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         foreach ($student_term_records as $str) {
             $student_term_id = $str['student_term_record_id'];
 
@@ -334,7 +502,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SELECT SUM(total) AS total_marks, AVG(total) AS average_marks
                 FROM results
                 WHERE student_term_record_id = ?
+<<<<<<< HEAD
                   AND deleted_at IS NULL
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             ");
             $stmt->execute([$student_term_id]);
             $res = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -342,6 +513,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $total_marks = (float) ($res['total_marks'] ?? 0);
             $average_marks = (float) ($res['average_marks'] ?? 0);
 
+<<<<<<< HEAD
+=======
+            // Determine overall grade based on average
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             if ($average_marks >= 75) $overall_grade = 'A';
             elseif ($average_marks >= 60) $overall_grade = 'B';
             elseif ($average_marks >= 50) $overall_grade = 'C';
@@ -349,18 +524,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             else $overall_grade = 'E';
 
             $stmt = $pdo->prepare("
+<<<<<<< HEAD
                 UPDATE student_term_records
                 SET total_marks = ?, average_marks = ?, overall_grade = ?, updated_at = NOW()
                 WHERE id = ?
+=======
+            UPDATE student_term_records
+            SET total_marks = ?, average_marks = ?, overall_grade = ?
+            WHERE id = ?
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             ");
             $stmt->execute([$total_marks, $average_marks, $overall_grade, $student_term_id]);
         }
 
+<<<<<<< HEAD
         // TERM POSITIONS
+=======
+        // 3. Update positions in class-arm
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $stmt = $pdo->prepare("
             SELECT str.id, str.total_marks
             FROM student_term_records str
             JOIN student_class_records scr ON str.student_class_record_id = scr.id
+<<<<<<< HEAD
             WHERE str.term_id = ?
               AND scr.class_id = ?
               AND scr.arm_id = ?
@@ -368,6 +554,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               AND scr.deleted_at IS NULL
             ORDER BY str.total_marks DESC
         ");
+=======
+            WHERE str.term_id = ? AND scr.class_id = ? AND scr.arm_id = ?
+            ORDER BY str.total_marks DESC
+            ");
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $stmt->execute([$term_id, $class_id, $arm_id]);
         $students_ordered = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -386,6 +578,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $position += $same_rank_count + 1;
                 $same_rank_count = 0;
             }
+<<<<<<< HEAD
 
             $previous_total = $total;
 
@@ -393,10 +586,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 UPDATE student_term_records
                 SET position_in_class = ?, class_size = ?, updated_at = NOW()
                 WHERE id = ?
+=======
+            $previous_total = $total;
+
+            $stmt = $pdo->prepare("
+            UPDATE student_term_records
+            SET position_in_class = ?, class_size = ?
+            WHERE id = ?
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             ");
             $stmt->execute([$position, $class_size, $student_term_id]);
         }
 
+<<<<<<< HEAD
         // SESSION TOTALS AND AVERAGES
         $stmt = $pdo->prepare("
             SELECT scr.id AS student_class_record_id,
@@ -411,6 +613,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               AND str.deleted_at IS NULL
             GROUP BY scr.id
         ");
+=======
+        // 4. Update session-level totals and averages
+        $stmt = $pdo->prepare("
+            SELECT scr.id AS student_class_record_id,
+            SUM(str.total_marks) AS session_total,
+            AVG(str.average_marks) AS session_average
+            FROM student_class_records scr
+            JOIN student_term_records str ON str.student_class_record_id = scr.id
+            WHERE scr.session_id = ? AND scr.class_id = ? AND scr.arm_id = ?
+            GROUP BY scr.id
+            ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $stmt->execute([$session_id, $class_id, $arm_id]);
         $session_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -419,12 +633,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $session_total = (float) ($record['session_total'] ?? 0);
             $session_average = (float) ($record['session_average'] ?? 0);
 
+<<<<<<< HEAD
+=======
+            // Overall grade based on session average
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             if ($session_average >= 75) $overall_grade = 'A';
             elseif ($session_average >= 60) $overall_grade = 'B';
             elseif ($session_average >= 50) $overall_grade = 'C';
             elseif ($session_average >= 40) $overall_grade = 'D';
             else $overall_grade = 'E';
 
+<<<<<<< HEAD
             $stmt = $pdo->prepare("
                 UPDATE student_class_records
                 SET overall_total = ?, overall_average = ?, promotion_status = 'pending', updated_at = NOW()
@@ -443,6 +662,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               AND deleted_at IS NULL
             ORDER BY overall_total DESC
         ");
+=======
+
+            $stmtUpdate = $pdo->prepare("
+            UPDATE student_class_records
+            SET overall_total = ?, overall_average = ?, promotion_status = ?
+            WHERE id = ?
+            ");
+            $stmtUpdate->execute([$session_total, $session_average, 'pending', $scr_id]);
+        }
+
+
+        // 5. Update session positions
+        $stmt = $pdo->prepare("
+            SELECT id, overall_total
+            FROM student_class_records
+            WHERE session_id = ? AND class_id = ? AND arm_id = ?
+            ORDER BY overall_total DESC
+            ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $stmt->execute([$session_id, $class_id, $arm_id]);
         $students_ordered = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -461,11 +699,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $position += $same_rank_count + 1;
                 $same_rank_count = 0;
             }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $previous_total = $total;
 
             $stmt = $pdo->prepare("
                 UPDATE student_class_records
+<<<<<<< HEAD
                 SET overall_position = ?, updated_at = NOW()
                 WHERE id = ?
             ");
@@ -478,6 +720,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: " . route('back'));
         exit();
     } catch (PDOException $e) {
+=======
+                SET overall_position = ?
+                WHERE id = ?
+                ");
+            $stmt->execute([$position, $scr_id]);
+        }
+
+
+        // Commit transaction
+        $pdo->commit();
+
+        $_SESSION['success'] = "Results uploaded successfully!";
+        header("Location: " . route('back'));
+        exit();
+    } catch (PDOException $e) {
+        // Rollback on error
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $pdo->rollBack();
         echo "<p class='text-red-500'>Database error: " . htmlspecialchars($e->getMessage()) . "</p>";
     }

@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Update Bank Account";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+$title = "Update Bank Account";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -19,23 +25,41 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH BANK ACCOUNT TO EDIT
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM bank_accounts WHERE id = ?');
+    $stmt->execute([$id]);
+    $account = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$account) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -62,10 +86,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        CSRF VALIDATION
     ------------------------------ */
+=======
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
+<<<<<<< HEAD
     // Regenerate token after validation
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
@@ -80,6 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        VALIDATION
     ------------------------------ */
+=======
+    $bankName       = trim($_POST['bankName'] ?? '');
+    $accountPurpose = trim($_POST['accountPurpose'] ?? '');
+    $accountName    = trim($_POST['accountName'] ?? '');
+    $accountNumber  = trim($_POST['accountNumber'] ?? '');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($bankName)) {
         $errors['nameError'] = "Bank name is required";
     }
@@ -96,6 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['accountNumber'] = "Account number is required";
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        UPDATE BANK ACCOUNT
     ------------------------------ */
@@ -137,6 +175,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+=======
+    if (empty($errors)) {
+        $stmt = $pdo->prepare("
+            UPDATE bank_accounts 
+            SET bank_name = ?, purpose = ?, account_name = ?, account_number = ?
+            WHERE id = ?
+        ");
+        $success = $stmt->execute([$bankName, $accountPurpose, $accountName, $accountNumber, $id]);
+
+        if ($success) {
+            $_SESSION['success'] = "Bank Account Updated successfully!";
+            header("Location: " . route('back'));
+            exit();
+        } else {
+            echo "<script>alert('Failed to update bank account');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

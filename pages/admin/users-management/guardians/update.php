@@ -3,10 +3,13 @@
 $title = 'Update Guardian Account';
 include(__DIR__ . '/../../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -18,24 +21,43 @@ if (!isset($user_type) || $user_type !== 'admin') {
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+//  Ensure CSRF token exists
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH GUARDIAN TO UPDATE
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM guardians WHERE id = ?');
+    $stmt->execute([$id]);
+    $guardian = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$guardian) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -124,15 +146,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
+=======
+// Assuming selectAllData is already PDO-based
+$guardians = selectAllData('guardians', null, $id);
+
+$name = $email = $phone = $address = $occupation = $relationship = $status = $gender = '';
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    //  Validate CSRF
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        //  Regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $id          = (int) htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $name        = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email       = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone       = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address     = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $relationship = htmlspecialchars(trim($_POST['relationship'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $occupation  = htmlspecialchars(trim($_POST['occupation'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $status      = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender      = trim($_POST['gender'] ?? '');
+
+    // Validations
+    if (empty($name)) $errors['nameError'] = 'Full name is required';
+    if (empty($email)) {
+        $errors['emailError'] = 'Email is required';
+    } elseif (!validateEmail($email)) {
+        $errors['emailError'] = 'Please enter a valid email address';
+    } elseif (emailExist($email, 'guardians', $id)) {
+        $errors['emailError'] = "Email already exists!";
+    }
+    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
+    if (empty($gender)) $errors['genderError'] = "Gender is required.";
+    if (empty($relationship)) $errors['relationshipError'] = 'Relationship is required';
+    if (empty($status)) $errors['statusError'] = "Status is required";
+
+    if (empty($errors)) {
+        try {
+            //  Start transaction
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare("
                 UPDATE guardians 
                 SET name = ?, email = ?, phone = ?, occupation = ?, address = ?, 
+<<<<<<< HEAD
                     relationship = ?, status = ?, gender = ?, updated_at = NOW()
                 WHERE id = ? AND deleted_at IS NULL
             ");
 
+=======
+                    relationship = ?, status = ?, gender = ? 
+                WHERE id = ?
+            ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $success = $stmt->execute([
                 $name,
                 $email,
@@ -146,18 +218,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             if ($success) {
+<<<<<<< HEAD
+=======
+                //  Commit transaction
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $pdo->commit();
                 $_SESSION['success'] = "Guardian account updated successfully!";
                 header("Location: " . route('back'));
                 exit();
+<<<<<<< HEAD
             }
 
             $pdo->rollBack();
             echo "<script>alert('Failed to update guardian account');</script>";
+=======
+            } else {
+                //  Rollback if update fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update guardian account');</script>";
+            }
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         } catch (PDOException $e) {
             $pdo->rollBack();
             echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
+<<<<<<< HEAD
     }
 
     /* ------------------------------
@@ -168,6 +253,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+=======
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

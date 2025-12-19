@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = 'Student Results';
 include(__DIR__ . '/../../../includes/header.php');
@@ -8,27 +9,57 @@ include(__DIR__ . '/../../../includes/header.php');
 ------------------------------ */
 
 if (!$is_logged_in) {
+=======
+$title = 'Student Results';
+include(__DIR__ . '/../../../includes/header.php');
+
+
+if (!$is_logged_in || $is_logged_in === false) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
   $_SESSION['failure'] = "Login is Required!";
   header("Location: " . route('home'));
   exit();
 }
 
 if (!isset($user_type) || $user_type !== 'admin') {
+<<<<<<< HEAD
   $_SESSION['failure'] = "Access denied. Only Admins are allowed.";
+=======
+  $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
   header("Location: " . route('home'));
   exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    VALIDATE STUDENT ID
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+
+if (isset($_GET['id'])) {
+  $id = (int) $_GET['id'];
+  $stmt = $pdo->prepare('SELECT * FROM students WHERE id = ?');
+  $stmt->execute([$id]);
+  $student = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if ($student) {
+    $student_id = $student['id'];
+  } else {
+    $_SESSION['failure'] = "Student is required.";
+    header('Location: ' . route('back'));
+    exit();
+  }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
   $_SESSION['failure'] = "Student is required.";
   header('Location: ' . route('back'));
   exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -78,15 +109,34 @@ $stmt = $pdo->prepare("
         ON t.session_id = ses.id 
         AND ses.deleted_at IS NULL
 
+=======
+//  1. Get basic student info
+$stmt = $pdo->prepare("
+    SELECT s.id, s.name, s.admission_number, s.picture_path,
+
+           c.name AS class_name,
+           a.name AS arm_name,
+           t.name AS term_name,
+           ses.name AS session_name
+    FROM students s
+    LEFT JOIN classes c ON s.class_id = c.id
+    LEFT JOIN class_arms a ON s.arm_id = a.id
+    LEFT JOIN terms t ON s.term_id = t.id
+    LEFT JOIN sessions ses ON t.session_id = ses.id
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     WHERE s.id = ?
 ");
 $stmt->execute([$student_id]);
 $studentInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    2. ALL CLASS RECORDS (HISTORY)
 ------------------------------ */
 
+=======
+//  2. Get ALL class records of this student (history)
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt = $pdo->prepare("
     SELECT 
         scr.id AS student_class_record_id,
@@ -97,14 +147,22 @@ $stmt = $pdo->prepare("
         scr.overall_average,
         scr.overall_position,
         scr.promotion_status,
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         str.id AS student_term_record_id,
         str.term_id,
         str.total_marks,
         str.average_marks,
         str.position_in_class,
         str.class_size,
+<<<<<<< HEAD
         str.overall_grade,
+=======
+        str.overall_grade,   
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
         c.name AS class_name,
         a.name AS arm_name,
@@ -113,6 +171,7 @@ $stmt = $pdo->prepare("
         ses.name AS session_name
 
     FROM student_class_records scr
+<<<<<<< HEAD
 
     LEFT JOIN student_term_records str 
         ON scr.id = str.student_class_record_id
@@ -137,11 +196,21 @@ $stmt = $pdo->prepare("
     WHERE scr.student_id = ?
       AND scr.deleted_at IS NULL
 
+=======
+    LEFT JOIN student_term_records str 
+        ON scr.id = str.student_class_record_id
+    LEFT JOIN classes c ON scr.class_id = c.id
+    LEFT JOIN class_arms a ON scr.arm_id = a.id
+    LEFT JOIN terms t ON str.term_id = t.id
+    LEFT JOIN sessions ses ON scr.session_id = ses.id
+    WHERE scr.student_id = ?
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     ORDER BY ses.id ASC, t.id ASC
 ");
 $stmt->execute([$student_id]);
 $classRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    RESTRUCTURE DATA
 ------------------------------ */
@@ -153,6 +222,19 @@ foreach ($classRows as $row) {
   $classId   = $row['class_id'];
   $termId    = $row['term_id'];
   $session   = $row['session_name'];
+=======
+// Rearrange data: CLASS -> TERM -> RECORD ID
+$records = [];
+
+foreach ($classRows as $row) {
+  $classId  = $row['class_id'];
+  $termId   = $row['term_id'];
+  $session_id  = $row['session_id'];
+  $session  = $row['session_name'];
+
+  $scrId    = $row['student_class_record_id'];
+  $strId    = $row['student_term_record_id'];
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
   if (!isset($records[$session])) {
     $records[$session] = [];
@@ -160,16 +242,25 @@ foreach ($classRows as $row) {
 
   if (!isset($records[$session][$classId])) {
     $records[$session][$classId] = [
+<<<<<<< HEAD
       'class_name'       => $row['class_name'],
       'arm_name'         => $row['arm_name'],
       'overall_average'  => $row['overall_average'],
       'promotion_status' => $row['promotion_status'],
       'terms'            => []
+=======
+      'class_name' => $row['class_name'],
+      'arm_name'   => $row['arm_name'],
+      'overall_average' => $row['overall_average'],
+      'promotion_status'  => $row['promotion_status'],
+      'terms'      => []
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     ];
   }
 
   if ($termId) {
     $records[$session][$classId]['terms'][$termId] = [
+<<<<<<< HEAD
       'term_name'         => $row['term_name'],
       'total_marks'       => $row['total_marks'],
       'average_marks'     => $row['average_marks'],
@@ -179,18 +270,34 @@ foreach ($classRows as $row) {
       'session_id'        => $row['session_id'],
       'str_id'            => $row['student_term_record_id'],
       'subjects_results'  => []
+=======
+      'term_name'        => $row['term_name'],
+      'total_marks'      => $row['total_marks'],
+      'average_marks'    => $row['average_marks'],
+      'position_in_class' => $row['position_in_class'],
+      'class_size'       => $row['class_size'],
+      'overall_grade'    => $row['overall_grade'],
+      'session_id'        => $row['session_id'],
+      'str_id'           => $strId,
+      'subjects_results' => []
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     ];
   }
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    3. FETCH ALL SUBJECT RESULTS
 ------------------------------ */
 
+=======
+//  3. Fetch ALL results by student_record_id
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt = $pdo->prepare("
     SELECT 
         r.student_term_record_id AS str_id,
         r.ca, r.exam, r.total, r.grade, r.remark,
+<<<<<<< HEAD
 
         s.name AS subject_name,
 
@@ -218,16 +325,35 @@ $stmt = $pdo->prepare("
 
     WHERE scr.student_id = ?
       AND r.deleted_at IS NULL
+=======
+        s.name AS subject_name,
+        str.term_id,
+        scr.class_id,
+        ses.name AS session_name
+    FROM results r
+    LEFT JOIN student_term_records str 
+        ON r.student_term_record_id = str.id
+    LEFT JOIN student_class_records scr 
+        ON str.student_class_record_id = scr.id
+    LEFT JOIN sessions ses ON scr.session_id = ses.id
+    LEFT JOIN subjects s ON r.subject_id = s.id
+    WHERE scr.student_id = ?
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ");
 $stmt->execute([$student_id]);
 $scoreRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    ATTACH RESULTS TO RECORDS
 ------------------------------ */
 
 foreach ($scoreRows as $row) {
 
+=======
+// Attach results into $records
+foreach ($scoreRows as $row) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
   $session = $row['session_name'];
   $classId = $row['class_id'];
   $termId  = $row['term_id'];
@@ -244,15 +370,19 @@ foreach ($scoreRows as $row) {
   }
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    4. SESSION AVERAGES
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 $sessionAverages = [];
 
 foreach ($records as $sessionName => $classes) {
   foreach ($classes as $classId => $classData) {
 
+<<<<<<< HEAD
     $sessionAverages[$sessionName][$classId] = [
       'first'  => null,
       'second' => null,
@@ -262,6 +392,17 @@ foreach ($records as $sessionName => $classes) {
     foreach ($classData['terms'] as $termId => $termData) {
 
       $name = strtolower(trim($termData['term_name']));
+=======
+    // Initialize
+    $sessionAverages[$sessionName][$classId] = [
+      'first' => null,
+      'second' => null,
+      'third' => null
+    ];
+
+    foreach ($classData['terms'] as $termId => $termData) {
+      $name = strtolower(trim($termData['term_name'])); // e.g. "first term"
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
       if (strpos($name, 'first') !== false) {
         $sessionAverages[$sessionName][$classId]['first'] = $termData['average_marks'];
@@ -274,9 +415,16 @@ foreach ($records as $sessionName => $classes) {
   }
 }
 
+<<<<<<< HEAD
 ?>
 
 
+=======
+
+
+?>
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 <body class="bg-gray-50">
   <!-- Navigation -->

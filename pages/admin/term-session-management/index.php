@@ -3,10 +3,13 @@
 $title = "Terms & Sessions";
 include(__DIR__ . '/../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -19,6 +22,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH SESSIONS + TERMS
 ------------------------------ */
@@ -44,10 +48,32 @@ $stmt = $pdo->prepare("
     WHERE s.deleted_at IS NULL
 
     ORDER BY s.created_at DESC, t.start_date ASC
+=======
+
+$stmt = $pdo->prepare("
+    SELECT 
+        sessions.id AS session_id,
+        sessions.name AS session_name,
+        sessions.start_date AS session_start_date,
+        sessions.end_date AS session_end_date,
+
+        terms.id AS term_id,
+        terms.name AS term_name,
+        terms.start_date AS term_start_date,
+        terms.end_date AS term_end_date
+
+    FROM sessions
+    LEFT JOIN terms 
+        ON sessions.id = terms.session_id 
+        AND terms.deleted_at IS NULL  
+    WHERE sessions.deleted_at IS NULL
+    ORDER BY sessions.created_at DESC
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ");
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    GROUP TERMS BY SESSION
 ------------------------------ */
@@ -56,34 +82,60 @@ $sessions = [];
 
 foreach ($rows as $row) {
 
+=======
+$sessions = [];
+
+foreach ($rows as $row) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $sessionId = $row['session_id'];
 
     if (!isset($sessions[$sessionId])) {
         $sessions[$sessionId] = [
+<<<<<<< HEAD
             'session_id'         => $row['session_id'],
             'session_name'       => $row['session_name'],
             'session_start_date' => $row['session_start_date'],
             'session_end_date'   => $row['session_end_date'],
             'terms'              => []
+=======
+            'session_id'        => $row['session_id'],
+            'session_name'      => $row['session_name'],
+            'session_start_date' => $row['session_start_date'],
+            'session_end_date'  => $row['session_end_date'],
+            'terms'             => []
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         ];
     }
 
     if (!empty($row['term_id'])) {
         $sessions[$sessionId]['terms'][] = [
+<<<<<<< HEAD
             'term_id'         => $row['term_id'],
             'term_name'       => $row['term_name'],
             'term_start_date' => $row['term_start_date'],
             'term_end_date'   => $row['term_end_date']
+=======
+            'term_id'        => $row['term_id'],
+            'term_name'      => $row['term_name'],
+            'term_start_date' => $row['term_start_date'],
+            'term_end_date'  => $row['term_end_date']
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         ];
     }
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    STATISTICS (FILTER DELETED)
 ------------------------------ */
 
 $sessionsCount = countDataTotal('sessions', true)['total']; // true = filter deleted
 $termsCount    = countDataTotal('terms', true)['total'];
+=======
+// Statistics (assuming countDataTotal is already PDO-based)
+$sessionsCount = countDataTotal('sessions')['total'];
+$termsCount    = countDataTotal('terms')['total'];
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 ?>
 

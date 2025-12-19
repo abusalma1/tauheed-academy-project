@@ -2,30 +2,41 @@
 $title = "Class Update Form";
 include(__DIR__ . '/../../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH CLASS TO EDIT
 ------------------------------ */
@@ -75,22 +86,55 @@ $linked_class_arms = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'arm_id');
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
+=======
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM classes WHERE id = ?');
+    $stmt->execute([$id]);
+    $class = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($class) {
+        $class_id = $class['id'];
+    } else {
+        header('Location: ' . route('back'));
+        exit;
+    }
+} else {
+    header('Location: ' . route('back'));
+    exit;
+}
+
+$sections   = selectAllData('sections');
+$classes    = selectAllData('classes', null, $class_id);
+$class_arms = selectAllData('class_arms');
+
+$stmt = $pdo->prepare("SELECT * FROM class_class_arms WHERE class_id = ?");
+$stmt->execute([$class_id]);
+$selected_class_arms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$linked_class_arms   = array_column($selected_class_arms, 'arm_id');
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 $name = $section = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+<<<<<<< HEAD
 
     /* ------------------------------
        CSRF VALIDATION
     ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        SANITIZE INPUT
     ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $name    = htmlspecialchars(trim($_POST['className'] ?? ''), ENT_QUOTES, 'UTF-8');
     $section = (int) ($_POST['classSection'] ?? 0);
     $level   = (int) ($_POST['classLevel'] ?? 0);
@@ -105,10 +149,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $arms = array_map(fn($arm) => (int) htmlspecialchars(trim($arm), ENT_QUOTES, 'UTF-8'), $arms);
 
+<<<<<<< HEAD
     /* ------------------------------
        VALIDATION
     ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
     }
@@ -116,6 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
     } else {
+<<<<<<< HEAD
         // Check if level is taken by another active class
         $stmt = $pdo->prepare("
             SELECT id, name 
@@ -124,11 +172,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               AND id != ? 
               AND deleted_at IS NULL
         ");
+=======
+        $stmt = $pdo->prepare("SELECT id, name FROM classes WHERE level = ? AND id != ?");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $stmt->execute([$level, $class_id]);
         $exist = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($exist) {
             if (isset($shiftLevels)) {
+<<<<<<< HEAD
                 // Shift levels upward for active classes only
                 $pdo->beginTransaction();
 
@@ -139,6 +191,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       AND deleted_at IS NULL
                     ORDER BY level DESC
                 ");
+=======
+                $pdo->beginTransaction();
+
+                $shiftStmt = $pdo->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $shiftStmt->execute([$level]);
 
                 $pdo->commit();
@@ -156,6 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['armError'] = "At least one arm is required";
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        UPDATE CLASS + ARMS
     ------------------------------ */
@@ -185,6 +243,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 VALUES (?, ?, NOW(), NOW())
             ");
 
+=======
+    if (empty($errors)) {
+        $updateStmt = $pdo->prepare("UPDATE classes SET name = ?, level = ?, section_id = ? WHERE id = ?");
+        $success = $updateStmt->execute([$name, $level, $section, $id]);
+
+        if ($success) {
+            $delStmt = $pdo->prepare("DELETE FROM class_class_arms WHERE class_id = ?");
+            $delStmt->execute([$id]);
+
+            $insert_stmt = $pdo->prepare("INSERT INTO class_class_arms (class_id, arm_id) VALUES (?, ?)");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             foreach ($arms as $arm_id) {
                 $insert_stmt->execute([$id, $arm_id]);
             }
@@ -192,6 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['success'] = "Class updated successfully!";
             header("Location: " . route('back'));
             exit();
+<<<<<<< HEAD
         }
 
         $errors['general'] = "Failed to update class. Try again.";
@@ -202,11 +272,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ------------------------------ */
     foreach ($errors as $error) {
         echo "<p class='text-red-600 font-semibold'>$error</p>";
+=======
+        } else {
+            $errors['general'] = "Failed to update subject. Try again.";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     }
 }
 ?>
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <script>
     const classes = <?= json_encode($classes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

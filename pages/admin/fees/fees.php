@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = 'Fees (Admin Section)';
 include(__DIR__ . '/../../../includes/header.php');
@@ -6,6 +7,10 @@ include(__DIR__ . '/../../../includes/header.php');
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
+=======
+$title = 'Fees(Admin section)';
+include(__DIR__ .  '/../../../includes/header.php');
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -18,6 +23,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
 /* ------------------------------
    FETCH ACTIVE FEES + ACTIVE CLASSES
@@ -51,6 +57,26 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $fees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+=======
+$stmt = $pdo->prepare("
+    SELECT 
+        classes.name,
+        fees.*,
+        (
+            first_term +
+            second_term +
+            third_term +
+            uniform +
+            transport +
+            materials
+        ) AS total
+    FROM fees
+    LEFT JOIN classes ON fees.class_id = classes.id
+    ORDER BY classes.level ASC
+");
+$stmt->execute();
+$fees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

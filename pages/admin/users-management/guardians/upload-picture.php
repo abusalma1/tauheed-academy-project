@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Upload Guardian Avatar";
 include(__DIR__ . '/../../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Upload Guardian Avatar";
+include(__DIR__ . '/../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -18,24 +24,44 @@ if (!isset($user_type) || $user_type !== 'admin') {
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+// Ensure CSRF token exists
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH GUARDIAN BY ID
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+// Fetch guardian by ID
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare("SELECT picture_path, id FROM guardians WHERE id = ? AND deleted_at IS NULL");
+    $stmt->execute([$id]);
+    $guardian = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$guardian) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -96,25 +122,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (!$mimeType || !in_array($mimeType, $allowedTypes, true)) {
+=======
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $errors = [];
+
+    if (!isset($_FILES['avatarFile']) || $_FILES['avatarFile']['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = "No file uploaded or upload error.";
+    } else {
+        $file = $_FILES['avatarFile'];
+
+        if ($file['size'] > 5 * 1024 * 1024) {
+            $errors[] = "File size exceeds 5MB limit.";
+        }
+
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mimeType, $allowedTypes)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $errors[] = "Invalid file type. Only JPG, PNG, GIF, WebP allowed.";
         }
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        PROCESS UPLOAD
     ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($errors)) {
         try {
             $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
             $allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+<<<<<<< HEAD
 
             if (!in_array($ext, $allowedExts, true)) {
+=======
+            if (!in_array($ext, $allowedExts)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $errors[] = "Invalid file extension.";
             } else {
                 $newFileName = 'guardian_' . $id . '_' . time() . '.' . $ext;
 
+<<<<<<< HEAD
                 $uploadDir  = __DIR__ . '/../../../../static/uploads/guardians/avatars/';
+=======
+                $uploadDir = __DIR__ . '/../../../../static/uploads/guardians/avatars/';
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $uploadPath = $uploadDir . $newFileName;
 
                 if (!is_dir($uploadDir)) {
@@ -122,6 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+<<<<<<< HEAD
 
                     $relativePath = '/uploads/guardians/avatars/' . $newFileName;
 
@@ -143,6 +208,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':path' => $relativePath,
                         ':id'   => $id
                     ]);
+=======
+                    $relativePath = '/uploads/guardians/avatars/' . $newFileName;
+
+                    if (!empty($guardian['picture_path']) && $guardian['picture_path'] !== '/images/avatar.png') {
+                        $oldFile = __DIR__ . '/../../../../static' . $guardian['picture_path'];
+                        if (file_exists($oldFile)) {
+                            unlink($oldFile);
+                        }
+                    }
+
+                    $stmt = $pdo->prepare("UPDATE guardians SET picture_path = :path WHERE id = :id");
+                    $stmt->execute([':path' => $relativePath, ':id' => $id]);
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
                     $_SESSION['success'] = "Avatar updated successfully!";
                     header("Location: " . route('back'));
@@ -157,6 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     foreach ($errors as $error) {
+<<<<<<< HEAD
         echo "<p class='text-red-600 font-semibold'>" . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . "</p>";
     }
 }
@@ -164,6 +243,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 
+=======
+        echo "<p class='text-red-600 font-semibold'>$error</p>";
+    }
+}
+?>
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
 
     <?php include(__DIR__ . '/../../includes/admins-section-nav.php'); ?>

@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Islamiyya Fees Assignment";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,28 +8,42 @@ include(__DIR__ . '/../../../includes/header.php');
    CSRF TOKEN
 ------------------------------ */
 
+=======
+$title = "Islamiyya Fees Assignment";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE ISLAMIYYA SECTIONS + CLASSES
 ------------------------------ */
 
+=======
+
+// Fetch Islamiyya sections and classes
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt = $pdo->prepare("
     SELECT 
         islamiyya_sections.id AS section_id,
         islamiyya_sections.name AS section_name,
+<<<<<<< HEAD
 
         islamiyya_classes.id AS class_id,
         islamiyya_classes.name AS class_name,
@@ -44,15 +59,28 @@ $stmt = $pdo->prepare("
     ORDER BY islamiyya_classes.level ASC
 ");
 
+=======
+        islamiyya_classes.id AS class_id,
+        islamiyya_classes.name AS class_name,
+        islamiyya_classes.level AS class_level
+    FROM islamiyya_sections
+    LEFT JOIN islamiyya_classes ON islamiyya_classes.section_id = islamiyya_sections.id
+    ORDER BY islamiyya_classes.level ASC
+");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $sections = [];
+<<<<<<< HEAD
 $classFees = [];
 
 /* ------------------------------
    GROUP CLASSES BY SECTION
 ------------------------------ */
+=======
+$classFees = []; // to store existing islamiyya fees
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 foreach ($rows as $row) {
     $sectionId = $row['section_id'];
@@ -73,6 +101,7 @@ foreach ($rows as $row) {
     }
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE ISLAMIYYA FEES
 ------------------------------ */
@@ -85,10 +114,17 @@ $feeStmt = $pdo->prepare("
 $feeStmt->execute();
 $feeRows = $feeStmt->fetchAll(PDO::FETCH_ASSOC);
 
+=======
+// Fetch existing islamiyya fees for all classes
+$feeStmt = $pdo->prepare("SELECT * FROM islamiyya_fees");
+$feeStmt->execute();
+$feeRows = $feeStmt->fetchAll(PDO::FETCH_ASSOC);
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 foreach ($feeRows as $feeRow) {
     $classFees[$feeRow['islamiyya_class_id']] = $feeRow;
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
@@ -98,10 +134,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        CSRF VALIDATION
     ------------------------------ */
+=======
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     }
 
+<<<<<<< HEAD
     // Regenerate token after validation
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
@@ -111,12 +151,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     foreach ($_POST['fees'] as $classId => $fee) {
 
+=======
+    foreach ($_POST['fees'] as $classId => $fee) {
+        // sanitize to avoid null numeric fields
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $first     = $fee['first_term'] ?? 0;
         $second    = $fee['second_term'] ?? 0;
         $third     = $fee['third_term'] ?? 0;
         $materials = $fee['materials'] ?? 0;
 
         if (isset($classFees[$classId])) {
+<<<<<<< HEAD
 
             /* ------------------------------
                UPDATE EXISTING FEE RECORD
@@ -134,6 +179,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   AND deleted_at IS NULL
             ");
 
+=======
+            // Update existing
+            $update = $pdo->prepare("
+                UPDATE islamiyya_fees 
+                SET first_term=?, second_term=?, third_term=?, materials=?, updated_at=NOW()
+                WHERE islamiyya_class_id=?
+            ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $update->execute([
                 $first,
                 $second,
@@ -142,6 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $classId
             ]);
         } else {
+<<<<<<< HEAD
 
             /* ------------------------------
                INSERT NEW FEE RECORD
@@ -153,6 +207,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 VALUES (?, ?, ?, ?, ?, NOW(), NOW())
             ");
 
+=======
+            // Insert new
+            $insert = $pdo->prepare("
+                INSERT INTO islamiyya_fees
+                (islamiyya_class_id, first_term, second_term, third_term, materials)
+                VALUES (?, ?, ?, ?, ?)
+            ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $insert->execute([
                 $classId,
                 $first,
@@ -165,13 +227,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $_SESSION['success'] = "Islamiyya fees saved successfully!";
     header("Location: " . route('back'));
+<<<<<<< HEAD
     exit();
 }
 
+=======
+    exit;
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
     <!-- Navigation -->
     <?php include(__DIR__ . "/../includes/admins-section-nav.php") ?>

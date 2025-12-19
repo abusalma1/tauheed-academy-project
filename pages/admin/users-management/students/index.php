@@ -34,7 +34,11 @@ $stmt = $pdo->prepare("
         ON classes.id = students.class_id
     LEFT JOIN class_arms 
         ON class_arms.id = students.arm_id
+<<<<<<< HEAD
     WHERE students.deleted_at IS NULL and  classes.deleted_at IS NULL and class_ars.deleted_at IS NULL
+=======
+    WHERE students.deleted_at IS NULL
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     ORDER BY classes.id, class_arms.id, students.name
 ");
 $stmt->execute();

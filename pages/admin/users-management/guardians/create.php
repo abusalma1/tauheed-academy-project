@@ -3,10 +3,13 @@
 $title = 'Create Guardian';
 include(__DIR__ . '/../../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -18,15 +21,20 @@ if (!isset($user_type) || $user_type !== 'admin') {
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+//  Ensure CSRF token exists
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    ACTIVE GUARDIANS + STATISTICS
 ------------------------------ */
@@ -104,6 +112,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($password === '') {
+=======
+$guardians = selectAllData('guardians');
+
+// Count total guardians
+$guardiansCount = countDataTotal('guardians', true);
+
+$name = $email = $phone = $address = $occupation = $relationship = $status = $confirmPassword = $password = $hashed_password = '';
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    //  Validate CSRF
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        //  Regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    // Sanitize inputs
+    $name         = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $email        = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $phone        = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $address      = htmlspecialchars(trim($_POST['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $relationship = htmlspecialchars(trim($_POST['relationship'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $occupation   = htmlspecialchars(trim($_POST['occupation'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $password     = htmlspecialchars(trim($_POST['password'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $confirmPassword = htmlspecialchars(trim($_POST['confirmPassword'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $status       = htmlspecialchars(trim($_POST['status'] ?? 'inactive'), ENT_QUOTES, 'UTF-8');
+    $gender       = trim($_POST['gender'] ?? '');
+
+    // Validations
+    if (empty($name)) $errors['nameError'] = 'Full name is required';
+    if (empty($email)) {
+        $errors['emailError'] = 'Email is required';
+    } elseif (!validateEmail($email)) {
+        $errors['emailError'] = 'Please enter a valid email address';
+    } elseif (emailExist($email, 'guardians')) {
+        $errors['emailError'] = "Email already exists!";
+    }
+    if (empty($gender)) $errors['genderError'] = "Gender is required.";
+    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
+    if (empty($relationship)) $errors['relationshipError'] = 'Relationship is required';
+
+    if (empty($password)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $errors['passwordError'] = "Password field is required";
     } elseif (strlen($password) < 8) {
         $errors['passwordError'] = 'Password must be at least 8 characters';
@@ -113,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     }
 
+<<<<<<< HEAD
     if ($status === '') {
         $errors['statusError'] = "Status is required";
     }
@@ -132,6 +186,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ");
 
+=======
+    if (empty($status)) $errors['statusError'] = "Status is required";
+
+    if (empty($errors)) {
+        try {
+            //  Start transaction
+            $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare("
+                INSERT INTO guardians (name, email, gender, phone, occupation, address, relationship, status, password)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $success = $stmt->execute([
                 $name,
                 $email,
@@ -145,19 +212,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             if ($success) {
+<<<<<<< HEAD
+=======
+                //  Commit transaction
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $pdo->commit();
                 $_SESSION['success'] = "Guardian account created successfully!";
                 header("Location: " . route('back'));
                 exit();
+<<<<<<< HEAD
             }
 
             $pdo->rollBack();
             echo "<script>alert('Failed to create guardian user account');</script>";
+=======
+            } else {
+                //  Rollback if insert fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to create guardian user account');</script>";
+            }
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         } catch (PDOException $e) {
             $pdo->rollBack();
             echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
+<<<<<<< HEAD
         foreach ($errors as $error) {
             echo "<p class='text-red-600 font-semibold'>{$error}</p>";
         }
@@ -167,6 +247,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 
+=======
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+?>
+
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <script>
     const guardians = <?= json_encode($guardians, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

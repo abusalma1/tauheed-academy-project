@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Subjects Management";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Subjects Management";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -19,6 +25,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH CLASSES + SUBJECTS + TEACHERS
 ------------------------------ */
@@ -72,14 +79,49 @@ $classes = [];
 
 foreach ($rows as $row) {
 
+=======
+
+$stmt = $pdo->prepare("
+    SELECT 
+        classes.id AS class_id,
+        classes.name AS class_name,
+        subjects.id AS subject_id,
+        subjects.name AS subject_name,
+        teachers.id AS teacher_id,
+        teachers.name AS teacher_name,
+        sections.name AS section_name,
+        class_subjects.id AS class_subject_id 
+    FROM classes
+    LEFT JOIN class_subjects ON classes.id = class_subjects.class_id
+    LEFT JOIN subjects ON class_subjects.subject_id = subjects.id
+    LEFT JOIN teachers ON class_subjects.teacher_id = teachers.id
+    LEFT JOIN sections ON classes.section_id = sections.id
+    WHERE classes.deleted_at IS NULL
+      AND subjects.deleted_at IS NULL
+    ORDER BY classes.level, subjects.name
+");
+$stmt->execute();
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$classes = [];
+
+foreach ($rows as $row) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $classId = $row['class_id'];
 
     if (!isset($classes[$classId])) {
         $classes[$classId] = [
+<<<<<<< HEAD
             'id'           => $row['class_id'],
             'name'         => $row['class_name'],
             'section_name' => $row['section_name'],
             'subjects'     => []
+=======
+            'id'          => $row['class_id'],
+            'name'        => $row['class_name'],
+            'section_name' => $row['section_name'],
+            'subjects'    => []
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         ];
     }
 
@@ -93,6 +135,7 @@ foreach ($rows as $row) {
     }
 }
 
+<<<<<<< HEAD
 $classes = array_values($classes);
 
 /* ------------------------------
@@ -122,6 +165,29 @@ $totalCapacity = 0;
 ?>
 
 
+=======
+// Reindex classes by numeric index
+$classes = array_values($classes);
+
+// Fetch classes for filter (assuming selectAllData is already PDO-based)
+$classesForFilter = selectAllData('classes');
+
+// Handle filters/search
+$selectedClass = isset($_GET['class']) ? intval($_GET['class']) : null;
+$searchTerm    = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+
+// Calculate statistics (assuming countDataTotal is already PDO-based)
+$totalSubjects = countDataTotal('subjects')['total'];
+$totalStudents = countDataTotal('students')['total'];
+$totalSections = countDataTotal('sections')['total'];
+$totalClasses  = countDataTotal('classes')['total'];
+
+$totalCapacity = 0;
+?>
+
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-slate-50">
     <!-- Navigation Bar -->
     <?php include(__DIR__ . '/../includes/admins-section-nav.php') ?>

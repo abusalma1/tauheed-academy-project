@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Subject Results/Class";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = "Subject Results/Class";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -14,11 +20,16 @@ if (!$is_logged_in) {
 }
 
 if (!isset($user_type) || $user_type !== 'admin') {
+<<<<<<< HEAD
     $_SESSION['failure'] = "Access denied. Only Admins are allowed.";
+=======
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    VALIDATE REQUIRED PARAMETERS
 ------------------------------ */
@@ -138,6 +149,73 @@ $stmt = $pdo->prepare("
 $stmt->execute([$term_id, $subject_id, $class_id, $arm_id, $session_id]);
 $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+=======
+
+if (isset($_GET['class_id'], $_GET['session_id'], $_GET['term_id'], $_GET['subject_id'], $_GET['arm_id'])) {
+    $class_id   = (int) $_GET['class_id'];
+    $session_id = (int) $_GET['session_id'];
+    $term_id    = (int) $_GET['term_id'];
+    $subject_id = (int) $_GET['subject_id'];
+    $arm_id     = (int) $_GET['arm_id'];
+
+    // Subject
+    $stmt = $pdo->prepare("SELECT name FROM subjects WHERE id = ?");
+    $stmt->execute([$subject_id]);
+    $subject = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Session
+    $stmt = $pdo->prepare("SELECT id, name FROM sessions WHERE id = ?");
+    $stmt->execute([$session_id]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Term
+    $stmt = $pdo->prepare("SELECT id, name FROM terms WHERE id = ?");
+    $stmt->execute([$term_id]);
+    $term = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Class
+    $stmt = $pdo->prepare("SELECT id, name FROM classes WHERE id = ?");
+    $stmt->execute([$class_id]);
+    $class = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Arm
+    $stmt = $pdo->prepare("SELECT id, name FROM class_arms WHERE id = ?");
+    $stmt->execute([$arm_id]);
+    $arm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Students + Results (anchored on class records, filtered by session/class/arm)
+    $stmt = $pdo->prepare("
+        SELECT 
+            st.id AS id,
+            st.name,
+            st.admission_number,
+            scr.arm_id,
+            r.ca,
+            r.exam,
+            r.total,
+            r.grade,
+            r.remark
+        FROM student_class_records scr
+        INNER JOIN students st 
+            ON st.id = scr.student_id
+        LEFT JOIN student_term_records str
+            ON str.student_class_record_id = scr.id
+            AND str.term_id = ?
+        LEFT JOIN results r
+            ON r.student_term_record_id = str.id
+            AND r.subject_id = ?
+        WHERE scr.class_id = ? 
+          AND scr.arm_id = ? 
+          AND scr.session_id = ?   -- 🔑 filter by session
+        ORDER BY st.admission_number
+    ");
+    $stmt->execute([$term_id, $subject_id, $class_id, $arm_id, $session_id]);
+    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    header("Location: " . route('back'));
+    exit();
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

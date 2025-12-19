@@ -1,11 +1,17 @@
 <?php
 
+<<<<<<< HEAD
 $title = "Class Arm Update Form";
 include(__DIR__ . '/../../../../includes/header.php');
 
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
+=======
+$title = "Classe Update Form";
+include(__DIR__ . '/../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -19,23 +25,41 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ARM TO EDIT
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM class_arms WHERE id = ? AND deleted_at IS NULL');
+    $stmt->execute([$id]);
+    $arm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$arm) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -60,19 +84,26 @@ $stmt = $pdo->prepare("
     FROM class_arms 
     WHERE id != ? AND deleted_at IS NULL
 ");
+=======
+$stmt = $pdo->prepare("SELECT * FROM class_arms WHERE id != ? AND deleted_at IS NULL");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt->execute([$id]);
 $class_arms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $armsCount = countDataTotal('class_arms')['total'];
 
+<<<<<<< HEAD
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $name = $description = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+<<<<<<< HEAD
 
     /* ------------------------------
        CSRF VALIDATION
@@ -94,10 +125,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        VALIDATION
     ------------------------------ */
+=======
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    }else{
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $name = htmlspecialchars(trim($_POST['armName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $id = (int) ($_POST['armId'] ?? 0);
+    $description = htmlspecialchars(trim($_POST['armDescription'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (empty($name)) {
         $errors['nameError'] = "Name is required";
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        UPDATE ARM
     ------------------------------ */
@@ -128,6 +172,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+=======
+
+    if (empty($errors)) {
+        $stmt = $pdo->prepare("UPDATE class_arms SET name = ?, description = ? WHERE id = ?");
+        $success = $stmt->execute([$name, $description, $id]);
+
+        if ($success) {
+            $_SESSION['success'] = "Arm Updated successfully!";
+            header("Location: " . route('back'));
+            exit();
+        } else {
+            echo "<script>alert('Failed to update class arm');</script>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

@@ -2,30 +2,41 @@
 $title = "Delete Confirmation";
 include(__DIR__ . '/../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTH CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
   $_SESSION['failure'] = "Login is Required!";
   header("Location: " . route('home'));
   exit();
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
   $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
   header("Location: " . route('home'));
   exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    VALID TABLES (WHITELIST)
 ------------------------------ */
@@ -75,10 +86,19 @@ if (isset($_GET['id'], $_GET['table'], $_GET['type'])) {
 
   // Fetch record
   $stmt = $pdo->prepare("SELECT * FROM `$table` WHERE id = ? AND deleted_at IS NULL");
+=======
+if (isset($_GET['id'], $_GET['table'], $_GET['type'])) {
+  $id    = (int) $_GET['id'];
+  $table = preg_replace('/[^a-zA-Z0-9_]/', '', $_GET['table']); // sanitize table name
+  $type  = htmlspecialchars($_GET['type'], ENT_QUOTES, 'UTF-8');
+
+  $stmt = $pdo->prepare("SELECT * FROM `$table` WHERE id = ?");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
   $stmt->execute([$id]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if (!$user) {
+<<<<<<< HEAD
     $_SESSION['failure'] = "Record not found or already deleted.";
     header("Location: " . route('back'));
     exit();
@@ -107,10 +127,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if ($idPosted !== $id) {
     $errors['id'] = 'Invalid delete request.';
+=======
+    header('Location: ' . route('back'));
+    exit();
+  }
+} else {
+  header('Location: ' . route('back'));
+  exit();
+}
+
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    die('CSRF validation failed. Please refresh and try again.');
+  }
+
+  $id = (int) trim($_POST['id'] ?? '');
+
+  if (empty($id)) {
+    $errors['id'] = 'User Not Found';
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
   }
 
   if (empty($errors)) {
     try {
+<<<<<<< HEAD
       $pdo->beginTransaction();
 
       $stmt = $pdo->prepare("
@@ -129,20 +170,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       $pdo->rollBack();
       echo "<script>alert('Failed to delete record');</script>";
+=======
+      //  Start transaction
+      $pdo->beginTransaction();
+
+      $stmt = $pdo->prepare("UPDATE `$table` SET deleted_at = NOW() WHERE id = ?");
+      $success = $stmt->execute([$id]);
+
+      if ($success) {
+        //  Commit transaction
+        $pdo->commit();
+        $_SESSION['success'] = "User Deleted successfully!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        //  Rollback if update fails
+        $pdo->rollBack();
+        echo "<script>alert('Failed to delete user');</script>";
+      }
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     } catch (PDOException $e) {
       $pdo->rollBack();
       echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
     }
   } else {
+<<<<<<< HEAD
     foreach ($errors as $error) {
       echo "<p class='text-red-600 font-semibold'>" . htmlspecialchars($error) . "</p>";
+=======
+    foreach ($errors as $field => $error) {
+      echo "<p class='text-red-600 font-semibold'>$error</p>";
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     }
   }
 }
 ?>
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <body class="bg-gray-50">
   <!-- Navigation -->
 

@@ -2,10 +2,13 @@
 $title = "Post News";
 include(__DIR__ . '/../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -18,14 +21,18 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH LATEST ACTIVE NEWS
 ------------------------------ */
@@ -37,11 +44,16 @@ $stmt = $pdo->prepare("
     ORDER BY updated_at DESC 
     LIMIT 10
 ");
+=======
+// Fetch latest news
+$stmt = $pdo->prepare("SELECT * FROM news WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $stmt->execute();
 $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $errors = [];
 
+<<<<<<< HEAD
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
@@ -64,16 +76,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        IMAGE UPLOAD HANDLING
     ------------------------------ */
 
+=======
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $errors = [];
+    $picturePath = null; // default
+
+    // ✅ Check if an image was uploaded
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 
         $file = $_FILES['image'];
 
+<<<<<<< HEAD
         // Validate size (max 5MB)
+=======
+        // ✅ Validate size (max 5MB)
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         if ($file['size'] > 5 * 1024 * 1024) {
             $errors[] = "Image size exceeds 5MB limit.";
         }
 
+<<<<<<< HEAD
         // Validate MIME type
+=======
+        // ✅ Validate MIME type
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $file['tmp_name']);
@@ -83,7 +118,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Invalid image type. Only JPG, PNG, GIF, WebP allowed.";
         }
 
+<<<<<<< HEAD
         // Validate extension
+=======
+        // ✅ Validate extension
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         $allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
@@ -91,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Invalid image extension.";
         }
 
+<<<<<<< HEAD
         // Process upload if valid
         if (empty($errors)) {
 
@@ -100,14 +140,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uploadPath = $uploadDir . $newFileName;
 
             // Create directory if missing
+=======
+        // ✅ If no errors, process upload
+        if (empty($errors)) {
+
+            // ✅ Generate unique filename
+            $newFileName = 'news_' . time() . '_' . bin2hex(random_bytes(5)) . '.' . $ext;
+
+            // ✅ Upload directory
+            $uploadDir = __DIR__ . "/../../../static/uploads/news/";
+            $uploadPath = $uploadDir . $newFileName;
+
+            // ✅ Create folder if missing
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             if (!is_dir($uploadDir)) {
                 if (!mkdir($uploadDir, 0755, true)) {
                     $errors[] = "Failed to create upload directory.";
                 }
             }
 
+<<<<<<< HEAD
             // Move uploaded file
             if (empty($errors) && move_uploaded_file($file['tmp_name'], $uploadPath)) {
+=======
+            // ✅ Move uploaded file
+            if (empty($errors) && move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                // ✅ Path stored in DB
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $picturePath = "/uploads/news/" . $newFileName;
             } else {
                 $errors[] = "Failed to upload image.";
@@ -115,10 +174,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        VALIDATE FORM FIELDS
     ------------------------------ */
 
+=======
+    // ✅ Continue with your existing validation
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $newsTitle        = trim($_POST['title'] ?? '');
     $category         = trim($_POST['category'] ?? '');
     $content          = trim($_POST['content'] ?? '');
@@ -131,6 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($status))           $errors['statusError'] = "Status is required";
     if (empty($publication_date)) $errors['publicationDateError'] = "Publication Date is required";
 
+<<<<<<< HEAD
     /* ------------------------------
        INSERT NEWS INTO DATABASE
     ------------------------------ */
@@ -141,6 +205,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 INSERT INTO news 
                 (title, category, content, status, publication_date, picture_path, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+=======
+    // ✅ If no errors, insert into DB
+    if (empty($errors)) {
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO news (title, category, content, status, publication_date, picture_path)
+                VALUES (?, ?, ?, ?, ?, ?)
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             ");
 
             $success = $stmt->execute([
@@ -149,11 +221,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $content,
                 $status,
                 $publication_date,
+<<<<<<< HEAD
                 $picturePath
             ]);
 
             if ($success) {
                 $_SESSION['success'] = "News posted successfully!";
+=======
+                $picturePath // ✅ NULL if no image uploaded
+            ]);
+
+            if ($success) {
+                $_SESSION['success'] = "News Posted successfully!";
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 header("Location: " . route('back'));
                 exit();
             } else {
@@ -164,10 +244,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+<<<<<<< HEAD
     /* ------------------------------
        DISPLAY ERRORS
     ------------------------------ */
 
+=======
+    // ✅ Show errors
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     foreach ($errors as $error) {
         echo "<p class='text-red-600 font-semibold'>$error</p>";
     }

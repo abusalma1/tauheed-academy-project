@@ -2,10 +2,13 @@
 $title = "Students Create Form";
 include(__DIR__ . '/../../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -17,15 +20,20 @@ if (!isset($user_type) || $user_type !== 'admin') {
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
 
+=======
+// Ensure CSRF token exists
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CURRENT TERM
 ------------------------------ */
@@ -76,10 +84,38 @@ $stmt = $pdo->prepare("
     LEFT JOIN class_arms a ON s.arm_id = a.id
     WHERE s.deleted_at IS NULL
     ORDER BY s.name ASC
+=======
+// Current term
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
+$stmt->execute(['ongoing']);
+$current_term = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Last admission number
+$stmt = $pdo->prepare("SELECT admission_number FROM students ORDER BY created_at DESC LIMIT 1");
+$stmt->execute();
+$lastAdmissionNumberRow = $stmt->fetch(PDO::FETCH_ASSOC);
+$lastAdmissionNumber = $lastAdmissionNumberRow ? $lastAdmissionNumberRow['admission_number'] : 'No student account exists.';
+
+// Students list
+$stmt = $pdo->prepare("
+    SELECT 
+        students.id AS id,
+        students.name AS name,
+        students.admission_number AS admission_number,
+        students.status AS status,
+        classes.id AS class_id,
+        classes.name AS class_name,
+        class_arms.name AS class_arm_name
+    FROM students
+    LEFT JOIN classes ON students.class_id = classes.id
+    LEFT JOIN class_arms ON students.arm_id = class_arms.id
+    WHERE students.deleted_at IS NULL
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ");
 $stmt->execute();
 $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    ACTIVE GUARDIANS
 ------------------------------ */
@@ -110,10 +146,36 @@ $stmt = $pdo->prepare("
       AND a.deleted_at IS NULL
       AND s.deleted_at IS NULL
     ORDER BY c.level, a.name
+=======
+$guardians = selectAllData('guardians');
+
+// Fetch classes
+$stmt = $pdo->prepare("
+    SELECT 
+        classes.id AS class_id,
+        classes.name AS class_name,
+        classes.level AS level,
+        teachers.id AS teacher_id,
+        teachers.name AS teacher_name,
+        sections.id AS section_id,
+        sections.name AS section_name,
+        class_arms.id AS arm_id,
+        class_arms.name AS arm_name
+    FROM classes
+    LEFT JOIN class_class_arms ON class_class_arms.class_id = classes.id
+    LEFT JOIN teachers ON class_class_arms.teacher_id = teachers.id
+    LEFT JOIN sections ON classes.section_id = sections.id
+    LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
+    WHERE classes.deleted_at IS NULL 
+      AND class_arms.deleted_at IS NULL 
+      AND sections.deleted_at IS NULL
+    ORDER BY classes.level, class_arms.name
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ");
 $stmt->execute();
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ISLAMIYYA CLASSES
 ------------------------------ */
@@ -138,10 +200,39 @@ $stmt = $pdo->prepare("
       AND ia.deleted_at IS NULL
       AND isec.deleted_at IS NULL
     ORDER BY ic.level, ia.name
+=======
+
+// Fetch Islamiyya classes
+$stmt = $pdo->prepare("
+    SELECT 
+        islamiyya_classes.id AS class_id,
+        islamiyya_classes.name AS class_name,
+        islamiyya_classes.level AS level,
+        teachers.id AS teacher_id,
+        teachers.name AS teacher_name,
+        islamiyya_sections.id AS section_id,
+        islamiyya_sections.name AS section_name,
+        islamiyya_class_arms.id AS arm_id,
+        islamiyya_class_arms.name AS arm_name
+    FROM islamiyya_classes
+    LEFT JOIN islamiyya_class_class_arms 
+           ON islamiyya_class_class_arms.class_id = islamiyya_classes.id
+    LEFT JOIN teachers 
+           ON islamiyya_class_class_arms.teacher_id = teachers.id
+    LEFT JOIN islamiyya_sections 
+           ON islamiyya_classes.section_id = islamiyya_sections.id
+    LEFT JOIN islamiyya_class_arms 
+           ON islamiyya_class_class_arms.arm_id = islamiyya_class_arms.id
+    WHERE islamiyya_classes.deleted_at IS NULL 
+      AND islamiyya_class_arms.deleted_at IS NULL 
+      AND islamiyya_sections.deleted_at IS NULL
+    ORDER BY islamiyya_classes.level, islamiyya_class_arms.name
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ");
 $stmt->execute();
 $islamiyya_classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    TERMS & SESSIONS (ACTIVE ONLY)
 ------------------------------ */
@@ -470,6 +561,170 @@ $studentsCount = countDataTotal('students', true)['total'];
     }
 
     ?>
+=======
+
+$terms    = selectAllData('terms');
+$sessions = selectAllData('sessions');
+
+// Count total students
+$studentsCount = countDataTotal('students', true);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die("Invalid CSRF token.");
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    // Collect and sanitize input
+    $name            = trim($_POST['fullName'] ?? '');
+    $email           = trim($_POST['email'] ?? '');
+    $phone           = trim($_POST['phone'] ?? '');
+    $admissionNumber = trim($_POST['admissionNumber'] ?? '');
+    $class           = trim($_POST['class'] ?? '');
+    $term            = trim($_POST['term'] ?? '');
+    $session         = trim($_POST['session'] ?? '');
+    $dob             = trim($_POST['dob'] ?? '');
+    $gender          = trim($_POST['gender'] ?? '');
+    $guardian        = trim($_POST['guardian'] ?? '');
+    $password        = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['confirmPassword'] ?? '';
+    $status          = trim($_POST['status'] ?? 'inactive');
+    $islamiyyaClass  = trim($_POST['islamiyyaClass'] ?? '');
+
+    $errors = [];
+
+    // --- VALIDATION RULES ---
+    if (empty($name)) $errors['name'] = "Full name is required.";
+    if (empty($admissionNumber)) $errors['admissionNumber'] = "Admission number is required.";
+    if (!empty($class)) {
+        list($class_id, $arm_id) = explode('|', $class);
+    } else {
+        $class_id = null;
+        $arm_id   = null;
+    }
+    if (!empty($islamiyyaClass)) {
+        list($islamiyya_class_id, $islamiyya_arm_id) = explode('|', $islamiyyaClass);
+    } else {
+        $islamiyya_class_id = null;
+        $islamiyya_arm_id   = null;
+    }
+
+    if (empty($class) && empty($islamiyyaClass)) {
+        $errors['class'] = "Please select either a General Studies class or an Islamiyya class.";
+    }
+    if (empty($term)) $errors['term'] = "Please select a term.";
+    if (empty($dob)) $errors['dob'] = "Date of birth is required.";
+    if (empty($gender)) $errors['gender'] = "Gender is required.";
+    if (empty($guardian)) $errors['guardian'] = "Guardian is required.";
+
+    if (!empty($password)) {
+        if (strlen($password) < 5) $errors['password'] = "Password must be at least 5 characters long.";
+        if ($password !== $confirmPassword) $errors['confirmPassword'] = "Passwords do not match.";
+    } else {
+        $password = $admissionNumber;
+    }
+
+    if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = "Invalid email format.";
+    }
+    if (!empty($phone) && !preg_match('/^[0-9+\s-]{7,15}$/', $phone)) {
+        $errors['phone'] = "Invalid phone number format.";
+    }
+
+    // Admission number uniqueness
+    $stmt = $pdo->prepare("SELECT id FROM students WHERE admission_number = ?");
+    $stmt->execute([$admissionNumber]);
+    if ($stmt->fetch()) {
+        $errors['admissionNumber'] = "Admission number already exists.";
+    }
+
+    // Email uniqueness
+    if (!empty($email)) {
+        if (!validateEmail($email)) {
+            $errors['emailError'] = 'Please enter a valid email address';
+        } elseif (emailExist($email, 'students')) {
+            $errors['emailError'] = "Email already exists!";
+        }
+    }
+
+    // --- FINAL DECISION ---
+    if (empty($errors)) {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        try {
+            $pdo->beginTransaction();
+
+            // Insert student with both tracks
+            $stmt = $pdo->prepare("INSERT INTO students 
+                (name, email, phone, admission_number, dob, gender, password, status, 
+                 class_id, arm_id, term_id, guardian_id, islamiyya_class_id, islamiyya_arm_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([
+                $name,
+                $email,
+                $phone,
+                $admissionNumber,
+                $dob,
+                $gender,
+                $hashed_password,
+                $status,
+                $class_id,
+                $arm_id,
+                $term,
+                $guardian,
+                $islamiyya_class_id,
+                $islamiyya_arm_id
+            ]);
+            $student_id = $pdo->lastInsertId();
+
+            // Insert general class records
+            if (!empty($class_id) && !empty($arm_id)) {
+                $stmt2 = $pdo->prepare("INSERT INTO student_class_records (student_id, class_id, arm_id, session_id) VALUES (?, ?, ?, ?)");
+                $stmt2->execute([$student_id, $class_id, $arm_id, $session]);
+                $student_class_record_id = $pdo->lastInsertId();
+
+                $stmt3 = $pdo->prepare("INSERT INTO student_term_records (student_class_record_id, term_id) VALUES (?, ?)");
+                $stmt3->execute([$student_class_record_id, $term]);
+            }
+
+            // Insert Islamiyya class records if selected
+            if (!empty($islamiyya_class_id) && !empty($islamiyya_arm_id)) {
+                $stmtIslamiyya = $pdo->prepare("
+                    INSERT INTO islamiyya_student_class_records (student_id, class_id, arm_id, session_id) 
+                    VALUES (?, ?, ?, ?)
+                ");
+                $stmtIslamiyya->execute([$student_id, $islamiyya_class_id, $islamiyya_arm_id, $session]);
+                $islamiyya_class_record_id = $pdo->lastInsertId();
+
+                $stmtIslamiyyaTerm = $pdo->prepare("
+                    INSERT INTO islamiyya_student_term_records (student_class_record_id, term_id) 
+                    VALUES (?, ?)
+                ");
+                $stmtIslamiyyaTerm->execute([$islamiyya_class_record_id, $term]);
+            }
+
+
+            //  Commit transaction
+            $pdo->commit();
+
+            $_SESSION['success'] = "Student account created successfully!";
+            header("Location: " . route('back'));
+            exit();
+        } catch (PDOException $e) {
+            //  Rollback on error
+            $pdo->rollBack();
+            echo "<p class='text-red-500'>Error inserting record: " . htmlspecialchars($e->getMessage()) . "</p>";
+        }
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+    }
+}
+?>
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 
 <script>

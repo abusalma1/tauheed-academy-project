@@ -3,10 +3,13 @@
 $title = "Term Creation";
 include(__DIR__ . '/../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -19,23 +22,43 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH SESSION
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM sessions WHERE id = ?');
+    $stmt->execute([$id]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($session) {
+        $session_id = $session['id'];
+    } else {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -80,10 +103,24 @@ $termsCount = countDataTotal('terms', true)['total'];
 /* ------------------------------
    FORM PROCESSING
 ------------------------------ */
+=======
+// Fetch latest terms
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE session_id = ? AND deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
+$stmt->execute([$session_id]);
+$terms_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch all terms for this session
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE session_id = ? AND deleted_at IS NULL");
+$stmt->execute([$session_id]);
+$terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$termsCount = countDataTotal('terms')['total'];
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+<<<<<<< HEAD
 
     /* ------------------------------
        CSRF VALIDATION
@@ -98,10 +135,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ------------------------------
        SANITIZE INPUT
     ------------------------------ */
+=======
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $name       = trim($_POST['termName'] ?? '');
     $start_date = trim($_POST['startDate'] ?? '');
     $end_date   = trim($_POST['endDate'] ?? '');
 
+<<<<<<< HEAD
     /* ------------------------------
        VALIDATION
     ------------------------------ */
@@ -158,10 +205,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->rollBack();
             echo "<script>alert('Failed to create term');</script>";
 
+=======
+    // Validations
+    if (empty($name)) {
+        $errors['nameError'] = "Name is required";
+    }
+    if (empty($start_date)) {
+        $errors['startDateError'] = "Start Date is required";
+    }
+    if (empty($end_date)) {
+        $errors['endDateError'] = "End Date is required";
+    }
+
+    if (empty($errors)) {
+        try {
+            //  Start transaction
+            $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare(
+                "INSERT INTO terms (name, start_date, end_date, session_id) VALUES (?, ?, ?, ?)"
+            );
+            $success = $stmt->execute([$name, $start_date, $end_date, $session_id]);
+
+            if ($success) {
+                //  Commit transaction
+                $pdo->commit();
+
+                $_SESSION['success'] = "Term created successfully!";
+                header("Location: " . route('back'));
+                exit();
+            } else {
+                //  Rollback if insert fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to create term');</script>";
+            }
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         } catch (PDOException $e) {
             $pdo->rollBack();
             echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
+<<<<<<< HEAD
     }
 
     /* ------------------------------
@@ -169,6 +252,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ------------------------------ */
     foreach ($errors as $error) {
         echo "<p class='text-red-600 font-semibold'>$error</p>";
+=======
+    } else {
+        foreach ($errors as $field => $error) {
+            echo "<p class='text-red-600 font-semibold'>$error</p>";
+        }
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     }
 }
 
@@ -176,7 +265,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <script>
     const terms = <?= json_encode($terms, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Delete Confirmation";
 include(__DIR__ . '/../../../../includes/header.php');
@@ -6,6 +7,11 @@ include(__DIR__ . '/../../../../includes/header.php');
 /* ------------------------------
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
+=======
+$title = "Sections Management";
+include(__DIR__ . '/../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
@@ -13,12 +19,17 @@ if (!$is_logged_in) {
     exit();
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
@@ -108,6 +119,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+=======
+$stmt = $pdo->prepare("
+    SELECT 
+        sections.id AS section_id,
+        sections.name AS section_name,
+        sections.description,
+        teachers.id AS teacher_id,
+        teachers.name AS head_teacher_name,
+        COUNT(classes.id) AS class_count
+    FROM sections
+    LEFT JOIN teachers 
+        ON sections.head_teacher_id = teachers.id
+    LEFT JOIN classes 
+        ON classes.section_id = sections.id
+    WHERE sections.deleted_at IS NULL
+    GROUP BY 
+        sections.id, 
+        sections.name, 
+        sections.description,
+        teachers.id, 
+        teachers.name
+");
+$stmt->execute();
+$sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$classesCount  = countDataTotal('classes')['total'];
+$sectionsCount = countDataTotal('sections')['total'];
+$studentsCount = countDataTotal('students')['total'];
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 <body class="bg-gray-50">

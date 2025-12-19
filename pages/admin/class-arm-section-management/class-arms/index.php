@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Class Arms Management";
 include(__DIR__ . '/../../../../includes/header.php');
@@ -7,18 +8,27 @@ include(__DIR__ . '/../../../../includes/header.php');
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+$title = "Class Arms Management";
+include(__DIR__ . '/../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
     exit();
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE CLASS ARMS
    (Helper already filters deleted_at)
@@ -27,6 +37,14 @@ if (!isset($user_type) || $user_type !== 'admin') {
 $arms          = selectAllData('class_arms');
 $armsCount     = countDataTotal('class_arms')['total'];
 $classesCount  = countDataTotal('classes')['total'];
+=======
+
+
+$arms = selectAllData('class_arms');
+
+$armsCount = countDataTotal('class_arms')['total'];
+$classesCount = countDataTotal('classes')['total'];
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 $studentsCount = countDataTotal('students')['total'];
 
 ?>

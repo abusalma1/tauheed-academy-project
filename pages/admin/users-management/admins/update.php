@@ -3,10 +3,13 @@
 $title = "Update Admins & Super Users";
 include(__DIR__ . '/../../../../includes/header.php');
 
+<<<<<<< HEAD
 /* ------------------------------
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -17,6 +20,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
     $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
     header("Location: " . route('home'));
     exit();
+<<<<<<< HEAD
 }
 
 if ($user_type === 'admin' && ($user['type'] ?? null) !== 'superAdmin') {
@@ -30,10 +34,34 @@ if ($user_type === 'admin' && ($user['type'] ?? null) !== 'superAdmin') {
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+} else if ($user_type === 'admin') {
+    if ($user['type'] !== 'superAdmin') {
+        $_SESSION['failure'] = "Access denied! Only Super Admins are allowed.";
+        header("Location: " . route('home'));
+        exit();
+    }
+}
+
+
+
+if (isset($_GET['id'])) {
+    $id = (int) $_GET['id'];
+    $stmt = $pdo->prepare('SELECT * FROM admins WHERE id = ?');
+    $stmt->execute([$id]);
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$admin) {
+        header('Location: ' . route('back'));
+        exit();
+    }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     header('Location: ' . route('back'));
     exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -53,10 +81,13 @@ if (!$admin) {
    CSRF TOKEN
 ------------------------------ */
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    ACTIVE ADMINS + STATISTICS
 ------------------------------ */
@@ -105,6 +136,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        SANITIZE INPUTS
     ------------------------------ */
     $id          = (int) ($_POST['id'] ?? 0);
+=======
+// Assuming selectAllData is already PDO-based
+$admins = selectAllData('admins', null, $id);
+
+// Count total admins
+$adminsCount = countDataTotal('admins', true);
+
+$name = $email = $phone = $address = $staffNumber = $status = $roleType = $department = $gender = $qualification = $experience = '';
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('CSRF validation failed. Please refresh and try again.');
+    } else {
+        // regenerate after successful validation
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $id          = (int) htmlspecialchars(trim($_POST['id'] ?? ''), ENT_QUOTES, 'UTF-8');
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     $name        = htmlspecialchars(trim($_POST['fullName'] ?? ''), ENT_QUOTES, 'UTF-8');
     $email       = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
     $phone       = htmlspecialchars(trim($_POST['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
@@ -117,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $qualification = htmlspecialchars(trim($_POST['qualification'] ?? ''), ENT_QUOTES, 'UTF-8');
     $experience    = htmlspecialchars(trim($_POST['experience'] ?? ''), ENT_QUOTES, 'UTF-8');
 
+<<<<<<< HEAD
     /* ------------------------------
        VALIDATIONS
     ------------------------------ */
@@ -158,10 +210,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($staffNumber === '') {
+=======
+    // Validations
+    if (empty($name)) $errors['nameError'] = 'Full name is required';
+    if (empty($email)) {
+        $errors['emailError'] = 'Email is required';
+    } elseif (!validateEmail($email)) {
+        $errors['emailError'] = 'Please enter a valid email address';
+    } elseif (emailExist($email, 'admins', $id)) {
+        $errors['emailError'] = "Email already exists!";
+    }
+    if (empty($phone)) $errors['phoneError'] = 'Phone number is required';
+    if (empty($roleType)) $errors['roleTypeError'] = 'Subject/Department is required';
+    if (empty($address)) $errors['addressError'] = 'Please enter address';
+    if (empty($gender)) $errors['genderError'] = "Gender is required.";
+    if (empty($qualification)) $errors['qualificationError'] = 'Qualification is required';
+    if (empty($experience)) $errors['experienceError'] = 'Experience is required';
+    if (empty($staffNumber)) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $errors['staffNumberError'] = 'Please insert staff ID number';
     } elseif (staffNumberExist($staffNumber, 'admins', $id)) {
         $errors['staffNumberError'] = "Staff No already exists!";
     }
+<<<<<<< HEAD
 
     if ($department === '') {
         $errors['departmentError'] = 'Department is required';
@@ -196,6 +267,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 WHERE id = ? AND deleted_at IS NULL
             ");
 
+=======
+    if (empty($department)) $errors['departmentError'] = 'Department is required';
+    if (empty($status)) $errors['statusError'] = "Status is required";
+
+    if (empty($errors)) {
+        try {
+            //  Start transaction
+            $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare("UPDATE admins 
+                SET name = ?, email = ?, phone = ?, department = ?, address = ?, staff_no = ?, 
+                    status = ?, type = ?, gender = ?, qualification = ?, experience = ? 
+                WHERE id = ?");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             $success = $stmt->execute([
                 $name,
                 $email,
@@ -212,27 +297,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             if ($success) {
+<<<<<<< HEAD
+=======
+                //  Commit transaction
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $pdo->commit();
                 $_SESSION['success'] = "Admin/Super User updated successfully!";
                 header("Location: " . route('back'));
                 exit();
+<<<<<<< HEAD
             }
 
             $pdo->rollBack();
             echo "<script>alert('Failed to update admin/super user account');</script>";
+=======
+            } else {
+                //  Rollback if update fails
+                $pdo->rollBack();
+                echo "<script>alert('Failed to update admin/super user account');</script>";
+            }
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         } catch (PDOException $e) {
             $pdo->rollBack();
             echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
         }
     } else {
+<<<<<<< HEAD
         foreach ($errors as $error) {
+=======
+        foreach ($errors as $field => $error) {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
             echo "<p class='text-red-600 font-semibold'>$error</p>";
         }
     }
 }
+<<<<<<< HEAD
 
 ?>
 
+=======
+?>
+
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 <script>
     const admins = <?= json_encode($admins, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>

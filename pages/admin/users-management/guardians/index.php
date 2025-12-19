@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = 'Guardians Management';
 include(__DIR__ . '/../../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../../includes/header.php');
    AUTHENTICATION CHECKS
 ------------------------------ */
 
+=======
+$title = 'Users Management';
+include(__DIR__ . '/../../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
     $_SESSION['failure'] = "Login is Required!";
     header("Location: " . route('home'));
@@ -19,6 +25,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH ACTIVE GUARDIANS + CHILDREN COUNT
 ------------------------------ */
@@ -48,6 +55,17 @@ $sql = "
 
     WHERE g.deleted_at IS NULL
 
+=======
+$sql = "
+    SELECT 
+        g.*,
+        COUNT(s.id) AS children_count
+    FROM guardians g
+    LEFT JOIN students s 
+        ON s.guardian_id = g.id
+        AND s.deleted_at IS NULL
+    WHERE g.deleted_at IS NULL
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     GROUP BY g.id
     ORDER BY g.name ASC
 ";
@@ -56,11 +74,18 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $guardians = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+<<<<<<< HEAD
 /* ------------------------------
    STATISTICS (ACTIVE ONLY)
 ------------------------------ */
 
 $guardiansCount = countDataTotal('guardians', true)['total'];
+=======
+
+
+
+$guardiansCount = countDataTotal('guardians', true);
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 ?>
 
@@ -110,7 +135,11 @@ $guardiansCount = countDataTotal('guardians', true)['total'];
                         <p class="text-gray-600 text-sm">Active</p>
                         <p class="text-2xl font-bold text-green-600"><?= $guardiansCount['total'] ?></p>
                     </div>
+<<<<<<< HEAD
 
+=======
+                    
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 </div>
 
                 <!-- Guardians Grid - Hardcoded HTML -->

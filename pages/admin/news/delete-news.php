@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 $title = "Delete Confirmation";
 include(__DIR__ . '/../../../includes/header.php');
@@ -7,6 +8,11 @@ include(__DIR__ . '/../../../includes/header.php');
    AUTHENTICATION & ACCESS CHECKS
 ------------------------------ */
 
+=======
+$title = "Delete Confirmation";
+include(__DIR__ . '/../../../includes/header.php');
+
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 if (!$is_logged_in) {
   $_SESSION['failure'] = "Login is Required!";
   header("Location: " . route('home'));
@@ -19,23 +25,42 @@ if (!isset($user_type) || $user_type !== 'admin') {
   exit();
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    CSRF TOKEN
 ------------------------------ */
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+<<<<<<< HEAD
 /* ------------------------------
    FETCH NEWS STORY TO DELETE
 ------------------------------ */
 
 if (!isset($_GET['id'])) {
+=======
+if (isset($_GET['id'])) {
+  $id = (int) $_GET['id'];
+
+  $stmt = $pdo->prepare("SELECT * FROM news WHERE id = ?");
+  $stmt->execute([$id]);
+  $story = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if (!$story) {
+    header('Location: ' . route('back'));
+    exit();
+  }
+} else {
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
   header('Location: ' . route('back'));
   exit();
 }
 
+<<<<<<< HEAD
 $id = (int) $_GET['id'];
 
 $stmt = $pdo->prepare("
@@ -112,6 +137,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
+=======
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+
+    die('CSRF validation failed. Please refresh and try again.');
+  } else {
+
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+  }
+
+
+  $id = (int) trim($_POST['id'] ?? '');
+
+  if (empty($id)) {
+    $errors['id'] = 'Story Not Found';
+  }
+
+  if (empty($errors)) {
+    try {
+      $stmt = $pdo->prepare("UPDATE news SET deleted_at = NOW() WHERE id = ?");
+      $success = $stmt->execute([$id]);
+
+      if ($success) {
+        $_SESSION['success'] = "Story Deleted successfully!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        echo "<script>alert('Failed to delete post');</script>";
+      }
+    } catch (PDOException $e) {
+      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
+    }
+  } else {
+    foreach ($errors as $field => $error) {
+      echo "<p class='text-red-600 font-semibold'>$error</p>";
+    }
+  }
+}
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
 ?>
 
 

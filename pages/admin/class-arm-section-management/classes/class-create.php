@@ -40,10 +40,13 @@ $stmt = $pdo->prepare("
         ON class_class_arms.arm_id = class_arms.id
         AND class_arms.deleted_at IS NULL
     WHERE classes.deleted_at IS NULL
+<<<<<<< HEAD
   AND sections.deleted_at IS NULL
   AND class_arms.deleted_at IS NULL
   AND class_class_arms.deleted_at IS NULL
 
+=======
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
     GROUP BY classes.id 
     ORDER BY classes.level
 ");
@@ -88,7 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
     } else {
+<<<<<<< HEAD
         $stmt = $pdo->prepare("SELECT id, name FROM classes WHERE level = ? AND deleted_at IS NULL");
+=======
+        $stmt = $pdo->prepare("SELECT id, name FROM classes WHERE level = ?");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
         $stmt->execute([$level]);
         $exist = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -96,7 +103,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($shiftLevels)) {
                 $pdo->beginTransaction();
 
+<<<<<<< HEAD
                 $shiftStmt = $pdo->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? AND deleted_at IS NULL ORDER BY level DESC");
+=======
+                $shiftStmt = $pdo->prepare("UPDATE classes SET level = level + 1 WHERE level >= ? ORDER BY level DESC");
+>>>>>>> 271894334d344b716e30670c3770b73d583f3916
                 $shiftStmt->execute([$level]);
 
                 $pdo->commit();
