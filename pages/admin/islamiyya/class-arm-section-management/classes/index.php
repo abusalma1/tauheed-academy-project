@@ -34,20 +34,14 @@ $stmt = $pdo->prepare("
     FROM islamiyya_sections
     LEFT JOIN teachers AS head_teachers 
            ON islamiyya_sections.head_teacher_id = head_teachers.id
-          AND head_teachers.deleted_at IS NULL
     LEFT JOIN islamiyya_classes 
            ON islamiyya_classes.section_id = islamiyya_sections.id
-          AND islamiyya_classes.deleted_at IS NULL
     LEFT JOIN islamiyya_class_class_arms 
            ON islamiyya_class_class_arms.class_id = islamiyya_classes.id
-          AND islamiyya_class_class_arms.deleted_at IS NULL
     LEFT JOIN teachers AS islamiyya_class_teachers 
            ON islamiyya_class_class_arms.teacher_id = islamiyya_class_teachers.id
-          AND islamiyya_class_teachers.deleted_at IS NULL
     LEFT JOIN islamiyya_class_arms 
            ON islamiyya_class_class_arms.arm_id = islamiyya_class_arms.id
-          AND islamiyya_class_arms.deleted_at IS NULL
-    WHERE islamiyya_sections.deleted_at IS NULL
     ORDER BY islamiyya_classes.level ASC, islamiyya_class_arms.name ASC
 ");
 $stmt->execute();

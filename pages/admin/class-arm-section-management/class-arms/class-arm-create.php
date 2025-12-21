@@ -21,7 +21,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 // Fetch latest class arms
-$stmt = $pdo->prepare("SELECT * FROM class_arms WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
+$stmt = $pdo->prepare("SELECT * FROM class_arms ORDER BY updated_at DESC LIMIT 10");
 $stmt->execute();
 $class_arms_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

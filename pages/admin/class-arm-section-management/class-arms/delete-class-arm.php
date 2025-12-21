@@ -14,7 +14,6 @@ if (!isset($user_type) || $user_type !== 'admin') {
   exit();
 }
 
-
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -38,13 +37,10 @@ if (isset($_GET['id'])) {
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-
     die('CSRF validation failed. Please refresh and try again.');
   } else {
-
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
-
 
   $id = (int) trim($_POST['id'] ?? '');
 
@@ -53,15 +49,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if (empty($errors)) {
-    $stmt = $pdo->prepare("UPDATE class_arms SET deleted_at = NOW() WHERE id = ?");
-    $success = $stmt->execute([$id]);
+    try {
 
-    if ($success) {
-      $_SESSION['success'] = "Class Arm Deleted successfully!";
-      header("Location: " . route('back'));
-      exit();
-    } else {
-      echo "<script>alert('Failed to delete a Class Arm');</script>";
+      $stmt = $pdo->prepare("DELETE FROM class_arms WHERE id = ?");
+      $success = $stmt->execute([$id]);
+
+      if ($success) {
+        $_SESSION['success'] = "Class Arm deleted permanently!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        echo "<script>alert('Failed to delete Class Arm');</script>";
+      }
+    } catch (PDOException $e) {
+      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {

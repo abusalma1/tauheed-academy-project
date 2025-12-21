@@ -20,7 +20,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 // Fetch latest news
-$stmt = $pdo->prepare("SELECT * FROM news WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
+$stmt = $pdo->prepare("SELECT * FROM news ORDER BY updated_at DESC LIMIT 10");
 $stmt->execute();
 $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

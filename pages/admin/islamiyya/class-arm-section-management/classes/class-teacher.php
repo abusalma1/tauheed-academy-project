@@ -35,13 +35,10 @@ if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
         FROM islamiyya_class_class_arms 
         LEFT JOIN islamiyya_classes 
                ON islamiyya_classes.id = islamiyya_class_class_arms.class_id 
-              AND islamiyya_classes.deleted_at IS NULL
         LEFT JOIN islamiyya_class_arms 
                ON islamiyya_class_arms.id = islamiyya_class_class_arms.arm_id 
-              AND islamiyya_class_arms.deleted_at IS NULL
         WHERE islamiyya_class_class_arms.class_id = ? 
           AND islamiyya_class_class_arms.arm_id = ? 
-          AND islamiyya_class_class_arms.deleted_at IS NULL
     ');
     $stmt->execute([$class_id, $arm_id]);
     $class = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -56,7 +53,7 @@ if (isset($_GET['class_id']) && isset($_GET['arm_id'])) {
 }
 
 $current_teacher_id = $class['teacher_id'] ?? '';
-$teachers = selectAllData('teachers'); // helper already filters deleted_at
+$teachers = selectAllData('teachers'); 
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -73,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $updateStmt = $pdo->prepare("
             UPDATE islamiyya_class_class_arms 
             SET teacher_id = ? 
-            WHERE class_id = ? AND arm_id = ? AND deleted_at IS NULL
+            WHERE class_id = ? AND arm_id = ? 
         ");
         $success = $updateStmt->execute([$teacher_id, $class['class_id'], $class['arm_id']]);
 

@@ -27,8 +27,6 @@ $stmt = $pdo->prepare("
            ON islamiyya_class_subjects.teacher_id = teachers.id
     LEFT JOIN islamiyya_sections 
            ON islamiyya_classes.section_id = islamiyya_sections.id
-    WHERE islamiyya_classes.deleted_at IS NULL
-      AND islamiyya_subjects.deleted_at IS NULL
     ORDER BY islamiyya_classes.level, islamiyya_subjects.name
 ");
 $stmt->execute();

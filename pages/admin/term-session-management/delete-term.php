@@ -14,7 +14,6 @@ if (!isset($user_type) || $user_type !== 'admin') {
   exit();
 }
 
-
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -22,7 +21,10 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
 
-  $stmt = $pdo->prepare("SELECT * FROM terms WHERE id = ?");
+  $stmt = $pdo->prepare("SELECT t.name, t.id, s.name as session_name 
+                         FROM terms t 
+                         LEFT JOIN sessions s ON t.session_id = s.id 
+                         WHERE t.id = ?");
   $stmt->execute([$id]);
   $term = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -35,7 +37,9 @@ if (isset($_GET['id'])) {
   exit();
 }
 
+$message = ""; // variable to hold output message
 $errors = [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
     die('CSRF validation failed. Please refresh and try again.');
@@ -49,35 +53,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if (empty($errors)) {
     try {
-      //  Start transaction
+      // Start transaction
       $pdo->beginTransaction();
 
-      $stmt = $pdo->prepare("UPDATE terms SET deleted_at = NOW() WHERE id = ?");
-      $success = $stmt->execute([$id]);
+      // Check total number of terms
+      $stmt = $pdo->query("SELECT COUNT(*) FROM terms");
+      $totalTerms = $stmt->fetchColumn();
 
-      if ($success) {
-        //  Commit transaction
-        $pdo->commit();
-
-        $_SESSION['success'] = "Term Deleted successfully!";
-        header("Location: " . route('back'));
-        exit();
-      } else {
-        //  Rollback if update fails
+      if ($totalTerms <= 1) {
+        // Prevent deleting the last remaining term
         $pdo->rollBack();
-        echo "<script>alert('Failed to delete term');</script>";
+        $message = "You cannot delete the last remaining term.";
+      } else {
+        // Check if there are other terms apart from the one being deleted
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM terms WHERE id != ?");
+        $stmt->execute([$id]);
+        $otherTermsCount = $stmt->fetchColumn();
+
+        $newOngoingTerm = null;
+
+        if ($otherTermsCount > 0) {
+          // Prefer previous term
+          $stmt = $pdo->prepare("SELECT id FROM terms WHERE id < ? ORDER BY id DESC LIMIT 1");
+          $stmt->execute([$id]);
+          $prevTerm = $stmt->fetchColumn();
+
+          if ($prevTerm) {
+            $newOngoingTerm = $prevTerm;
+          } else {
+            // No previous term, fallback to next
+            $stmt = $pdo->prepare("SELECT id FROM terms WHERE id > ? ORDER BY id ASC LIMIT 1");
+            $stmt->execute([$id]);
+            $nextTerm = $stmt->fetchColumn();
+
+            if ($nextTerm) {
+              $newOngoingTerm = $nextTerm;
+            }
+          }
+
+          // If we found a new ongoing term, update it
+          if ($newOngoingTerm) {
+            $stmt = $pdo->prepare("UPDATE terms SET status = 'ongoing' WHERE id = ?");
+            $stmt->execute([$newOngoingTerm]);
+
+            // 🔑 Update all students who were in the deleted term to point to the new ongoing term
+            $stmt = $pdo->prepare("UPDATE students SET term_id = ? WHERE term_id = ?");
+            $stmt->execute([$newOngoingTerm, $id]);
+          }
+        }
+
+        // Delete the current term
+        $stmt = $pdo->prepare("DELETE FROM terms WHERE id = ?");
+        $success = $stmt->execute([$id]);
+
+        if ($success) {
+          $pdo->commit();
+          $message = "Term deleted permanently! All affected students moved to the new ongoing term.";
+        } else {
+          $pdo->rollBack();
+          $message = "Failed to delete term.";
+        }
       }
     } catch (PDOException $e) {
       $pdo->rollBack();
-      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
-    }
-  } else {
-    foreach ($errors as $field => $error) {
-      echo "<p class='text-red-600 font-semibold'>$error</p>";
+      $message = "Database error: " . htmlspecialchars($e->getMessage());
     }
   }
 }
+
 ?>
+
+
 
 <body class="bg-gray-50">
   <!-- Navigation -->
@@ -112,12 +158,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
               <p class="text-sm text-gray-600">Term Name</p>
               <p class="text-lg font-semibold text-gray-900" id="termName">
-                <?= $term['name'] ?? '-' ?>
+                <?= $term['name'] . ' ' . $term['session_name']  ?? '-'  ?>
               </p>
             </div>
 
           </div>
         </div>
+
+        <?php if($message) : ?>
+        <!-- Warning Message -->  
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <p class="text-sm text-red-800">
+            <i class="fas fa-info-circle mr-2"></i>
+            <?= $message ?>
+          </p>
+        </div>
+        <?php endif; ?>
 
         <!-- Warning Message -->
         <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">

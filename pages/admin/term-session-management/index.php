@@ -31,8 +31,6 @@ $stmt = $pdo->prepare("
     FROM sessions
     LEFT JOIN terms 
         ON sessions.id = terms.session_id 
-        AND terms.deleted_at IS NULL  
-    WHERE sessions.deleted_at IS NULL
     ORDER BY sessions.created_at DESC
 ");
 $stmt->execute();
@@ -187,6 +185,11 @@ $termsCount    = countDataTotal('terms')['total'];
                                                     <a href="<?= route('update-term') . '?id=' . $term['term_id'] ?>">
                                                         <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
                                                             <i class="fas fa-edit"></i> Edit
+                                                        </button>
+                                                    </a>
+                                                    <a href="<?= route('update-term-status') . '?id=' . $term['term_id'] ?>">
+                                                        <button class="text-blue-600 hover:text-blue-900 font-semibold flex items-center gap-1">
+                                                            <i class="fas fa-edit"></i> Update Status
                                                         </button>
                                                     </a>
                                                     <a href="<?= route('delete-term') ?>?id=<?= $term['term_id'] ?>">

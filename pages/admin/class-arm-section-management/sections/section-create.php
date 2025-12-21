@@ -33,7 +33,6 @@ $stmt = $pdo->prepare("
     FROM sections
     LEFT JOIN teachers 
       ON sections.head_teacher_id = teachers.id
-    WHERE sections.deleted_at IS NULL
 ");
 $stmt->execute();
 $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);

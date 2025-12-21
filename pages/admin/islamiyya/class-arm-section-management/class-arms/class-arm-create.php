@@ -25,14 +25,12 @@ if (empty($_SESSION['csrf_token'])) {
 $stmt = $pdo->prepare("
     SELECT * 
     FROM islamiyya_class_arms 
-    WHERE deleted_at IS NULL 
     ORDER BY updated_at DESC 
     LIMIT 10
 ");
 $stmt->execute();
 $class_arms_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// All arms and counts (helpers already filter deleted_at)
 $class_arms   = selectAllData('islamiyya_class_arms');
 $armsCount    = countDataTotal('islamiyya_class_arms')['total'];
 

@@ -21,7 +21,7 @@ if (empty($_SESSION['csrf_token'])) {
 // Fetch student by ID
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare("SELECT picture_path, id FROM students WHERE id = ? AND deleted_at IS NULL");
+    $stmt = $pdo->prepare("SELECT picture_path, id FROM students WHERE id = ? ");
     $stmt->execute([$id]);
     $student = $stmt->fetch(PDO::FETCH_ASSOC);
 

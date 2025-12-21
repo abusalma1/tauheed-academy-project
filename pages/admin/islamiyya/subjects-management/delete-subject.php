@@ -15,7 +15,7 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
 
-  $stmt = $pdo->prepare("SELECT * FROM islamiyya_subjects WHERE id = ? AND deleted_at IS NULL");
+  $stmt = $pdo->prepare("SELECT * FROM islamiyya_subjects WHERE id = ?");
   $stmt->execute([$id]);
   $subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -44,11 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if (empty($errors)) {
     try {
-      $stmt = $pdo->prepare("UPDATE islamiyya_subjects SET deleted_at = NOW() WHERE id = ?");
+
+      $stmt = $pdo->prepare("DELETE FROM islamiyya_subjects WHERE id = ?");
       $success = $stmt->execute([$id]);
 
       if ($success) {
-        $_SESSION['success'] = "Islamiyya Subject deleted successfully!";
+        $_SESSION['success'] = "Islamiyya Subject deleted permanently!";
         header("Location: " . route('back'));
         exit();
       } else {
@@ -64,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
-
 
 <body class="bg-gray-50">
   <!-- Navigation -->

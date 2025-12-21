@@ -16,7 +16,6 @@ if (empty($_SESSION['csrf_token'])) {
 $stmt = $pdo->prepare("
     SELECT *
     FROM islamiyya_classes
-    WHERE deleted_at IS NULL
     GROUP BY level
 ");
 $stmt->execute();
@@ -33,7 +32,6 @@ $stmt = $pdo->prepare("
            ON islamiyya_class_subjects.subject_id = islamiyya_subjects.id
     LEFT JOIN islamiyya_classes 
            ON islamiyya_classes.id = islamiyya_class_subjects.class_id
-    WHERE islamiyya_subjects.deleted_at IS NULL
     GROUP BY islamiyya_subjects.id
 ");
 $stmt->execute();

@@ -15,7 +15,6 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
-// Fetch Islamiyya class arms (selectAllData already filters deleted_at internally)
 $arms = selectAllData('islamiyya_class_arms');
 
 // Counts (only active rows are considered by countDataTotal)

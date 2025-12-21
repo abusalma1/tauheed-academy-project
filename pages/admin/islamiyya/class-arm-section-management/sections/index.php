@@ -25,11 +25,8 @@ $stmt = $pdo->prepare("
     FROM islamiyya_sections
     LEFT JOIN teachers 
         ON islamiyya_sections.head_teacher_id = teachers.id
-       AND teachers.deleted_at IS NULL
     LEFT JOIN islamiyya_classes 
         ON islamiyya_classes.section_id = islamiyya_sections.id
-       AND islamiyya_classes.deleted_at IS NULL
-    WHERE islamiyya_sections.deleted_at IS NULL
     GROUP BY 
         islamiyya_sections.id, 
         islamiyya_sections.name, 

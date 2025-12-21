@@ -43,7 +43,7 @@ if (isset($_SESSION['user_session'])) {
                                    LEFT JOIN class_arms ca ON ca.id = s.arm_id 
                                    LEFT JOIN islamiyya_classes ic ON ic.id = s.islamiyya_class_id 
                                    LEFT JOIN islamiyya_class_arms ica ON ica.id = s.islamiyya_arm_id 
-                                   WHERE s.id = ? AND s.deleted_at IS NULL");
+                                   WHERE s.id = ? ");
             $stmt->execute([$id]);
         } else if ($user_type === 'teacher') {
             $stmt = $pdo->prepare("SELECT * FROM teachers WHERE id = ?");

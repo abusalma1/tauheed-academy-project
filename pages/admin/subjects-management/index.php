@@ -30,8 +30,6 @@ $stmt = $pdo->prepare("
     LEFT JOIN subjects ON class_subjects.subject_id = subjects.id
     LEFT JOIN teachers ON class_subjects.teacher_id = teachers.id
     LEFT JOIN sections ON classes.section_id = sections.id
-    WHERE classes.deleted_at IS NULL
-      AND subjects.deleted_at IS NULL
     ORDER BY classes.level, subjects.name
 ");
 $stmt->execute();

@@ -29,7 +29,6 @@ $stmt = $pdo->prepare("
         ON sections.head_teacher_id = teachers.id
     LEFT JOIN classes 
         ON classes.section_id = sections.id
-    WHERE sections.deleted_at IS NULL
     GROUP BY 
         sections.id, 
         sections.name, 

@@ -14,7 +14,6 @@ if (!isset($user_type) || $user_type !== 'admin') {
   exit();
 }
 
-
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -49,21 +48,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if (empty($errors)) {
     try {
-      //  Start transaction
+      // Start transaction
       $pdo->beginTransaction();
 
-      $stmt = $pdo->prepare("UPDATE sessions SET deleted_at = NOW() WHERE id = ?");
+
+      $stmt = $pdo->prepare("DELETE FROM sessions WHERE id = ?");
       $success = $stmt->execute([$id]);
 
       if ($success) {
-        //  Commit transaction
+        // Commit transaction
         $pdo->commit();
 
-        $_SESSION['success'] = "Session Deleted successfully!";
+        $_SESSION['success'] = "Session deleted permanently!";
         header("Location: " . route('back'));
         exit();
       } else {
-        //  Rollback if update fails
+        // Rollback if delete fails
         $pdo->rollBack();
         echo "<script>alert('Failed to delete session');</script>";
       }
@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
+
 
 <body class="bg-gray-50">
   <!-- Navigation -->

@@ -24,7 +24,7 @@ if (empty($_SESSION['csrf_token'])) {
 // Fetch the arm to update
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare('SELECT * FROM islamiyya_class_arms WHERE id = ? AND deleted_at IS NULL');
+    $stmt = $pdo->prepare('SELECT * FROM islamiyya_class_arms WHERE id = ? ');
     $stmt->execute([$id]);
     $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -38,7 +38,7 @@ if (isset($_GET['id'])) {
 }
 
 // Fetch other arms (excluding current one, only active)
-$stmt = $pdo->prepare("SELECT * FROM islamiyya_class_arms WHERE id != ? AND deleted_at IS NULL");
+$stmt = $pdo->prepare("SELECT * FROM islamiyya_class_arms WHERE id != ? ");
 $stmt->execute([$id]);
 $class_arms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $stmt = $pdo->prepare("UPDATE islamiyya_class_arms SET name = ?, description = ? WHERE id = ? AND deleted_at IS NULL");
+        $stmt = $pdo->prepare("UPDATE islamiyya_class_arms SET name = ?, description = ? WHERE id = ? ");
         $success = $stmt->execute([$name, $description, $id]);
 
         if ($success) {

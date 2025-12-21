@@ -32,14 +32,10 @@ $stmt = $pdo->prepare("
     FROM classes
     LEFT JOIN class_class_arms 
         ON classes.id = class_class_arms.class_id
-        AND class_class_arms.deleted_at IS NULL
     LEFT JOIN sections 
         ON classes.section_id = sections.id
-        AND sections.deleted_at IS NULL
     LEFT JOIN class_arms 
         ON class_class_arms.arm_id = class_arms.id
-        AND class_arms.deleted_at IS NULL
-    WHERE classes.deleted_at IS NULL
     GROUP BY classes.id 
     ORDER BY classes.level
 ");

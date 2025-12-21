@@ -17,8 +17,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
 $stmt = $pdo->prepare("
     SELECT terms.*, sessions.name AS session_name
     FROM terms
-    LEFT JOIN sessions ON terms.session_id = sessions.id AND sessions.deleted_at IS NULL
-    WHERE terms.deleted_at IS NULL
+    LEFT JOIN sessions ON terms.session_id = sessions.id
     ORDER BY sessions.name ASC, terms.name ASC
 ");
 $stmt->execute();
@@ -29,8 +28,8 @@ $active = 'ongoing';
 $stmt = $pdo->prepare("
     SELECT terms.*, sessions.name AS session_name
     FROM terms
-    LEFT JOIN sessions ON terms.session_id = sessions.id AND sessions.deleted_at IS NULL
-    WHERE terms.status = ? AND terms.deleted_at IS NULL
+    LEFT JOIN sessions ON terms.session_id = sessions.id
+    WHERE terms.status = ?
     LIMIT 1
 ");
 $stmt->execute([$active]);
@@ -283,12 +282,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <!-- Confirmation Checkbox -->
                                             <div class="mb-6">
                                                 <label class="flex items-center gap-3 cursor-pointer">
-                                                    <input type="checkbox" id="confirmCheckbox" class="w-4 h-4 text-red-600 rounded focus:ring-2 focus:ring-red-500">
+                                                    <input type="checkbox" id="confirmCheckbox" class="confirmCheckbox w-4 h-4 text-red-600 rounded focus:ring-2 focus:ring-red-500">
                                                     <span class="text-sm text-gray-700">I understand this action is permanent and cannot be reversed.</span>
                                                 </label>
                                             </div>
 
-                                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-sm  disabled:opacity-50 disabled:cursor-not-allowed" id="submitBtn" disabled>
+                                            <button type="submit" class="submitBtn px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-sm  disabled:opacity-50 disabled:cursor-not-allowed" id="submitBtn" disabled>
                                                 <i class="fas fa-play mr-1"></i>Activate
                                             </button>
                                         </div>
@@ -389,12 +388,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script>
         // Confirmation checkbox
-        const confirmCheckbox = document.getElementById('confirmCheckbox');
-        const deleteBtn = document.getElementById('submitBtn');
+        const confirmCheckbox = document.getElementsByClassName('confirmCheckbox');
+        const deleteBtn = document.getElementsByClassName('submitBtn');
 
-        confirmCheckbox.addEventListener('change', () => {
-            deleteBtn.disabled = !confirmCheckbox.checked;
-        });
+        for (let i = 0; i < confirmCheckbox.length; i++) {
+            confirmCheckbox[i].addEventListener('change', function() {
+                // Use confirmCheckbox[i] instead of confirmCheckbox
+                deleteBtn[i].disabled = !confirmCheckbox[i].checked;
+            });
+        }
+
+
 
 
         // Term/Session form submission

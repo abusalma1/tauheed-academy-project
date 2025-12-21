@@ -23,7 +23,7 @@ if (empty($_SESSION['csrf_token'])) {
 $stmt = $pdo->prepare("
     SELECT *
     FROM classes
-    WHERE deleted_at IS NULL
+   
     GROUP BY level
 ");
 $stmt->execute();
@@ -38,7 +38,6 @@ $stmt = $pdo->prepare("
     FROM subjects
     LEFT JOIN class_subjects ON class_subjects.subject_id = subjects.id
     LEFT JOIN classes ON classes.id = class_subjects.class_id
-    WHERE subjects.deleted_at IS NULL
     GROUP BY subjects.id
 ");
 $stmt->execute();

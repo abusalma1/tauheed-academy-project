@@ -23,7 +23,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare('SELECT * FROM class_arms WHERE id = ? AND deleted_at IS NULL');
+    $stmt = $pdo->prepare('SELECT * FROM class_arms WHERE id = ? ');
     $stmt->execute([$id]);
     $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -36,7 +36,7 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT * FROM class_arms WHERE id != ? AND deleted_at IS NULL");
+$stmt = $pdo->prepare("SELECT * FROM class_arms WHERE id != ? ");
 $stmt->execute([$id]);
 $class_arms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -48,7 +48,7 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
-    }else{
+    } else {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 

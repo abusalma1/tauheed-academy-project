@@ -277,6 +277,9 @@ $routes = [
     'update-term' => [
         'url' => "$baseUrl/pages/admin/term-session-management/term-update.php"
     ],
+    'update-term-status' => [
+        'url' => "$baseUrl/pages/admin/term-session-management/update-term-status.php"
+    ],
     'delete-term' => [
         'url' => "$baseUrl/pages/admin/term-session-management/delete-term.php"
     ],

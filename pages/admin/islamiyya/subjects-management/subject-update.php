@@ -14,7 +14,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare('SELECT * FROM islamiyya_subjects WHERE id = ? AND deleted_at IS NULL');
+    $stmt = $pdo->prepare('SELECT * FROM islamiyya_subjects WHERE id = ? ');
     $stmt->execute([$id]);
     $subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -31,7 +31,7 @@ if (isset($_GET['id'])) {
 $subject_id = $subject['id'];
 
 // Fetch islamiyya_class_subjects
-$stmt = $pdo->prepare('SELECT * FROM islamiyya_class_subjects WHERE subject_id = ? AND deleted_at IS NULL');
+$stmt = $pdo->prepare('SELECT * FROM islamiyya_class_subjects WHERE subject_id = ? ');
 $stmt->execute([$subject_id]);
 $class_subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -39,7 +39,6 @@ $class_subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stmt = $pdo->prepare("
     SELECT *
     FROM islamiyya_classes
-    WHERE deleted_at IS NULL
     GROUP BY level
 ");
 $stmt->execute();

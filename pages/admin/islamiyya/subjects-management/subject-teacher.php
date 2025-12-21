@@ -29,7 +29,6 @@ $query = "
     FROM islamiyya_class_subjects cs
     INNER JOIN islamiyya_subjects s ON cs.subject_id = s.id
     INNER JOIN islamiyya_classes c ON cs.class_id = c.id
-    WHERE cs.id = ? AND cs.deleted_at IS NULL
 ";
 $stmt = $pdo->prepare($query);
 $stmt->execute([$class_subject_id]);
@@ -53,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $teacher_id = !empty($_POST['teacher_id']) ? (int) $_POST['teacher_id'] : null;
 
     try {
-        $updateStmt = $pdo->prepare("UPDATE islamiyya_class_subjects SET teacher_id = ? WHERE id = ? AND deleted_at IS NULL");
+        $updateStmt = $pdo->prepare("UPDATE islamiyya_class_subjects SET teacher_id = ? WHERE id = ? ");
         $success = $updateStmt->execute([$teacher_id, $class_subject_id]);
 
         if ($success) {

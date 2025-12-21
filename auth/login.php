@@ -37,28 +37,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 'student'  => [
                     "SELECT * FROM students 
          WHERE (email = ? OR admission_number = ?) 
-         AND deleted_at IS NULL",
+         ",
                     [$emailOrId, $emailOrId]
                 ],
 
                 'teacher'  => [
                     "SELECT * FROM teachers 
          WHERE (email = ? OR staff_no = ?) 
-         AND deleted_at IS NULL",
+         ",
                     [$emailOrId, $emailOrId]
                 ],
 
                 'guardian' => [
                     "SELECT * FROM guardians 
          WHERE email = ? 
-         AND deleted_at IS NULL",
+         ",
                     [$emailOrId]
                 ],
 
                 'admin'    => [
                     "SELECT * FROM admins 
          WHERE (email = ? OR staff_no = ?) 
-         AND deleted_at IS NULL",
+         ",
                     [$emailOrId, $emailOrId]
                 ],
             ];

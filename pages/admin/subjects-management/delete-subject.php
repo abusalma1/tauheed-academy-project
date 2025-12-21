@@ -18,7 +18,6 @@ if (!isset($user_type) || $user_type !== 'admin') {
   exit();
 }
 
-
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
 
@@ -38,13 +37,10 @@ if (isset($_GET['id'])) {
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-
     die('CSRF validation failed. Please refresh and try again.');
   } else {
-
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
-
 
   $id = (int) trim($_POST['id'] ?? '');
 
@@ -54,11 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if (empty($errors)) {
     try {
-      $stmt = $pdo->prepare("UPDATE subjects SET deleted_at = NOW() WHERE id = ?");
+
+      $stmt = $pdo->prepare("DELETE FROM subjects WHERE id = ?");
       $success = $stmt->execute([$id]);
 
       if ($success) {
-        $_SESSION['success'] = "Subject Deleted successfully!";
+        $_SESSION['success'] = "Subject deleted permanently!";
         header("Location: " . route('back'));
         exit();
       } else {
@@ -74,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
+
 
 <body class="bg-gray-50">
   <!-- Navigation -->

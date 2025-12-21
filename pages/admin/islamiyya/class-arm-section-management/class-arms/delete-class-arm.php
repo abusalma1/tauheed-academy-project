@@ -24,7 +24,7 @@ if (empty($_SESSION['csrf_token'])) {
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
 
-  $stmt = $pdo->prepare("SELECT * FROM islamiyya_class_arms WHERE id = ? AND deleted_at IS NULL");
+  $stmt = $pdo->prepare("SELECT * FROM islamiyya_class_arms WHERE id = ?");
   $stmt->execute([$id]);
   $arm = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -53,15 +53,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if (empty($errors)) {
-    $stmt = $pdo->prepare("UPDATE islamiyya_class_arms SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL");
-    $success = $stmt->execute([$id]);
+    try {
 
-    if ($success) {
-      $_SESSION['success'] = "Islamiyya Class Arm deleted successfully!";
-      header("Location: " . route('back'));
-      exit();
-    } else {
-      echo "<script>alert('Failed to delete Islamiyya Class Arm');</script>";
+      $stmt = $pdo->prepare("DELETE FROM islamiyya_class_arms WHERE id = ?");
+      $success = $stmt->execute([$id]);
+
+      if ($success) {
+        $_SESSION['success'] = "Islamiyya Class Arm deleted permanently!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        echo "<script>alert('Failed to delete Islamiyya Class Arm');</script>";
+      }
+    } catch (PDOException $e) {
+      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {
@@ -70,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
+
 
 
 <body class="bg-gray-50">

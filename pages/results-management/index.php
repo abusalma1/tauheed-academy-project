@@ -36,10 +36,9 @@ $stmt = $pdo->prepare("
     LEFT JOIN class_class_arms cca ON cca.class_id = c.id
     LEFT JOIN class_arms ca ON ca.id = cca.arm_id
     LEFT JOIN class_subjects cs ON cs.class_id = c.id
-    LEFT JOIN subjects subj ON cs.subject_id = subj.id AND subj.deleted_at IS NULL
+    LEFT JOIN subjects subj ON cs.subject_id = subj.id
     LEFT JOIN teachers t ON cs.teacher_id = t.id
-    WHERE c.deleted_at IS NULL 
-    AND sec.deleted_at IS NULL
+
     AND cs.teacher_id = :teacher_id
     ORDER BY c.level, ca.name, subj.name
     ");
@@ -81,7 +80,7 @@ foreach ($rows as $row) {
 $classes = array_values($classes);
 
 //  Fetch all classes
-$stmt = $pdo->prepare("SELECT * FROM classes WHERE deleted_at IS NULL ORDER BY level ASC");
+$stmt = $pdo->prepare("SELECT * FROM classes ORDER BY level ASC");
 $stmt->execute();
 $allClasses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -90,7 +89,7 @@ $terms    = selectAllData('terms');
 $sessions = selectAllData('sessions');
 
 //  Fetch current term
-$stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE AND status = ?");
 $stmt->execute(['ongoing']);
 $current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 

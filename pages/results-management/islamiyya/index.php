@@ -32,23 +32,16 @@ $stmt = $pdo->prepare("
     FROM islamiyya_classes c
     JOIN islamiyya_sections sec 
         ON c.section_id = sec.id
-        AND sec.deleted_at IS NULL
     LEFT JOIN islamiyya_class_class_arms cca 
         ON cca.class_id = c.id
-        AND cca.deleted_at IS NULL
     LEFT JOIN islamiyya_class_arms ca 
         ON ca.id = cca.arm_id
-        AND ca.deleted_at IS NULL
     LEFT JOIN islamiyya_class_subjects cs 
         ON cs.class_id = c.id
-        AND cs.deleted_at IS NULL
     LEFT JOIN islamiyya_subjects subj 
         ON cs.subject_id = subj.id
-        AND subj.deleted_at IS NULL
     LEFT JOIN teachers t 
         ON cs.teacher_id = t.id
-        AND t.deleted_at IS NULL
-    WHERE c.deleted_at IS NULL 
       AND cs.teacher_id = :teacher_id
     ORDER BY c.level, ca.name, subj.name
 ");
@@ -88,7 +81,7 @@ foreach ($rows as $row) {
 $classes = array_values($classes);
 
 // Fetch all Islamiyya classes
-$stmt = $pdo->prepare("SELECT * FROM islamiyya_classes WHERE deleted_at IS NULL ORDER BY level ASC");
+$stmt = $pdo->prepare("SELECT * FROM islamiyya_classes ORDER BY level ASC");
 $stmt->execute();
 $allClasses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -97,7 +90,7 @@ $terms    = selectAllData('terms');
 $sessions = selectAllData('sessions');
 
 // Fetch current term
-$stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE status = ?");
 $stmt->execute(['ongoing']);
 $current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 

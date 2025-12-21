@@ -8,13 +8,11 @@ if (!$is_logged_in) {
   exit();
 }
 
-
 if (!isset($user_type) || $user_type !== 'admin') {
   $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
   header("Location: " . route('home'));
   exit();
 }
-
 
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -39,13 +37,10 @@ if (isset($_GET['id'])) {
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-
     die('CSRF validation failed. Please refresh and try again.');
   } else {
-
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
-
 
   $id = (int) trim($_POST['id'] ?? '');
 
@@ -54,15 +49,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if (empty($errors)) {
-    $stmt = $pdo->prepare("UPDATE classes SET deleted_at = NOW() WHERE id = ?");
-    $success = $stmt->execute([$id]);
+    try {
 
-    if ($success) {
-      $_SESSION['success'] = "Class Deleted successfully!";
-      header("Location: " . route('back'));
-      exit();
-    } else {
-      echo "<script>alert('Failed to delete a Class');</script>";
+      $stmt = $pdo->prepare("DELETE FROM classes WHERE id = ?");
+      $success = $stmt->execute([$id]);
+
+      if ($success) {
+        $_SESSION['success'] = "Class deleted permanently!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        echo "<script>alert('Failed to delete class');</script>";
+      }
+    } catch (PDOException $e) {
+      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {

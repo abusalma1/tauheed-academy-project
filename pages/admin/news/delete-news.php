@@ -14,7 +14,6 @@ if (!isset($user_type) || $user_type !== 'admin') {
   exit();
 }
 
-
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -38,13 +37,10 @@ if (isset($_GET['id'])) {
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-
     die('CSRF validation failed. Please refresh and try again.');
   } else {
-
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   }
-
 
   $id = (int) trim($_POST['id'] ?? '');
 
@@ -54,11 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if (empty($errors)) {
     try {
-      $stmt = $pdo->prepare("UPDATE news SET deleted_at = NOW() WHERE id = ?");
+
+      $stmt = $pdo->prepare("DELETE FROM news WHERE id = ?");
       $success = $stmt->execute([$id]);
 
       if ($success) {
-        $_SESSION['success'] = "Story Deleted successfully!";
+        $_SESSION['success'] = "Story deleted permanently!";
         header("Location: " . route('back'));
         exit();
       } else {
@@ -74,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
-
 
 <body class="bg-gray-50">
   <!-- Navigation -->

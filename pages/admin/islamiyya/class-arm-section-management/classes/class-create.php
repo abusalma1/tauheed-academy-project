@@ -32,21 +32,16 @@ $stmt = $pdo->prepare("
     FROM islamiyya_classes
     LEFT JOIN islamiyya_class_class_arms 
            ON islamiyya_classes.id = islamiyya_class_class_arms.class_id 
-          AND islamiyya_class_class_arms.deleted_at IS NULL
     LEFT JOIN islamiyya_sections 
            ON islamiyya_classes.section_id = islamiyya_sections.id 
-          AND islamiyya_sections.deleted_at IS NULL
     LEFT JOIN islamiyya_class_arms 
            ON islamiyya_class_class_arms.arm_id = islamiyya_class_arms.id 
-          AND islamiyya_class_arms.deleted_at IS NULL
-    WHERE islamiyya_classes.deleted_at IS NULL
     GROUP BY islamiyya_classes.id 
     ORDER BY islamiyya_classes.level
 ");
 $stmt->execute();
 $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Sections and arms (helpers already filter deleted_at)
 $sections   = selectAllData('islamiyya_sections');
 $class_arms = selectAllData('islamiyya_class_arms');
 
@@ -85,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
     } else {
-        $stmt = $pdo->prepare("SELECT id, name FROM islamiyya_classes WHERE level = ? AND deleted_at IS NULL");
+        $stmt = $pdo->prepare("SELECT id, name FROM islamiyya_classes WHERE level = ? ");
         $stmt->execute([$level]);
         $exist = $stmt->fetch(PDO::FETCH_ASSOC);
 

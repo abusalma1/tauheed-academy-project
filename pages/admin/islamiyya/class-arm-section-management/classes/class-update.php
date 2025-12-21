@@ -23,7 +23,7 @@ if (empty($_SESSION['csrf_token'])) {
 // Fetch class to update
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare('SELECT * FROM islamiyya_classes WHERE id = ? AND deleted_at IS NULL');
+    $stmt = $pdo->prepare('SELECT * FROM islamiyya_classes WHERE id = ? ');
     $stmt->execute([$id]);
     $class = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -38,13 +38,12 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-// Fetch related data (helpers already filter deleted_at)
 $sections   = selectAllData('islamiyya_sections');
 $classes    = selectAllData('islamiyya_classes', null, $class_id);
 $class_arms = selectAllData('islamiyya_class_arms');
 
 // Fetch linked arms
-$stmt = $pdo->prepare("SELECT * FROM islamiyya_class_class_arms WHERE class_id = ? AND deleted_at IS NULL");
+$stmt = $pdo->prepare("SELECT * FROM islamiyya_class_class_arms WHERE class_id = ? ");
 $stmt->execute([$class_id]);
 $selected_class_arms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $linked_class_arms   = array_column($selected_class_arms, 'arm_id');
@@ -79,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($level)) {
         $errors['levelError'] = "Level is required";
     } else {
-        $stmt = $pdo->prepare("SELECT id, name FROM islamiyya_classes WHERE level = ? AND id != ? AND deleted_at IS NULL");
+        $stmt = $pdo->prepare("SELECT id, name FROM islamiyya_classes WHERE level = ? AND id != ? ");
         $stmt->execute([$level, $class_id]);
         $exist = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -106,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $updateStmt = $pdo->prepare("UPDATE islamiyya_classes SET name = ?, level = ?, section_id = ? WHERE id = ? AND deleted_at IS NULL");
+        $updateStmt = $pdo->prepare("UPDATE islamiyya_classes SET name = ?, level = ?, section_id = ? WHERE id = ? ");
         $success = $updateStmt->execute([$name, $level, $section, $id]);
 
         if ($success) {

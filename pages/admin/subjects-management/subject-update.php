@@ -38,7 +38,7 @@ if (isset($_GET['id'])) {
 $subject_id = $subject['id'];
 
 // Fetch class_subjects
-$stmt = $pdo->prepare('SELECT * FROM class_subjects WHERE subject_id = ? AND deleted_at IS NULL');
+$stmt = $pdo->prepare('SELECT * FROM class_subjects WHERE subject_id = ? ');
 $stmt->execute([$subject_id]);
 $class_subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -46,7 +46,6 @@ $class_subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stmt = $pdo->prepare("
     SELECT *
     FROM classes
-    WHERE deleted_at IS NULL
     GROUP BY level
 ");
 $stmt->execute();

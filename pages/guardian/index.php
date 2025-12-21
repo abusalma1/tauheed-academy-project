@@ -32,7 +32,7 @@ $stmtChildren = $pdo->prepare("
     LEFT JOIN class_arms ca ON ca.id = s.arm_id
     LEFT JOIN islamiyya_classes ic ON ic.id = s.islamiyya_class_id
     LEFT JOIN islamiyya_class_arms ica ON ica.id = s.islamiyya_arm_id
-    WHERE s.guardian_id = ? AND s.deleted_at IS NULL
+    WHERE s.guardian_id = ? 
 ");
 $stmtChildren->execute([$user['id']]);
 $children = $stmtChildren->fetchAll(PDO::FETCH_ASSOC);

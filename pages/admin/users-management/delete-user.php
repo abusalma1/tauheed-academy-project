@@ -53,8 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
       //  Start transaction
       $pdo->beginTransaction();
-
-      $stmt = $pdo->prepare("UPDATE `$table` SET deleted_at = NOW() WHERE id = ?");
+      $stmt = $pdo->prepare("DELETE FROM `$table` WHERE id = ?");
       $success = $stmt->execute([$id]);
 
       if ($success) {

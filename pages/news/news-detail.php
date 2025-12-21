@@ -6,7 +6,7 @@ if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
 
     //  Fetch the current story
-    $stmt = $pdo->prepare('SELECT * FROM news WHERE id = ? AND deleted_at IS NULL');
+    $stmt = $pdo->prepare('SELECT * FROM news WHERE id = ? ');
     $stmt->execute([$id]);
     $story = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -113,7 +113,7 @@ if (isset($_GET['id'])) {
                 <div class="p-8 bg-gray-50 border-t">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div class="mb-4 md:mb-0">
-                           
+
                         </div>
                         <a href="<?= route('back')  ?>" class="inline-flex items-center gap-2 bg-blue-900 text-white px-6 py-2 rounded hover:bg-blue-800 transition font-semibold">
                             <i class="fas fa-arrow-left"></i>Back to News

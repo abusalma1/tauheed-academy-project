@@ -63,21 +63,21 @@ function countDataTotal($table, $haveActivity = false)
 {
     global $pdo;
 
-    $totalQuery = $pdo->query("SELECT COUNT(*) AS total FROM $table WHERE deleted_at IS NULL");
+    $totalQuery = $pdo->query("SELECT COUNT(*) AS total FROM $table");
     $total = number_format($totalQuery->fetch(PDO::FETCH_ASSOC)['total']);
 
     if ($haveActivity) {
-        $activeQuery = $pdo->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active' AND deleted_at IS NULL");
+        $activeQuery = $pdo->query("SELECT COUNT(*) AS active FROM $table WHERE status = 'active' ");
         $active = number_format($activeQuery->fetch(PDO::FETCH_ASSOC)['active']);
 
-        $inactiveQuery = $pdo->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive' AND deleted_at IS NULL");
+        $inactiveQuery = $pdo->query("SELECT COUNT(*) AS inactive FROM $table WHERE status = 'inactive' ");
         $inactive = number_format($inactiveQuery->fetch(PDO::FETCH_ASSOC)['inactive']);
 
         if ($table === 'admins') {
-            $adminQuery = $pdo->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin' AND deleted_at IS NULL");
+            $adminQuery = $pdo->query("SELECT COUNT(*) AS admin FROM $table WHERE type = 'admin' ");
             $admin = number_format($adminQuery->fetch(PDO::FETCH_ASSOC)['admin']);
 
-            $superAdminQuery = $pdo->query("SELECT COUNT(*) AS superAdmin FROM $table WHERE type = 'superAdmin' AND deleted_at IS NULL");
+            $superAdminQuery = $pdo->query("SELECT COUNT(*) AS superAdmin FROM $table WHERE type = 'superAdmin' ");
             $superAdmin = number_format($superAdminQuery->fetch(PDO::FETCH_ASSOC)['superAdmin']);
 
             return [
@@ -100,13 +100,13 @@ function selectAllData($table, $whereIdIs = null, $whereIdIsNot = null)
     global $pdo;
 
     if ($whereIdIs) {
-        $stmt = $pdo->prepare("SELECT * FROM $table WHERE id = ? AND deleted_at IS NULL");
+        $stmt = $pdo->prepare("SELECT * FROM $table WHERE id = ? ");
         $stmt->execute([$whereIdIs]);
     } else if ($whereIdIsNot) {
-        $stmt = $pdo->prepare("SELECT * FROM $table WHERE id != ? AND deleted_at IS NULL");
+        $stmt = $pdo->prepare("SELECT * FROM $table WHERE id != ? ");
         $stmt->execute([$whereIdIsNot]);
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM $table WHERE deleted_at IS NULL");
+        $stmt = $pdo->prepare("SELECT * FROM $table");
         $stmt->execute();
     }
 

@@ -19,7 +19,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 // Current term
-$stmt = $pdo->prepare("SELECT * FROM terms WHERE deleted_at IS NULL AND status = ?");
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE  status = ?");
 $stmt->execute(['ongoing']);
 $current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -42,7 +42,6 @@ $stmt = $pdo->prepare("
     FROM students
     LEFT JOIN classes ON students.class_id = classes.id
     LEFT JOIN class_arms ON students.arm_id = class_arms.id
-    WHERE students.deleted_at IS NULL
 ");
 $stmt->execute();
 $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -66,9 +65,6 @@ $stmt = $pdo->prepare("
     LEFT JOIN teachers ON class_class_arms.teacher_id = teachers.id
     LEFT JOIN sections ON classes.section_id = sections.id
     LEFT JOIN class_arms ON class_class_arms.arm_id = class_arms.id
-    WHERE classes.deleted_at IS NULL 
-      AND class_arms.deleted_at IS NULL 
-      AND sections.deleted_at IS NULL
     ORDER BY classes.level, class_arms.name
 ");
 $stmt->execute();
@@ -96,9 +92,6 @@ $stmt = $pdo->prepare("
            ON islamiyya_classes.section_id = islamiyya_sections.id
     LEFT JOIN islamiyya_class_arms 
            ON islamiyya_class_class_arms.arm_id = islamiyya_class_arms.id
-    WHERE islamiyya_classes.deleted_at IS NULL 
-      AND islamiyya_class_arms.deleted_at IS NULL 
-      AND islamiyya_sections.deleted_at IS NULL
     ORDER BY islamiyya_classes.level, islamiyya_class_arms.name
 ");
 $stmt->execute();

@@ -35,7 +35,7 @@ if (isset($_GET['id'], $_GET['user_type'])) {
     $table = $allowed_types[$user_type];
 
     // Fetch user
-    $stmt = $pdo->prepare("SELECT picture_path, id FROM $table WHERE id = ? AND deleted_at IS NULL");
+    $stmt = $pdo->prepare("SELECT picture_path, id FROM $table WHERE id = ? ");
     $stmt->execute([$id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

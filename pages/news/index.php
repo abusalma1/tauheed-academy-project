@@ -3,7 +3,7 @@ $title = "Admin School News";
 include(__DIR__ . '/../../includes/header.php');
 
 //  Use PDO instead of MySQLi
-$stmt = $pdo->prepare("SELECT * FROM news WHERE deleted_at IS NULL ORDER BY created_at DESC");
+$stmt = $pdo->prepare("SELECT * FROM news ORDER BY created_at DESC");
 $stmt->execute();
 $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

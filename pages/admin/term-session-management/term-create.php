@@ -38,12 +38,12 @@ if (isset($_GET['id'])) {
 }
 
 // Fetch latest terms
-$stmt = $pdo->prepare("SELECT * FROM terms WHERE session_id = ? AND deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE session_id = ?  ORDER BY updated_at DESC LIMIT 10");
 $stmt->execute([$session_id]);
 $terms_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch all terms for this session
-$stmt = $pdo->prepare("SELECT * FROM terms WHERE session_id = ? AND deleted_at IS NULL");
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE session_id = ? ");
 $stmt->execute([$session_id]);
 $terms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -78,11 +78,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             //  Start transaction
             $pdo->beginTransaction();
+            $stmt = $pdo->prepare('SELECT id  FROM terms WHERE status = ?');
+            $stmt->execute(['ongoing']);
+            $term = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $stmt = $pdo->prepare(
-                "INSERT INTO terms (name, start_date, end_date, session_id) VALUES (?, ?, ?, ?)"
-            );
-            $success = $stmt->execute([$name, $start_date, $end_date, $session_id]);
+            if ($term > 0) {
+                $stmt = $pdo->prepare(
+                    "INSERT INTO terms (name, start_date, end_date, session_id) VALUES (?, ?, ?, ?)"
+                );
+                $success = $stmt->execute([$name, $start_date, $end_date, $session_id]);
+            } else {
+                $stmt = $pdo->prepare(
+                    "INSERT INTO terms (name, status, start_date, end_date, session_id) VALUES (?, ?, ?, ?, ?)"
+                );
+                $success = $stmt->execute([$name, 'ongoing', $start_date, $end_date, $session_id]);
+            }
 
             if ($success) {
                 //  Commit transaction

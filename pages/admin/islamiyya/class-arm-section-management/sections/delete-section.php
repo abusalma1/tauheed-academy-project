@@ -15,14 +15,16 @@ if (!isset($user_type) || $user_type !== 'admin') {
   exit();
 }
 
+// CSRF token setup
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Fetch section to delete
 if (isset($_GET['id'])) {
   $id = (int) $_GET['id'];
 
-  $stmt = $pdo->prepare("SELECT * FROM islamiyya_sections WHERE id = ? AND deleted_at IS NULL");
+  $stmt = $pdo->prepare("SELECT * FROM islamiyya_sections WHERE id = ?");
   $stmt->execute([$id]);
   $section = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -37,6 +39,7 @@ if (isset($_GET['id'])) {
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // CSRF validation
   if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
     die('CSRF validation failed. Please refresh and try again.');
   } else {
@@ -50,15 +53,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if (empty($errors)) {
-    $stmt = $pdo->prepare("UPDATE islamiyya_sections SET deleted_at = NOW() WHERE id = ?");
-    $success = $stmt->execute([$id]);
+    try {
 
-    if ($success) {
-      $_SESSION['success'] = "Islamiyya Section deleted successfully!";
-      header("Location: " . route('back'));
-      exit();
-    } else {
-      echo "<script>alert('Failed to delete an Islamiyya Section');</script>";
+      $stmt = $pdo->prepare("DELETE FROM islamiyya_sections WHERE id = ?");
+      $success = $stmt->execute([$id]);
+
+      if ($success) {
+        $_SESSION['success'] = "Islamiyya Section deleted permanently!";
+        header("Location: " . route('back'));
+        exit();
+      } else {
+        echo "<script>alert('Failed to delete Islamiyya Section');</script>";
+      }
+    } catch (PDOException $e) {
+      echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
     }
   } else {
     foreach ($errors as $field => $error) {

@@ -35,25 +35,19 @@ $stmt = $pdo->prepare("
     FROM sections
     LEFT JOIN teachers AS head_teachers 
         ON sections.head_teacher_id = head_teachers.id
-        AND head_teachers.deleted_at IS NULL
 
     LEFT JOIN classes 
         ON classes.section_id = sections.id
-        AND classes.deleted_at IS NULL
 
     LEFT JOIN class_class_arms 
         ON class_class_arms.class_id = classes.id
-        AND class_class_arms.deleted_at IS NULL
 
     LEFT JOIN teachers AS class_teachers 
         ON class_class_arms.teacher_id = class_teachers.id
-        AND class_teachers.deleted_at IS NULL
 
     LEFT JOIN class_arms 
         ON class_class_arms.arm_id = class_arms.id
-        AND class_arms.deleted_at IS NULL
 
-    WHERE sections.deleted_at IS NULL
     ORDER BY classes.level ASC, class_arms.name ASC
 ");
 

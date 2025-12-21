@@ -15,7 +15,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT * FROM bank_accounts where deleted_at is null");
+$stmt = $pdo->prepare("SELECT * FROM bank_accounts");
 $stmt->execute();
 $accounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

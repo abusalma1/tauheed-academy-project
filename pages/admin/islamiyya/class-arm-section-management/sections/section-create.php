@@ -31,14 +31,11 @@ $stmt = $pdo->prepare("
     FROM islamiyya_sections
     LEFT JOIN teachers 
       ON islamiyya_sections.head_teacher_id = teachers.id
-     AND teachers.deleted_at IS NULL
-    WHERE islamiyya_sections.deleted_at IS NULL
 ");
 $stmt->execute();
 $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch teachers (already filtered by deleted_at in selectAllData helper if used)
-$stmt = $pdo->prepare("SELECT * FROM teachers WHERE deleted_at IS NULL");
+$stmt = $pdo->prepare("SELECT * FROM teachers ");
 $stmt->execute();
 $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -21,7 +21,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 // Fetch latest sessions
-$stmt = $pdo->prepare("SELECT * FROM sessions WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 10");
+$stmt = $pdo->prepare("SELECT * FROM sessions ORDER BY updated_at DESC LIMIT 10");
 $stmt->execute();
 $sessions_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

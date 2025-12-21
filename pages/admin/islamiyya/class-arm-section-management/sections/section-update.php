@@ -22,7 +22,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $stmt = $pdo->prepare('SELECT * FROM islamiyya_sections WHERE id = ? AND deleted_at IS NULL');
+    $stmt = $pdo->prepare('SELECT * FROM islamiyya_sections WHERE id = ? ');
     $stmt->execute([$id]);
     $section = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -36,12 +36,12 @@ if (isset($_GET['id'])) {
 }
 
 // Fetch other Islamiyya sections (excluding current one)
-$stmt = $pdo->prepare("SELECT * FROM islamiyya_sections WHERE id != ? AND deleted_at IS NULL");
+$stmt = $pdo->prepare("SELECT * FROM islamiyya_sections WHERE id != ? ");
 $stmt->execute([$id]);
 $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch teachers (only active ones)
-$stmt = $pdo->prepare("SELECT * FROM teachers WHERE deleted_at IS NULL");
+$stmt = $pdo->prepare("SELECT * FROM teachers");
 $stmt->execute();
 $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare(
             "UPDATE islamiyya_sections 
              SET name = ?, description = ?, head_teacher_id = ? 
-             WHERE id = ? AND deleted_at IS NULL"
+             WHERE id = ? "
         );
         $success = $stmt->execute([$name, $description, $headTeacher, $id]);
 

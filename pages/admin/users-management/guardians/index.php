@@ -21,8 +21,6 @@ $sql = "
     FROM guardians g
     LEFT JOIN students s 
         ON s.guardian_id = g.id
-        AND s.deleted_at IS NULL
-    WHERE g.deleted_at IS NULL
     GROUP BY g.id
     ORDER BY g.name ASC
 ";

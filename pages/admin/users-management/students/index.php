@@ -34,7 +34,6 @@ $stmt = $pdo->prepare("
         ON classes.id = students.class_id
     LEFT JOIN class_arms 
         ON class_arms.id = students.arm_id
-    WHERE students.deleted_at IS NULL
     ORDER BY classes.id, class_arms.id, students.name
 ");
 $stmt->execute();

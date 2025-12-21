@@ -7,7 +7,7 @@ include(__DIR__ .  '/../includes/header.php');
 
 
 // Prepare and execute query
-$stmt = $pdo->prepare("SELECT * FROM news where deleted_at is null ORDER BY created_at DESC LIMIT 6");
+$stmt = $pdo->prepare("SELECT * FROM news ORDER BY created_at DESC LIMIT 6");
 $stmt->execute();
 
 // Fetch all rows as associative arrays

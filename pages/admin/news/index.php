@@ -15,7 +15,7 @@ if (!isset($user_type) || $user_type !== 'admin') {
 }
 
 
-$stmt = $pdo->prepare("SELECT * FROM news WHERE deleted_at IS NULL ORDER BY updated_at DESC");
+$stmt = $pdo->prepare("SELECT * FROM news ORDER BY updated_at DESC");
 $stmt->execute();
 $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
