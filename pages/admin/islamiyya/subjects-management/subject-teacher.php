@@ -8,6 +8,13 @@ if (!$is_logged_in) {
     exit();
 }
 
+
+if (!isset($user_type) || $user_type !== 'admin') {
+    $_SESSION['failure'] = "Access denied! Only Admins are allowed.";
+    header("Location: " . route('home'));
+    exit();
+}
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -29,6 +36,7 @@ $query = "
     FROM islamiyya_class_subjects cs
     INNER JOIN islamiyya_subjects s ON cs.subject_id = s.id
     INNER JOIN islamiyya_classes c ON cs.class_id = c.id
+    WHERE cs.id =?
 ";
 $stmt = $pdo->prepare($query);
 $stmt->execute([$class_subject_id]);

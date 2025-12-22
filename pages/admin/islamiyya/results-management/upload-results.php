@@ -90,9 +90,10 @@ if (isset($_GET['class_id'], $_GET['arm_id'], $_GET['term_id'], $_GET['subject_i
                 AND r.subject_id = ?
             WHERE st.islamiyya_class_id = ? 
             AND st.islamiyya_arm_id = ?
+            AND st.status = ?
             ORDER BY st.admission_number
         ");
-        $stmt->execute([$class_id, $arm_id, $term_id, $subject_id, $class_id, $arm_id]);
+        $stmt->execute([$class_id, $arm_id, $term_id, $subject_id, $class_id, $arm_id, 'active']);
         $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     // CASE 2: past term → use historical records

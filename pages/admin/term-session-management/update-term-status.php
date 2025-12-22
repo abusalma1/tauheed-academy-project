@@ -60,59 +60,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         die('CSRF validation failed. Please refresh and try again.');
     } else {
-        // regenerate after successful validation
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    $id = (int) trim($_POST['termId'] ?? '');
+    $id = (int) ($_POST['termId'] ?? 0);
     $status = trim($_POST['termStatus'] ?? '');
 
-
-    // Validations
     if (empty($status)) {
-        $errors['nameError'] = "Status is required";
+        $errors['statusError'] = "Status is required";
     }
-
 
     if (empty($errors)) {
         try {
-            //  Start transaction
             $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare(
-                "UPDATE terms SET  status = ? WHERE id = ?"
-            );
+            // Update the selected term
+            $stmt = $pdo->prepare("UPDATE terms SET status = ? WHERE id = ?");
             $success = $stmt->execute([$status, $id]);
 
             if ($success) {
-                if ($atatus === 'ongoing') {
-                }
-                $stmt = $pdo->prepare("UPDATE terms set status = ? where status = ? and != ?");
-                $statusChanged = $stmt->execute(['pending', 'ongoing', $id]);
+                if ($status === 'ongoing') {
+                    // Ensure only one ongoing term
+                    $stmt = $pdo->prepare("UPDATE terms SET status = 'pending' WHERE id != ? AND status = 'ongoing'");
+                    $stmt->execute([$id]);
+                } elseif ($status === 'pending' || $status === 'finished') {
+                    // Check if there is still an ongoing term
+                    $stmt = $pdo->query("SELECT id FROM terms WHERE status = 'ongoing' LIMIT 1");
+                    $ongoing = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if ($statusChanged) {
-                    //  Commit transaction
-                    $pdo->commit();
+                    if (!$ongoing) {
+                        // Try to promote next pending term
+                        $stmt = $pdo->prepare("SELECT id FROM terms WHERE id > ? AND status = 'pending' ORDER BY id ASC LIMIT 1");
+                        $stmt->execute([$id]);
+                        $next = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                    $_SESSION['success'] = "Term Status updated successfully!";
-                    header("Location: " . route('back'));
-                    exit();
+                        if ($next) {
+                            $pdo->prepare("UPDATE terms SET status = 'ongoing' WHERE id = ?")->execute([$next['id']]);
+                        } else {
+                            // Try previous pending term
+                            $stmt = $pdo->prepare("SELECT id FROM terms WHERE id < ? AND status = 'pending' ORDER BY id DESC LIMIT 1");
+                            $stmt->execute([$id]);
+                            $prev = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                            if ($prev) {
+                                $pdo->prepare("UPDATE terms SET status = 'ongoing' WHERE id = ?")->execute([$prev['id']]);
+                            } else {
+                                // No candidate found → rollback and error
+                                $pdo->rollBack();
+                                $_SESSION['failure'] = "There must be an active term!";
+                                header("Location: " . route('back'));
+                                exit();
+                            }
+                        }
+                    }
                 }
+
+                $pdo->commit();
+                $_SESSION['success'] = "Term Status updated successfully!";
+                header("Location: " . route('back'));
+                exit();
             } else {
-                //  Rollback if update fails
                 $pdo->rollBack();
-                echo "<script>alert('Failed to update term');</script>";
+                $_SESSION['failure'] = "Failed to update term.";
             }
         } catch (PDOException $e) {
             $pdo->rollBack();
-            echo "<script>alert('Database error: " . htmlspecialchars($e->getMessage()) . "');</script>";
-        }
-    } else {
-        foreach ($errors as $field => $error) {
-            echo "<p class='text-red-600 font-semibold'>$error</p>";
+            $_SESSION['failure'] = "Database error: " . htmlspecialchars($e->getMessage());
         }
     }
 }
+
 
 ?>
 
@@ -232,8 +249,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('termStatusError').classList.remove('hidden');
                 isValid = false;
             }
-
-
 
 
             if (isValid) {

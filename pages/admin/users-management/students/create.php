@@ -30,8 +30,7 @@ $lastAdmissionNumberRow = $stmt->fetch(PDO::FETCH_ASSOC);
 $lastAdmissionNumber = $lastAdmissionNumberRow ? $lastAdmissionNumberRow['admission_number'] : 'No student account exists.';
 
 // Students list
-$stmt = $pdo->prepare("
-    SELECT 
+$stmt = $pdo->prepare("SELECT 
         students.id AS id,
         students.name AS name,
         students.admission_number AS admission_number,
@@ -42,11 +41,15 @@ $stmt = $pdo->prepare("
     FROM students
     LEFT JOIN classes ON students.class_id = classes.id
     LEFT JOIN class_arms ON students.arm_id = class_arms.id
+    ORDER BY students.id DESC
+    LIMIT 10
 ");
+
 $stmt->execute();
-$students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$tableStudents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $guardians = selectAllData('guardians');
+$students = selectAllData('students');
 
 // Fetch classes
 $stmt = $pdo->prepare("
@@ -121,6 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $term            = trim($_POST['term'] ?? '');
     $session         = trim($_POST['session'] ?? '');
     $dob             = trim($_POST['dob'] ?? '');
+    $registrationSession  = trim($_POST['registrationSession'] ?? '');
     $gender          = trim($_POST['gender'] ?? '');
     $guardian        = trim($_POST['guardian'] ?? '');
     $password        = $_POST['password'] ?? '';
@@ -151,6 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (empty($term)) $errors['term'] = "Please select a term.";
     if (empty($dob)) $errors['dob'] = "Date of birth is required.";
+    if (empty($registrationSession)) $errors['registrationSession'] = "Enrollment Session is required.";
     if (empty($gender)) $errors['gender'] = "Gender is required.";
     if (empty($guardian)) $errors['guardian'] = "Guardian is required.";
 
@@ -193,15 +198,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Insert student with both tracks
             $stmt = $pdo->prepare("INSERT INTO students 
-                (name, email, phone, admission_number, dob, gender, password, status, 
+                (name, email, phone, admission_number, dob, registration_session_id, gender, password, status, 
                  class_id, arm_id, term_id, guardian_id, islamiyya_class_id, islamiyya_arm_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
                 $name,
                 $email,
                 $phone,
                 $admissionNumber,
                 $dob,
+                $registrationSession,
                 $gender,
                 $hashed_password,
                 $status,
@@ -393,12 +399,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
                             </div>
+                            <div class="flex gap-4 pt-4 w-full justify-center">
 
-                            <!-- Date of Birth -->
-                            <div>
-                                <label for="dob" class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth *</label>
-                                <input type="date" id="dob" name="dob" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
-                                <span class="text-red-500 text-sm hidden" id="dobError"></span>
+                                <!-- Date of Birth -->
+                                <div class="flex-1 max-w-md">
+                                    <label for="dob" class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth *</label>
+                                    <input type="date" id="dob" name="dob" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                    <span class="text-red-500 text-sm hidden" id="dobError"></span>
+                                </div>
+
+                                <!-- Registration Session -->
+                                <div class="flex-1 max-w-md">
+                                    <label for="registrationSession" class="block text-sm font-semibold text-gray-700 mb-2">Enrollment Session *</label>
+                                    <select id="registrationSession" name="registrationSession" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select session</option>
+                                        <?php foreach ($sessions as $session): ?>
+                                            <option value="<?= $session['id'] ?>" <?= $current_term['session_id'] === $session['id'] ? "selected" : '' ?>>
+                                                <?= $session['name'] ?>
+                                                <?= $current_term['session_id'] === $session['id'] ? "(Current)" : '' ?></option>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <span class="text-red-500 text-sm hidden" id="registrationSessionError"></span>
+                                </div>
                             </div>
 
                             <!-- Gender -->
@@ -548,8 +571,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </thead>
                         <tbody id="studentsTableBody" class="divide-y divide-gray-200">
 
-                            <?php if (count($students) > 0): ?>
-                                <?php foreach ($students as $student): ?>
+                            <?php if (count($tableStudents) > 0): ?>
+                                <?php foreach ($tableStudents as $student): ?>
 
 
                                     <tr class="hover:bg-gray-50">
@@ -694,6 +717,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const studentTerm = document.getElementById('term').value;
             const studentSession = document.getElementById('session').value;
             const dob = document.getElementById('dob').value;
+            const registrationSession = document.getElementById('registrationSession').value;
             const gender = document.getElementById('gender').value;
             const guardian = document.getElementById('guardian').value.trim();
             const password = document.getElementById('password').value;
@@ -783,6 +807,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isValid = false;
             }
 
+            if (!registrationSession) {
+                document.getElementById('registrationSessionError').textContent = 'Enrollment Session is required';
+                document.getElementById('registrationSessionError').classList.remove('hidden');
+                isValid = false;
+            }
 
             if (!gender) {
                 document.getElementById('genderError').textContent = 'Please select a gender';

@@ -29,12 +29,20 @@ SELECT
     sec.name AS section_name,
     cs.id AS class_subject_id
 FROM classes c
-JOIN sections sec ON c.section_id = sec.id
-LEFT JOIN class_class_arms cca ON cca.class_id = c.id
-LEFT JOIN class_arms ca ON ca.id = cca.arm_id
-LEFT JOIN class_subjects cs ON cs.class_id = c.id
-LEFT JOIN teachers t ON cs.teacher_id = t.id
+JOIN sections sec 
+    ON c.section_id = sec.id
+LEFT JOIN class_class_arms cca 
+    ON cca.class_id = c.id
+LEFT JOIN class_arms ca
+     ON ca.id = cca.arm_id
+LEFT JOIN class_subjects cs
+     ON cs.class_id = c.id
+LEFT JOIN subjects subj 
+    ON cs.subject_id = subj.id 
+LEFT JOIN teachers t
+     ON cs.teacher_id = t.id
 ORDER BY c.level, ca.name, subj.name
+
 
 ");
 $stmt->execute();

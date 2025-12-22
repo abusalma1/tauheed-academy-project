@@ -32,14 +32,19 @@ $stmt = $pdo->prepare("
         sec.name AS section_name,
         cs.id AS class_subject_id
     FROM classes c
-    JOIN sections sec ON c.section_id = sec.id
-    LEFT JOIN class_class_arms cca ON cca.class_id = c.id
-    LEFT JOIN class_arms ca ON ca.id = cca.arm_id
-    LEFT JOIN class_subjects cs ON cs.class_id = c.id
-    LEFT JOIN subjects subj ON cs.subject_id = subj.id
-    LEFT JOIN teachers t ON cs.teacher_id = t.id
-
-    AND cs.teacher_id = :teacher_id
+    JOIN sections sec
+         ON c.section_id = sec.id
+    LEFT JOIN class_class_arms cca
+         ON cca.class_id = c.id
+    LEFT JOIN class_arms ca 
+        ON ca.id = cca.arm_id
+    LEFT JOIN class_subjects cs 
+        ON cs.class_id = c.id
+    LEFT JOIN subjects subj
+         ON cs.subject_id = subj.id
+    LEFT JOIN teachers t 
+        ON cs.teacher_id = t.id
+        AND cs.teacher_id = :teacher_id
     ORDER BY c.level, ca.name, subj.name
     ");
 
@@ -89,7 +94,7 @@ $terms    = selectAllData('terms');
 $sessions = selectAllData('sessions');
 
 //  Fetch current term
-$stmt = $pdo->prepare("SELECT * FROM terms WHERE AND status = ?");
+$stmt = $pdo->prepare("SELECT * FROM terms WHERE status = ?");
 $stmt->execute(['ongoing']);
 $current_term = $stmt->fetch(PDO::FETCH_ASSOC);
 

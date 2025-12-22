@@ -72,7 +72,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 foreach ($records as $rec) {
-                    // ... same promotion logic as before for General Studies ...
+                    $student_id = $rec['student_id'];
+                    $old_class_id = $rec['class_id'];
+                    $overall_average = (float) $rec['overall_average'];
+
+                    // Load current islamiyya class level
+                    $stmt2 = $pdo->prepare("SELECT * FROM classes WHERE id=?");
+                    $stmt2->execute([$old_class_id]);
+                    $class = $stmt2->fetch(PDO::FETCH_ASSOC);
+
+                    if ($allow_demotion && $overall_average < $required_average) {
+                        $new_class_id = $old_class_id;
+                        $promotion_status = "repeat";
+                    } else {
+                        // Current level
+                        $current_level = $class['level'];
+
+                        // Find the next possible level greater than current
+                        $stmt2 = $pdo->prepare("SELECT * FROM classes WHERE level > ? ORDER BY level ASC LIMIT 1");
+                        $stmt2->execute([$current_level]);
+
+                        // Fetch the next class
+                        $next_class = $stmt2->fetch(PDO::FETCH_ASSOC);
+
+
+                        if ($next_class) {
+                            $new_class_id = $next_class['id'];
+                            $promotion_status = "promoted";
+                        } else {
+                            $new_class_id = null;
+                            $promotion_status = "promoted";
+                            $pdo->prepare("UPDATE students SET status='inactive' WHERE id=?")->execute([$student_id]);
+                        }
+                    }
+
+                    // Update old islamiyya record
+                    $pdo->prepare("UPDATE islamiyya_student_class_records SET promotion_status=? WHERE student_id=? AND session_id=?")
+                        ->execute([$promotion_status, $student_id, $old_session_id]);
+
+                    // Update student table
+                    $pdo->prepare("UPDATE students SET islamiyya_class_id=?, term_id=? WHERE id=?")
+                        ->execute([$new_class_id, $term_id, $student_id]);
+
+                    // Create new islamiyya records
+                    if ($new_class_id !== null) {
+                        $pdo->prepare("INSERT IGNORE INTO islamiyya_student_class_records (student_id, session_id, class_id) VALUES (?, ?, ?)")
+                            ->execute([$student_id, $new_session_id, $new_class_id]);
+
+                        $new_class_record_id = $pdo->lastInsertId();
+                        $pdo->prepare("INSERT IGNORE INTO islamiyya_student_term_records (student_class_record_id, term_id) VALUES (?, ?)")
+                            ->execute([$new_class_record_id, $term_id]);
+                    }
                 }
             } else {
                 // Same session → only create term records
@@ -109,9 +159,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $new_class_id = $old_class_id;
                         $promotion_status = "repeat";
                     } else {
-                        $next_level = $class['level'] + 1;
-                        $stmt2 = $pdo->prepare("SELECT * FROM islamiyya_classes WHERE level=?");
-                        $stmt2->execute([$next_level]);
+                        $current_level = $class['level'];
+                        $stmt2 = $pdo->prepare("SELECT * FROM islamiyya_classes WHERE level > ? ORDER BY level ASC LIMIT 1");
+                        $stmt2->execute([$current_level]);
                         $next_class = $stmt2->fetch(PDO::FETCH_ASSOC);
 
                         if ($next_class) {
@@ -134,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     // Create new islamiyya records
                     if ($new_class_id !== null) {
-                        $pdo->prepare("INSERT IGNORE INTO islamiyya_student_class_records (student_id, session_id, islamiyya_class_id) VALUES (?, ?, ?)")
+                        $pdo->prepare("INSERT IGNORE INTO islamiyya_student_class_records (student_id, session_id, class_id) VALUES (?, ?, ?)")
                             ->execute([$student_id, $new_session_id, $new_class_id]);
 
                         $new_class_record_id = $pdo->lastInsertId();
@@ -257,7 +307,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                         <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 mb-3">
                                             <input type="checkbox" class="w-4 h-4 text-blue-900" name="allow_demotion" value="1">
-                                            <span class="ml-3 text-gray-700">Allow Demotion (for previou session)</span>
+                                            <span class="ml-3 text-gray-700">Allow Demotion (for previous session), Note: Demotion only works for session</span>
                                         </label>
 
 

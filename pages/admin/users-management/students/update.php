@@ -134,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $term            = trim($_POST['term'] ?? '');
     $session         = trim($_POST['session'] ?? '');
     $dob             = trim($_POST['dob'] ?? '');
+    $registrationSession  = trim($_POST['registrationSession'] ?? '');
     $gender          = trim($_POST['gender'] ?? '');
     $guardian        = trim($_POST['guardian'] ?? '');
     $status          = trim($_POST['status'] ?? 'inactive');
@@ -169,6 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($term)) $errors['term'] = "Please select a term.";
     if (empty($session)) $errors['session'] = "Please select a session.";
     if (empty($dob)) $errors['dob'] = "Date of birth is required.";
+    if (empty($registrationSession)) $errors['registrationSession'] = "Enrollment Session is required.";
     if (empty($gender)) $errors['gender'] = "Gender is required.";
     if (empty($guardian)) $errors['guardian'] = "Guardian is required.";
 
@@ -201,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Update student with both tracks
             $stmt = $pdo->prepare("UPDATE students SET
-            name = ?, email = ?, phone = ?, admission_number = ?, dob = ?, gender = ?, status = ?, 
+            name = ?, email = ?, phone = ?, admission_number = ?, dob = ?, registration_session_id = ?, gender = ?, status = ?, 
             class_id = ?, arm_id = ?, term_id = ?, guardian_id = ?, 
             islamiyya_class_id = ?, islamiyya_arm_id = ?
             WHERE id = ?");
@@ -211,6 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $phone,
                 $admissionNumber,
                 $dob,
+                $registrationSession,
                 $gender,
                 $status,
                 $class_id,
@@ -449,12 +452,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
 
 
+                            <div class="flex gap-4 pt-4 w-full justify-center">
 
-                            <!-- Date of Birth -->
-                            <div>
-                                <label for="dob" class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth *</label>
-                                <input type="date" id="dob" name="dob" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" value="<?= date('Y-m-d', strtotime($student['dob'])) ?>">
-                                <span class="text-red-500 text-sm hidden" id="dobError"></span>
+                                <!-- Date of Birth -->
+                                <div class="flex-1 max-w-md">
+                                    <label for="dob" class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth *</label>
+                                    <input type="date" id="dob" name="dob" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900" value="<?= date('Y-m-d', strtotime($student['dob'])) ?>">
+                                    <span class="text-red-500 text-sm hidden" id="dobError"></span>
+                                </div>
+
+                                <!-- Registration Session -->
+                                <div class="flex-1 max-w-md">
+                                    <label for="registrationSession" class="block text-sm font-semibold text-gray-700 mb-2">Enrollment Session *</label>
+                                    <select id="registrationSession" name="registrationSession" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-900">
+                                        <option value="">Select session</option>
+                                        <?php foreach ($sessions as $session): ?>
+                                            <option value="<?= $session['id'] ?>" <?= $session['id'] === $student['registration_session_id'] ? "selected" : '' ?>>
+                                                <?= $session['name'] ?>
+                                                <?= $current_term['session_id'] === $session['id'] ? "(Current)" : '' ?></option>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <span class="text-red-500 text-sm hidden" id="registrationSessionError"></span>
+                                </div>
                             </div>
 
                             <!-- Gender -->
@@ -615,6 +635,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const studentClass = document.getElementById('class').value;
             const islamiyyaClass = document.getElementById('islamiyyaClass').value;
             const studentTerm = document.getElementById('term').value;
+            const registrationSession = document.getElementById('registrationSession').value;
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
             const guardian = document.getElementById('guardian').value.trim();
@@ -694,6 +715,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('dobError').classList.remove('hidden');
                 isValid = false;
             }
+
+
+            if (!registrationSession) {
+                document.getElementById('registrationSessionError').textContent = 'Enrollment Session is required';
+                document.getElementById('registrationSessionError').classList.remove('hidden');
+                isValid = false;
+            }
+
 
 
             if (!gender) {

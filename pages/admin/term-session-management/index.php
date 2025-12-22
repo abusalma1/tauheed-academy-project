@@ -25,6 +25,8 @@ $stmt = $pdo->prepare("
 
         terms.id AS term_id,
         terms.name AS term_name,
+        terms.status AS term_status,
+
         terms.start_date AS term_start_date,
         terms.end_date AS term_end_date
 
@@ -56,7 +58,8 @@ foreach ($rows as $row) {
             'term_id'        => $row['term_id'],
             'term_name'      => $row['term_name'],
             'term_start_date' => $row['term_start_date'],
-            'term_end_date'  => $row['term_end_date']
+            'term_end_date'  => $row['term_end_date'],
+            'term_status' => $row['term_status']
         ];
     }
 }
@@ -161,7 +164,9 @@ $termsCount    = countDataTotal('terms')['total'];
                             <table class="w-full">
                                 <thead>
                                     <tr class="bg-gray-100 border-b">
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">Term names</th>
+                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">Term name</th>
+                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">Term Status</th>
+
                                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">Start Date</th>
                                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700">End Date</th>
                                         <th class="px-6 py-3 text-center text-sm font-semibold text-slate-700">Actions</th>
@@ -174,6 +179,8 @@ $termsCount    = countDataTotal('terms')['total'];
                                             data-class-name="<?= $term['term_name'] ?>">
 
                                             <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= $term['term_name'] ?></td>
+                                            <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= ucwords    ($term['term_status']) ?></td>
+
 
                                             <td class="px-6 py-4 text-sm font-medium text-slate-900"><?= date('D d M, Y', strtotime($term['term_start_date'])) ?></td>
 

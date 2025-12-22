@@ -160,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     foreach ($classes as $class):
                                         $selected = in_array($class['id'], $linked_class_ids) ? 'selected' : '';
                                     ?>
-                                        <option value="<?= $class['id'] ?>" <?= $selected ?>><?= htmlspecialchars($class['name']) ?></option>
+                                        <option value="<?= $class['id'] ?>" <?= $selected ?>><?= $class['name'] ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 <span class="text-red-500 text-sm hidden" id="classesError"></span>
