@@ -34,11 +34,15 @@ $stmt = $pdo->prepare("
         student_class_records.promotion_status,
         student_class_records.overall_average,
         student_class_records.overall_position
-    FROM student_class_records
-    INNER JOIN students ON students.id = student_class_records.student_id
-    INNER JOIN sessions ON sessions.id = student_class_records.session_id
-    INNER JOIN classes ON classes.id = student_class_records.class_id
-    INNER JOIN class_arms ON class_arms.id = student_class_records.arm_id
+    FROM students
+    LEFT JOIN student_class_records 
+        ON students.id = student_class_records.student_id
+    LEFT JOIN sessions 
+        ON sessions.id = student_class_records.session_id
+    LEFT JOIN classes 
+        ON classes.id = student_class_records.class_id
+    LEFT JOIN class_arms 
+        ON class_arms.id = student_class_records.arm_id
     ORDER BY sessions.id DESC, classes.id, class_arms.id, students.name
 ");
 $stmt->execute();
@@ -48,14 +52,17 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $sessions = [];
 
 foreach ($rows as $row) {
-    $sessionId = $row['session_id'];
-    $classId   = $row['class_id'];
+    // Normalize IDs to avoid null keys
+    $sessionId   = $row['session_id'] ?? 'none';
+    $sessionName = $row['session_name'] ?? 'No Session';
+    $classId     = $row['class_id'] ?? 'none';
+    $className   = $row['class_name'] ?? 'No Class';
 
     // Create session bucket if not exists
     if (!isset($sessions[$sessionId])) {
         $sessions[$sessionId] = [
-            'session_id'   => $row['session_id'],
-            'session_name' => $row['session_name'],
+            'session_id'   => $sessionId,
+            'session_name' => $sessionName,
             'classes'      => []
         ];
     }
@@ -63,8 +70,8 @@ foreach ($rows as $row) {
     // Create class bucket inside session if not exists
     if (!isset($sessions[$sessionId]['classes'][$classId])) {
         $sessions[$sessionId]['classes'][$classId] = [
-            'class_id'   => $row['class_id'],
-            'class_name' => $row['class_name'],
+            'class_id'   => $classId,
+            'class_name' => $className,
             'students'   => []
         ];
     }
@@ -77,10 +84,11 @@ foreach ($rows as $row) {
             'gender'            => $row['gender'],
             'status'            => $row['status'],
             'admission_number'  => $row['admission_number'],
-            'arm_name'          => $row['arm_name']
+            'arm_name'          => $row['arm_name'] ?? 'No Arm'
         ];
     }
 }
+
 
 
 // Other counts
