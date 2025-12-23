@@ -54,9 +54,9 @@ $sessions = [];
 foreach ($rows as $row) {
     // Normalize IDs to avoid null keys
     $sessionId   = $row['session_id'] ?? 'none';
-    $sessionName = $row['session_name'] ?? 'No Session';
+    $sessionName = $row['session_name'] ?? 'All Session';
     $classId     = $row['class_id'] ?? 'none';
-    $className   = $row['class_name'] ?? 'No Class';
+    $className   = $row['class_name'] ?? 'All Classes';
 
     // Create session bucket if not exists
     if (!isset($sessions[$sessionId])) {
@@ -91,10 +91,80 @@ foreach ($rows as $row) {
 
 
 
+$stmt = $pdo->prepare("
+    SELECT 
+        sessions.id AS session_id,
+        sessions.name AS session_name,
+        islamiyya_classes.id AS class_id,
+        islamiyya_classes.name AS class_name,
+        islamiyya_class_arms.id AS arm_id,
+        islamiyya_class_arms.name AS arm_name,
+        students.id AS student_id,
+        students.name AS student_name,
+        students.admission_number,
+        students.gender,
+        students.status,
+        islamiyya_student_class_records.promotion_status,
+        islamiyya_student_class_records.overall_average,
+        islamiyya_student_class_records.overall_position
+    FROM students
+    LEFT JOIN islamiyya_student_class_records 
+        ON students.id = islamiyya_student_class_records.student_id
+    LEFT JOIN sessions 
+        ON sessions.id = islamiyya_student_class_records.session_id
+    LEFT JOIN islamiyya_classes 
+        ON islamiyya_classes.id = islamiyya_student_class_records.class_id
+    LEFT JOIN islamiyya_class_arms 
+        ON islamiyya_class_arms.id = islamiyya_student_class_records.arm_id
+    ORDER BY sessions.id DESC, islamiyya_classes.id, islamiyya_class_arms.id, students.name
+");
+$stmt->execute();
+$islamiyyaRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$islamiyyaSessions = [];
+
+foreach ($islamiyyaRows as $row) {
+    $sessionId   = $row['session_id'] ?? 'none';
+    $sessionName = $row['session_name'] ?? 'No Session';
+    $classId     = $row['class_id'] ?? 'none';
+    $className   = $row['class_name'] ?? 'No Class';
+
+    if (!isset($islamiyyaSessions[$sessionId])) {
+        $islamiyyaSessions[$sessionId] = [
+            'session_id'   => $sessionId,
+            'session_name' => $sessionName,
+            'classes'      => []
+        ];
+    }
+
+    if (!isset($islamiyyaSessions[$sessionId]['classes'][$classId])) {
+        $islamiyyaSessions[$sessionId]['classes'][$classId] = [
+            'class_id'   => $classId,
+            'class_name' => $className,
+            'students'   => []
+        ];
+    }
+
+    if (!empty($row['student_id'])) {
+        $islamiyyaSessions[$sessionId]['classes'][$classId]['students'][] = [
+            'student_id'        => $row['student_id'],
+            'student_name'      => $row['student_name'],
+            'gender'            => $row['gender'],
+            'status'            => $row['status'],
+            'admission_number'  => $row['admission_number'],
+            'arm_name'          => $row['arm_name'] ?? 'No Arm'
+        ];
+    }
+}
+
+
 // Other counts
 $classesCount        = countDataTotal('classes')['total'];
 $armsCount           = countDataTotal('class_arms')['total'];
 $sectionsCount       = countDataTotal('sections')['total'];
+$islamiyyaClassesCount        = countDataTotal('islamiyya_classes')['total'];
+$islamiyyaArmsCount           = countDataTotal('islamiyya_class_arms')['total'];
+$islamiyyaSectionsCount       = countDataTotal('islamiyya_sections')['total'];
 $studentsCountList   = countDataTotal('students', true);
 $studentsCount       = $studentsCountList['total'];
 $totalActiveStudents = $studentsCountList['active'];
@@ -102,6 +172,9 @@ $academicSessions = selectAllData('sessions');
 $terms = selectAllData('terms');
 $classesFilterList = selectAllData('classes');
 
+$sectionsCount += $islamiyyaSectionsCount;
+$classesCount += $islamiyyaClassesCount;
+$armsCount += $islamiyyaArmsCount;
 
 $currentSession = null;
 
@@ -191,6 +264,14 @@ foreach ($terms as $term) {
                             <?php endforeach; ?>
                         </select>
                     </div>
+
+                    <!-- session Filter -->
+                    <div class="mb-6"> <label class="block text-sm font-semibold text-gray-700 mb-2">Filter By Sections</label> <select id="sectionFilter" class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900">
+                            <option value="general" selected>General Stu. Sections</option>
+                            <option value="islamiyya">Islamiyya Sections</option>
+                        </select>
+                    </div>
+
                     <div class="flex items-center">
                         <a id="createBtn" href="<?= route('student-create') ?>" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-center font-semibold">
                             <i class="fas fa-plus mr-2"></i>Create New
@@ -203,8 +284,123 @@ foreach ($terms as $term) {
 
 
             <!-- Students by Class -->
-            <div id="studentsByClassContainer" class="space-y-8">
+            <div id="studentsByClassContainerGeneral" class="general space-y-8">
                 <?php foreach ($sessions as $session): ?>
+                    <div class="student-session-group space-y-8" data-session="<?= $session['session_id'] ?>">
+                        <?php foreach ($session['classes'] as $class): ?>
+
+                            <div class="student-class-group bg-white rounded-lg shadow-lg overflow-hidden" data-id="<?= $class['class_id'] ?>">
+
+                                <div class="bg-gradient-to-r from-orange-900 to-orange-700 text-white p-6">
+                                    <h3 class="text-2xl font-bold"><?= $class['class_name'] ?> class Of <?= htmlspecialchars($session['session_name']) ?></h3>
+                                    <p class="text-sm opacity-90"><?= count($class['students']) ?> students</p>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gray-100 border-b">
+                                            <tr>
+                                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Name</th>
+                                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Admission #</th>
+                                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Arm</th>
+                                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Status</th>
+                                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($class['students'] as $student): ?>
+                                                <tr class="border-b hover:bg-gray-50 student-row" data-search="<?= $student['student_name'] . ' ' . $student['admission_number'] ?>">
+                                                    <td class="px-6 py-4 text-sm text-gray-900"><?= $student['student_name'] ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-600"><?= $student['admission_number'] ?></td>
+                                                    <td class="px-6 py-4 text-sm"><span class="px-3 py-1 bg-blue-100 text-blue-900 rounded-full text-xs font-semibold"><?= $student['arm_name'] ?></span></td>
+                                                    <td class="px-6 py-4 text-sm">
+                                                        <span class="px-3 py-1 <?= $student['status'] === 'active' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900' ?> rounded-full text-xs font-semibold capitalize"><?= $student['status'] ?></span>
+                                                    </td>
+                                                    <td class="px-6 py-4 text-sm space-x-2">
+                                                        <!-- Details link stays separate -->
+                                                        <a href="<?= route('view-user-details') . '?id=' . $student['student_id'] . '&type=student' ?>"
+                                                            class="text-purple-600 hover:text-green-800 font-semibold">
+                                                            <i class="fas fa-eye"></i> View Details
+                                                        </a>
+
+                                                        <!-- Edit dropdown -->
+                                                        <div class="relative inline-block text-left">
+                                                            <!-- Trigger link -->
+                                                            <a href="#"
+                                                                onclick="toggleResultsDropdown(event)"
+                                                                class="resultsTrigger text-green-600 hover:text-green-800 font-semibold flex items-center">
+                                                                <i class="fas fa-edit mr-2"></i> Manage Account
+                                                                <svg class="ml-1 h-4 w-4 text-green-600 hover:text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                                </svg>
+                                                            </a>
+
+                                                            <!-- Dropdown menu -->
+                                                            <div class="resultsDropdown absolute mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out z-10">
+                                                                <div class="py-2">
+                                                                    <a href="<?= route('update-user-password') . '?id=' . $student['student_id'] . '&user_type=student' ?>"
+                                                                        class="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100 hover:text-blue-800 font-semibold">
+                                                                        <i class="fas fa-lock mr-2"></i> Edit Password
+                                                                    </a>
+                                                                    <a href="<?= route('student-update') . '?id=' . $student['student_id'] ?>"
+                                                                        class="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100 hover:text-green-800 font-semibold">
+                                                                        <i class="fas fa-edit mr-2"></i> Edit Profile
+                                                                    </a>
+                                                                    <a href="<?= route('upload-student-picture') . '?id=' . $student['student_id'] ?>"
+                                                                        class="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100 hover:text-green-800 font-semibold">
+                                                                        <i class="fas fa-upload mr-2"></i> Upload Picture
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Results dropdown (unchanged) -->
+                                                        <div class="relative inline-block text-left">
+                                                            <a href="#"
+                                                                onclick="toggleResultsDropdown(event)"
+                                                                class="resultsTrigger text-purple-600 hover:text-green-800 font-semibold flex items-center">
+                                                                <i class="fas fa-eye mr-2"></i> View Results
+                                                                <svg class="ml-1 h-4 w-4 text-purple-600 hover:text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                                </svg>
+                                                            </a>
+
+                                                            <div class="resultsDropdown absolute mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out z-10">
+                                                                <div class="py-2">
+                                                                    <a href="<?= route('admin-student-result') . '?id=' . $student['student_id'] ?>"
+                                                                        class="block px-4 py-2 text-sm text-purple-600 hover:bg-gray-100 hover:text-green-800 font-semibold">
+                                                                        <i class="fas fa-list mr-2"></i> General Result History
+                                                                    </a>
+                                                                    <a href="<?= route('admin-student-islamiyya-result') . '?id=' . $student['student_id'] ?>"
+                                                                        class="block px-4 py-2 text-sm text-purple-600 hover:bg-gray-100 hover:text-green-800 font-semibold">
+                                                                        <i class="fas fa-book-quran mr-2"></i> Islamiyya Result History
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Delete link -->
+                                                        <a href="<?= route('delete-user') . '?id=' . $student['student_id'] ?>&table=students&type=Student"
+                                                            class="text-red-600 hover:text-red-800 font-semibold">
+                                                            <i class="fas fa-trash"></i> Delete
+                                                        </a>
+                                                    </td>
+
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+
+            </div>
+
+            <div id="studentsByClassContainerIslamiyya" class="islamiyya hidden space-y-8">
+                <?php foreach ($islamiyyaSessions as $session): ?>
                     <div class="student-session-group space-y-8" data-session="<?= $session['session_id'] ?>">
                         <?php foreach ($session['classes'] as $class): ?>
 
@@ -414,6 +610,23 @@ foreach ($terms as $term) {
 
         // run once on page load so default selection is applied
         applySessionFilter();
+
+        function applySectionFilter() {
+            const selectedSection = document.getElementById('sectionFilter').value;
+            const generalContainer = document.getElementById('studentsByClassContainerGeneral');
+            const islamiyyaContainer = document.getElementById('studentsByClassContainerIslamiyya');
+            if (selectedSection === '' || selectedSection === 'general') {
+                generalContainer.classList.remove('hidden');
+                islamiyyaContainer.classList.add('hidden');
+            } else if (selectedSection === 'islamiyya') {
+                islamiyyaContainer.classList.remove('hidden');
+                generalContainer.classList.add('hidden');
+            }
+        }
+        // Run once on page load 
+        document.addEventListener('DOMContentLoaded', applySectionFilter);
+        // Also run whenever the filter changes 
+        document.getElementById('sectionFilter').addEventListener('change', applySectionFilter);
     </script>
 </body>
 
