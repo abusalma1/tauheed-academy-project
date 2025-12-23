@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 16, 2025 at 02:11 PM
+-- Generation Time: Dec 23, 2025 at 08:26 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -45,7 +45,6 @@ CREATE TABLE `admins` (
   `phone` varchar(20) DEFAULT NULL,
   `picture_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -53,8 +52,8 @@ CREATE TABLE `admins` (
 -- Dumping data for table `admins`
 --
 
-INSERT INTO `admins` (`id`, `name`, `email`, `password`, `reset_token`, `reset_expires`, `type`, `staff_no`, `address`, `qualification`, `experience`, `gender`, `department`, `status`, `phone`, `created_at`,`updated_at`) VALUES
-(1, 'Super Admin', 'superadmin@email.com', '$2y$10$bUZPk9sINCfqwty1GQttsOCV0XmbW5vsmsusziT5JtifMQ4br2XjW', NULL, NULL, 'superAdmin', 'STAFF/A/001', 'Address Address', 'Qualification', 'Experiance', 'male', 'Super Admin', 'active', '08012345678', '2025-11-28 03:02:17', '2025-12-09 09:46:25');
+INSERT INTO `admins` (`id`, `name`, `email`, `password`, `reset_token`, `reset_expires`, `type`, `staff_no`, `address`, `qualification`, `experience`, `gender`, `department`, `status`, `phone`, `picture_path`, `created_at`, `updated_at`) VALUES
+(1, 'Super Admin', 'superadmin@emial.com', '$2y$10$bUZPk9sINCfqwty1GQttsOCV0XmbW5vsmsusziT5JtifMQ4br2XjW', NULL, NULL, 'superAdmin', 'STAFF/A/001', 'addressaddress addressaddress', 'qualification qualificationqualification qualification', 'experienceexperience experienceexperience experience', 'male', 'Super Admin', 'active', '+234 01 23457 689', NULL, '2025-12-23 07:24:18', '2025-12-23 07:25:19');
 
 -- --------------------------------------------------------
 
@@ -69,7 +68,6 @@ CREATE TABLE `bank_accounts` (
   `account_number` varchar(34) DEFAULT NULL,
   `purpose` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -85,7 +83,6 @@ CREATE TABLE `classes` (
   `name` varchar(100) NOT NULL,
   `level` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -100,7 +97,6 @@ CREATE TABLE `class_arms` (
   `name` varchar(100) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -115,7 +111,6 @@ CREATE TABLE `class_class_arms` (
   `arm_id` int(11) NOT NULL,
   `teacher_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -131,7 +126,6 @@ CREATE TABLE `class_subjects` (
   `subject_id` int(11) NOT NULL,
   `teacher_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -153,7 +147,6 @@ CREATE TABLE `fees` (
   `registration` decimal(10,2) DEFAULT NULL,
   `pta` decimal(10,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -178,7 +171,6 @@ CREATE TABLE `guardians` (
   `reset_token` varchar(255) DEFAULT NULL,
   `reset_expires` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -194,7 +186,6 @@ CREATE TABLE `islamiyya_classes` (
   `name` varchar(100) NOT NULL,
   `level` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -209,7 +200,6 @@ CREATE TABLE `islamiyya_class_arms` (
   `name` varchar(100) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -224,7 +214,6 @@ CREATE TABLE `islamiyya_class_class_arms` (
   `arm_id` int(11) NOT NULL,
   `teacher_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -240,7 +229,6 @@ CREATE TABLE `islamiyya_class_subjects` (
   `subject_id` int(11) NOT NULL,
   `teacher_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -258,7 +246,6 @@ CREATE TABLE `islamiyya_fees` (
   `third_term` decimal(10,2) DEFAULT NULL,
   `materials` decimal(10,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -278,7 +265,6 @@ CREATE TABLE `islamiyya_results` (
   `grade` varchar(2) DEFAULT NULL,
   `remark` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -294,7 +280,6 @@ CREATE TABLE `islamiyya_sections` (
   `description` text DEFAULT NULL,
   `head_teacher_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -315,7 +300,6 @@ CREATE TABLE `islamiyya_student_class_records` (
   `overall_position` int(11) DEFAULT NULL,
   `promotion_status` enum('promoted','repeat','pending') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -335,7 +319,6 @@ CREATE TABLE `islamiyya_student_term_records` (
   `class_size` int(11) DEFAULT NULL,
   `overall_grade` varchar(5) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -349,7 +332,6 @@ CREATE TABLE `islamiyya_subjects` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -368,7 +350,6 @@ CREATE TABLE `news` (
   `publication_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `status` enum('draft','published') DEFAULT 'draft',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -388,7 +369,6 @@ CREATE TABLE `results` (
   `grade` varchar(2) DEFAULT NULL,
   `remark` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -414,7 +394,6 @@ CREATE TABLE `schools` (
   `admission_number_format` varchar(255) DEFAULT NULL,
   `admission_number_format_description` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -423,7 +402,7 @@ CREATE TABLE `schools` (
 --
 
 INSERT INTO `schools` (`id`, `name`, `motto`, `address`, `phone`, `email`, `about_message`, `welcome_message`, `whatsapp_number`, `facebook`, `twitter`, `instagram`, `admission_number_format`, `admission_number_format_description`, `created_at`, `updated_at`) VALUES
-(1, 'Tauheed Academy', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-16 13:10:05', '2025-12-16 13:10:05');
+(1, 'Tauheed Academy', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-23 07:21:56', '2025-12-23 07:21:56');
 
 -- --------------------------------------------------------
 
@@ -437,7 +416,6 @@ CREATE TABLE `sections` (
   `description` text DEFAULT NULL,
   `head_teacher_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -452,9 +430,7 @@ CREATE TABLE `sessions` (
   `name` varchar(100) NOT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
-  `status` enum('pending','ongoing','finished') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -483,8 +459,8 @@ CREATE TABLE `students` (
   `term_id` int(11) DEFAULT NULL,
   `islamiyya_class_id` int(11) DEFAULT NULL,
   `islamiyya_arm_id` int(11) DEFAULT NULL,
+  `registration_session_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -505,7 +481,6 @@ CREATE TABLE `student_class_records` (
   `overall_position` int(11) DEFAULT NULL,
   `promotion_status` enum('promoted','repeat','pending') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -525,7 +500,6 @@ CREATE TABLE `student_term_records` (
   `class_size` int(11) DEFAULT NULL,
   `overall_grade` varchar(5) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -539,7 +513,6 @@ CREATE TABLE `subjects` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -565,7 +538,6 @@ CREATE TABLE `teachers` (
   `reset_token` varchar(255) DEFAULT NULL,
   `reset_expires` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -580,7 +552,6 @@ CREATE TABLE `teacher_section` (
   `teacher_id` int(11) NOT NULL,
   `section_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -598,7 +569,6 @@ CREATE TABLE `terms` (
   `end_date` date DEFAULT NULL,
   `status` enum('pending','ongoing','finished') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -785,7 +755,8 @@ ALTER TABLE `students`
   ADD KEY `arm_id` (`arm_id`),
   ADD KEY `term_id` (`term_id`),
   ADD KEY `islamiyya_class_id` (`islamiyya_class_id`),
-  ADD KEY `islamiyya_arm_id` (`islamiyya_arm_id`);
+  ADD KEY `islamiyya_arm_id` (`islamiyya_arm_id`),
+  ADD KEY `registration_session_id` (`registration_session_id`);
 
 --
 -- Indexes for table `student_class_records`
@@ -1117,7 +1088,8 @@ ALTER TABLE `students`
   ADD CONSTRAINT `students_ibfk_3` FOREIGN KEY (`arm_id`) REFERENCES `class_arms` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `students_ibfk_4` FOREIGN KEY (`term_id`) REFERENCES `terms` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `students_ibfk_5` FOREIGN KEY (`islamiyya_class_id`) REFERENCES `islamiyya_classes` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `students_ibfk_6` FOREIGN KEY (`islamiyya_arm_id`) REFERENCES `islamiyya_class_arms` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `students_ibfk_6` FOREIGN KEY (`islamiyya_arm_id`) REFERENCES `islamiyya_class_arms` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `students_ibfk_7` FOREIGN KEY (`registration_session_id`) REFERENCES `sessions` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `student_class_records`
