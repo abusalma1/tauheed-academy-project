@@ -15,7 +15,6 @@ if (!isset($user_type) || $user_type !== 'teacher') {
 }
 
 
-
 if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_id']) && isset($_GET['arm_id'])) {
     $class_id   = (int) $_GET['class_id'];
     $session_id = (int) $_GET['session_id'];
@@ -100,6 +99,9 @@ if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_
 
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+
+            <?php include(__DIR__ . '/../../includes/components/subject-result-sheet.php'); ?>
             <!-- Main Content -->
             <div id="studentsByClassContainer" class="space-y-8">
 
@@ -153,7 +155,7 @@ if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_
                         class="bg-gray-400 hover:bg-gray-500 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
                         <i class="fas fa-edit"></i>Update
                     </a>
-                    <button onclick="printTable()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
+                    <button onclick="printReportCard('result')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
                         <i class="fas fa-print"></i>Print
                     </button>
                 </div>
@@ -166,6 +168,24 @@ if (isset($_GET['class_id']) && isset($_GET['term_id']) && isset($_GET['subject_
 
 
     <script>
+        function printReportCard(divId) {
+            // Grab only the div content
+            var html = document.getElementById(divId).outerHTML;
+
+            // Send to PHP
+            fetch("<?= route('print') ?>", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: "html=" + encodeURIComponent(html),
+                })
+                .then((response) => response.blob())
+                .then((blob) => {
+                    var url = window.URL.createObjectURL(blob);
+                    window.open(url); // open PDF in new tab
+                });
+        }
     </script>
 </body>
 

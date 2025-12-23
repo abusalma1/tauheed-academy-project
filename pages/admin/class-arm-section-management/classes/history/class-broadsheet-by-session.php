@@ -84,14 +84,18 @@ $overallResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Main Content -->
     <section class="py-12 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <?php include(__DIR__ . '/../../../../../includes/components/class-result-sheet.php'); ?>
 
             <!-- Overall Class Results Table -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-                <div class="bg-blue-900 text-white px-6 py-4">
+                <div class="bg-blue-900 text-white px-6 py-4 flex items-center justify-between">
                     <h3 class="text-lg font-semibold flex items-center gap-2">
                         <i class="fas fa-list"></i>
                         Overall Class Results – <?= count($overallResults) ?> Students
                     </h3>
+                    <button onclick="printReportCard('result')" class="bg-white text-blue-900 px-4 py-1 rounded   rounded-lg font-semibold hover:bg-blue-100">
+                        PRINT
+                    </button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -135,6 +139,26 @@ $overallResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Footer -->
     <?php include(__DIR__ . '/../../../../../includes/footer.php'); ?>
 
+    <script>
+        function printReportCard(divId) {
+            // Grab only the div content
+            var html = document.getElementById(divId).outerHTML;
+
+            // Send to PHP
+            fetch("<?= route('print') ?>", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: "html=" + encodeURIComponent(html),
+                })
+                .then((response) => response.blob())
+                .then((blob) => {
+                    var url = window.URL.createObjectURL(blob);
+                    window.open(url); // open PDF in new tab
+                });
+        }
+    </script>
 
 </body>
 

@@ -491,8 +491,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-save"></i> Save All Results
                         </button>
 
-                        <button onclick="printTable()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
-                            <i class="fas fa-print"></i>Print
+                        <button type="button" onclick="window.history.back()" class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
+                            <i class="fas fa-arrow-left"></i> Back
                         </button>
                     </div>
                 </div>
@@ -632,12 +632,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 calculateRow(this); // update total, grade, remark
             });
         });
-
-
-
-        function printTable() {
-            window.print();
-        }
     </script>
 </body>
 

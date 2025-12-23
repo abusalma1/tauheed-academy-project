@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute(['ongoing']);
             $term = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($term > 0) {
+            if (count($term) > 0) {
                 $stmt = $pdo->prepare(
                     "INSERT INTO terms (name, start_date, end_date, session_id) VALUES (?, ?, ?, ?)"
                 );

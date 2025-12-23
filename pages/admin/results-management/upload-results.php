@@ -536,16 +536,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Action Buttons -->
                 <div class="flex justify-center mt-8">
-                    <div class="grid md:grid-cols-3 gap-4">
+                    <div class="grid md:grid-cols-2      gap-4">
                         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
                             <i class="fas fa-save"></i> Save All Results
                         </button>
                         <button type="button" onclick="window.history.back()" class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
                             <i class="fas fa-arrow-left"></i> Back
                         </button>
-                        <button onclick="printTable()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition">
-                            <i class="fas fa-print"></i>Print
-                        </button>
+                     
                     </div>
                 </div>
 
@@ -686,10 +684,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
 
-
-        function printTable() {
-            window.print();
-        }
     </script>
 </body>
 
